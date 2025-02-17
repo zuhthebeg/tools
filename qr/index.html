@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator & Scanner - Online Tool</title>
+    <meta name="description" content="Generate and scan QR codes instantly. Supports URL, text, contact info and WiFi credentials. Works on all devices.">
+    <meta name="keywords" content="QR code generator, QR 코드 생성기, online QR tool, QR 코드 스캐너, create QR code, 모바일 QR 생성">
+    <meta name="author" content="cocy.io">
+    <meta property="og:title" content="Online QR Code Generator & Scanner">
+    <meta property="og:description" content="Free web-based QR code creation and scanning tool with real-time preview">
+    <meta property="og:image" content="https://tool.cocy.io/qr/icon.svg">
+    <meta property="og:url" content="https://tool.cocy.io/qr/">
+    <link rel="canonical" href="https://tool.cocy.io/qr/" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            background: #f8f9fa;
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 15px;
+        }
+        .qr-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        #qrcode {
+            margin-top: 1.5rem;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        video {
+            border-radius: 8px;
+            background: black;
+        }
+    </style>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-TDHR6X9N');</script>
+        <!-- End Google Tag Manager -->
+</head>
+<body>
+        <!-- Google Tag Manager (noscript) -->
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TDHR6X9N"
+            height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+            <!-- End Google Tag Manager (noscript) -->
+    <div class="container">
+        <h1 class="text-center mb-5 display-4">QR Code Generator & Scanner</h1>
+        
+        <div class="qr-section">
+            <h2>QR Generator</h2>
+            <div class="input-group mb-3">
+                <input type="text" id="qrText" class="form-control" placeholder="Enter text or URL">
+                <button onclick="generateQR()" class="btn btn-primary">Generate</button>
+            </div>
+            <div id="qrcode"></div>
+        </div>
+
+        <div class="qr-section">
+            <h2>QR Scanner</h2>
+            <div class="ratio ratio-1x1 mb-3">
+                <video id="scanner" class="bg-dark"></video>
+            </div>
+            <div id="scanResult" class="alert alert-info" style="display:none;"></div>
+            <div id="copyAlert" class="alert alert-success mt-2" style="display:none;"></div>
+            <button onclick="toggleScanner()" id="scanBtn" class="btn btn-success w-100">Start Scan</button>
+        </div>
+    </div>
+
+    <script>
+        function generateQR() {
+            let qrText = document.getElementById("qrText").value;
+            document.getElementById("qrcode").innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), qrText);
+        }
+
+        let scanner = null;
+        const scanBtn = document.getElementById('scanBtn');
+        const scanResult = document.getElementById('scanResult');
+
+        async function toggleScanner() {
+            if (!scanner) {
+                try {
+                    scanner = new Instascan.Scanner({ video: document.getElementById('scanner') });
+                    scanner.addListener('scan', async content => {
+                        const isURL = /^(https?:\/\/)/i.test(content);
+                        
+                        // URL 처리
+                        if(isURL) {
+                            if(confirm(`Open this URL?\n${content}`)) {
+                                window.location.href = content;
+                            }
+                            scanResult.innerHTML = `Detected URL: <a href="${content}" target="_blank">${content}</a>`;
+                        } 
+                        // 일반 텍스트 처리
+                        else {
+                            try {
+                                await navigator.clipboard.writeText(content);
+                                document.getElementById('copyAlert').textContent = `Copied to clipboard: ${content}`;
+                                document.getElementById('copyAlert').style.display = 'block';
+                                setTimeout(() => {
+                                    document.getElementById('copyAlert').style.display = 'none';
+                                }, 3000);
+                            } catch (err) {
+                                console.error('Failed to copy:', err);
+                            }
+                            scanResult.textContent = `Scan Result: ${content}`;
+                        }
+                        
+                        scanResult.style.display = 'block';
+                    });
+                    
+                    const cameras = await Instascan.Camera.getCameras();
+                    if (cameras.length > 0) {
+                        await scanner.start(cameras[0]);
+                        scanBtn.textContent = 'Stop Scan';
+                    } else {
+                        throw new Error('No cameras found');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert('Camera access is required');
+                }
+            } else {
+                scanner.stop();
+                scanner = null;
+                scanBtn.textContent = 'Start Scan';
+                scanResult.style.display = 'none';
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/instascan/1.0.0/instascan.min.js"></script>
+</body>
+</html>
