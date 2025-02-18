@@ -52,6 +52,15 @@
         })(window,document,'script','dataLayer','GTM-TDHR6X9N');</script>
         <!-- End Google Tag Manager -->
 </head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KLF3L6R84V"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-KLF3L6R84V');
+</script>
 <body>
         <!-- Google Tag Manager (noscript) -->
         <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TDHR6X9N"
@@ -90,55 +99,56 @@
         let scanner = null;
         const scanBtn = document.getElementById('scanBtn');
         const scanResult = document.getElementById('scanResult');
-
+        const videoElement = document.getElementById('scanner');
+        
+        async function checkCameraAccess() {
+            try {
+                await navigator.mediaDevices.getUserMedia({ video: true });
+                return true;
+            } catch (err) {
+                console.error("Camera access denied: ", err);
+                alert("Camera access is required for scanning QR codes.");
+                return false;
+            }
+        }
+        
         async function toggleScanner() {
-            if (!scanner) {
-                try {
-                    scanner = new Instascan.Scanner({ video: document.getElementById('scanner') });
-                    scanner.addListener('scan', async content => {
-                        const isURL = /^(https?:\/\/)/i.test(content);
-                        
-                        // URL 처리
-                        if(isURL) {
-                            if(confirm(`Open this URL?\n${content}`)) {
-                                window.location.href = content;
-                            }
-                            scanResult.innerHTML = `Detected URL: <a href="${content}" target="_blank">${content}</a>`;
-                        } 
-                        // 일반 텍스트 처리
-                        else {
-                            try {
-                                await navigator.clipboard.writeText(content);
-                                document.getElementById('copyAlert').textContent = `Copied to clipboard: ${content}`;
-                                document.getElementById('copyAlert').style.display = 'block';
-                                setTimeout(() => {
-                                    document.getElementById('copyAlert').style.display = 'none';
-                                }, 3000);
-                            } catch (err) {
-                                console.error('Failed to copy:', err);
-                            }
-                            scanResult.textContent = `Scan Result: ${content}`;
-                        }
-                        
-                        scanResult.style.display = 'block';
-                    });
-                    
-                    const cameras = await Instascan.Camera.getCameras();
-                    if (cameras.length > 0) {
-                        await scanner.start(cameras[0]);
-                        scanBtn.textContent = 'Stop Scan';
-                    } else {
-                        throw new Error('No cameras found');
-                    }
-                } catch (error) {
-                    console.error(error);
-                    alert('Camera access is required');
-                }
-            } else {
+            if (scanner) {
                 scanner.stop();
                 scanner = null;
                 scanBtn.textContent = 'Start Scan';
                 scanResult.style.display = 'none';
+                return;
+            }
+    
+            if (!(await checkCameraAccess())) return;
+    
+            try {
+                scanner = new Instascan.Scanner({ video: videoElement });
+                scanner.addListener('scan', async content => {
+                    const isURL = /^(https?:\/\/)/i.test(content);
+                    if (isURL) {
+                        if (confirm(`Open this URL?\n${content}`)) {
+                            window.location.href = content;
+                        }
+                        scanResult.innerHTML = `Detected URL: <a href="${content}" target="_blank">${content}</a>`;
+                    } else {
+                        await navigator.clipboard.writeText(content);
+                        scanResult.textContent = `Scan Result: ${content} (Copied!)`;
+                    }
+                    scanResult.style.display = 'block';
+                });
+    
+                const cameras = await Instascan.Camera.getCameras();
+                if (cameras.length > 0) {
+                    await scanner.start(cameras[0]);
+                    scanBtn.textContent = 'Stop Scan';
+                } else {
+                    throw new Error('No cameras found');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Error accessing the camera.');
             }
         }
     </script>
