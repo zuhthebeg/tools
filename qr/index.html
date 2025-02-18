@@ -89,8 +89,10 @@
         </div>
     </div>
 
-    <script>
-        function generateQR() {
+       
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+<script>
+     function generateQR() {
             let qrText = document.getElementById("qrText").value;
             document.getElementById("qrcode").innerHTML = "";
             new QRCode(document.getElementById("qrcode"), qrText);
@@ -100,58 +102,55 @@
         const scanBtn = document.getElementById('scanBtn');
         const scanResult = document.getElementById('scanResult');
         const videoElement = document.getElementById('scanner');
-        
+    
         async function checkCameraAccess() {
             try {
                 await navigator.mediaDevices.getUserMedia({ video: true });
                 return true;
             } catch (err) {
-                console.error("Camera access denied: ", err);
+                console.error("Camera access denied:", err);
                 alert("Camera access is required for scanning QR codes.");
                 return false;
             }
         }
-        
+    
         async function toggleScanner() {
             if (scanner) {
-                scanner.stop();
-                scanner = null;
-                scanBtn.textContent = 'Start Scan';
-                scanResult.style.display = 'none';
+                scanner.stop().then(() => {
+                    scanner.clear();
+                    scanner = null;
+                    scanBtn.textContent = 'Start Scan';
+                    scanResult.style.display = 'none';
+                });
                 return;
             }
     
             if (!(await checkCameraAccess())) return;
     
             try {
-                scanner = new Instascan.Scanner({ video: videoElement });
-                scanner.addListener('scan', async content => {
-                    const isURL = /^(https?:\/\/)/i.test(content);
-                    if (isURL) {
-                        if (confirm(`Open this URL?\n${content}`)) {
-                            window.location.href = content;
-                        }
-                        scanResult.innerHTML = `Detected URL: <a href="${content}" target="_blank">${content}</a>`;
-                    } else {
-                        await navigator.clipboard.writeText(content);
-                        scanResult.textContent = `Scan Result: ${content} (Copied!)`;
+                scanner = new Html5Qrcode("scanner");
+                scanner.start(
+                    { facingMode: "environment" }, // 후면 카메라 우선
+                    { fps: 10, qrbox: 250 },
+                    qrCodeMessage => {
+                        scanResult.innerHTML = `Scan Result: <b>${qrCodeMessage}</b>`;
+                        scanResult.style.display = 'block';
+                        navigator.clipboard.writeText(qrCodeMessage).catch(err => console.error("Clipboard error:", err));
+                    },
+                    errorMessage => {
+                        console.warn("QR scan failed:", errorMessage);
                     }
-                    scanResult.style.display = 'block';
-                });
-    
-                const cameras = await Instascan.Camera.getCameras();
-                if (cameras.length > 0) {
-                    await scanner.start(cameras[0]);
+                ).then(() => {
                     scanBtn.textContent = 'Stop Scan';
-                } else {
-                    throw new Error('No cameras found');
-                }
+                }).catch(err => {
+                    console.error("Camera error:", err);
+                    alert("Failed to start the camera.");
+                });
             } catch (error) {
                 console.error(error);
                 alert('Error accessing the camera.');
             }
         }
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/instascan/1.0.0/instascan.min.js"></script>
 </body>
 </html>
