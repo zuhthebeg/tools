@@ -180,57 +180,40 @@
             new QRCode(document.getElementById("qrcode"), qrText);
         }
 
-        let scanner = null;
-        const scanBtn = document.getElementById('scanBtn');
-        const scanResult = document.getElementById('scanResult');
-        const videoElement = document.getElementById('scanner');
-    
-        async function checkCameraAccess() {
-            try {
-                await navigator.mediaDevices.getUserMedia({ video: true });
-                return true;
-            } catch (err) {
-                console.error("Camera access denied:", err);
-                alert("Camera access is required for scanning QR codes.");
-                return false;
-            }
-        }
-    
+        let html5QrCode = null;
+
         async function toggleScanner() {
-            if (scanner) {
-                scanner.stop().then(() => {
-                    scanner.clear();
-                    scanner = null;
-                    scanBtn.textContent = 'Start Scan';
-                    scanResult.style.display = 'none';
-                });
+            const scanBtn = document.getElementById('scanBtn');
+            const scanResult = document.getElementById('scanResult');
+            
+            if (html5QrCode && html5QrCode.isScanning) {
+                await html5QrCode.stop();
+                scanBtn.textContent = 'Start Scan';
+                scanResult.style.display = 'none';
                 return;
             }
-    
-            if (!(await checkCameraAccess())) return;
-    
+
             try {
-                scanner = new Html5Qrcode("scanner");
-                scanner.start(
-                    { facingMode: "environment" }, // 후면 카메라 우선
-                    { fps: 10, qrbox: 250 },
-                    qrCodeMessage => {
-                        scanResult.innerHTML = `Scan Result: <b>${qrCodeMessage}</b>`;
+                html5QrCode = new Html5Qrcode("scanner");
+                const config = { 
+                    fps: 10, 
+                    qrbox: { width: 250, height: 250 } 
+                };
+
+                await html5QrCode.start(
+                    { facingMode: "environment" },
+                    config,
+                    decodedText => {
+                        scanResult.innerHTML = `Scan Result: <b>${decodedText}</b>`;
                         scanResult.style.display = 'block';
-                        navigator.clipboard.writeText(qrCodeMessage).catch(err => console.error("Clipboard error:", err));
-                    },
-                    errorMessage => {
-                        console.warn("QR scan failed:", errorMessage);
+                        navigator.clipboard.writeText(decodedText);
                     }
-                ).then(() => {
-                    scanBtn.textContent = 'Stop Scan';
-                }).catch(err => {
-                    console.error("Camera error:", err);
-                    alert("Failed to start the camera.");
-                });
-            } catch (error) {
-                console.error(error);
-                alert('Error accessing the camera.');
+                );
+                scanBtn.textContent = 'Stop Scan';
+            } catch (err) {
+                console.error("Camera error:", err);
+                alert(`Camera error: ${err.message || 'Check camera permissions'}`);
+                scanBtn.textContent = 'Start Scan';
             }
         }
     </script>
