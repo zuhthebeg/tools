@@ -1,24 +1,32 @@
 document.addEventListener('DOMContentLoaded', function() {
     fetchIPInfo(); // Show the user's IP on page load
+    
+    // 엔터 키 이벤트 리스너 추가
+    document.getElementById('domain').addEventListener('keypress', function(e) {
+        if(e.key === 'Enter') lookup();
+    });
+    document.getElementById('ipInput').addEventListener('keypress', function(e) {
+        if(e.key === 'Enter') fetchIPInfo();
+    });
 });
 
 function fetchIPInfo() {
     const ipInput = document.getElementById('ipInput');
-    const ip = ipInput.value || 'myip'; // If no IP entered, fetch the user's IP
+    const ip = ipInput.value || ''; // 'myip' 대신 빈 문자열 사용
     const url = `https://ipapi.co/${ip}/json/`;
 
     fetch(url)
         .then(response => response.json())
         .then(data => {
             const resultDiv = document.getElementById('ipResult');
-            if (data.error) {
-                resultDiv.innerHTML = `<pre>Error: ${data.reason}</pre>`;
+            if (data.error || ip === 'myip') {  // myip 체크 추가
+                resultDiv.innerHTML = `<pre>${data.reason || 'Failed to get IP information'}</pre>`;
             } else {
                 resultDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
             }
         })
         .catch(error => {
-            document.getElementById('ipResult').innerHTML = `<pre>An error occurred: ${error.message}</pre>`;
+            document.getElementById('ipResult').innerHTML = `<pre>Connection error: ${error.message}</pre>`;
         });
 }
 
