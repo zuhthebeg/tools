@@ -26,13 +26,14 @@
 
         body {
             margin: 0;
-            padding: 1rem 1rem 0;
+            padding: 0 1rem;
             min-height: 100vh;
             font-family: 'Segoe UI', system-ui;
             background: var(--background);
             color: var(--text);
-            display: grid;
-            place-items: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .container {
@@ -42,6 +43,7 @@
             padding: 2rem;
             border-radius: 1rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: 1rem;
         }
 
         .grid {
@@ -104,7 +106,7 @@
         }
 
         h1 {
-            margin: 0 0 2rem;
+            margin: 1rem 0;
             text-align: center;
             color: var(--primary);
         }
@@ -153,6 +155,25 @@
             </div>
         </div>
     </div>
+
+    <!-- 푸터 추가 -->
+    <footer style="
+        margin-top: 2rem;
+        padding: 1rem;
+        text-align: center;
+        color: rgba(255,255,255,0.7);
+        font-size: 0.9rem;
+        width: 100%;
+        max-width: 800px;
+    ">
+        <p style="margin: 0;">
+            © 2025 Base64 Converter. 
+            <a href="https://cocy.io" 
+               style="color: #90caf9; text-decoration: none;"
+               target="_blank">COCY.IO</a> 
+            All rights reserved.
+        </p>
+    </footer>
 
     <script>
         function getCharset() {

@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="IP and Domain Lookup Tool">
     <meta name="keywords" content="IP, Domain, Lookup, DNS">
+        <!-- Google AdSense -->
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607"
+        crossorigin="anonymous"></script>
     <title>IP & Domain Lookup Tool</title>
     <style>
         body {
@@ -17,6 +20,7 @@
             color: #e8e8e8;
             min-height: 100vh;
             padding: 20px 0;
+            justify-content: flex-start;
         }
         .container {
             background: #333;
@@ -72,6 +76,21 @@
         pre {
             margin: 0;
         }
+        footer {
+            margin-top: auto;
+            padding: 1rem 0;
+        }
+        footer a:hover {
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+        }
+        @media (max-width: 600px) {
+            footer {
+                font-size: 0.8rem;
+                padding: 1rem;
+                border-top: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -85,6 +104,27 @@
         <button onclick="fetchIPInfo()">Get IP Info</button>
         <div id="ipResult"></div>
     </div>
+
+    <!-- 푸터 추가 -->
+    <footer style="
+        margin-top: 2rem;
+        padding: 1.5rem;
+        text-align: center;
+        color: rgba(255,255,255,0.7);
+        font-size: 0.9rem;
+        width: 100%;
+        max-width: 600px;
+        border-top: 1px solid #404040;
+    ">
+        <p style="margin: 0;">
+            © 2025 Network Tools. 
+            <a href="https://cocy.io" 
+               style="color: #7fbfff; text-decoration: none;"
+               target="_blank">COCY.IO</a> 
+            All rights reserved.
+        </p>
+    </footer>
+
     <script src="script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
