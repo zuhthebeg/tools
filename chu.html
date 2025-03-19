@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>츄의 궁금증 체크 페이지</title>
+    <meta name="description" content="츄의 궁금증을 체크하고 특정 행동을 카운트 및 시간을 합산하는 페이지입니다. 다크 테마로 모던하게 디자인되었습니다.">
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #1e1e1e;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .count-button {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .count-button.red { background-color: #e57373; }
+        .count-button.green { background-color: #81c784; }
+        .count-button.blue { background-color: #64b5f6; }
+
+        .time-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .time-toggle {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .time-toggle label {
+            margin-right: 10px;
+        }
+
+        .time-display {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>츄의 궁금증 체크</h1>
+
+        <div class="button-group">
+            <button class="count-button red" data-count="red">0</button>
+            <button class="count-button green" data-count="green">0</button>
+            <button class="count-button blue" data-count="blue">0</button>
+        </div>
+
+        <div class="time-group">
+            <div class="time-toggle">
+                <label>시간 체크 1:</label>
+                <input type="checkbox" id="toggle1">
+            </div>
+            <div class="time-toggle">
+                <label>시간 체크 2:</label>
+                <input type="checkbox" id="toggle2">
+            </div>
+            <div class="time-display">합산 시간: <span id="total-time">0</span>초</div>
+        </div>
+    </div>
+
+    <script>
+        const countButtons = document.querySelectorAll('.count-button');
+        const toggles = document.querySelectorAll('.time-toggle input');
+        const totalTimeDisplay = document.getElementById('total-time');
+
+        let counts = { red: 0, green: 0, blue: 0 };
+        let startTimes = [0, 0];
+
+        countButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const color = button.dataset.count;
+                counts[color]++;
+                button.textContent = counts[color];
+            });
+        });
+
+        toggles.forEach((toggle, index) => {
+            toggle.addEventListener('change', () => {
+                if (toggle.checked) {
+                    startTimes[index] = Date.now();
+                } else {
+                    if (startTimes[index] > 0) {
+                        const endTime = Date.now();
+                        const elapsedTime = Math.floor((endTime - startTimes[index]) / 1000);
+                        totalTime += elapsedTime;
+                        totalTimeDisplay.textContent = totalTime;
+                        startTimes[index] = 0;
+                    }
+                }
+            });
+        });
+
+        let totalTime = 0;
+    </script>
+</body>
+</html>
