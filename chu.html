@@ -62,13 +62,23 @@
             margin-bottom: 10px;
         }
 
-        .time-toggle label {
-            margin-right: 10px;
+        .time-toggle button {
+            width: 60px;
+            height: 30px;
+            border-radius: 15px;
+            border: none;
+            background-color: #424242;
+            color: white;
+            cursor: pointer;
+        }
+
+        .time-toggle button.active {
+            background-color: #29b6f6;
         }
 
         .time-display {
             font-size: 1.2em;
-            margin-top: 10px;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -85,23 +95,28 @@
         <div class="time-group">
             <div class="time-toggle">
                 <label>시간 체크 1:</label>
-                <input type="checkbox" id="toggle1">
+                <button data-toggle="1">시작/정지</button>
+                <div class="time-display" id="time1">0초</div>
             </div>
             <div class="time-toggle">
                 <label>시간 체크 2:</label>
-                <input type="checkbox" id="toggle2">
+                <button data-toggle="2">시작/정지</button>
+                <div class="time-display" id="time2">0초</div>
             </div>
-            <div class="time-display">합산 시간: <span id="total-time">0</span>초</div>
+            <div class="time-display">총 합산 시간: <span id="total-time">0</span>초</div>
         </div>
     </div>
 
     <script>
         const countButtons = document.querySelectorAll('.count-button');
-        const toggles = document.querySelectorAll('.time-toggle input');
+        const timeToggles = document.querySelectorAll('.time-toggle button');
+        const timeDisplays = document.querySelectorAll('.time-display');
         const totalTimeDisplay = document.getElementById('total-time');
 
         let counts = { red: 0, green: 0, blue: 0 };
         let startTimes = [0, 0];
+        let elapsedTimes = [0, 0];
+        let intervals = [null, null];
 
         countButtons.forEach(button => {
             button.addEventListener('click', () => {
@@ -111,23 +126,30 @@
             });
         });
 
-        toggles.forEach((toggle, index) => {
-            toggle.addEventListener('change', () => {
-                if (toggle.checked) {
-                    startTimes[index] = Date.now();
+        timeToggles.forEach((toggle, index) => {
+            toggle.addEventListener('click', () => {
+                const toggleIndex = parseInt(toggle.dataset.toggle) - 1;
+                toggle.classList.toggle('active');
+
+                if (toggle.classList.contains('active')) {
+                    startTimes[toggleIndex] = Date.now();
+                    intervals[toggleIndex] = setInterval(() => {
+                        const currentTime = Date.now();
+                        const elapsedTime = elapsedTimes[toggleIndex] + Math.floor((currentTime - startTimes[toggleIndex]) / 1000);
+                        timeDisplays[toggleIndex].textContent = elapsedTime + '초';
+                        elapsedTimes[toggleIndex] = elapsedTime;
+                        updateTotalTime();
+                    }, 1000);
                 } else {
-                    if (startTimes[index] > 0) {
-                        const endTime = Date.now();
-                        const elapsedTime = Math.floor((endTime - startTimes[index]) / 1000);
-                        totalTime += elapsedTime;
-                        totalTimeDisplay.textContent = totalTime;
-                        startTimes[index] = 0;
-                    }
+                    clearInterval(intervals[toggleIndex]);
                 }
             });
         });
 
-        let totalTime = 0;
+        function updateTotalTime() {
+            const totalTime = elapsedTimes.reduce((acc, curr) => acc + curr, 0);
+            totalTimeDisplay.textContent = totalTime + '초';
+        }
     </script>
 </body>
 </html>
