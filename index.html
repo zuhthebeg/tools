@@ -27,6 +27,145 @@
     
     <!-- 기본 스타일 -->
     <link href="https://cocy.io/common.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #1a1a1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        .container {
+            background: #2d2d2d;
+            border: 1px solid #404040;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        .qr-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-bottom: 2.5rem;
+            transition: all 0.3s ease;
+        }
+        #qrcode {
+            margin: 1.5rem auto;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        video {
+            border-radius: 8px;
+            background: #000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        footer {
+            margin: 2rem auto 0;
+            padding: 1.5rem;
+            text-align: center;
+            max-width: 800px;
+            width: 90%;
+            border-top: 1px solid #333;
+            color: rgba(255,255,255,0.8);
+        }
+        footer a {
+            color: #7fbfff; 
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        footer a:hover {
+            color: #a0d2ff;
+            text-decoration: underline;
+        }
+        h1.text-center {
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .qr-section h2 {
+            color: #2d2d2d;
+            text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+            margin-bottom: 1.2rem;
+            font-weight: 700;
+            border-bottom: 3px solid #7fbfff;
+            padding-bottom: 0.7rem;
+            display: inline-block;
+        }
+        .btn {
+            font-weight: 600;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-primary, .btn-success, .btn-danger {
+            padding: 0.5rem 1.5rem;
+        }
+        .btn-primary:hover, .btn-success:hover, .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .alert {
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        /* 반응형 미디어 쿼리 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem auto;
+                padding: 1.5rem;
+                width: 95%;
+            }
+            .qr-section {
+                padding: 1.5rem;
+            }
+            h1.text-center {
+                font-size: 2.2rem;
+                margin-bottom: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .container {
+                padding: 1rem;
+                margin: 0.5rem auto;
+            }
+            .qr-section {
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            h1.text-center {
+                font-size: 1.8rem;
+                margin-bottom: 1rem;
+            }
+            footer {
+                font-size: 0.8rem;
+                padding: 1rem;
+            }
+        }
+        
+        /* QR 코드 디스플레이 개선 */
+        #qrcode img {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 8px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* 스캐너 비디오 비율 조정 */
+        .scanner-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+    </style>
 </head>
     <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-KLF3L6R84V"></script>
@@ -174,5 +313,128 @@
             await createGameCards();
         });
     </script>
+
+    <script>
+    async function toggleScanner() {
+        const scanBtn = document.getElementById('scanBtn');
+        const scanResult = document.getElementById('scanResult');
+        const copyAlert = document.getElementById('copyAlert');
+
+        if (html5QrCode && html5QrCode.isScanning) {
+            await html5QrCode.stop();
+            scanBtn.textContent = 'Start Scan';
+            scanBtn.classList.replace('btn-danger', 'btn-success');
+            scanResult.style.display = 'none';
+            return;
+        }
+
+        try {
+            html5QrCode = new Html5Qrcode("scanner");
+            const config = { 
+                fps: 10,
+                qrbox: { width: 250, height: 250 }
+            };
+
+            await html5QrCode.start(
+                { facingMode: "environment" }, // 후면 카메라 사용으로 변경
+                config,
+                decodedText => {
+                    scanResult.innerHTML = `Scan Result: <b>${decodedText}</b>`;
+                    scanResult.style.display = 'block';
+                    navigator.clipboard.writeText(decodedText)
+                        .then(() => {
+                            copyAlert.textContent = "QR 코드 내용이 클립보드로 복사되었습니다!";
+                            copyAlert.style.display = 'block';
+                            setTimeout(() => copyAlert.style.display = 'none', 2000);
+                        })
+                        .catch(err => {
+                            console.error("클립보드 복사 오류:", err);
+                            copyAlert.textContent = "클립보드 복사 실패. 브라우저 권한을 확인하세요.";
+                            copyAlert.style.display = 'block';
+                            setTimeout(() => copyAlert.style.display = 'none', 2000);
+                        });
+                },
+                error => {
+                    // 스캔 중 오류는 무시 (지속적인 스캔 유지)
+                }
+            );
+            scanBtn.textContent = 'Stop Scan';
+            scanBtn.classList.replace('btn-success', 'btn-danger');
+        } catch (err) {
+            console.error("Camera error:", err);
+            alert(`카메라 오류: ${err.message || '웹 브라우저 설정에서 카메라 권한을 허용해 주세요.'}`);
+        }
+    }
+    </script>
+
+    <script>
+    function generateQR() {
+        let qrText = document.getElementById("qrText").value.trim();
+        document.getElementById("qrcode").innerHTML = "";
+        
+        // QR 코드 생성 전 검증
+        if (qrText === "") {
+            showAlert("생성할 텍스트를 입력해주세요.", "warning");
+            return;
+        }
+        
+        if (qrText.length > 1000) { // QR 코드 최대 길이 제한
+            showAlert("QR 코드는 최대 1000자까지 지원합니다. 현재 " + qrText.length + "자입니다.", "danger");
+            return;
+        }
+        
+        try {
+            new QRCode(document.getElementById("qrcode"), {
+                text: qrText,
+                width: 200,
+                height: 200,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            showAlert("QR 코드가 생성되었습니다.", "success");
+        } catch (err) {
+            console.error("QR 생성 오류:", err);
+            showAlert("QR 코드 생성에 실패했습니다.", "danger");
+        }
+    }
+
+    // 알림 표시 함수
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} mt-2`;
+        alertDiv.textContent = message;
+        
+        const qrCodeElement = document.getElementById("qrcode");
+        qrCodeElement.parentNode.insertBefore(alertDiv, qrCodeElement.nextSibling);
+        
+        setTimeout(() => alertDiv.remove(), 3000);
+    }
+    </script>
+
+    <div class="qr-section">
+        <h2>QR Scanner</h2>
+        <div class="scanner-container">
+            <div class="ratio ratio-1x1 mb-3">
+                <video id="scanner" class="bg-dark"></video>
+            </div>
+        </div>
+        <div id="scanResult" class="alert alert-info" style="display:none;"></div>
+        <div id="copyAlert" class="alert alert-success mt-2" style="display:none;"></div>
+        <button onclick="toggleScanner()" id="scanBtn" class="btn btn-success w-100">Start Scan</button>
+    </div>
+
+    <div class="qr-section">
+        <h2>QR Generator</h2>
+        <div class="form-group mb-3">
+            <label for="qrText" class="form-label text-dark mb-2">텍스트 또는 URL 입력:</label>
+            <div class="input-group">
+                <input type="text" id="qrText" class="form-control" placeholder="텍스트나 URL을 입력하세요">
+                <button onclick="generateQR()" class="btn btn-primary">생성</button>
+            </div>
+            <small class="text-muted mt-1">최대 1000자까지 입력 가능합니다.</small>
+        </div>
+        <div id="qrcode" class="text-center"></div>
+    </div>
 </body>
 </html>

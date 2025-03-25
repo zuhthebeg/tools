@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>츄의 궁금증 체크 페이지</title>
+    <meta name="description" content="츄의 궁금증을 체크하고 특정 행동을 카운트 및 시간을 합산하는 페이지입니다. 다크 테마로 모던하게 디자인되었습니다.">
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #1e1e1e;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .count-button {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .count-button.red { background-color: #e57373; }
+        .count-button.green { background-color: #81c784; }
+        .count-button.blue { background-color: #64b5f6; }
+
+        .count-button .edit-icon {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        .time-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .time-toggle {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .time-toggle button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background-color: #424242;
+            color: white;
+            cursor: pointer;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .time-toggle button.active {
+            background-color: #29b6f6;
+        }
+
+        .time-display {
+            font-size: 1.2em;
+            margin-top: 5px;
+        }
+
+        .time-label {
+            flex: 1;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .time-label-text {
+            margin-right: 5px;
+        }
+
+        .edit-icon {
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+
+        .reset-button {
+            background-color: #e53935;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .modal-content {
+            background-color: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            background-color: #424242;
+            border: none;
+            border-radius: 4px;
+            color: white;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .modal-button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .save-button {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .cancel-button {
+            background-color: #757575;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>츄의 궁금증 체크</h1>
+
+        <div class="button-group">
+            <button class="count-button red" data-count="red">
+                <span class="button-label" id="red-label">🔴</span>
+                <span id="red-count">0</span>
+                <span class="edit-icon">✏️</span>
+            </button>
+            <button class="count-button green" data-count="green">
+                <span class="button-label" id="green-label">🟢</span>
+                <span id="green-count">0</span>
+                <span class="edit-icon">✏️</span>
+            </button>
+            <button class="count-button blue" data-count="blue">
+                <span class="button-label" id="blue-label">🫐</span>
+                <span id="blue-count">0</span>
+                <span class="edit-icon">✏️</span>
+            </button>
+        </div>
+
+        <div class="time-group">
+            <div class="time-toggle">
+                <div class="time-label">
+                    <span class="time-label-text" id="time-label-1">시간 체크 1</span>
+                    <span class="edit-icon" data-target="time-label-1">✏️</span>
+                </div>
+                <button data-toggle="1">▶️</button>
+                <div class="time-display" id="time1">0.0초</div>
+            </div>
+            <div class="time-toggle">
+                <div class="time-label">
+                    <span class="time-label-text" id="time-label-2">시간 체크 2</span>
+                    <span class="edit-icon" data-target="time-label-2">✏️</span>
+                </div>
+                <button data-toggle="2">▶️</button>
+                <div class="time-display" id="time2">0.0초</div>
+            </div>
+            <div class="time-display">총 합산 시간: <span id="total-time">0.0</span>초</div>
+        </div>
+
+        <button id="reset-button" class="reset-button">모든 데이터 초기화</button>
+    </div>
+
+    <div class="modal" id="edit-modal">
+        <div class="modal-content">
+            <h3 id="modal-title">텍스트 수정</h3>
+            <input type="text" id="edit-input">
+            <div class="modal-buttons">
+                <button class="modal-button save-button" id="save-button">저장</button>
+                <button class="modal-button cancel-button" id="cancel-button">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 데이터 초기화 및 로컬 스토리지 불러오기
+        let counts = { red: 0, green: 0, blue: 0 };
+        let buttonLabels = { red: "🔴", green: "🟢", blue: "🫐" };
+        let timeLabels = { 1: "시간 체크 1", 2: "시간 체크 2" };
+        let elapsedTimes = [0, 0];
+        let timerRunning = [false, false];
+        let timerStartTimes = [0, 0];
+        let timerIntervals = [null, null];
+        let currentEditTarget = null;
+
+        // 로컬 스토리지에서 데이터 불러오기
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('chuData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                counts = data.counts || counts;
+                buttonLabels = data.buttonLabels || buttonLabels;
+                timeLabels = data.timeLabels || timeLabels;
+                elapsedTimes = data.elapsedTimes || elapsedTimes;
+                
+                // UI 업데이트
+                updateUI();
+            }
+        }
+
+        // 로컬 스토리지에 데이터 저장
+        function saveToLocalStorage() {
+            const data = {
+                counts,
+                buttonLabels,
+                timeLabels,
+                elapsedTimes
+            };
+            localStorage.setItem('chuData', JSON.stringify(data));
+        }
+
+        // UI 업데이트
+        function updateUI() {
+            // 카운트 업데이트
+            document.getElementById('red-count').textContent = counts.red;
+            document.getElementById('green-count').textContent = counts.green;
+            document.getElementById('blue-count').textContent = counts.blue;
+            
+            // 버튼 라벨 업데이트
+            document.getElementById('red-label').textContent = buttonLabels.red;
+            document.getElementById('green-label').textContent = buttonLabels.green;
+            document.getElementById('blue-label').textContent = buttonLabels.blue;
+            
+            // 시간 라벨 업데이트
+            document.getElementById('time-label-1').textContent = timeLabels[1];
+            document.getElementById('time-label-2').textContent = timeLabels[2];
+            
+            // 시간 표시 업데이트
+            document.getElementById('time1').textContent = elapsedTimes[0].toFixed(1) + '초';
+            document.getElementById('time2').textContent = elapsedTimes[1].toFixed(1) + '초';
+            
+            // 총 시간 업데이트
+            updateTotalTime();
+        }
+
+        // 총 시간 업데이트
+        function updateTotalTime() {
+            const totalTime = elapsedTimes.reduce((acc, curr) => acc + curr, 0);
+            document.getElementById('total-time').textContent = totalTime.toFixed(1);
+        }
+
+        // 모달 관련 함수
+        const modal = document.getElementById('edit-modal');
+        const editInput = document.getElementById('edit-input');
+        const modalTitle = document.getElementById('modal-title');
+        const saveButton = document.getElementById('save-button');
+        const cancelButton = document.getElementById('cancel-button');
+
+        function openModal(title, initialValue, targetId, targetType) {
+            modalTitle.textContent = title;
+            editInput.value = initialValue;
+            currentEditTarget = { id: targetId, type: targetType };
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            currentEditTarget = null;
+        }
+
+        // 버튼 클릭 이벤트
+        const countButtons = document.querySelectorAll('.count-button');
+        countButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                if (e.target.classList.contains('edit-icon')) {
+                    const color = button.dataset.count;
+                    openModal(
+                        `${color} 버튼 텍스트 수정`, 
+                        buttonLabels[color], 
+                        color, 
+                        'button'
+                    );
+                } else {
+                    const color = button.dataset.count;
+                    counts[color]++;
+                    document.getElementById(color + '-count').textContent = counts[color];
+                    saveToLocalStorage();
+                }
+            });
+        });
+
+        // 타이머 토글 이벤트
+        const timeToggles = document.querySelectorAll('.time-toggle button');
+        timeToggles.forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const toggleIndex = parseInt(toggle.dataset.toggle) - 1;
+                
+                // 타이머 상태 전환
+                timerRunning[toggleIndex] = !timerRunning[toggleIndex];
+                
+                // UI 업데이트
+                if (timerRunning[toggleIndex]) {
+                    toggle.textContent = '⏸️';
+                    toggle.classList.add('active');
+                    timerStartTimes[toggleIndex] = Date.now();
+                    
+                    // 타이머 시작
+                    timerIntervals[toggleIndex] = setInterval(() => {
+                        const currentTime = (Date.now() - timerStartTimes[toggleIndex]) / 1000;
+                        elapsedTimes[toggleIndex] += 0.1;  // 0.1초씩 증가
+                        document.getElementById(`time${toggleIndex + 1}`).textContent = 
+                            elapsedTimes[toggleIndex].toFixed(1) + '초';
+                        updateTotalTime();
+                        saveToLocalStorage();
+                    }, 100);
+                } else {
+                    toggle.textContent = '▶️';
+                    toggle.classList.remove('active');
+                    clearInterval(timerIntervals[toggleIndex]);
+                }
+            });
+        });
+
+        // 시간 라벨 수정 이벤트
+        const timeEditIcons = document.querySelectorAll('.time-label .edit-icon');
+        timeEditIcons.forEach(icon => {
+            icon.addEventListener('click', () => {
+                const targetId = icon.dataset.target;
+                const labelNumber = targetId.split('-')[2];
+                openModal(
+                    `시간 라벨 수정`, 
+                    timeLabels[labelNumber], 
+                    labelNumber, 
+                    'time'
+                );
+            });
+        });
+
+        // 저장 버튼 이벤트
+        saveButton.addEventListener('click', () => {
+            const newValue = editInput.value.trim();
+            
+            if (currentEditTarget.type === 'button') {
+                buttonLabels[currentEditTarget.id] = newValue;
+                document.getElementById(`${currentEditTarget.id}-label`).textContent = newValue;
+            } else if (currentEditTarget.type === 'time') {
+                timeLabels[currentEditTarget.id] = newValue;
+                document.getElementById(`time-label-${currentEditTarget.id}`).textContent = newValue;
+            }
+            
+            saveToLocalStorage();
+            closeModal();
+        });
+
+        // 취소 버튼 이벤트
+        cancelButton.addEventListener('click', closeModal);
+
+        // 초기화 버튼 이벤트
+        document.getElementById('reset-button').addEventListener('click', () => {
+            if (confirm('모든 데이터를 초기화하시겠습니까?')) {
+                // 타이머 중지
+                timerIntervals.forEach((interval, index) => {
+                    if (interval) {
+                        clearInterval(interval);
+                        timerIntervals[index] = null;
+                    }
+                });
+                
+                // 데이터 초기화
+                counts = { red: 0, green: 0, blue: 0 };
+                buttonLabels = { red: "🔴", green: "🟢", blue: "🫐" };
+                timeLabels = { 1: "시간 체크 1", 2: "시간 체크 2" };
+                elapsedTimes = [0, 0];
+                timerRunning = [false, false];
+                
+                // UI 업데이트
+                timeToggles.forEach(toggle => {
+                    toggle.textContent = '▶️';
+                    toggle.classList.remove('active');
+                });
+                
+                updateUI();
+                saveToLocalStorage();
+            }
+        });
+
+        // 페이지 로드 시 초기화
+        loadFromLocalStorage();
+    </script>
+</body>
+</html>

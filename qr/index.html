@@ -183,39 +183,49 @@
         let html5QrCode = null;
 
         async function toggleScanner() {
-            const scanBtn = document.getElementById('scanBtn');
-            const scanResult = document.getElementById('scanResult');
-            
-            if (html5QrCode && html5QrCode.isScanning) {
-                await html5QrCode.stop();
-                scanBtn.textContent = 'Start Scan';
-                scanResult.style.display = 'none';
-                return;
-            }
+    const scanBtn = document.getElementById('scanBtn');
+    const scanResult = document.getElementById('scanResult');
+    const copyAlert = document.getElementById('copyAlert'); // 클립보드 알림 요소
 
-            try {
-                html5QrCode = new Html5Qrcode("scanner");
-                const config = { 
-                    fps: 10, 
-                    qrbox: { width: 250, height: 250 } 
-                };
+    if (html5QrCode && html5QrCode.isScanning) {
+        await html5QrCode.stop();
+        scanBtn.textContent = 'Start Scan';
+        scanResult.style.display = 'none';
+        return;
+    }
 
-                await html5QrCode.start(
-                    { facingMode: "environment" },
-                    config,
-                    decodedText => {
-                        scanResult.innerHTML = `Scan Result: <b>${decodedText}</b>`;
-                        scanResult.style.display = 'block';
-                        navigator.clipboard.writeText(decodedText);
-                    }
-                );
-                scanBtn.textContent = 'Stop Scan';
-            } catch (err) {
-                console.error("Camera error:", err);
-                alert(`Camera error: ${err.message || 'Check camera permissions'}`);
-                scanBtn.textContent = 'Start Scan';
+    try {
+        html5QrCode = new Html5Qrcode("scanner");
+        const config = { 
+            fps: 20, // FPS 증가
+            qrbox: { width: 250, height: 250 } 
+        };
+
+        await html5QrCode.start(
+            { facingMode: "user" }, // 전면 카메라 사용
+            config,
+            decodedText => {
+                scanResult.innerHTML = `Scan Result: <b>${decodedText}</b>`;
+                scanResult.style.display = 'block';
+                navigator.clipboard.writeText(decodedText)
+                    .then(() => {
+                        copyAlert.textContent = "QR 코드 내용이 클립보드로 복사되었습니다!";
+                        copyAlert.style.display = 'block';
+                        setTimeout(() => copyAlert.style.display = 'none', 2000); // 2초 후 알림 숨김
+                    })
+                    .catch(err => {
+                        console.error("클립보드 복사 오류:", err);
+                        alert("QR 코드 내용을 클립보드로 복사하는 데 실패했습니다.");
+                    });
             }
-        }
+        );
+        scanBtn.textContent = 'Stop Scan';
+    } catch (err) {
+        console.error("Camera error:", err);
+        alert(`카메라 오류: ${err.message || '웹 브라우저 설정에서 카메라 권한을 허용해 주세요.'}`);
+        scanBtn.textContent = 'Start Scan';
+    }
+}
     </script>
 </body>
 </html>
