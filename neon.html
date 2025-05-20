@@ -153,65 +153,114 @@
     </div>
   </div>
 
-  <script>
-    const textInput = document.getElementById('textInput');
-    const neonText = document.getElementById('neonText');
-    const neonColor = document.getElementById('neonColor');
-    const marqueeCheck = document.getElementById('marqueeCheck');
-    const rainbowCheck = document.getElementById('rainbowCheck');
-    const fontSizeSlider = document.getElementById('fontSizeSlider');
-    const fontSizeVal = document.getElementById('fontSizeVal');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const controls = document.getElementById('controls');
-    const container = document.getElementById('neonContainer');
-    const neonWrapper = document.querySelector('.neon-wrapper');
+ <script>
+  const textInput = document.getElementById('textInput');
+  const neonText = document.getElementById('neonText');
+  const neonColor = document.getElementById('neonColor');
+  const marqueeCheck = document.getElementById('marqueeCheck');
+  const rainbowCheck = document.getElementById('rainbowCheck');
+  const fontSizeSlider = document.getElementById('fontSizeSlider');
+  const fontSizeVal = document.getElementById('fontSizeVal');
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+  const controls = document.getElementById('controls');
+  const container = document.getElementById('neonContainer');
 
-    function updateStyle() {
-      neonText.textContent = textInput.value || '네온사인 텍스트';
-      neonText.style.setProperty('--neon-color', neonColor.value);
+  // 로컬스토리지 키
+  const STORAGE_KEY = 'neonSignOptions';
 
-      // 글씨크기
-      const fontSize = fontSizeSlider.value;
-      neonText.style.setProperty('--font-size', fontSize + 'rem');
-      fontSizeVal.textContent = fontSize;
+  // 옵션 불러오기
+  function loadOptions() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const opt = JSON.parse(saved);
+        textInput.value = opt.text ?? '';
+        neonColor.value = opt.color ?? '#00ffff';
+        fontSizeSlider.value = opt.size ?? 4;
+        fontSizeVal.textContent = opt.size ?? 4;
+        marqueeCheck.checked = !!opt.marquee;
+        rainbowCheck.checked = !!opt.rainbow;
+      } catch {}
+    }
+  }
 
-      // 효과 적용
-      container.classList.toggle('marquee', marqueeCheck.checked);
-      container.classList.toggle('rainbow', rainbowCheck.checked);
+  // 옵션 저장하기
+  function saveOptions() {
+    const opt = {
+      text: textInput.value,
+      color: neonColor.value,
+      size: fontSizeSlider.value,
+      marquee: marqueeCheck.checked,
+      rainbow: rainbowCheck.checked,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(opt));
+  }
 
-      // 중복효과시 animation 중복 방지(네온텍스트에선 무조건 flicker, rainbow일 때만 추가)
-      if (rainbowCheck.checked) {
-        neonText.style.animation = 'flicker 2s infinite alternate, rainbow 5s linear infinite';
-      } else {
-        neonText.style.animation = 'flicker 2s infinite alternate';
-      }
+  // 효과 적용 함수
+  function updateStyle() {
+    neonText.textContent = textInput.value || '네온사인 텍스트';
+    neonText.style.setProperty('--neon-color', neonColor.value);
+
+    // 글씨크기
+    const fontSize = fontSizeSlider.value;
+    neonText.style.setProperty('--font-size', fontSize + 'rem');
+    fontSizeVal.textContent = fontSize;
+
+    // 효과 적용
+    container.classList.toggle('marquee', marqueeCheck.checked);
+    container.classList.toggle('rainbow', rainbowCheck.checked);
+
+    // 빤짝임 + 레인보우 자연스럽게(글로우도 같이 색변환)
+    if (rainbowCheck.checked) {
+      neonText.style.animation = 'flicker 2s infinite alternate, rainbow-glow 3s linear infinite';
+    } else {
+      neonText.style.animation = 'flicker 2s infinite alternate';
+      neonText.style.removeProperty('color');
+      neonText.style.removeProperty('filter');
     }
 
-    textInput.addEventListener('input', updateStyle);
-    neonColor.addEventListener('input', updateStyle);
-    marqueeCheck.addEventListener('change', updateStyle);
-    rainbowCheck.addEventListener('change', updateStyle);
-    fontSizeSlider.addEventListener('input', updateStyle);
+    saveOptions();
+  }
 
-    fullscreenBtn.addEventListener('click', () => {
-      const elem = document.documentElement;
-      if (!document.fullscreenElement) {
-        elem.requestFullscreen().catch(err => alert(`전체화면 실패: ${err.message}`));
-        controls.style.opacity = '0';
-        controls.style.pointerEvents = 'none';
-      } else {
-        document.exitFullscreen();
+  // 레인보우 네온 효과 보정용(글로우 색도 같이 변경)
+  // rainbow-glow keyframes가 필요함
+  // 아래 style 태그에서 animation 추가됨
+
+  textInput.addEventListener('input', updateStyle);
+  neonColor.addEventListener('input', updateStyle);
+  marqueeCheck.addEventListener('change', updateStyle);
+  rainbowCheck.addEventListener('change', updateStyle);
+  fontSizeSlider.addEventListener('input', updateStyle);
+
+  fullscreenBtn.addEventListener('click', async () => {
+    const elem = document.documentElement;
+    if (!document.fullscreenElement) {
+      await elem.requestFullscreen().catch(err => alert(`전체화면 실패: ${err.message}`));
+      // 자동 가로모드
+      if (screen.orientation && screen.orientation.lock) {
+        try { await screen.orientation.lock('landscape'); } catch {}
       }
-    });
+      controls.style.opacity = '0';
+      controls.style.pointerEvents = 'none';
+    } else {
+      document.exitFullscreen();
+    }
+  });
 
-    document.addEventListener('fullscreenchange', () => {
-      if (!document.fullscreenElement) {
-        controls.style.opacity = '1';
-        controls.style.pointerEvents = 'auto';
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      controls.style.opacity = '1';
+      controls.style.pointerEvents = 'auto';
+      // 세로모드 자동 복구(필요하다면)
+      if (screen.orientation && screen.orientation.unlock) {
+        screen.orientation.unlock();
       }
-    });
+    }
+  });
 
-    updateStyle();
-  </script>
+  // 최초에 옵션 복원
+  loadOptions();
+  updateStyle();
+</script>
 </body>
 </html>
