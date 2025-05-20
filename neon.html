@@ -4,12 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>고급 네온사인</title>
-  <style>
+<style>
     html, body {
       margin: 0;
       padding: 0;
       background: black;
       height: 100%;
+      width: 100%;
       font-family: 'Arial', sans-serif;
       overflow: hidden;
       display: flex;
@@ -31,9 +32,10 @@
       flex-direction: column;
       gap: 10px;
       transition: opacity 0.3s;
+      min-width: 220px;
     }
 
-    input[type="text"], input[type="color"], input[type="range"], select {
+    input[type="text"], input[type="color"], input[type="range"] {
       width: 100%;
     }
 
@@ -48,12 +50,13 @@
     }
 
     #neonContainer {
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      position: relative;
     }
 
     .neon-wrapper {
@@ -63,7 +66,7 @@
 
     #neonText {
       display: inline-block;
-      font-size: 4rem;
+      font-size: var(--font-size, 4rem);
       font-weight: bold;
       color: white;
       text-shadow:
@@ -75,12 +78,8 @@
     }
 
     @keyframes flicker {
-      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-        opacity: 1;
-      }
-      20%, 22%, 24%, 55% {
-        opacity: 0.4;
-      }
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+      20%, 22%, 24%, 55% { opacity: 0.4; }
     }
 
     @keyframes rainbow {
@@ -101,37 +100,54 @@
     }
 
     .rainbow #neonText {
-      animation: flicker 2s infinite alternate, rainbow 5s linear infinite;
+      animation:
+        flicker 2s infinite alternate,
+        rainbow 5s linear infinite;
     }
 
     @media (orientation: landscape) {
       #neonText {
-        font-size: 6rem;
+        font-size: var(--font-size, 6rem);
+      }
+      #neonContainer {
+        width: 100vw;
+        height: 100vh;
       }
     }
 
     @media (orientation: portrait) {
       #neonText {
-        font-size: 3rem;
+        font-size: var(--font-size, 3rem);
+      }
+      #neonContainer {
+        width: 100vw;
+        height: 100vh;
       }
     }
   </style>
 </head>
 <body>
   <div id="controls">
-    <label>문구: <input type="text" id="textInput" placeholder="문구를 입력하세요" /></label>
-    <label>스타일:
-      <select id="effectSelect">
-        <option value="normal">기본</option>
-        <option value="marquee">흐르는 글씨</option>
-        <option value="rainbow">레인보우</option>
-      </select>
+    <label>문구:
+      <input type="text" id="textInput" placeholder="문구를 입력하세요" />
     </label>
-    <label>네온 색상: <input type="color" id="neonColor" value="#00ffff" /></label>
+    <label>글씨 크기:
+      <input type="range" id="fontSizeSlider" min="1" max="12" step="0.1" value="4" />
+      <span id="fontSizeVal">4</span>rem
+    </label>
+    <label>
+      <input type="checkbox" id="marqueeCheck" /> 흐르는 글씨
+    </label>
+    <label>
+      <input type="checkbox" id="rainbowCheck" /> 레인보우
+    </label>
+    <label>네온 색상:
+      <input type="color" id="neonColor" value="#00ffff" />
+    </label>
     <button id="fullscreenBtn">전체화면</button>
   </div>
 
-  <div id="neonContainer" class="normal">
+  <div id="neonContainer">
     <div class="neon-wrapper">
       <div id="neonText">네온사인 텍스트</div>
     </div>
@@ -141,31 +157,41 @@
     const textInput = document.getElementById('textInput');
     const neonText = document.getElementById('neonText');
     const neonColor = document.getElementById('neonColor');
-    const effectSelect = document.getElementById('effectSelect');
+    const marqueeCheck = document.getElementById('marqueeCheck');
+    const rainbowCheck = document.getElementById('rainbowCheck');
+    const fontSizeSlider = document.getElementById('fontSizeSlider');
+    const fontSizeVal = document.getElementById('fontSizeVal');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     const controls = document.getElementById('controls');
     const container = document.getElementById('neonContainer');
+    const neonWrapper = document.querySelector('.neon-wrapper');
 
     function updateStyle() {
       neonText.textContent = textInput.value || '네온사인 텍스트';
       neonText.style.setProperty('--neon-color', neonColor.value);
 
-      // Remove previous effect classes
-      container.className = '';
-      neonText.className = '';
-      document.querySelector('.neon-wrapper').className = 'neon-wrapper';
+      // 글씨크기
+      const fontSize = fontSizeSlider.value;
+      neonText.style.setProperty('--font-size', fontSize + 'rem');
+      fontSizeVal.textContent = fontSize;
 
-      const effect = effectSelect.value;
-      if (effect === 'rainbow') {
-        container.classList.add('rainbow');
-      } else if (effect === 'marquee') {
-        container.classList.add('marquee');
+      // 효과 적용
+      container.classList.toggle('marquee', marqueeCheck.checked);
+      container.classList.toggle('rainbow', rainbowCheck.checked);
+
+      // 중복효과시 animation 중복 방지(네온텍스트에선 무조건 flicker, rainbow일 때만 추가)
+      if (rainbowCheck.checked) {
+        neonText.style.animation = 'flicker 2s infinite alternate, rainbow 5s linear infinite';
+      } else {
+        neonText.style.animation = 'flicker 2s infinite alternate';
       }
     }
 
     textInput.addEventListener('input', updateStyle);
     neonColor.addEventListener('input', updateStyle);
-    effectSelect.addEventListener('change', updateStyle);
+    marqueeCheck.addEventListener('change', updateStyle);
+    rainbowCheck.addEventListener('change', updateStyle);
+    fontSizeSlider.addEventListener('input', updateStyle);
 
     fullscreenBtn.addEventListener('click', () => {
       const elem = document.documentElement;
@@ -178,7 +204,6 @@
       }
     });
 
-    // When exiting fullscreen, show controls again
     document.addEventListener('fullscreenchange', () => {
       if (!document.fullscreenElement) {
         controls.style.opacity = '1';
