@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>고급 네온사인</title>
-<style>
+  <title>Neon Sign</title>
+  <style>
     html, body {
       margin: 0;
       padding: 0;
@@ -35,7 +35,7 @@
       min-width: 220px;
     }
 
-    input[type="text"], input[type="color"], input[type="range"] {
+    input[type="text"], input[type="color"], input[type="range"], select {
       width: 100%;
     }
 
@@ -70,88 +70,80 @@
       font-weight: bold;
       color: white;
       text-shadow:
-        0 0 5px #fff,
-        0 0 10px var(--neon-color, #0ff),
-        0 0 20px var(--neon-color, #0ff),
-        0 0 40px var(--neon-color, #0ff);
-      animation: flicker 2s infinite alternate;
+        0 0 8px #fff,
+        0 0 18px var(--neon-color, #0ff),
+        0 0 32px var(--neon-color, #0ff),
+        0 0 64px var(--neon-color, #0ff);
+      /* 깜박임+레인보우는 js에서 동적으로 세팅 */
     }
 
-    @keyframes flicker {
-      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-      20%, 22%, 24%, 55% { opacity: 0.4; }
+    @keyframes smooth-flicker {
+      0%, 97%, 100% { opacity: 1; filter: brightness(1.1) blur(0.7px);}
+      2% { opacity: 0.88; filter: brightness(1.2);}
+      3% { opacity: 0.4; filter: brightness(1.4);}
+      5% { opacity: 1; filter: brightness(1);}
+      18% { opacity: 0.92; filter: brightness(1.2);}
+      20% { opacity: 0.36; filter: brightness(1.3);}
+      22% { opacity: 1; filter: brightness(1);}
+      70% { opacity: 0.8; filter: brightness(1.4);}
+      71% { opacity: 1; filter: brightness(1);}
     }
 
-    @keyframes rainbow {
-      0% { color: red; --neon-color: red; }
-      25% { color: yellow; --neon-color: yellow; }
-      50% { color: lime; --neon-color: lime; }
-      75% { color: cyan; --neon-color: cyan; }
-      100% { color: red; --neon-color: red; }
+    /* 깜박임+레인보우 조합 */
+    @keyframes rainbow-glow {
+      0%   { color: #FF2222; text-shadow: 0 0 8px #fff, 0 0 18px #FF2222, 0 0 32px #FF2222, 0 0 64px #FF2222;}
+      15%  { color: #FF9900; text-shadow: 0 0 8px #fff, 0 0 18px #FF9900, 0 0 32px #FF9900, 0 0 64px #FF9900;}
+      30%  { color: #FFFF00; text-shadow: 0 0 8px #fff, 0 0 18px #FFFF00, 0 0 32px #FFFF00, 0 0 64px #FFFF00;}
+      45%  { color: #33FF33; text-shadow: 0 0 8px #fff, 0 0 18px #33FF33, 0 0 32px #33FF33, 0 0 64px #33FF33;}
+      60%  { color: #00FFFF; text-shadow: 0 0 8px #fff, 0 0 18px #00FFFF, 0 0 32px #00FFFF, 0 0 64px #00FFFF;}
+      75%  { color: #3333FF; text-shadow: 0 0 8px #fff, 0 0 18px #3333FF, 0 0 32px #3333FF, 0 0 64px #3333FF;}
+      90%  { color: #FF33DD; text-shadow: 0 0 8px #fff, 0 0 18px #FF33DD, 0 0 32px #FF33DD, 0 0 64px #FF33DD;}
+      100% { color: #FF2222; text-shadow: 0 0 8px #fff, 0 0 18px #FF2222, 0 0 32px #FF2222, 0 0 64px #FF2222;}
     }
 
     @keyframes marquee {
       0% { transform: translateX(100%); }
       100% { transform: translateX(-100%); }
     }
-
     .marquee .neon-wrapper {
       animation: marquee 10s linear infinite;
     }
 
-    .rainbow #neonText {
-      animation:
-        flicker 2s infinite alternate,
-        rainbow 5s linear infinite;
-    }
-
+    /* 반응형 폰트 */
     @media (orientation: landscape) {
-      #neonText {
-        font-size: var(--font-size, 6rem);
-      }
-      #neonContainer {
-        width: 100vw;
-        height: 100vh;
-      }
+      #neonText { font-size: var(--font-size, 6rem);}
+      #neonContainer { width: 100vw; height: 100vh;}
     }
-
     @media (orientation: portrait) {
-      #neonText {
-        font-size: var(--font-size, 3rem);
-      }
-      #neonContainer {
-        width: 100vw;
-        height: 100vh;
-      }
+      #neonText { font-size: var(--font-size, 3.5rem);}
+      #neonContainer { width: 100vw; height: 100vh;}
     }
-/* 레인보우+네온 빤짝임 조합 개선 */
-  @keyframes rainbow-glow {
-    0% { color: red; text-shadow: 0 0 5px #fff, 0 0 20px red, 0 0 40px red; }
-    20% { color: orange; text-shadow: 0 0 5px #fff, 0 0 20px orange, 0 0 40px orange; }
-    40% { color: yellow; text-shadow: 0 0 5px #fff, 0 0 20px yellow, 0 0 40px yellow; }
-    60% { color: lime; text-shadow: 0 0 5px #fff, 0 0 20px lime, 0 0 40px lime; }
-    80% { color: cyan; text-shadow: 0 0 5px #fff, 0 0 20px cyan, 0 0 40px cyan; }
-    100% { color: red; text-shadow: 0 0 5px #fff, 0 0 20px red, 0 0 40px red; }
-  }
   </style>
 </head>
 <body>
   <div id="controls">
-    <label>문구:
-      <input type="text" id="textInput" placeholder="문구를 입력하세요" />
+    <label id="labelLang">
+      <select id="langSelect">
+        <option value="ko">한국어</option>
+        <option value="en">English</option>
+        <option value="zh-CN">中文</option>
+      </select>
     </label>
-    <label>글씨 크기:
-      <input type="range" id="fontSizeSlider" min="1" max="12" step="0.1" value="4" />
+    <label id="labelText">
+      문구: <input type="text" id="textInput" placeholder="문구를 입력하세요" />
+    </label>
+    <label id="labelSize">
+      글씨 크기: <input type="range" id="fontSizeSlider" min="1" max="12" step="0.1" value="4" />
       <span id="fontSizeVal">4</span>rem
     </label>
-    <label>
+    <label id="labelMarquee">
       <input type="checkbox" id="marqueeCheck" /> 흐르는 글씨
     </label>
-    <label>
+    <label id="labelRainbow">
       <input type="checkbox" id="rainbowCheck" /> 레인보우
     </label>
-    <label>네온 색상:
-      <input type="color" id="neonColor" value="#00ffff" />
+    <label id="labelColor">
+      네온 색상: <input type="color" id="neonColor" value="#00ffff" />
     </label>
     <button id="fullscreenBtn">전체화면</button>
   </div>
@@ -162,114 +154,191 @@
     </div>
   </div>
 
- <script>
-  const textInput = document.getElementById('textInput');
-  const neonText = document.getElementById('neonText');
-  const neonColor = document.getElementById('neonColor');
-  const marqueeCheck = document.getElementById('marqueeCheck');
-  const rainbowCheck = document.getElementById('rainbowCheck');
-  const fontSizeSlider = document.getElementById('fontSizeSlider');
-  const fontSizeVal = document.getElementById('fontSizeVal');
-  const fullscreenBtn = document.getElementById('fullscreenBtn');
-  const controls = document.getElementById('controls');
-  const container = document.getElementById('neonContainer');
-
-  // 로컬스토리지 키
-  const STORAGE_KEY = 'neonSignOptions';
-
-  // 옵션 불러오기
-  function loadOptions() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const opt = JSON.parse(saved);
-        textInput.value = opt.text ?? '';
-        neonColor.value = opt.color ?? '#00ffff';
-        fontSizeSlider.value = opt.size ?? 4;
-        fontSizeVal.textContent = opt.size ?? 4;
-        marqueeCheck.checked = !!opt.marquee;
-        rainbowCheck.checked = !!opt.rainbow;
-      } catch {}
-    }
-  }
-
-  // 옵션 저장하기
-  function saveOptions() {
-    const opt = {
-      text: textInput.value,
-      color: neonColor.value,
-      size: fontSizeSlider.value,
-      marquee: marqueeCheck.checked,
-      rainbow: rainbowCheck.checked,
+  <script>
+    // 다국어 문구
+    const i18n = {
+      'ko': {
+        lang: '언어',
+        text: '문구',
+        textPh: '문구를 입력하세요',
+        size: '글씨 크기',
+        marquee: '흐르는 글씨',
+        rainbow: '레인보우',
+        color: '네온 색상',
+        fullscreen: '전체화면'
+      },
+      'en': {
+        lang: 'Language',
+        text: 'Text',
+        textPh: 'Enter your text',
+        size: 'Font Size',
+        marquee: 'Marquee',
+        rainbow: 'Rainbow',
+        color: 'Neon Color',
+        fullscreen: 'Fullscreen'
+      },
+      'zh-CN': {
+        lang: '语言',
+        text: '文字',
+        textPh: '请输入文字',
+        size: '字体大小',
+        marquee: '滚动文字',
+        rainbow: '彩虹',
+        color: '霓虹色',
+        fullscreen: '全屏'
+      }
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(opt));
-  }
 
-  // 효과 적용 함수
-  function updateStyle() {
-    neonText.textContent = textInput.value || '네온사인 텍스트';
-    neonText.style.setProperty('--neon-color', neonColor.value);
+    // 요소
+    const langSelect = document.getElementById('langSelect');
+    const textInput = document.getElementById('textInput');
+    const neonText = document.getElementById('neonText');
+    const neonColor = document.getElementById('neonColor');
+    const marqueeCheck = document.getElementById('marqueeCheck');
+    const rainbowCheck = document.getElementById('rainbowCheck');
+    const fontSizeSlider = document.getElementById('fontSizeSlider');
+    const fontSizeVal = document.getElementById('fontSizeVal');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const controls = document.getElementById('controls');
+    const container = document.getElementById('neonContainer');
+    const neonWrapper = document.querySelector('.neon-wrapper');
 
-    // 글씨크기
-    const fontSize = fontSizeSlider.value;
-    neonText.style.setProperty('--font-size', fontSize + 'rem');
-    fontSizeVal.textContent = fontSize;
+    // 라벨
+    const labelLang = document.getElementById('labelLang');
+    const labelText = document.getElementById('labelText');
+    const labelSize = document.getElementById('labelSize');
+    const labelMarquee = document.getElementById('labelMarquee');
+    const labelRainbow = document.getElementById('labelRainbow');
+    const labelColor = document.getElementById('labelColor');
+
+    // 저장 키
+    const STORAGE_KEY = 'neonSignOptionsV2';
+
+    // 언어 세팅
+    function updateLang(lang) {
+      const d = i18n[lang] || i18n['ko'];
+      labelLang.childNodes[0].textContent = d.lang + ': ';
+      labelText.childNodes[0].textContent = d.text + ': ';
+      textInput.placeholder = d.textPh;
+      labelSize.childNodes[0].textContent = d.size + ': ';
+      labelMarquee.childNodes[1].textContent = ' ' + d.marquee;
+      labelRainbow.childNodes[1].textContent = ' ' + d.rainbow;
+      labelColor.childNodes[0].textContent = d.color + ': ';
+      fullscreenBtn.textContent = d.fullscreen;
+    }
+
+    // 옵션 불러오기
+    function loadOptions() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const opt = JSON.parse(saved);
+          textInput.value = opt.text ?? '';
+          neonColor.value = opt.color ?? '#00ffff';
+          fontSizeSlider.value = opt.size ?? 4;
+          fontSizeVal.textContent = opt.size ?? 4;
+          marqueeCheck.checked = !!opt.marquee;
+          rainbowCheck.checked = !!opt.rainbow;
+          if (opt.lang) {
+            langSelect.value = opt.lang;
+            updateLang(opt.lang);
+          }
+        } catch {}
+      }
+    }
+
+    // 옵션 저장
+    function saveOptions() {
+      const opt = {
+        text: textInput.value,
+        color: neonColor.value,
+        size: fontSizeSlider.value,
+        marquee: marqueeCheck.checked,
+        rainbow: rainbowCheck.checked,
+        lang: langSelect.value
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(opt));
+    }
 
     // 효과 적용
-    container.classList.toggle('marquee', marqueeCheck.checked);
-    container.classList.toggle('rainbow', rainbowCheck.checked);
+    function updateStyle() {
+      neonText.textContent = textInput.value || i18n[langSelect.value].textPh;
+      neonText.style.setProperty('--neon-color', neonColor.value);
 
-    // 빤짝임 + 레인보우 자연스럽게(글로우도 같이 색변환)
-    if (rainbowCheck.checked) {
-      neonText.style.animation = 'flicker 2s infinite alternate, rainbow-glow 3s linear infinite';
-    } else {
-      neonText.style.animation = 'flicker 2s infinite alternate';
-      neonText.style.removeProperty('color');
-      neonText.style.removeProperty('filter');
-    }
+      // 글씨크기
+      const fontSize = fontSizeSlider.value;
+      neonText.style.setProperty('--font-size', fontSize + 'rem');
+      fontSizeVal.textContent = fontSize;
 
-    saveOptions();
-  }
+      // 효과 적용
+      container.classList.toggle('marquee', marqueeCheck.checked);
+      container.classList.toggle('rainbow', rainbowCheck.checked);
 
-  // 레인보우 네온 효과 보정용(글로우 색도 같이 변경)
-  // rainbow-glow keyframes가 필요함
-  // 아래 style 태그에서 animation 추가됨
-
-  textInput.addEventListener('input', updateStyle);
-  neonColor.addEventListener('input', updateStyle);
-  marqueeCheck.addEventListener('change', updateStyle);
-  rainbowCheck.addEventListener('change', updateStyle);
-  fontSizeSlider.addEventListener('input', updateStyle);
-
-  fullscreenBtn.addEventListener('click', async () => {
-    const elem = document.documentElement;
-    if (!document.fullscreenElement) {
-      await elem.requestFullscreen().catch(err => alert(`전체화면 실패: ${err.message}`));
-      // 자동 가로모드
-      if (screen.orientation && screen.orientation.lock) {
-        try { await screen.orientation.lock('landscape'); } catch {}
+      // 네온+레인보우+깜박임 부드럽게
+      if (rainbowCheck.checked) {
+        neonText.style.animation = 'rainbow-glow 5s linear infinite, smooth-flicker 2.6s infinite';
+        neonText.style.removeProperty('--neon-color'); // 레인보우는 색상 자동
+      } else {
+        neonText.style.animation = 'smooth-flicker 2.6s infinite';
+        neonText.style.color = 'white';
+        neonText.style.textShadow =
+          `0 0 8px #fff, 0 0 18px ${neonColor.value}, 0 0 32px ${neonColor.value}, 0 0 64px ${neonColor.value}`;
       }
-      controls.style.opacity = '0';
-      controls.style.pointerEvents = 'none';
-    } else {
-      document.exitFullscreen();
+      saveOptions();
     }
-  });
 
-  document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
-      controls.style.opacity = '1';
-      controls.style.pointerEvents = 'auto';
-      // 세로모드 자동 복구(필요하다면)
-      if (screen.orientation && screen.orientation.unlock) {
-        screen.orientation.unlock();
+    // 풀스크린 + 가로모드
+    fullscreenBtn.addEventListener('click', async () => {
+      const elem = document.documentElement;
+      if (!document.fullscreenElement) {
+        await elem.requestFullscreen().catch(err => alert(`Fullscreen failed: ${err.message}`));
+        // 자동 가로모드
+        if (screen.orientation && screen.orientation.lock) {
+          try { await screen.orientation.lock('landscape'); } catch {}
+        }
+        controls.style.opacity = '0';
+        controls.style.pointerEvents = 'none';
+      } else {
+        document.exitFullscreen();
       }
-    }
-  });
+    });
 
-  // 최초에 옵션 복원
-  loadOptions();
-  updateStyle();
-</script>
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        controls.style.opacity = '1';
+        controls.style.pointerEvents = 'auto';
+        // 세로모드 자동 복구
+        if (screen.orientation && screen.orientation.unlock) {
+          screen.orientation.unlock();
+        }
+      }
+    });
+
+    // 이벤트
+    textInput.addEventListener('input', updateStyle);
+    neonColor.addEventListener('input', updateStyle);
+    marqueeCheck.addEventListener('change', updateStyle);
+    rainbowCheck.addEventListener('change', updateStyle);
+    fontSizeSlider.addEventListener('input', updateStyle);
+    langSelect.addEventListener('change', () => {
+      updateLang(langSelect.value);
+      updateStyle();
+      saveOptions();
+    });
+
+    // 최초 언어 자동
+    (function() {
+      let userLang = (navigator.language || navigator.userLanguage || 'ko').toLowerCase();
+      if (userLang.startsWith('ko')) langSelect.value = 'ko';
+      else if (userLang.startsWith('en')) langSelect.value = 'en';
+      else if (userLang.startsWith('zh')) langSelect.value = 'zh-CN';
+      else langSelect.value = 'en';
+      updateLang(langSelect.value);
+    })();
+
+    // 최초 옵션 복원 및 적용
+    loadOptions();
+    updateStyle();
+  </script>
 </body>
 </html>
