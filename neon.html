@@ -3,57 +3,109 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>네온사인 웹</title>
+  <title>고급 네온사인</title>
   <style>
-    body {
+    html, body {
       margin: 0;
-      background: radial-gradient(#000000, #111111);
-      color: white;
+      padding: 0;
+      background: black;
+      height: 100%;
       font-family: 'Arial', sans-serif;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
-      height: 100vh;
-      overflow: hidden;
+      align-items: center;
     }
 
     #controls {
       position: absolute;
-      top: 20px;
-      left: 20px;
+      top: 10px;
+      left: 10px;
       background: rgba(0, 0, 0, 0.7);
       padding: 1em;
-      border-radius: 10px;
+      border-radius: 12px;
+      z-index: 10;
+      color: white;
       display: flex;
       flex-direction: column;
       gap: 10px;
+    }
+
+    input[type="text"], input[type="color"], input[type="range"], select {
+      width: 100%;
+    }
+
+    #fullscreenBtn {
+      margin-top: 10px;
+      padding: 0.5em;
+      background: #444;
       color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #neonContainer {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
     }
 
     #neonText {
-      font-size: 3rem;
-      text-align: center;
-      white-space: pre-wrap;
-      word-break: break-word;
-      padding: 1rem;
+      white-space: nowrap;
+      font-size: 4rem;
+      font-weight: bold;
+      color: white;
+      animation: flicker 2s infinite alternate, rainbow 5s linear infinite;
       text-shadow:
         0 0 5px #fff,
         0 0 10px var(--neon-color, #0ff),
         0 0 20px var(--neon-color, #0ff),
         0 0 40px var(--neon-color, #0ff);
-      color: var(--font-color, #fff);
     }
 
-    input[type="text"],
-    input[type="color"],
-    input[type="range"] {
-      width: 100%;
+    /* flickering effect */
+    @keyframes flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        opacity: 1;
+      }
+      20%, 22%, 24%, 55% {
+        opacity: 0.4;
+      }
     }
 
-    @media (max-width: 600px) {
+    /* rainbow effect */
+    @keyframes rainbow {
+      0% { color: red; --neon-color: red; }
+      25% { color: yellow; --neon-color: yellow; }
+      50% { color: lime; --neon-color: lime; }
+      75% { color: cyan; --neon-color: cyan; }
+      100% { color: red; --neon-color: red; }
+    }
+
+    /* marquee effect */
+    .marquee {
+      animation: marquee 10s linear infinite;
+    }
+
+    @keyframes marquee {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    @media (orientation: landscape) {
       #neonText {
-        font-size: 2rem;
+        font-size: 6rem;
+      }
+    }
+
+    @media (orientation: portrait) {
+      #neonText {
+        font-size: 3rem;
       }
     }
   </style>
@@ -61,31 +113,61 @@
 <body>
   <div id="controls">
     <label>문구: <input type="text" id="textInput" placeholder="문구를 입력하세요" /></label>
-    <label>글자 색상: <input type="color" id="fontColor" value="#ffffff" /></label>
+    <label>스타일:
+      <select id="effectSelect">
+        <option value="normal">기본</option>
+        <option value="marquee">흐르는 글씨</option>
+        <option value="rainbow">레인보우</option>
+      </select>
+    </label>
     <label>네온 색상: <input type="color" id="neonColor" value="#00ffff" /></label>
-    <label>글자 크기: <input type="range" id="fontSize" min="1" max="10" step="0.5" value="3" /></label>
+    <button id="fullscreenBtn">전체화면</button>
   </div>
 
-  <div id="neonText">네온사인 텍스트</div>
+  <div id="neonContainer">
+    <div id="neonText">네온사인 텍스트</div>
+  </div>
 
   <script>
     const textInput = document.getElementById('textInput');
-    const fontColor = document.getElementById('fontColor');
-    const neonColor = document.getElementById('neonColor');
-    const fontSize = document.getElementById('fontSize');
     const neonText = document.getElementById('neonText');
+    const neonColor = document.getElementById('neonColor');
+    const effectSelect = document.getElementById('effectSelect');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
 
     function updateStyle() {
       neonText.textContent = textInput.value || '네온사인 텍스트';
-      neonText.style.setProperty('--font-color', fontColor.value);
       neonText.style.setProperty('--neon-color', neonColor.value);
-      neonText.style.fontSize = fontSize.value + 'rem';
+      
+      neonText.classList.remove('marquee');
+      neonText.style.animation = 'flicker 2s infinite alternate';
+
+      if (effectSelect.value === 'marquee') {
+        neonText.classList.add('marquee');
+      } else if (effectSelect.value === 'rainbow') {
+        neonText.style.animation = 'flicker 2s infinite alternate, rainbow 5s linear infinite';
+      }
     }
 
     textInput.addEventListener('input', updateStyle);
-    fontColor.addEventListener('input', updateStyle);
     neonColor.addEventListener('input', updateStyle);
-    fontSize.addEventListener('input', updateStyle);
+    effectSelect.addEventListener('change', updateStyle);
+
+    fullscreenBtn.addEventListener('click', () => {
+      const elem = document.documentElement;
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        elem.requestFullscreen().catch(err => alert(`전체화면 실패: ${err.message}`));
+      }
+    });
+
+    window.addEventListener('orientationchange', () => {
+      // 자동 폰트 조정 대응
+      updateStyle();
+    });
+
+    updateStyle(); // 초기 상태 적용
   </script>
 </body>
 </html>
