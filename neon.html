@@ -30,6 +30,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      transition: opacity 0.3s;
     }
 
     input[type="text"], input[type="color"], input[type="range"], select {
@@ -55,20 +56,24 @@
       overflow: hidden;
     }
 
-    #neonText {
+    .neon-wrapper {
+      display: inline-block;
       white-space: nowrap;
+    }
+
+    #neonText {
+      display: inline-block;
       font-size: 4rem;
       font-weight: bold;
       color: white;
-      animation: flicker 2s infinite alternate, rainbow 5s linear infinite;
       text-shadow:
         0 0 5px #fff,
         0 0 10px var(--neon-color, #0ff),
         0 0 20px var(--neon-color, #0ff),
         0 0 40px var(--neon-color, #0ff);
+      animation: flicker 2s infinite alternate;
     }
 
-    /* flickering effect */
     @keyframes flicker {
       0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
         opacity: 1;
@@ -78,7 +83,6 @@
       }
     }
 
-    /* rainbow effect */
     @keyframes rainbow {
       0% { color: red; --neon-color: red; }
       25% { color: yellow; --neon-color: yellow; }
@@ -87,14 +91,17 @@
       100% { color: red; --neon-color: red; }
     }
 
-    /* marquee effect */
-    .marquee {
-      animation: marquee 10s linear infinite;
-    }
-
     @keyframes marquee {
       0% { transform: translateX(100%); }
       100% { transform: translateX(-100%); }
+    }
+
+    .marquee .neon-wrapper {
+      animation: marquee 10s linear infinite;
+    }
+
+    .rainbow #neonText {
+      animation: flicker 2s infinite alternate, rainbow 5s linear infinite;
     }
 
     @media (orientation: landscape) {
@@ -124,8 +131,10 @@
     <button id="fullscreenBtn">전체화면</button>
   </div>
 
-  <div id="neonContainer">
-    <div id="neonText">네온사인 텍스트</div>
+  <div id="neonContainer" class="normal">
+    <div class="neon-wrapper">
+      <div id="neonText">네온사인 텍스트</div>
+    </div>
   </div>
 
   <script>
@@ -134,18 +143,23 @@
     const neonColor = document.getElementById('neonColor');
     const effectSelect = document.getElementById('effectSelect');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const controls = document.getElementById('controls');
+    const container = document.getElementById('neonContainer');
 
     function updateStyle() {
       neonText.textContent = textInput.value || '네온사인 텍스트';
       neonText.style.setProperty('--neon-color', neonColor.value);
-      
-      neonText.classList.remove('marquee');
-      neonText.style.animation = 'flicker 2s infinite alternate';
 
-      if (effectSelect.value === 'marquee') {
-        neonText.classList.add('marquee');
-      } else if (effectSelect.value === 'rainbow') {
-        neonText.style.animation = 'flicker 2s infinite alternate, rainbow 5s linear infinite';
+      // Remove previous effect classes
+      container.className = '';
+      neonText.className = '';
+      document.querySelector('.neon-wrapper').className = 'neon-wrapper';
+
+      const effect = effectSelect.value;
+      if (effect === 'rainbow') {
+        container.classList.add('rainbow');
+      } else if (effect === 'marquee') {
+        container.classList.add('marquee');
       }
     }
 
@@ -155,19 +169,24 @@
 
     fullscreenBtn.addEventListener('click', () => {
       const elem = document.documentElement;
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      } else {
+      if (!document.fullscreenElement) {
         elem.requestFullscreen().catch(err => alert(`전체화면 실패: ${err.message}`));
+        controls.style.opacity = '0';
+        controls.style.pointerEvents = 'none';
+      } else {
+        document.exitFullscreen();
       }
     });
 
-    window.addEventListener('orientationchange', () => {
-      // 자동 폰트 조정 대응
-      updateStyle();
+    // When exiting fullscreen, show controls again
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        controls.style.opacity = '1';
+        controls.style.pointerEvents = 'auto';
+      }
     });
 
-    updateStyle(); // 초기 상태 적용
+    updateStyle();
   </script>
 </body>
 </html>
