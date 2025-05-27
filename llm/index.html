@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,11 +10,8 @@
     <meta property="og:description" content="Real-time token estimation tool for large language models (GPT-4, Claude, Mistral)">
     <meta property="og:image" content="https://tool.cocy.io/llm/icon.svg">
     <meta property="og:url" content="https://tool.cocy.io/llm/">
-        <!-- Google AdSense -->
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607"
-        crossorigin="anonymous"></script>
-    <link rel="canonical" href="https://tool.cocy.io/llm/" />
-    <title>LLM Token Counter - AI Model Token Calculator</title>
+    <title>LLM Token Calculator</title>
+    <script src="../localization.js"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -113,36 +111,40 @@
                 margin-top: 6px;
             }
         }
+
+        .language-switcher label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .language-switcher select {
+            font-size: 0.9rem;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background: #2a2a2a;
+            color: #fff;
+        }
     </style>
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KLF3L6R84V"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KLF3L6R84V');
-</script>
 <body>
     <div class="container">
-        <h2>LLM Token Calculator</h2>
-        <textarea id="textInput" placeholder="Enter text..."></textarea>
+        <h2 data-translate-key="llm_title">LLM Token Calculator</h2>
+        <textarea id="textInput" placeholder="Enter text..." data-translate-placeholder="true"></textarea>
         <select id="modelSelect">
-            <option value="gpt4">GPT-4 / GPT-4o</option>
-            <option value="gpt3.5">GPT-3.5 Turbo</option>
-            <option value="claude35">Claude 3.5 Sonnet</option>
-            <option value="claude2">Claude 2.1</option>
-            <option value="gemini">Gemini 1.5 Pro</option>
-            <option value="mistral">Mistral 8x22B</option>
-            <option value="llama3">Llama 3 400B</option>
-            <option value="jais">Jais 30B</option>
+            <option value="gpt4" data-translate-key="model_gpt4">GPT-4 / GPT-4o</option>
+            <option value="gpt3.5" data-translate-key="model_gpt35">GPT-3.5 Turbo</option>
+            <option value="claude4" data-translate-key="model_claude4">Claude 4</option>
+            <option value="claude2" data-translate-key="model_claude2">Claude 2</option>
+            <option value="gemini2" data-translate-key="model_gemini2">Gemini 2</option>
+            <option value="mistral" data-translate-key="model_mistral">Mistral 7B</option>
+            <option value="llama3" data-translate-key="model_llama3">Llama 3</option>
+            <option value="jais" data-translate-key="model_jais">Jais 30B</option>
         </select>
-        <p id="result">Estimated tokens: 0</p>
-        <p id="cost" style="color: #7fbfff; margin-top: 8px;">Estimated cost: $0.00</p>
+        <p id="result" data-translate-key="estimated_tokens">Estimated tokens: 0</p>
+        <p id="cost" style="color: #7fbfff; margin-top: 8px;" data-translate-key="estimated_cost">Estimated cost: $0.00</p>
     </div>
     
-    <!-- 푸터 추가 -->
     <footer style="
         margin-top: 2rem;
         padding: 1.5rem;
@@ -160,49 +162,53 @@
                target="_blank">COCY.IO</a> 
             All rights reserved.
         </p>
+        <!-- Language switcher will be dynamically added here -->
     </footer>
 
     <script>
     function estimateTokens(text, model) {
         const wordCount = text.trim().split(/\s+/).length;
         const tokenRates = {
-            'gpt4': 1.33,    // GPT-4 계열
-            'gpt3.5': 1.2,    // GPT-3.5
-            'claude35': 1.5,  // Claude 3.5
-            'claude2': 1.45,  // Claude 2
-            'gemini': 1.3,    // Gemini
-            'mistral': 1.25,  // Mistral
-            'llama3': 1.35,   // Llama 3
-            'jais': 1.15      // Jais
+            'gpt4': 1.33,
+            'gpt3.5': 1.2,
+            'claude4': 1.4,
+            'claude2': 1.45,
+            'gemini2': 1.35,
+            'mistral': 1.25,
+            'llama3': 1.35,
+            'jais': 1.15
         };
         return text.trim().length > 0 ? Math.ceil(wordCount * (tokenRates[model] || 1.3)) : 0;
     }
     
-    // 모델별 비용 계산 (USD/1M tokens 기준)
     const costRates = {
-        'gpt4': 30.00,      // GPT-4 ($30/1M tokens)
-        'gpt3.5': 1.50,     // GPT-3.5 Turbo ($1.5/1M)
-        'claude35': 0.50,   // Claude 3.5 Sonnet ($0.5/1M)
-        'claude2': 0.80,    // Claude 2.1 ($0.8/1M)
-        'gemini': 7.00,     // Gemini 1.5 Pro ($7/1M)
-        'mistral': 0.25,    // Mistral 8x22B ($0.25/1M)
-        'llama3': 0.40,     // Llama 3 400B ($0.4/1M)
-        'jais': 0.10        // Jais 30B ($0.1/1M)
+        'gpt4': 30.00,
+        'gpt3.5': 1.50,
+        'claude4': 0.60,
+        'claude2': 0.80,
+        'gemini2': 7.00,
+        'mistral': 0.25,
+        'llama3': 0.40,
+        'jais': 0.10
     };
 
     function updateTokenCount() {
         const text = document.getElementById('textInput').value;
         const model = document.getElementById('modelSelect').value;
         const tokens = estimateTokens(text, model);
-        const cost = (tokens * costRates[model]) / 1000000; // 1M tokens 기준
+        const cost = (tokens * costRates[model]) / 1000000;
         
-        document.getElementById('result').innerText = `Estimated tokens: ${tokens}`;
-        document.getElementById('cost').innerText = `Estimated cost: $${cost.toFixed(4)}`;
+        document.getElementById('result').innerText = `${translate('estimated_tokens')}: ${tokens}`;
+        document.getElementById('cost').innerText = `${translate('estimated_cost')}: $${cost.toFixed(4)}`;
     }
     
-    document.getElementById('textInput').addEventListener('input', updateTokenCount);
-    document.getElementById('modelSelect').addEventListener('change', updateTokenCount);
-</script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('textInput').addEventListener('input', updateTokenCount);
+        document.getElementById('modelSelect').addEventListener('change', updateTokenCount);
 
+        // Initialize localization
+        initializeLocalization();
+    });
+    </script>
 </body>
 </html>
