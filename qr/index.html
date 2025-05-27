@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR 코드 생성기 및 스캐너 - 온라인 도구</title>
-    <meta name="description" content="QR 코드를 즉시 생성하고 스캔합니다. URL, 텍스트, 연락처 정보 및 WiFi 자격 증명을 지원합니다. 모든 기기에서 작동합니다.">
-    <meta name="keywords" content="QR 코드 생성기, QR 코드 스캐너, 온라인 QR 도구, 모바일 QR 생성">
+    <title>QR Code Generator and Scanner</title>
+    <meta name="description" content="Generate and scan QR codes instantly. Supports URLs, text, contact info, and WiFi credentials. Works on all devices.">
+    <meta name="keywords" content="QR code generator, QR code scanner, online QR tools, mobile QR generator">
     <meta name="author" content="cocy.io">
-    <meta property="og:title" content="온라인 QR 코드 생성기 및 스캐너">
-    <meta property="og:description" content="실시간 미리보기가 가능한 무료 웹 기반 QR 코드 생성 및 스캔 도구">
+    <meta property="og:title" content="Online QR Code Generator and Scanner">
+    <meta property="og:description" content="Free web-based QR code generation and scanning tool with real-time preview">
     <meta property="og:image" content="https://tool.cocy.io/qr/icon.svg">
     <meta property="og:url" content="https://tool.cocy.io/qr/">
-    <!-- Google AdSense -->
+    <script src="../localization.js"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607"
     crossorigin="anonymous"></script>
-    <link rel="canonical" href="https://tool.cocy.io/qr/" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         body {
             background: #121212; /* 더 진한 배경색 */
@@ -164,74 +163,44 @@
             }
         }
     </style>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','GTM-TDHR6X9N');</script>
-    <!-- End Google Tag Manager -->
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KLF3L6R84V"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-KLF3L6R84V');
-</script>
 <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TDHR6X9N"
-        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
     <div class="container">
-        <h1 class="text-center mb-4 display-4">QR 코드 생성기 및 스캐너</h1>
+        <h1 class="text-center mb-4 display-4" >QR Code Generator and Scanner</h1>
         
         <div class="qr-section">
-            <h2>QR 코드 생성</h2>
+            <h2 data-translate-key="qr_generate_title">Generate QR Code</h2>
             <div class="input-group mb-3">
-                <input type="text" id="qrText" class="form-control" placeholder="텍스트 또는 URL 입력">
-                <button onclick="generateQR()" class="btn btn-primary">생성하기</button>
+                <input type="text" id="qrText" class="form-control" placeholder="Enter text or URL" data-translate-placeholder="true">
+                <button onclick="generateQR()" class="btn btn-primary" data-translate-key="qr_generate_button">Generate</button>
             </div>
             <div id="qrcode"></div>
             <div class="mt-3">
-                <button id="downloadBtn" class="btn btn-outline-primary" style="display:none;">QR 코드 다운로드</button>
+                <button id="downloadBtn" class="btn btn-outline-primary" style="display:none;" data-translate-key="qr_download_button">Download QR Code</button>
             </div>
         </div>
 
         <div class="qr-section">
-            <h2>QR 코드 스캐너</h2>
+            <h2 data-translate-key="qr_scan_title">Scan QR Code</h2>
             <div class="camera-selector mb-3">
-                <select id="cameraSelect" class="form-select">
-                    <option value="">카메라 선택</option>
+                <select id="cameraSelect" class="form-select" data-translate-key="qr_camera_select">
+                    <option value="" data-translate-key="qr_camera_placeholder">Select Camera</option>
                 </select>
             </div>
             <div class="mb-3" style="max-height: 400px;">
                 <video id="scanner" class="bg-dark"></video>
             </div>
-            <div id="scanResult" class="alert alert-info" style="display:none;"></div>
-            <div id="copyAlert" class="alert alert-success mt-2" style="display:none;"></div>
-            <button onclick="toggleScanner()" id="scanBtn" class="btn btn-success w-100">스캔 시작</button>
+            <div id="scanResult" class="alert alert-info" style="display:none;" data-translate-key="qr_scan_result"></div>
+            <div id="copyAlert" class="alert alert-success mt-2" style="display:none;" data-translate-key="qr_copy_alert"></div>
+            <button onclick="toggleScanner()" id="scanBtn" class="btn btn-success w-100" data-translate-key="qr_scan_button">Start Scanning</button>
         </div>
     </div>
 
-    <!-- 푸터 -->
-    <footer>
-        <p style="margin: 0;">
-            © 2025 QR Tools. 
-            <a href="https://cocy.io" target="_blank">COCY.IO</a> 
-            All rights reserved.
-        </p>
-    </footer>
-
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script>
         let html5QrCode = null;
         let cameraId = null;
-        let qrCodeData = null;
 
-        // 페이지 로드 시 카메라 목록 가져오기
+        // Initialize QR code generator and scanner
         window.addEventListener('DOMContentLoaded', async () => {
             try {
                 const devices = await Html5Qrcode.getCameras();
@@ -241,49 +210,37 @@
                     devices.forEach(device => {
                         const option = document.createElement('option');
                         option.value = device.id;
-                        option.text = device.label || `카메라 ${cameraSelect.options.length}`;
+                        option.text = device.label || `Camera ${cameraSelect.options.length}`;
                         cameraSelect.appendChild(option);
                     });
-                    
-                    // 기본적으로 후면 카메라 선택(있는 경우)
+
                     const backCamera = devices.find(device => 
                         device.label.toLowerCase().includes('back') || 
-                        device.label.toLowerCase().includes('후면') ||
                         device.label.toLowerCase().includes('rear'));
                     
-                    if (backCamera) {
-                        cameraSelect.value = backCamera.id;
-                        cameraId = backCamera.id;
-                    } else {
-                        cameraId = devices[0].id;
-                    }
+                    cameraId = backCamera ? backCamera.id : devices[0].id;
+                    cameraSelect.value = cameraId;
                 } else {
-                    cameraSelect.innerHTML = '<option value="">사용 가능한 카메라 없음</option>';
+                    cameraSelect.innerHTML = '<option value="" data-translate-key="qr_no_camera">No cameras available</option>';
                 }
             } catch (err) {
-                console.error("카메라 목록 가져오기 오류:", err);
+                console.error("Error fetching camera list:", err);
             }
+
+            initializeLocalization(); // Initialize i18n
         });
 
-        // 카메라 선택 변경 이벤트
-        document.getElementById('cameraSelect').addEventListener('change', function() {
-            cameraId = this.value;
-            if (html5QrCode && html5QrCode.isScanning) {
-                toggleScanner().then(() => toggleScanner());
-            }
-        });
-
-        // QR 코드 생성 함수
+        // Generate QR code
         function generateQR() {
-            let qrText = document.getElementById("qrText").value;
+            const qrText = document.getElementById("qrText").value.trim();
             if (!qrText) {
-                alert("텍스트 또는 URL을 입력해주세요!");
+                alert(translate('qr_enter_text_alert'));
                 return;
             }
-            
+
             const qrcodeElement = document.getElementById("qrcode");
             qrcodeElement.innerHTML = "";
-            
+
             new QRCode(qrcodeElement, {
                 text: qrText,
                 width: 200,
@@ -292,13 +249,10 @@
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
             });
-            
-            qrCodeData = qrText;
-            
-            // QR 코드 다운로드 버튼 표시
+
             const downloadBtn = document.getElementById('downloadBtn');
             downloadBtn.style.display = 'inline-block';
-            downloadBtn.onclick = function() {
+            downloadBtn.onclick = () => {
                 const canvas = qrcodeElement.querySelector('canvas');
                 if (canvas) {
                     const link = document.createElement('a');
@@ -309,7 +263,7 @@
             };
         }
 
-        // QR 코드 스캐너 토글 함수
+        // Toggle QR code scanner
         async function toggleScanner() {
             const scanBtn = document.getElementById('scanBtn');
             const scanResult = document.getElementById('scanResult');
@@ -317,55 +271,51 @@
 
             if (html5QrCode && html5QrCode.isScanning) {
                 await html5QrCode.stop();
-                scanBtn.textContent = '스캔 시작';
+                scanBtn.textContent = translate('qr_scan_button');
                 scanResult.style.display = 'none';
                 return;
             }
 
             try {
                 if (!cameraId) {
-                    alert("사용 가능한 카메라가 없습니다. 카메라 접근 권한을 확인해주세요.");
+                    alert(translate('qr_no_camera_alert'));
                     return;
                 }
 
                 html5QrCode = new Html5Qrcode("scanner");
-                const config = { 
-                    fps: 20,
-                    qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1,
-                    disableFlip: false,
-                };
+                const config = { fps: 20, qrbox: { width: 250, height: 250 } };
 
                 await html5QrCode.start(
                     cameraId, 
                     config,
                     decodedText => {
-                        scanResult.innerHTML = `스캔 결과: <b>${decodedText}</b>`;
+                        scanResult.innerHTML = `${translate('qr_scan_result')}: <b>${decodedText}</b>`;
                         scanResult.style.display = 'block';
                         navigator.clipboard.writeText(decodedText)
                             .then(() => {
-                                copyAlert.textContent = "QR 코드 내용이 클립보드로 복사되었습니다!";
+                                copyAlert.textContent = translate('qr_copy_success');
                                 copyAlert.style.display = 'block';
                                 setTimeout(() => copyAlert.style.display = 'none', 2000);
                             })
                             .catch(err => {
-                                console.error("클립보드 복사 오류:", err);
-                                copyAlert.textContent = "클립보드 복사 실패. 권한을 확인해주세요.";
+                                console.error("Clipboard copy error:", err);
+                                copyAlert.textContent = translate('qr_copy_fail');
                                 copyAlert.style.display = 'block';
                                 setTimeout(() => copyAlert.style.display = 'none', 2000);
                             });
                     },
                     error => {
-                        // QR 코드를 찾는 중에는 오류 메시지 표시하지 않음
+                        // Ignore errors during scanning
                     }
                 );
-                scanBtn.textContent = '스캔 중지';
+                scanBtn.textContent = translate('qr_stop_scanning');
             } catch (err) {
-                console.error("카메라 오류:", err);
-                alert(`카메라 오류: ${err.message || '브라우저 설정에서 카메라 권한을 허용해 주세요.'}`);
-                scanBtn.textContent = '스캔 시작';
+                console.error("Camera error:", err);
+                alert(translate('qr_camera_error_alert'));
+                scanBtn.textContent = translate('qr_scan_button');
             }
         }
     </script>
 </body>
 </html>
+``` 

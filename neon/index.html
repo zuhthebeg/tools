@@ -135,6 +135,8 @@
     }
   </style>
   <script src="../localization.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607"
+  crossorigin="anonymous"></script>
 </head>
 <body>
   <div id="controls">
@@ -178,7 +180,7 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const STORAGE_KEY = 'neon_text';
+      const STORAGE_KEY = 'neon_options';
       const textInput = document.getElementById('textInput');
       const neonText = document.getElementById('neonText');
       const fontSizeSlider = document.getElementById('fontSizeSlider');
@@ -191,19 +193,6 @@
       const container = document.getElementById('neonContainer');
       const fullscreenBtn = document.getElementById('fullscreenBtn');
       const controls = document.getElementById('controls');
-
-      const examplePhrases = [
-        translate('example_welcome'),
-        translate('example_hello'),
-        translate('example_good_morning'),
-        translate('example_good_evening'),
-        translate('example_thank_you'),
-        translate('example_congratulations'),
-        translate('example_happy_birthday'),
-        translate('example_goodbye'),
-        translate('example_have_a_nice_day'),
-        translate('example_see_you_soon')
-      ];
 
       function updateStyle() {
         neonText.textContent = textInput.value || translate('neon_text_placeholder');
@@ -235,15 +224,27 @@
         }
       }
 
-      function saveTextToStorage() {
-        localStorage.setItem(STORAGE_KEY, textInput.value);
+      function saveOptionsToStorage() {
+        const options = {
+          text: textInput.value,
+          fontSize: fontSizeSlider.value,
+          marquee: marqueeCheck.checked,
+          marqueeDirection: marqueeDirection.value,
+          rainbow: rainbowCheck.checked,
+          neonColor: neonColor.value
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(options));
       }
 
-      function loadTextFromStorage() {
-        const savedText = localStorage.getItem(STORAGE_KEY);
-        if (savedText) {
-          textInput.value = savedText;
-          neonText.textContent = savedText;
+      function loadOptionsFromStorage() {
+        const savedOptions = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (savedOptions) {
+          textInput.value = savedOptions.text || '';
+          fontSizeSlider.value = savedOptions.fontSize || '4';
+          marqueeCheck.checked = savedOptions.marquee || false;
+          marqueeDirection.value = savedOptions.marqueeDirection || 'left';
+          rainbowCheck.checked = savedOptions.rainbow || false;
+          neonColor.value = savedOptions.neonColor || '#00ffff';
         }
       }
 
@@ -271,15 +272,30 @@
 
       textInput.addEventListener('input', () => {
         updateStyle();
-        saveTextToStorage();
+        saveOptionsToStorage();
       });
-      fontSizeSlider.addEventListener('input', updateStyle);
-      marqueeCheck.addEventListener('change', updateStyle);
-      marqueeDirection.addEventListener('change', updateStyle);
-      rainbowCheck.addEventListener('change', updateStyle);
-      neonColor.addEventListener('input', updateStyle);
+      fontSizeSlider.addEventListener('input', () => {
+        updateStyle();
+        saveOptionsToStorage();
+      });
+      marqueeCheck.addEventListener('change', () => {
+        updateStyle();
+        saveOptionsToStorage();
+      });
+      marqueeDirection.addEventListener('change', () => {
+        updateStyle();
+        saveOptionsToStorage();
+      });
+      rainbowCheck.addEventListener('change', () => {
+        updateStyle();
+        saveOptionsToStorage();
+      });
+      neonColor.addEventListener('input', () => {
+        updateStyle();
+        saveOptionsToStorage();
+      });
 
-      loadTextFromStorage();
+      loadOptionsFromStorage();
       updateStyle();
     });
   </script>
