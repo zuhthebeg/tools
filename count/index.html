@@ -104,21 +104,29 @@
         <span data-translate-key="char_count_label">Characters</span>
       </div>
       <div>
+        <span id="wordCount">0</span>
+        <span data-translate-key="word_count_label">Words</span>
+      </div>
+      <div>
         <span id="byteCount">0</span>
         <span data-translate-key="byte_count_label">Bytes</span>
       </div>
     </div>
   </div>
-
+  <footer style="margin-top: 20px; text-align: center; font-size: 0.9rem; color: #777;">
+    <p>&copy; 2023 Your Company. All rights reserved.</p>
+  </footer>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const textInput = document.getElementById('textInput');
       const charCount = document.getElementById('charCount');
+      const wordCount = document.getElementById('wordCount');
       const byteCount = document.getElementById('byteCount');
 
       function updateCounts() {
         const text = textInput.value;
         charCount.textContent = text.length;
+        wordCount.textContent = text.trim() ? text.trim().split(/\s+/).length : 0;
         byteCount.textContent = new Blob([text]).size; // Calculate byte size
       }
 

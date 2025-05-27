@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0ff" stop-opacity="1" />
+      <stop offset="100%" stop-color="#0ff" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="100" height="100" fill="black" />
+  <circle cx="50" cy="50" r="30" fill="url(#glow)" />
+  <text x="50" y="55" font-family="Arial, sans-serif" font-size="20" fill="#fff" text-anchor="middle" alignment-baseline="middle">
+    Neon
+  </text>
+</svg>
