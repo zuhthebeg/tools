@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Neon Sign</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      height: 100%;
+      width: 100%;
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 1em;
+      border-radius: 12px;
+      z-index: 10;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: opacity 0.3s;
+      min-width: 220px;
+    }
+
+    input[type="text"], input[type="color"], input[type="range"], select {
+      width: 100%;
+    }
+
+    #fullscreenBtn {
+      margin-top: 10px;
+      padding: 0.5em;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #neonContainer {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .neon-wrapper {
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    #neonText {
+      display: inline-block;
+      font-size: var(--font-size, 4rem);
+      font-weight: bold;
+      color: white;
+      text-shadow:
+        0 0 8px #fff,
+        0 0 18px var(--neon-color, #0ff),
+        0 0 32px var(--neon-color, #0ff),
+        0 0 64px var(--neon-color, #0ff);
+    }
+
+    @keyframes smooth-flicker {
+      0%, 97%, 100% { opacity: 1; filter: brightness(1.1) blur(0.7px);}
+      2% { opacity: 0.88; filter: brightness(1.2);}
+      3% { opacity: 0.4; filter: brightness(1.4);}
+      5% { opacity: 1; filter: brightness(1);}
+      18% { opacity: 0.92; filter: brightness(1.2);}
+      20% { opacity: 0.36; filter: brightness(1.3);}
+      22% { opacity: 1; filter: brightness(1);}
+      70% { opacity: 0.8; filter: brightness(1.4);}
+      71% { opacity: 1; filter: brightness(1);}
+    }
+
+    @keyframes rainbow-glow {
+      0%   { color: #FF2222; text-shadow: 0 0 8px #fff, 0 0 18px #FF2222, 0 0 32px #FF2222, 0 0 64px #FF2222;}
+      15%  { color: #FF9900; text-shadow: 0 0 8px #fff, 0 0 18px #FF9900, 0 0 32px #FF9900, 0 0 64px #FF9900;}
+      30%  { color: #FFFF00; text-shadow: 0 0 8px #fff, 0 0 18px #FFFF00, 0 0 32px #FFFF00, 0 0 64px #FFFF00;}
+      45%  { color: #33FF33; text-shadow: 0 0 8px #fff, 0 0 18px #33FF33, 0 0 32px #33FF33, 0 0 64px #33FF33;}
+      60%  { color: #00FFFF; text-shadow: 0 0 8px #fff, 0 0 18px #00FFFF, 0 0 32px #00FFFF, 0 0 64px #00FFFF;}
+      75%  { color: #3333FF; text-shadow: 0 0 8px #fff, 0 0 18px #3333FF, 0 0 32px #3333FF, 0 0 64px #3333FF;}
+      90%  { color: #FF33DD; text-shadow: 0 0 8px #fff, 0 0 18px #FF33DD, 0 0 32px #FF33DD, 0 0 64px #FF33DD;}
+      100% { color: #FF2222; text-shadow: 0 0 8px #fff, 0 0 18px #FF2222, 0 0 32px #FF2222, 0 0 64px #FF2222;}
+    }
+
+    @keyframes marquee {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    .marquee .neon-wrapper {
+      animation: marquee 10s linear infinite;
+    }
+
+    .marquee-up .neon-wrapper {
+      animation: marquee-up 10s linear infinite;
+    }
+
+    .marquee-down .neon-wrapper {
+      animation: marquee-down 10s linear infinite;
+    }
+
+    @keyframes marquee-up {
+      0% { transform: translateY(100%); }
+      100% { transform: translateY(-100%); }
+    }
+
+    @keyframes marquee-down {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+
+    @media (orientation: landscape) {
+      #neonText { font-size: var(--font-size, 6rem);}
+      #neonContainer { width: 100vw; height: 100vh;}
+    }
+    @media (orientation: portrait) {
+      #neonText { font-size: var(--font-size, 3.5rem);}
+      #neonContainer { width: 100vw; height: 100vh;}
+    }
+  </style>
+  <script src="../localization.js"></script>
+</head>
+<body>
+  <div id="controls">
+    <label>
+      <span data-translate-key="neon_text">문구</span>:
+      <input type="text" id="textInput" data-translate-placeholder="true" placeholder="문구를 입력하세요" />
+    </label>
+    <label>
+      <span data-translate-key="neon_size">글씨 크기</span>:
+      <input type="range" id="fontSizeSlider" min="1" max="12" step="0.1" value="4" />
+      <span id="fontSizeVal">4</span>rem
+    </label>
+    <label>
+      <input type="checkbox" id="marqueeCheck" />
+      <span data-translate-key="neon_marquee">흐르는 글씨</span>
+    </label>
+    <label id="marqueeDirectionLabel" style="display: none;">
+      <span data-translate-key="neon_marquee_direction">흐르는 방향</span>:
+      <select id="marqueeDirection">
+        <option value="left" data-translate-key="marquee_left">왼쪽</option>
+        <option value="up" data-translate-key="marquee_up">위쪽</option>
+        <option value="down" data-translate-key="marquee_down">아래쪽</option>
+      </select>
+    </label>
+    <label>
+      <input type="checkbox" id="rainbowCheck" />
+      <span data-translate-key="neon_rainbow">레인보우</span>
+    </label>
+    <label>
+      <span data-translate-key="neon_color">네온 색상</span>:
+      <input type="color" id="neonColor" value="#00ffff" />
+    </label>
+    <button id="fullscreenBtn" data-translate-key="fullscreen_enter">OK</button>
+  </div>
+
+  <div id="neonContainer">
+    <div class="neon-wrapper">
+      <div id="neonText">네온사인 텍스트</div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const STORAGE_KEY = 'neon_text';
+      const textInput = document.getElementById('textInput');
+      const neonText = document.getElementById('neonText');
+      const fontSizeSlider = document.getElementById('fontSizeSlider');
+      const fontSizeVal = document.getElementById('fontSizeVal');
+      const marqueeCheck = document.getElementById('marqueeCheck');
+      const marqueeDirection = document.getElementById('marqueeDirection');
+      const marqueeDirectionLabel = document.getElementById('marqueeDirectionLabel');
+      const rainbowCheck = document.getElementById('rainbowCheck');
+      const neonColor = document.getElementById('neonColor');
+      const container = document.getElementById('neonContainer');
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+      const controls = document.getElementById('controls');
+
+      const examplePhrases = [
+        translate('example_welcome'),
+        translate('example_hello'),
+        translate('example_good_morning'),
+        translate('example_good_evening'),
+        translate('example_thank_you'),
+        translate('example_congratulations'),
+        translate('example_happy_birthday'),
+        translate('example_goodbye'),
+        translate('example_have_a_nice_day'),
+        translate('example_see_you_soon')
+      ];
+
+      function updateStyle() {
+        neonText.textContent = textInput.value || translate('neon_text_placeholder');
+        neonText.style.setProperty('--neon-color', neonColor.value);
+
+        const fontSize = fontSizeSlider.value;
+        neonText.style.setProperty('--font-size', fontSize + 'rem');
+        fontSizeVal.textContent = fontSize;
+
+        container.classList.toggle('marquee', marqueeCheck.checked);
+        container.classList.toggle('rainbow', rainbowCheck.checked);
+
+        if (marqueeCheck.checked) {
+          marqueeDirectionLabel.style.display = 'block';
+          container.classList.remove('marquee-left', 'marquee-up', 'marquee-down');
+          container.classList.add(`marquee-${marqueeDirection.value}`);
+        } else {
+          marqueeDirectionLabel.style.display = 'none';
+        }
+
+        if (rainbowCheck.checked) {
+          neonText.style.animation = 'rainbow-glow 5s linear infinite, smooth-flicker 2.6s infinite';
+          neonText.style.removeProperty('--neon-color');
+        } else {
+          neonText.style.animation = 'smooth-flicker 2.6s infinite';
+          neonText.style.color = 'white';
+          neonText.style.textShadow =
+            `0 0 8px #fff, 0 0 18px ${neonColor.value}, 0 0 32px ${neonColor.value}, 0 0 64px ${neonColor.value}`;
+        }
+      }
+
+      function saveTextToStorage() {
+        localStorage.setItem(STORAGE_KEY, textInput.value);
+      }
+
+      function loadTextFromStorage() {
+        const savedText = localStorage.getItem(STORAGE_KEY);
+        if (savedText) {
+          textInput.value = savedText;
+          neonText.textContent = savedText;
+        }
+      }
+
+      fullscreenBtn.addEventListener('click', async () => {
+        const elem = document.documentElement;
+        if (!document.fullscreenElement) {
+          await elem.requestFullscreen().catch(err => alert(`Fullscreen failed: ${err.message}`));
+          controls.style.opacity = '0';
+          controls.style.pointerEvents = 'none';
+          fullscreenBtn.setAttribute('data-translate-key', 'fullscreen_exit');
+          applyTranslationsToPage(); // Update the button text dynamically
+        } else {
+          document.exitFullscreen();
+        }
+      });
+
+      document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+          controls.style.opacity = '1';
+          controls.style.pointerEvents = 'auto';
+          fullscreenBtn.setAttribute('data-translate-key', 'fullscreen_enter');
+          applyTranslationsToPage(); // Update the button text dynamically
+        }
+      });
+
+      textInput.addEventListener('input', () => {
+        updateStyle();
+        saveTextToStorage();
+      });
+      fontSizeSlider.addEventListener('input', updateStyle);
+      marqueeCheck.addEventListener('change', updateStyle);
+      marqueeDirection.addEventListener('change', updateStyle);
+      rainbowCheck.addEventListener('change', updateStyle);
+      neonColor.addEventListener('input', updateStyle);
+
+      loadTextFromStorage();
+      updateStyle();
+    });
+  </script>
+</body>
+</html>
