@@ -242,6 +242,7 @@
         let timerStartTimes = [0, 0];
         let timerIntervals = [null, null];
         let currentEditTarget = null;
+        let lastFocusTime = Date.now(); // Track the last focus time
 
         // 로컬 스토리지에서 데이터 불러오기
         function loadFromLocalStorage() {
@@ -371,6 +372,27 @@
             });
         });
 
+        // 페이지 포커스 이벤트 처리
+        window.addEventListener('blur', () => {
+            lastFocusTime = Date.now(); // Save the time when the page loses focus
+        });
+
+        window.addEventListener('focus', () => {
+            const now = Date.now();
+            const focusDuration = (now - lastFocusTime) / 1000; // Calculate time elapsed while unfocused
+
+            timerRunning.forEach((isRunning, index) => {
+                if (isRunning) {
+                    elapsedTimes[index] += focusDuration; // Add the elapsed time to the timer
+                    document.getElementById(`time${index + 1}`).textContent =
+                        elapsedTimes[index].toFixed(1) + '초';
+                }
+            });
+
+            updateTotalTime();
+            saveToLocalStorage();
+        });
+
         // 시간 라벨 수정 이벤트
         const timeEditIcons = document.querySelectorAll('.time-label .edit-icon');
         timeEditIcons.forEach(icon => {
@@ -439,3 +461,4 @@
     </script>
 </body>
 </html>
+
