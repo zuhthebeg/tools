@@ -86,6 +86,24 @@ function applyTranslationsToPage() {
         }
     });
 
+    //for buttons
+    const buttonsToTranslate = document.querySelectorAll('button[data-translate-key]');
+    buttonsToTranslate.forEach(button => {
+        const key = button.getAttribute('data-translate-key');
+        if (key && typeof translate === 'function') {
+            const translatedText = translate(key);
+            if (translatedText && typeof translatedText === 'string') {
+                button.textContent = translatedText;
+            } else {
+                console.warn(`Translation failed or returned invalid result for key "${key}"`); // 디버깅용 경고
+            }
+        } else if (!key) {
+            console.warn('Found a button with data-translate-key attribute but the value is empty:', button);
+        } else if (typeof translate !== 'function') {
+            console.error('The translate function is not available.');
+        }
+    });
+
     updatePageLanguageAttribute(currentLanguage);
     // 언어 변경 시 다른 스크립트에서 후속 작업을 할 수 있도록 커스텀 이벤트를 발생시킵니다.
     document.dispatchEvent(new CustomEvent('languageChanged', { detail: { language: currentLanguage } }));
