@@ -73,8 +73,12 @@ function applyTranslationsToPage() {
         const key = element.getAttribute('data-translate-key');
         const translation = translate(key);
 
-        if (translate(key) == '') {
-            translation = element.value;
+        if (!translation) {
+            if (element.tagName === 'INPUT' || element.tagName === 'BUTTON') {
+                translatedText = element.value || element.textContent;
+            } else {
+                translatedText = element.textContent;
+            }
         } else {
             const attributeToTranslate = element.getAttribute('data-translate-attr');
             if (attributeToTranslate) {
