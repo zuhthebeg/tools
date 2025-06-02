@@ -116,7 +116,8 @@
     "draw_alt_preview_image": "Uploaded Photo",
     "draw_alt_previous_image": "Previous Caricature",
     "draw_alt_modal_image": "Zoomed image",
-    "draw_error_not_found": "not found"
+    "draw_error_not_found": "not found",
+    "draw_progress_generating_heading": "Generating caricature..."
   },
   "ko": {
     "greeting": "안녕하세요!",
@@ -235,7 +236,8 @@
     "draw_alt_preview_image": "업로드된 사진",
     "draw_alt_previous_image": "이전 캐리커처",
     "draw_alt_modal_image": "확대된 이미지",
-    "draw_error_not_found": "찾을 수 없습니다"
+    "draw_error_not_found": "찾을 수 없습니다",
+    "draw_progress_generating_heading": "캐리커처 생성 중..."
   },
   "zh-CN": {
     "greeting": "你好！",
@@ -354,7 +356,8 @@
     "draw_alt_preview_image": "已上传的照片",
     "draw_alt_previous_image": "历史肖像",
     "draw_alt_modal_image": "放大图片",
-    "draw_error_not_found": "找不到"
+    "draw_error_not_found": "找不到",
+    "draw_progress_generating_heading": "正在生成肖像..."
   },
   "zh-TW": {
     "greeting": "你好！",
@@ -463,7 +466,8 @@
     "draw_alt_preview_image": "已上傳的照片",
     "draw_alt_previous_image": "歷史肖像",
     "draw_alt_modal_image": "放大圖片",
-    "draw_error_not_found": "找不到"
+    "draw_error_not_found": "找不到",
+    "draw_progress_generating_heading": "正在生成肖像..."
   },
   "es": {
     "greeting": "¡Hola!",
@@ -572,6 +576,7 @@
     "draw_alt_preview_image": "Foto Subida",
     "draw_alt_previous_image": "Caricatura Anterior",
     "draw_alt_modal_image": "Imagen Ampliada",
-    "draw_error_not_found": "no encontrada"
+    "draw_error_not_found": "no encontrada",
+    "draw_progress_generating_heading": "Generando caricatura..."
   }
 }
