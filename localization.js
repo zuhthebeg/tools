@@ -294,7 +294,7 @@ function translate(key, lang = currentLanguage) {
         console.warn(`키 '${key}'에 대한 번역이 '${lang}' 언어에 없어 기본 언어('${defaultLanguage}')를 사용합니다.`);
         return translations[defaultLanguage][key];
     }
-    console.warn(`키 '${key}'에 대한 번역이 '${lang}' 언어 및 기본 언어에 없습니다.`);
+    console.warn(`키 '${key}'에 대한 번역이 '${lang}' 언어 및 기본 언어에 없습니다.`); 
 }
 
 function getCurrentLanguage() {
