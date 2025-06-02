@@ -73,16 +73,20 @@ function applyTranslationsToPage() {
         const key = element.getAttribute('data-translate-key');
         const translation = translate(key);
 
-        const attributeToTranslate = element.getAttribute('data-translate-attr');
-        if (attributeToTranslate) {
-            element.setAttribute(attributeToTranslate, translation);
-        } else if (element.hasAttribute('data-translate-placeholder') && element.placeholder !== undefined) {
-            element.placeholder = translation;
-        } else if ((element.tagName === 'INPUT' && (element.type === 'submit' || element.type === 'button')) || element.tagName === 'BUTTON') {
-            element.value = translation;
-        }
-        else {
-            element.textContent = translation;
+        if (translate(key) == '') {
+            translation = element.value;
+        } else {
+            const attributeToTranslate = element.getAttribute('data-translate-attr');
+            if (attributeToTranslate) {
+                element.setAttribute(attributeToTranslate, translation);
+            } else if (element.hasAttribute('data-translate-placeholder') && element.placeholder !== undefined) {
+                element.placeholder = translation;
+            } else if ((element.tagName === 'INPUT' && (element.type === 'submit' || element.type === 'button')) || element.tagName === 'BUTTON') {
+                element.value = translation;
+            }
+            else {
+                element.textContent = translation;
+            }
         }
     });
 
