@@ -275,7 +275,7 @@ async function setLanguage(lang, apply = true) {
  * 주어진 키에 해당하는 번역된 문자열을 반환합니다.
  * @param {string} key - 번역할 문자열의 키.
  * @param {string} [lang=currentLanguage] - 번역을 가져올 언어. 기본값은 현재 언어.
- * @returns {string} 번역된 문자열. 번역이 없으면 기본 언어의 번역 또는 키 자체를 반환.
+ * @returns {string} 번역된 문자열. 번역이 없으면 기본 언어의 번역 반환.
  */
 function translate(key, lang = currentLanguage) {
     if (translations[lang] && translations[lang][key] !== undefined) {
@@ -286,8 +286,7 @@ function translate(key, lang = currentLanguage) {
         console.warn(`키 '${key}'에 대한 번역이 '${lang}' 언어에 없어 기본 언어('${defaultLanguage}')를 사용합니다.`);
         return translations[defaultLanguage][key];
     }
-    console.warn(`키 '${key}'에 대한 번역이 '${lang}' 언어 및 기본 언어에 없습니다. 키 값을 반환합니다.`);
-    return key; // 최후의 수단으로 키 자체를 반환
+    console.warn(`키 '${key}'에 대한 번역이 '${lang}' 언어 및 기본 언어에 없습니다.`);
 }
 
 function getCurrentLanguage() {
