@@ -75,9 +75,9 @@ function applyTranslationsToPage() {
 
         if (!translation) {
             if (element.tagName === 'INPUT' || element.tagName === 'BUTTON') {
-                translatedText = element.value || element.textContent;
+                translation = element.value || element.textContent;
             } else {
-                translatedText = element.textContent;
+                translation = element.textContent;
             }
         } else {
             const attributeToTranslate = element.getAttribute('data-translate-attr');
