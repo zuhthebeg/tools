@@ -71,7 +71,7 @@ function applyTranslationsToPage() {
     const elements = document.querySelectorAll('[data-translate-key]');
     elements.forEach(element => {
         const key = element.getAttribute('data-translate-key');
-        const translation = translate(key);
+        let translation = translate(key);
 
         if (!translation) {
             if (element.tagName === 'INPUT' || element.tagName === 'BUTTON') {
