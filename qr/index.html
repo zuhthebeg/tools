@@ -228,6 +228,62 @@
                 padding: 1.2rem;
             }
         }
+
+        .nav-tabs {
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .nav-tabs .nav-link {
+            color: #6c757d;
+            border: 1px solid transparent;
+            border-top-left-radius: 0.25rem;
+            border-top-right-radius: 0.25rem;
+            padding: 0.5rem 1rem;
+            margin-bottom: -1px;
+        }
+
+        .nav-tabs .nav-link:hover {
+            border-color: #e9ecef #e9ecef #dee2e6;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #495057;
+            background-color: #fff;
+            border-color: #dee2e6 #dee2e6 #fff;
+        }
+
+        body.dark-mode .nav-tabs .nav-link {
+            color: #adb5bd;
+        }
+
+        body.dark-mode .nav-tabs .nav-link.active {
+            color: #f8f9fa;
+            background-color: #343a40;
+            border-color: #495057 #495057 #343a40;
+        }
+
+        body.dark-mode .nav-tabs {
+            border-bottom-color: #495057;
+        }
+
+        .wifi-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .wifi-info p {
+            margin-bottom: 8px;
+        }
+
+        .wifi-info p:last-child {
+            margin-bottom: 0;
+        }
+
+        body.dark-mode .wifi-info {
+            background: rgba(255, 255, 255, 0.05);
+        }
     </style>
 </head>
 <body class="dark-mode">
@@ -511,15 +567,47 @@
             const resultText = typeof result === 'object' ? result.data : result;
             lastResult = resultText;
             
-            document.getElementById('resultText').textContent = resultText;
-            document.getElementById('scanResult').style.display = 'block';
-            
-            // URL인지 확인
-            try {
-                new URL(resultText);
-                document.getElementById('openBtn').style.display = 'inline-block';
-            } catch {
-                document.getElementById('openBtn').style.display = 'none';
+            // WiFi QR 코드인지 확인
+            if (resultText.startsWith('WIFI:')) {
+                const wifiParams = parseWifiQR(resultText);
+                if (wifiParams) {
+                    // 모바일 기기인 경우 WiFi 연결 시도
+                    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                        // Android의 경우
+                        if (/Android/i.test(navigator.userAgent)) {
+                            const wifiString = `wifi://${wifiParams.ssid}/${wifiParams.password}/${wifiParams.encryption}`;
+                            window.location.href = wifiString;
+                        }
+                        // iOS의 경우
+                        else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                            const wifiString = `WIFI:T:${wifiParams.encryption};S:${wifiParams.ssid};P:${wifiParams.password};;`;
+                            window.location.href = `https://wifi-connect.apple.com/?ssid=${encodeURIComponent(wifiParams.ssid)}&password=${encodeURIComponent(wifiParams.password)}`;
+                        }
+                    }
+                    
+                    // 결과 표시
+                    document.getElementById('resultText').innerHTML = `
+                        <div class="wifi-info">
+                            <p><strong>네트워크 이름:</strong> ${wifiParams.ssid}</p>
+                            <p><strong>암호화 방식:</strong> ${wifiParams.encryption}</p>
+                            <p><strong>비밀번호:</strong> ${wifiParams.password || '없음'}</p>
+                        </div>
+                    `;
+                    document.getElementById('scanResult').style.display = 'block';
+                    document.getElementById('openBtn').style.display = 'none';
+                }
+            } else {
+                // 일반 QR 코드 처리
+                document.getElementById('resultText').textContent = resultText;
+                document.getElementById('scanResult').style.display = 'block';
+                
+                // URL인지 확인
+                try {
+                    new URL(resultText);
+                    document.getElementById('openBtn').style.display = 'inline-block';
+                } catch {
+                    document.getElementById('openBtn').style.display = 'none';
+                }
             }
             
             // 진동 피드백 (지원되는 경우)
@@ -528,6 +616,36 @@
             }
             
             updateStatus('ready', '스캔 완료');
+        }
+        
+        // WiFi QR 코드 파싱 함수
+        function parseWifiQR(qrString) {
+            try {
+                // WIFI:S:<SSID>;T:<WPA|WEP|>;P:<password>;;
+                const params = {};
+                const parts = qrString.substring(5).split(';');
+                
+                parts.forEach(part => {
+                    if (part.startsWith('S:')) {
+                        params.ssid = part.substring(2);
+                    } else if (part.startsWith('T:')) {
+                        params.encryption = part.substring(2);
+                    } else if (part.startsWith('P:')) {
+                        params.password = part.substring(2);
+                    }
+                });
+                
+                if (!params.ssid) return null;
+                
+                return {
+                    ssid: params.ssid,
+                    encryption: params.encryption || 'WPA',
+                    password: params.password || ''
+                };
+            } catch (error) {
+                console.error('WiFi QR 파싱 오류:', error);
+                return null;
+            }
         }
         
         // Toggle scanner
@@ -688,6 +806,54 @@
             }
         }
         
+        // WiFi QR 코드 생성 함수
+        function generateWifiQR() {
+            const ssid = document.getElementById('ssid').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const encryption = document.getElementById('encryption').value;
+            
+            if (!ssid) {
+                alert('네트워크 이름을 입력해주세요!');
+                return;
+            }
+            
+            if (encryption !== 'nopass' && !password) {
+                alert('비밀번호를 입력해주세요!');
+                return;
+            }
+            
+            // WiFi QR 코드 형식: WIFI:S:<SSID>;T:<WPA|WEP|>;P:<password>;;
+            let wifiString = `WIFI:S:${ssid};T:${encryption};`;
+            if (encryption !== 'nopass') {
+                wifiString += `P:${password};`;
+            }
+            wifiString += ';';
+            
+            const wifiQrcodeElement = document.getElementById('wifiQrcode');
+            wifiQrcodeElement.innerHTML = '';
+            
+            new QRCode(wifiQrcodeElement, {
+                text: wifiString,
+                width: 200,
+                height: 200,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            const wifiDownloadBtn = document.getElementById('wifiDownloadBtn');
+            wifiDownloadBtn.style.display = 'inline-block';
+            wifiDownloadBtn.onclick = () => {
+                const canvas = wifiQrcodeElement.querySelector('canvas');
+                if (canvas) {
+                    const link = document.createElement('a');
+                    link.download = 'wifi-qrcode.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }
+            };
+        }
+        
         // Make functions globally available
         window.toggleTheme = toggleTheme;
         window.generateQR = generateQR;
@@ -696,6 +862,7 @@
         window.copyResult = copyResult;
         window.openResult = openResult;
         window.scanFromImage = scanFromImage;
+        window.generateWifiQR = generateWifiQR;
     </script>
 </body>
 </html>
