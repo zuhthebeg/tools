@@ -12,8 +12,22 @@
     <meta property="og:image" content="https://tool.cocy.io/qr/icon.svg">
     <meta property="og:url" content="https://tool.cocy.io/qr/">
     
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4285f4',
+                        success: '#34a853',
+                        danger: '#ea4335'
+                    }
+                }
+            }
+        }
+    </script>
     
     <!-- Localization Script -->
     <script src="https://tool.cocy.io/localization.js"></script>
@@ -31,838 +45,259 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script type="module" src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.min.js"></script>
     
+    <!-- MediaPipe for AI -->
+    <script type="module">
+        // MediaPipe는 필요할 때 동적으로 로드됨
+    </script>
+    
     <style>
-        body {
-            background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
-            color: #f0f0f0;
-            min-height: 100vh;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
-        
-        body.light-mode {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            color: #212529;
-        }
-        
-        .container {
-            background: rgba(34, 34, 34, 0.95);
-            border: 1px solid #333333;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 25px;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-        
-        body.light-mode .container {
-            background: rgba(255, 255, 255, 0.95);
-            border: 1px solid #e0e0e0;
-            color: #212529;
-        }
-        
-        .qr-section {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            margin-bottom: 2rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-        
-        body.dark-mode .qr-section {
-            background: rgba(40, 40, 40, 0.95);
-            color: #f0f0f0;
-        }
-        
-        #qrcode {
-            margin: 1.5rem auto;
+        .qr-container {
             min-height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             background: white;
-            border-radius: 8px;
-            padding: 10px;
         }
-        
-        body.dark-mode #qrcode {
+        .dark .qr-container {
             background: #f8f9fa;
         }
-        
-        #video-container {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            border-radius: 12px;
-            overflow: hidden;
-            background: #000;
-        }
-        
-        #qr-video {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        
-        .highlight-box {
-            position: absolute;
-            border: 2px solid #00ff00;
-            background: rgba(0, 255, 0, 0.1);
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        .wifi-tab-content {
             display: none;
         }
-        
-        .btn-primary {
-            background: #4285f4;
-            border-color: #4285f4;
-            font-weight: 500;
-        }
-        
-        .btn-success {
-            background: #34a853;
-            border-color: #34a853;
-            font-weight: 500;
-        }
-        
-        .btn-danger {
-            background: #ea4335;
-            border-color: #ea4335;
-            font-weight: 500;
-        }
-        
-        .btn {
-            border-radius: 8px;
-            padding: 10px 16px;
-            transition: all 0.2s ease;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        
-        .qr-section h2 {
-            color: #333;
-            text-shadow: 0 1px 1px rgba(255,255,255,0.5);
-            margin-bottom: 1rem;
-            font-weight: 700;
-            border-bottom: 3px solid #4285f4;
-            padding-bottom: 0.5rem;
-            display: inline-block;
-        }
-        
-        body.dark-mode .qr-section h2 {
-            color: #f0f0f0;
-            text-shadow: 0 1px 1px rgba(0,0,0,0.5);
-        }
-        
-        .alert {
-            border-radius: 8px;
-            font-weight: 500;
-        }
-        
-        #scanResult {
-            word-break: break-all;
-        }
-        
-        .camera-controls {
-            margin-bottom: 1rem;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        
-        .status-indicator {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        
-        .status-ready {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .status-scanning {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-        
-        .status-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        /* 반응형 스타일 */
-        @media (max-width: 768px) {
-            .container {
-                margin: 1rem auto;
-                padding: 15px;
-                width: 95%;
-            }
-            .qr-section {
-                padding: 1.5rem;
-                margin-bottom: 1.5rem;
-            }
-            .camera-controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .container {
-                padding: 12px;
-                border-radius: 12px;
-            }
-            .qr-section {
-                padding: 1.2rem;
-            }
-        }
-
-        .nav-tabs {
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .nav-tabs .nav-link {
-            color: #6c757d;
-            border: 1px solid transparent;
-            border-top-left-radius: 0.25rem;
-            border-top-right-radius: 0.25rem;
-            padding: 0.5rem 1rem;
-            margin-bottom: -1px;
-        }
-
-        .nav-tabs .nav-link:hover {
-            border-color: #e9ecef #e9ecef #dee2e6;
-        }
-
-        .nav-tabs .nav-link.active {
-            color: #495057;
-            background-color: #fff;
-            border-color: #dee2e6 #dee2e6 #fff;
-        }
-
-        body.dark-mode .nav-tabs .nav-link {
-            color: #adb5bd;
-        }
-
-        body.dark-mode .nav-tabs .nav-link.active {
-            color: #f8f9fa;
-            background-color: #343a40;
-            border-color: #495057 #495057 #343a40;
-        }
-
-        body.dark-mode .nav-tabs {
-            border-bottom-color: #495057;
-        }
-
-        .wifi-info {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-
-        .wifi-info p {
-            margin-bottom: 8px;
-        }
-
-        .wifi-info p:last-child {
-            margin-bottom: 0;
-        }
-
-        body.dark-mode .wifi-info {
-            background: rgba(255, 255, 255, 0.05);
+        .wifi-tab-content.active {
+            display: block;
         }
     </style>
 </head>
-<body class="dark-mode">
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="text-center display-4 flex-grow-1" data-translate-key="qr_title">QR Code Generator and Scanner</h1>
-            <button id="themeToggle" class="btn btn-outline-secondary" onclick="toggleTheme()">
-                <span id="themeIcon">🌞</span>
+<body class="dark bg-gray-900 text-white min-h-screen transition-colors duration-300">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-center flex-grow" data-translate-key="qr_title">
+                QR Code Generator & Scanner
+            </h1>
+            <button id="themeToggle" class="p-2 rounded-lg bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors">
+                <span id="themeIcon" class="text-2xl">🌞</span>
             </button>
         </div>
         
-        <!-- 탭 네비게이션 추가 -->
-        <div class="nav nav-tabs mb-4" id="qrTabs" role="tablist">
-            <button class="nav-link active" id="generate-tab" data-bs-toggle="tab" data-bs-target="#generate" type="button" role="tab">QR 생성</button>
-            <button class="nav-link" id="wifi-tab" data-bs-toggle="tab" data-bs-target="#wifi" type="button" role="tab">WiFi QR</button>
-            <button class="nav-link" id="scan-tab" data-bs-toggle="tab" data-bs-target="#scan" type="button" role="tab">QR 스캔</button>
+        <!-- Tabs -->
+        <div class="mb-8">
+            <div class="flex border-b border-gray-700 dark:border-gray-600">
+                <button class="tab-btn active px-6 py-3 font-medium border-b-2 border-primary text-primary" data-tab="generate">
+                    QR 생성
+                </button>
+                <button class="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-primary transition-colors" data-tab="wifi">
+                    WiFi QR
+                </button>
+                <button class="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-primary transition-colors" data-tab="scan">
+                    QR 스캔
+                </button>
+            </div>
         </div>
 
-        <!-- 탭 콘텐츠 -->
-        <div class="tab-content" id="qrTabContent">
+        <!-- Tab Contents -->
+        <div id="tab-contents">
             <!-- QR 생성 탭 -->
-            <div class="tab-pane fade show active" id="generate" role="tabpanel">
-                <div class="qr-section">
-                    <h2>QR 코드 생성</h2>
-                    <div class="input-group mb-3">
-                        <input type="text" id="qrText" class="form-control" placeholder="텍스트 또는 URL을 입력하세요">
-                        <button onclick="generateQR()" class="btn btn-primary">생성하기</button>
+            <div id="generate-tab" class="tab-content active">
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+                    <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white border-b-2 border-primary pb-2 inline-block">
+                        QR 코드 생성
+                    </h2>
+                    <div class="mb-6">
+                        <div class="flex gap-2">
+                            <input type="text" id="qrText" 
+                                   class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+                                   placeholder="텍스트 또는 URL을 입력하세요">
+                            <button onclick="generateQR()" 
+                                    class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors font-medium">
+                                생성하기
+                            </button>
+                        </div>
                     </div>
-                    <div id="qrcode"></div>
-                    <div class="mt-3">
-                        <button id="downloadBtn" class="btn btn-outline-primary" style="display:none;">QR 코드 다운로드</button>
-                    </div>
+                    <div id="qrcode" class="qr-container flex items-center justify-center rounded-lg p-4 mb-4"></div>
+                    <button id="downloadBtn" style="display:none;" 
+                            class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                        QR 코드 다운로드
+                    </button>
                 </div>
             </div>
 
             <!-- WiFi QR 탭 -->
-            <div class="tab-pane fade" id="wifi" role="tabpanel">
-                <div class="qr-section">
-                    <h2>WiFi QR 코드 생성</h2>
-                    <form id="wifiForm" class="mb-3">
-                        <div class="mb-3">
-                            <label for="ssid" class="form-label">네트워크 이름 (SSID)</label>
-                            <input type="text" class="form-control" id="ssid" required>
+            <div id="wifi-tab" class="tab-content hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+                    <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white border-b-2 border-primary pb-2 inline-block">
+                        WiFi QR 코드 생성
+                    </h2>
+                    
+                    <!-- WiFi 탭 네비게이션 -->
+                    <div class="mb-6">
+                        <div class="flex border-b border-gray-200 dark:border-gray-600">
+                            <button class="wifi-tab-btn active px-4 py-2 font-medium border-b-2 border-primary text-primary" data-wifi-tab="manual">
+                                수동 입력
+                            </button>
+                            <button class="wifi-tab-btn px-4 py-2 font-medium border-b-2 border-transparent hover:text-primary transition-colors" data-wifi-tab="ocr">
+                                이미지에서 추출 (OCR)
+                            </button>
                         </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">비밀번호</label>
-                            <input type="password" class="form-control" id="password" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="encryption" class="form-label">암호화 방식</label>
-                            <select class="form-select" id="encryption">
-                                <option value="WPA">WPA/WPA2</option>
-                                <option value="WEP">WEP</option>
-                                <option value="nopass">암호화 없음</option>
-                            </select>
-                        </div>
-                        <button type="button" onclick="generateWifiQR()" class="btn btn-primary">WiFi QR 생성</button>
-                    </form>
-                    <div id="wifiQrcode"></div>
-                    <div class="mt-3">
-                        <button id="wifiDownloadBtn" class="btn btn-outline-primary" style="display:none;">WiFi QR 다운로드</button>
                     </div>
+
+                    <!-- 수동 입력 탭 -->
+                    <div id="manual-wifi" class="wifi-tab-content active">
+                        <form class="mb-6 space-y-4">
+                            <div>
+                                <label for="ssid" class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
+                                    네트워크 이름 (SSID)
+                                </label>
+                                <input type="text" id="ssid" required
+                                       class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label for="password" class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
+                                    비밀번호
+                                </label>
+                                <input type="password" id="password" required
+                                       class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label for="encryption" class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
+                                    암호화 방식
+                                </label>
+                                <select id="encryption" 
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                                    <option value="WPA">WPA/WPA2</option>
+                                    <option value="WEP">WEP</option>
+                                    <option value="nopass">암호화 없음</option>
+                                </select>
+                            </div>
+                            <button type="button" onclick="generateWifiQR()" 
+                                    class="w-full px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors font-medium">
+                                WiFi QR 생성
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- OCR 탭 -->
+                    <div id="ocr-wifi" class="wifi-tab-content">
+                        <div class="mb-6">
+                            <label for="wifiImageUpload" class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
+                                🖼️ WiFi 정보가 있는 이미지 업로드
+                            </label>
+                            <input type="file" id="wifiImageUpload" accept="image/*" 
+                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                카페나 레스토랑에서 제공하는 WiFi 정보 사진을 업로드하세요
+                            </p>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <button onclick="extractWiFiFromImage()" 
+                                    class="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+                                🤖 AI로 WiFi 정보 추출
+                            </button>
+                        </div>
+                        
+                        <!-- 추출된 정보 표시 -->
+                        <div id="extractedWifiInfo" class="hidden mb-6 p-4 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg">
+                            <h3 class="font-bold text-blue-900 dark:text-blue-100 mb-2">추출된 WiFi 정보:</h3>
+                            <div id="extractedWifiDetails" class="text-blue-800 dark:text-blue-200 space-y-1"></div>
+                            <button onclick="generateFromExtracted()" 
+                                    class="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                이 정보로 QR 생성
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="wifiQrcode" class="qr-container flex items-center justify-center rounded-lg p-4 mb-4"></div>
+                    <button id="wifiDownloadBtn" style="display:none;" 
+                            class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                        WiFi QR 다운로드
+                    </button>
                 </div>
             </div>
 
             <!-- QR 스캔 탭 -->
-            <div class="tab-pane fade" id="scan" role="tabpanel">
-                <div class="qr-section">
-                    <h2>QR 코드 스캔</h2>
-                    <!-- 기존 스캔 관련 코드 유지 -->
-                    <div class="camera-controls">
-                        <select id="cameraSelect" class="form-select flex-grow-1">
+            <div id="scan-tab" class="tab-content hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+                    <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white border-b-2 border-primary pb-2 inline-block">
+                        QR 코드 스캔
+                    </h2>
+                    
+                    <!-- 카메라 컨트롤 -->
+                    <div class="mb-6 flex flex-col sm:flex-row gap-4 items-center">
+                        <select id="cameraSelect" 
+                                class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
                             <option value="">카메라 선택</option>
                         </select>
-                        <span id="statusIndicator" class="status-indicator status-ready">준비됨</span>
+                        <span id="statusIndicator" class="px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                            준비됨
+                        </span>
                     </div>
                     
-                    <div class="mb-3">
-                        <div class="mb-3">
-                            <label for="qrImageUpload" class="form-label">📁 QR 코드 이미지 업로드</label>
-                            <input type="file" id="qrImageUpload" class="form-control" accept="image/*" onchange="scanFromImage()">
+                    <!-- 이미지 업로드 -->
+                    <div class="mb-6">
+                        <label for="qrImageUpload" class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
+                            📁 QR 코드 이미지 업로드
+                        </label>
+                        <input type="file" id="qrImageUpload" accept="image/*" 
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                    </div>
+                    
+                    <!-- 비디오 컨테이너 -->
+                    <div class="mb-6">
+                        <div id="video-container" class="hidden relative w-full max-w-md mx-auto rounded-lg overflow-hidden bg-black">
+                            <video id="qr-video" class="w-full h-auto block" playsinline></video>
                         </div>
-                        
-                        <div id="video-container" style="display: none;">
-                            <video id="qr-video" playsinline></video>
-                            <div id="highlight-box" class="highlight-box"></div>
-                        </div>
-                        <div id="scan-placeholder" class="text-center p-5 bg-light rounded">
-                            📷 스캔 시작 버튼을 눌러 카메라를 활성화하거나 위에서 이미지를 업로드하세요
+                        <div id="scan-placeholder" class="text-center p-8 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                            <div class="text-4xl mb-4">📷</div>
+                            <p class="text-gray-600 dark:text-gray-300">
+                                스캔 시작 버튼을 눌러 카메라를 활성화하거나<br>
+                                위에서 이미지를 업로드하세요
+                            </p>
                         </div>
                     </div>
                     
-                    <div id="scanResult" class="alert alert-info" style="display:none;">
-                        <strong>스캔 결과:</strong> <span id="resultText"></span>
-                        <div class="mt-2">
-                            <button class="btn btn-sm btn-outline-primary" onclick="copyResult()">📋 복사</button>
-                            <button class="btn btn-sm btn-outline-success" onclick="openResult()" id="openBtn" style="display:none;">🌐 열기</button>
+                    <!-- 스캔 결과 -->
+                    <div id="scanResult" class="hidden mb-6 p-4 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg">
+                        <h3 class="font-bold text-blue-900 dark:text-blue-100 mb-2">스캔 결과:</h3>
+                        <div id="resultText" class="text-blue-800 dark:text-blue-200 break-all mb-3"></div>
+                        <div class="flex gap-2">
+                            <button onclick="copyResult()" 
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                📋 복사
+                            </button>
+                            <button id="openBtn" onclick="openResult()" style="display:none;" 
+                                    class="px-4 py-2 bg-success text-white rounded-lg hover:bg-green-600 transition-colors text-sm">
+                                🌐 열기
+                            </button>
                         </div>
                     </div>
                     
-                    <div class="d-grid gap-2">
-                        <button onclick="toggleScanner()" id="scanBtn" class="btn btn-success">📷 스캔 시작</button>
-                        <button onclick="stopScanner()" id="stopBtn" class="btn btn-danger" style="display:none;">⏹️ 스캔 중지</button>
+                    <!-- 스캔 버튼들 -->
+                    <div class="space-y-3">
+                        <button id="scanBtn" onclick="toggleScanner()" 
+                                class="w-full px-6 py-3 bg-success text-white rounded-lg hover:bg-green-600 transition-colors font-medium">
+                            📷 스캔 시작
+                        </button>
+                        <button id="stopBtn" onclick="stopScanner()" style="display:none;" 
+                                class="w-full px-6 py-3 bg-danger text-white rounded-lg hover:bg-red-600 transition-colors font-medium">
+                            ⏹️ 스캔 중지
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer class="text-center py-4 mt-5">
-        <div class="container">
-            <p class="mb-1">Powered by <a href="https://cocy.io" target="_blank">cocy.io</a></p>
-            <p class="small text-muted">Free QR Code Generator and Scanner Tool</p>
+    <!-- Footer -->
+    <footer class="text-center py-8 mt-12 border-t border-gray-700 dark:border-gray-600">
+        <div class="container mx-auto px-4">
+            <p class="mb-1 text-gray-600 dark:text-gray-400">
+                Powered by <a href="https://cocy.io" target="_blank" class="text-primary hover:underline">cocy.io</a>
+            </p>
+            <p class="text-sm text-gray-500 dark:text-gray-500">Free QR Code Generator and Scanner Tool</p>
         </div>
     </footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script type="module">
-        import QrScanner from 'https://unpkg.com/qr-scanner@1.4.2/qr-scanner.min.js';
-        
-        // Global variables
-        let qrScanner = null;
-        let scannerActive = false;
-        let lastResult = '';
-        
-        // Set worker path
-        QrScanner.WORKER_PATH = 'https://unpkg.com/qr-scanner@1.4.2/qr-scanner-worker.min.js';
-        
-        // Theme management
-        function toggleTheme() {
-            const body = document.body;
-            const themeIcon = document.getElementById('themeIcon');
-            
-            if (body.classList.contains('dark-mode')) {
-                body.classList.remove('dark-mode');
-                body.classList.add('light-mode');
-                themeIcon.textContent = '🌙';
-                localStorage.setItem('theme', 'light');
-            } else {
-                body.classList.remove('light-mode');
-                body.classList.add('dark-mode');
-                themeIcon.textContent = '🌞';
-                localStorage.setItem('theme', 'dark');
-            }
-        }
-        
-        // Load saved theme
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            const body = document.body;
-            const themeIcon = document.getElementById('themeIcon');
-            
-            if (savedTheme === 'light') {
-                body.classList.remove('dark-mode');
-                body.classList.add('light-mode');
-                themeIcon.textContent = '🌙';
-            } else {
-                body.classList.remove('light-mode');
-                body.classList.add('dark-mode');
-                themeIcon.textContent = '🌞';
-            }
-        }
-        
-        // Helper function to safely get translation
-        function getTranslation(key, fallback) {
-            try {
-                const result = window.translate ? window.translate(key) : fallback;
-                return result || fallback;
-            } catch (error) {
-                console.log(`Translation error for key ${key}:`, error);
-                return fallback;
-            }
-        }
-        
-        // Update status indicator
-        function updateStatus(status, message) {
-            const indicator = document.getElementById('statusIndicator');
-            indicator.className = `status-indicator status-${status}`;
-            indicator.textContent = message;
-        }
-        
-        // Initialize cameras
-        async function initializeCameras() {
-            try {
-                const cameras = await QrScanner.listCameras(true);
-                const cameraSelect = document.getElementById('cameraSelect');
-                
-                cameraSelect.innerHTML = '<option value="">카메라 선택</option>';
-                
-                if (cameras.length === 0) {
-                    cameraSelect.innerHTML = '<option value="">카메라를 찾을 수 없습니다</option>';
-                    updateStatus('error', '카메라 없음');
-                    return;
-                }
-                
-                cameras.forEach((camera, index) => {
-                    const option = document.createElement('option');
-                    option.value = camera.id;
-                    option.textContent = camera.label || `카메라 ${index + 1}`;
-                    cameraSelect.appendChild(option);
-                });
-                
-                // 후면 카메라 우선 선택
-                const backCamera = cameras.find(camera => 
-                    camera.label.toLowerCase().includes('back') ||
-                    camera.label.toLowerCase().includes('rear') ||
-                    camera.label.toLowerCase().includes('environment')
-                );
-                
-                // 후면 카메라가 없으면 전면 카메라 찾기
-                const frontCamera = cameras.find(camera => 
-                    camera.label.toLowerCase().includes('front') ||
-                    camera.label.toLowerCase().includes('user') ||
-                    camera.label.toLowerCase().includes('facetime')
-                );
-                
-                if (backCamera) {
-                    cameraSelect.value = backCamera.id;
-                } else if (frontCamera) {
-                    cameraSelect.value = frontCamera.id;
-                } else if (cameras.length > 0) {
-                    cameraSelect.value = cameras[0].id;
-                }
-                
-                console.log('카메라 초기화 완료:', cameras.length, '개 발견');
-                updateStatus('ready', '준비됨');
-                
-            } catch (error) {
-                console.error('카메라 초기화 오류:', error);
-                updateStatus('error', '카메라 오류');
-            }
-        }
-        
-        // Generate QR code
-        function generateQR() {
-            console.log('QR 코드 생성 시작');
-            const qrText = document.getElementById("qrText").value.trim();
-            if (!qrText) {
-                alert('텍스트 또는 URL을 입력해주세요!');
-                return;
-            }
-
-            const qrcodeElement = document.getElementById("qrcode");
-            qrcodeElement.innerHTML = "";
-
-            new QRCode(qrcodeElement, {
-                text: qrText,
-                width: 200,
-                height: 200,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-
-            const downloadBtn = document.getElementById('downloadBtn');
-            downloadBtn.style.display = 'inline-block';
-            downloadBtn.onclick = () => {
-                console.log('다운로드 버튼 클릭');
-                const canvas = qrcodeElement.querySelector('canvas');
-                if (canvas) {
-                    const link = document.createElement('a');
-                    link.download = 'qrcode.png';
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    console.log('QR 코드 다운로드 완료');
-                } else {
-                    console.error('Canvas 요소를 찾을 수 없습니다');
-                }
-            };
-            
-            console.log('QR 코드 생성 완료');
-        }
-        
-        // Handle QR scan result
-        function handleScanResult(result) {
-            console.log('QR 스캔 결과:', result);
-            
-            // result가 객체인 경우 data 속성을 사용
-            const resultText = typeof result === 'object' ? result.data : result;
-            lastResult = resultText;
-            
-            // WiFi QR 코드인지 확인
-            if (resultText.startsWith('WIFI:')) {
-                const wifiParams = parseWifiQR(resultText);
-                if (wifiParams) {
-                    // 모바일 기기인 경우 WiFi 연결 시도
-                    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                        // Android의 경우
-                        if (/Android/i.test(navigator.userAgent)) {
-                            const wifiString = `wifi://${wifiParams.ssid}/${wifiParams.password}/${wifiParams.encryption}`;
-                            window.location.href = wifiString;
-                        }
-                        // iOS의 경우
-                        else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                            const wifiString = `WIFI:T:${wifiParams.encryption};S:${wifiParams.ssid};P:${wifiParams.password};;`;
-                            window.location.href = `https://wifi-connect.apple.com/?ssid=${encodeURIComponent(wifiParams.ssid)}&password=${encodeURIComponent(wifiParams.password)}`;
-                        }
-                    }
-                    
-                    // 결과 표시
-                    document.getElementById('resultText').innerHTML = `
-                        <div class="wifi-info">
-                            <p><strong>네트워크 이름:</strong> ${wifiParams.ssid}</p>
-                            <p><strong>암호화 방식:</strong> ${wifiParams.encryption}</p>
-                            <p><strong>비밀번호:</strong> ${wifiParams.password || '없음'}</p>
-                        </div>
-                    `;
-                    document.getElementById('scanResult').style.display = 'block';
-                    document.getElementById('openBtn').style.display = 'none';
-                }
-            } else {
-                // 일반 QR 코드 처리
-                document.getElementById('resultText').textContent = resultText;
-                document.getElementById('scanResult').style.display = 'block';
-                
-                // URL인지 확인
-                try {
-                    new URL(resultText);
-                    document.getElementById('openBtn').style.display = 'inline-block';
-                } catch {
-                    document.getElementById('openBtn').style.display = 'none';
-                }
-            }
-            
-            // 진동 피드백 (지원되는 경우)
-            if ('vibrate' in navigator) {
-                navigator.vibrate(200);
-            }
-            
-            updateStatus('ready', '스캔 완료');
-        }
-        
-        // WiFi QR 코드 파싱 함수
-        function parseWifiQR(qrString) {
-            try {
-                // WIFI:S:<SSID>;T:<WPA|WEP|>;P:<password>;;
-                const params = {};
-                const parts = qrString.substring(5).split(';');
-                
-                parts.forEach(part => {
-                    if (part.startsWith('S:')) {
-                        params.ssid = part.substring(2);
-                    } else if (part.startsWith('T:')) {
-                        params.encryption = part.substring(2);
-                    } else if (part.startsWith('P:')) {
-                        params.password = part.substring(2);
-                    }
-                });
-                
-                if (!params.ssid) return null;
-                
-                return {
-                    ssid: params.ssid,
-                    encryption: params.encryption || 'WPA',
-                    password: params.password || ''
-                };
-            } catch (error) {
-                console.error('WiFi QR 파싱 오류:', error);
-                return null;
-            }
-        }
-        
-        // Toggle scanner
-        async function toggleScanner() {
-            const videoContainer = document.getElementById('video-container');
-            const scanPlaceholder = document.getElementById('scan-placeholder');
-            const video = document.getElementById('qr-video');
-            const scanBtn = document.getElementById('scanBtn');
-            const stopBtn = document.getElementById('stopBtn');
-            const cameraSelect = document.getElementById('cameraSelect');
-            
-            if (scannerActive) {
-                return;
-            }
-            
-            const selectedCamera = cameraSelect.value;
-            if (!selectedCamera) {
-                alert('카메라를 선택해주세요!');
-                return;
-            }
-            
-            try {
-                updateStatus('scanning', '카메라 시작 중...');
-                
-                // Hide placeholder, show video
-                scanPlaceholder.style.display = 'none';
-                videoContainer.style.display = 'block';
-                
-                // Create QR scanner
-                qrScanner = new QrScanner(video, result => {
-                    handleScanResult(result);
-                }, {
-                    returnDetailedScanResult: false,
-                    highlightScanRegion: true,
-                    highlightCodeOutline: true,
-                    preferredCamera: selectedCamera,
-                    maxScansPerSecond: 5
-                });
-                
-                // Start scanner
-                await qrScanner.start();
-                
-                scannerActive = true;
-                scanBtn.style.display = 'none';
-                stopBtn.style.display = 'block';
-                
-                updateStatus('scanning', '스캐닝 중...');
-                console.log('QR 스캐너 시작됨');
-                
-            } catch (error) {
-                console.error('카메라 시작 오류:', error);
-                
-                let errorMessage = '카메라를 시작할 수 없습니다.';
-                if (error.name === 'NotAllowedError') {
-                    errorMessage = '카메라 접근 권한이 필요합니다. 브라우저 설정에서 카메라 권한을 허용해주세요.';
-                } else if (error.name === 'NotFoundError') {
-                    errorMessage = '카메라를 찾을 수 없습니다. 카메라가 연결되어 있는지 확인해주세요.';
-                } else if (error.name === 'NotReadableError') {
-                    errorMessage = '카메라에 접근할 수 없습니다. 다른 앱에서 카메라를 사용 중일 수 있습니다.';
-                }
-                
-                alert(errorMessage);
-                updateStatus('error', '카메라 오류');
-                
-                // Reset UI
-                videoContainer.style.display = 'none';
-                scanPlaceholder.style.display = 'block';
-            }
-        }
-        
-        // Stop scanner
-        function stopScanner() {
-            if (qrScanner) {
-                qrScanner.stop();
-                qrScanner.destroy();
-                qrScanner = null;
-            }
-            
-            scannerActive = false;
-            
-            // Reset UI
-            document.getElementById('video-container').style.display = 'none';
-            document.getElementById('scan-placeholder').style.display = 'block';
-            document.getElementById('scanBtn').style.display = 'block';
-            document.getElementById('stopBtn').style.display = 'none';
-            
-            updateStatus('ready', '준비됨');
-            console.log('QR 스캐너 중지됨');
-        }
-        
-        // Copy result to clipboard
-        function copyResult() {
-            if (!lastResult) return;
-            
-            navigator.clipboard.writeText(lastResult).then(() => {
-                const copyAlert = document.getElementById('copyAlert');
-                copyAlert.style.display = 'block';
-                setTimeout(() => copyAlert.style.display = 'none', 2000);
-            }).catch(err => {
-                console.error('클립보드 복사 오류:', err);
-                alert('클립보드 복사에 실패했습니다.');
-            });
-        }
-        
-        // Open result URL
-        function openResult() {
-            if (!lastResult) return;
-            
-            try {
-                new URL(lastResult);
-                window.open(lastResult, '_blank');
-            } catch {
-                alert('유효한 URL이 아닙니다.');
-            }
-        }
-        
-        // Initialize when DOM is loaded
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log('QR Tool 초기화 시작');
-            
-            // Load theme
-            loadTheme();
-            
-            // Initialize cameras
-            await initializeCameras();
-            
-            // Initialize i18n
-            try {
-                if (window.initializeLocalization) {
-                    await window.initializeLocalization();
-                    console.log('다국어 시스템 초기화 성공');
-                }
-            } catch (error) {
-                console.error('다국어 시스템 초기화 오류:', error);
-            }
-            
-            console.log('QR Tool 초기화 완료');
-        });
-        
-        // Scan from uploaded image
-        async function scanFromImage() {
-            const fileInput = document.getElementById('qrImageUpload');
-            const file = fileInput.files[0];
-            
-            if (!file) return;
-            
-            try {
-                updateStatus('scanning', '이미지 분석 중...');
-                console.log('이미지에서 QR 코드 스캔 시작:', file.name);
-                
-                const result = await QrScanner.scanImage(file);
-                handleScanResult(result);
-                
-            } catch (error) {
-                console.error('이미지 스캔 오류:', error);
-                updateStatus('error', 'QR 코드를 찾을 수 없음');
-                alert('이미지에서 QR 코드를 찾을 수 없습니다. 명확하고 선명한 QR 코드 이미지를 사용해주세요.');
-            }
-        }
-        
-        // WiFi QR 코드 생성 함수
-        function generateWifiQR() {
-            const ssid = document.getElementById('ssid').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const encryption = document.getElementById('encryption').value;
-            
-            if (!ssid) {
-                alert('네트워크 이름을 입력해주세요!');
-                return;
-            }
-            
-            if (encryption !== 'nopass' && !password) {
-                alert('비밀번호를 입력해주세요!');
-                return;
-            }
-            
-            // WiFi QR 코드 형식: WIFI:S:<SSID>;T:<WPA|WEP|>;P:<password>;;
-            let wifiString = `WIFI:S:${ssid};T:${encryption};`;
-            if (encryption !== 'nopass') {
-                wifiString += `P:${password};`;
-            }
-            wifiString += ';';
-            
-            const wifiQrcodeElement = document.getElementById('wifiQrcode');
-            wifiQrcodeElement.innerHTML = '';
-            
-            new QRCode(wifiQrcodeElement, {
-                text: wifiString,
-                width: 200,
-                height: 200,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-            
-            const wifiDownloadBtn = document.getElementById('wifiDownloadBtn');
-            wifiDownloadBtn.style.display = 'inline-block';
-            wifiDownloadBtn.onclick = () => {
-                const canvas = wifiQrcodeElement.querySelector('canvas');
-                if (canvas) {
-                    const link = document.createElement('a');
-                    link.download = 'wifi-qrcode.png';
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                }
-            };
-        }
-        
-        // Make functions globally available
-        window.toggleTheme = toggleTheme;
-        window.generateQR = generateQR;
-        window.toggleScanner = toggleScanner;
-        window.stopScanner = stopScanner;
-        window.copyResult = copyResult;
-        window.openResult = openResult;
-        window.scanFromImage = scanFromImage;
-        window.generateWifiQR = generateWifiQR;
-    </script>
+    <!-- JavaScript -->
+    <script src="qr-app.js"></script>
+    <script src="ocr-wifi.js"></script>
 </body>
 </html>
