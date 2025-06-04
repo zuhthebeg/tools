@@ -134,7 +134,10 @@
     "whoareyou_analyze_btn": "Start AI Analysis",
     "whoareyou_analyzing_heading": "AI is analyzing your photo...",
     "whoareyou_wait_message": "Please wait. Working hard to provide the best analysis!",
-    "whoareyou_analyze_again_btn": "Analyze Again"
+    "whoareyou_analyze_again_btn": "Analyze Again",
+    "whoareyou_celebrity_lookalikes": "Celebrity Lookalikes Analysis",
+    "whoareyou_similarity": "Similarity",
+    "whoareyou_similarity_analysis": "Similarity Analysis"
   },
   "ko": {
     "greeting": "안녕하세요!",
@@ -271,7 +274,10 @@
     "whoareyou_analyze_btn": "AI 분석 시작하기",
     "whoareyou_analyzing_heading": "AI가 당신의 사진을 분석 중입니다...",
     "whoareyou_wait_message": "잠시만 기다려주세요. 최고의 분석을 위해 열심히 작업 중입니다!",
-    "whoareyou_analyze_again_btn": "다시 분석하기"
+    "whoareyou_analyze_again_btn": "다시 분석하기",
+    "whoareyou_celebrity_lookalikes": "닮은 연예인 분석",
+    "whoareyou_similarity": "닮음",
+    "whoareyou_similarity_analysis": "닮은 점 분석"
   },
   "zh-CN": {
     "greeting": "你好！",
@@ -408,7 +414,10 @@
     "whoareyou_analyze_btn": "开始 AI 分析",
     "whoareyou_analyzing_heading": "AI 正在分析您的照片...",
     "whoareyou_wait_message": "请稍候。正在努力提供最佳分析！",
-    "whoareyou_analyze_again_btn": "重新分析"
+    "whoareyou_analyze_again_btn": "重新分析",
+    "whoareyou_celebrity_lookalikes": "明星相似度分析",
+    "whoareyou_similarity": "相似度",
+    "whoareyou_similarity_analysis": "相似点分析"
   },
   "zh-TW": {
     "greeting": "你好！",
@@ -545,7 +554,10 @@
     "whoareyou_analyze_btn": "開始 AI 分析",
     "whoareyou_analyzing_heading": "AI 正在分析您的照片...",
     "whoareyou_wait_message": "請稍候。正在努力提供最佳分析！",
-    "whoareyou_analyze_again_btn": "重新分析"
+    "whoareyou_analyze_again_btn": "重新分析",
+    "whoareyou_celebrity_lookalikes": "明星相似度分析",
+    "whoareyou_similarity": "相似度",
+    "whoareyou_similarity_analysis": "相似點分析"
   },
   "es": {
     "greeting": "¡Hola!",
@@ -682,6 +694,9 @@
     "whoareyou_analyze_btn": "Iniciar Análisis con IA",
     "whoareyou_analyzing_heading": "La IA está analizando tu foto...",
     "whoareyou_wait_message": "Por favor, espera. ¡Trabajando duro para proporcionar el mejor análisis!",
-    "whoareyou_analyze_again_btn": "Analizar de Nuevo"
+    "whoareyou_analyze_again_btn": "Analizar de Nuevo",
+    "whoareyou_celebrity_lookalikes": "Análisis de Parecidos con Celebridades",
+    "whoareyou_similarity": "Similitud",
+    "whoareyou_similarity_analysis": "Análisis de Similitud"
   }
 }
