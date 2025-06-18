@@ -662,11 +662,12 @@
 
             timers.forEach(timer => {
                 if (timer.running) {
-                    // When refocusing, adjust baseElapsedTime for the time spent unfocused
+                    // baseElapsedTime에 unfocused 시간만큼 더해주고,
                     timer.baseElapsedTime += focusDuration;
-                    // Recalculate elapsedTime immediately after base adjustment
-                    timer.elapsedTime = timer.baseElapsedTime + (Date.now() - timer.sessionStartTime) / 1000; 
-                    // Directly update the DOM for this timer
+                    // sessionStartTime을 현재로 재설정 (중복 누적 방지)
+                    timer.sessionStartTime = now;
+                    // elapsedTime 즉시 갱신
+                    timer.elapsedTime = timer.baseElapsedTime;
                     document.querySelector(`.time-toggle[data-id="${timer.id}"] .time-display`).textContent = formatTime(timer.elapsedTime);
                 }
             });
