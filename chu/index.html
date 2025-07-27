@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>츄의 궁금증 체크 페이지</title>
+    <title id="page-title">Chu's Check</title>
     <meta name="description" content="츄의 궁금증을 체크하고 특정 행동을 카운트 및 시간을 합산하는 페이지입니다. 다크 테마로 모던하게 디자인되었습니다.">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: sans-serif;
@@ -16,75 +19,296 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+        
+        body.compact-mode {
+            padding: 0;
+            justify-content: flex-start;
+            align-items: flex-end;
         }
 
         .container {
-            width: 90%;
-            max-width: 600px;
+            width: auto;
+            min-width: 400px;
+            max-width: 700px;
             padding: 20px;
             border-radius: 8px;
             background-color: #1e1e1e;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .container.compact {
+            width: 250px;
+            min-width: 250px;
+            max-width: 250px;
+            padding: 12px;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .left-panel {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .right-panel {
+            width: 220px;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .right-panel.hidden {
+            display: none;
+        }
+        
+        .container.compact .right-panel {
+            display: none;
+        }
+        
+        .container.compact .main-content {
+            display: block;
+        }
+        
+        .title-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .title-container h1 {
+            margin: 0;
+            flex: 1;
+        }
+        
+        .minimize-button {
+            background-color: #424242;
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+        
+        .minimize-button:hover {
+            background-color: #525252;
+            transform: scale(1.05);
+        }
+        
+        .expand-button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-top: 10px;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+        
+        .expand-button:hover {
+            background-color: #1976D2;
+        }
+        
+        .container.compact .title-container,
+        .container.compact .buttons-container {
+            display: none;
+        }
+        
+        .container.compact .button-group {
+            margin-bottom: 10px;
+            grid-template-columns: 1fr;
+            gap: 6px;
+        }
+        
+        .container.compact .count-button {
+            min-height: 45px;
+            font-size: 0.85em;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #2a2a2a 0%, rgba(255, 235, 59, 0.12) 100%);
+            border: 1px solid rgba(255, 235, 59, 0.15);
+        }
+        
+        .container.compact .counter-label {
+            font-size: 0.8em;
+            margin-bottom: 4px;
+        }
+        
+        .container.compact .counter-controls {
+            gap: 6px;
+        }
+        
+        .container.compact .counter-label .count-display {
+            font-size: 1em;
+            padding: 4px 8px;
+            min-width: 40px;
+        }
+        
+        .container.compact .time-toggle {
+            margin-bottom: 6px;
+            padding: 8px;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .container.compact .time-label {
+            font-size: 0.8em;
+            margin-bottom: 6px;
+            width: 100%;
+            justify-content: flex-start;
+        }
+        
+        .container.compact .timer-controls {
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+        }
+        
+        .container.compact .time-display {
+            font-size: 0.9em;
+            min-width: 70px;
+            padding: 4px 8px;
+        }
+        
+        .container.compact .timer-right button {
+            width: 24px;
+            height: 24px;
+            font-size: 0.8em;
+            min-width: 24px;
+            flex-shrink: 0;
         }
 
         .button-group {
-            display: flex;
-            justify-content: space-around;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
             margin-bottom: 20px;
+            max-width: 100%;
         }
 
         .count-button {
-            /* width: 80px; */ /* Removed as dynamic counters might need different sizing based on content */
-            /* height: 80px; */ /* Removed */
-            /* border-radius: 50%; */ /* Removed */
             border: none;
             color: white;
-            font-size: 1.2em;
+            font-size: 1.1em;
             cursor: pointer;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            align-items: stretch;
             position: relative;
-            background-color: #424242; /* A default dark background for all count buttons */
-
-            /* Added flex properties for better spacing within the button */
-            padding: 10px 15px;
-            border-radius: 8px; /* Square/rounded rectangle buttons */
-            min-width: 80px; /* Minimum width to contain content */
-            box-sizing: border-box; /* Include padding in width */
-            flex-grow: 1; /* Allow buttons to grow and take equal space */
-            margin: 5px; /* Add some margin between buttons */
+            background: linear-gradient(135deg, #2a2a2a 0%, rgba(255, 235, 59, 0.15) 100%);
+            padding: 15px;
+            border-radius: 12px;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 235, 59, 0.2);
+        }
+        
+        .counter-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 1em;
+            font-weight: 500;
+            width: 100%;
+        }
+        
+        .counter-label .button-label {
+            margin-right: 10px;
+        }
+        
+        .counter-label .count-display {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #e0e0e0;
+            background-color: #1a1a1a;
+            padding: 8px 12px;
+            border-radius: 8px;
+            min-width: 50px;
+            text-align: center;
+            border: 1px solid #333;
+            margin-left: auto;
+        }
+        
+        .counter-controls {
+            display: none;
+        }
+        
+        
+        .count-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+        
+        .count-button:active {
+            transform: translateY(0);
         }
 
-        .count-button.red { background-color: #e57373; }
-        .count-button.green { background-color: #81c784; }
-        .count-button.blue { background-color: #64b5f6; }
-
-        .count-button .edit-icon {
-            position: absolute;
-            top: 5px;
-            right: 45px;
-            font-size: 1.0em;
-            opacity: 0.7;
+        .count-button.red { 
+            background: linear-gradient(135deg, #607d8b 0%, rgba(255, 235, 59, 0.2) 100%);
+            border: 1px solid rgba(255, 235, 59, 0.3);
+        }
+        .count-button.green { 
+            background: linear-gradient(135deg, #2a2a2a 0%, rgba(255, 235, 59, 0.15) 100%);
+            border: 1px solid rgba(255, 235, 59, 0.2);
+        }
+        .count-button.blue { 
+            background: linear-gradient(135deg, #2a2a2a 0%, rgba(255, 235, 59, 0.15) 100%);
+            border: 1px solid rgba(255, 235, 59, 0.2);
         }
 
-        .count-button .reset-individual-icon {
-            position: absolute;
-            top: 5px;
-            right: 25px;
-            font-size: 1.0em;
-            opacity: 0.7;
+        .counter-label .edit-icon {
+            margin-left: 10px;
             cursor: pointer;
-        }
-
-        .count-button .remove-individual-icon {
-            position: absolute;
-            top: 5px;
-            right: 5px;
             font-size: 1.0em;
             opacity: 0.7;
+        }
+
+        .counter-label .reset-individual-icon {
+            margin-left: 10px;
             cursor: pointer;
+            font-size: 1.0em;
+            opacity: 0.7;
+        }
+
+        .counter-label .remove-individual-icon {
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 1.0em;
+            opacity: 0.7;
+        }
+        
+        .count-button:hover .edit-icon,
+        .count-button:hover .reset-individual-icon,
+        .count-button:hover .remove-individual-icon {
+            opacity: 1;
         }
 
         .time-group {
@@ -96,30 +320,60 @@
         .time-toggle {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            background-color: #2a2a2a;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .time-toggle:hover {
+            background-color: #333333;
         }
 
         .time-toggle button {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             border: none;
             background-color: #424242;
             color: white;
             cursor: pointer;
-            font-size: 1.5em;
+            font-size: 1.4em;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .time-toggle button:hover {
+            transform: scale(1.05);
+            background-color: #525252;
         }
 
         .time-toggle button.active {
             background-color: #29b6f6;
+            box-shadow: 0 3px 6px rgba(41, 182, 246, 0.4);
+        }
+        
+        .time-toggle button.active:hover {
+            background-color: #1e88e5;
         }
 
         .time-display {
             font-size: 1.2em;
-            margin-top: 5px;
+            font-weight: 600;
+            color: #e0e0e0;
+            background-color: #1a1a1a;
+            padding: 6px 10px;
+            border-radius: 8px;
+            min-width: 70px;
+            text-align: center;
+            border: 1px solid #333;
+            white-space: nowrap;
         }
 
         .time-label {
@@ -127,6 +381,23 @@
             margin-right: 10px;
             display: flex;
             align-items: center;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .timer-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        
+        .timer-left {
+            flex: 0 0 auto;
+        }
+        
+        .timer-right {
+            flex: 0 0 auto;
         }
 
         .time-label-text {
@@ -153,16 +424,6 @@
             opacity: 0.7;
         }
 
-        .reset-button {
-            background-color: #e53935;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            margin-top: 20px;
-            cursor: pointer;
-            font-size: 1em;
-        }
 
         .modal {
             display: none;
@@ -193,6 +454,108 @@
             border-radius: 4px;
             color: white;
         }
+        
+        .input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .stt-button {
+            position: absolute;
+            right: 8px;
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .stt-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .stt-button.recording {
+            color: #ff4444;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .stats-button {
+            background-color: #388e3c;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-bottom: 15px;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+        
+        .stats-button:hover {
+            background-color: #4caf50;
+        }
+        
+        .chart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+        }
+        
+        .chart-content {
+            background-color: #2d2d2d;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90%;
+            overflow-y: auto;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-close {
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        
+        .chart-close:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
 
         .modal-buttons {
             display: flex;
@@ -216,55 +579,316 @@
             color: white;
         }
 
-        .add-buttons-group {
+        .buttons-container {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
             margin-top: 20px;
             margin-bottom: 20px;
-            gap: 10px;
+        }
+        
+        .left-buttons {
+            flex: 0 0 auto;
+        }
+        
+        .right-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .reset-button {
+            background-color: #e57373;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .reset-button:hover {
+            background-color: #ef5350;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+        
+        .reset-button:active {
+            transform: translateY(0);
         }
 
         .add-button {
-            background-color: #4CAF50;
-            color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
+            padding: 10px 14px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 1em;
-            flex-grow: 1;
+            font-size: 0.9em;
+            font-weight: 500;
             text-align: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            color: white;
+            min-width: 50px;
+        }
+        
+        .add-counter-btn {
+            background-color: #FF9800;
+        }
+        
+        .add-counter-btn:hover {
+            background-color: #F57C00;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+        
+        .add-timer-btn {
+            background-color: #2196F3;
+        }
+        
+        .add-timer-btn:hover {
+            background-color: #1976D2;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+        
+        .add-button:active {
+            transform: translateY(0);
+        }
+        
+        .history-button {
+            background-color: #6a1b9a;
+        }
+        
+        .history-button:hover {
+            background-color: #8e24aa;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* 반응형 디자인 */
+        @media (max-width: 1024px) {
+            .main-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .right-panel:not(.hidden) {
+                width: 100%;
+            }
+            
+            .container {
+                min-width: 350px;
+                max-width: 600px;
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                min-width: 280px;
+                max-width: 450px;
+                padding: 12px;
+            }
+            
+            .count-button {
+                font-size: 1em;
+                padding: 12px 8px;
+                min-height: 70px;
+            }
+            
+            .time-toggle {
+                padding: 12px;
+            }
+            
+            .time-display {
+                font-size: 1.1em;
+                min-width: 60px;
+                padding: 5px 8px;
+            }
+            
+            .time-toggle button {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2em;
+            }
+            
+            .timer-controls {
+                gap: 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                min-width: 220px;
+                max-width: 320px;
+                padding: 10px;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .count-button {
+                font-size: 0.9em;
+                padding: 10px 15px;
+                min-height: 50px;
+            }
+            
+            .count-button .count-value {
+                margin-right: 40px;
+            }
+            
+            .time-toggle {
+                padding: 10px;
+                margin-bottom: 12px;
+            }
+            
+            .timer-controls {
+                gap: 10px;
+            }
+            
+            .time-display {
+                font-size: 1em;
+                min-width: 55px;
+                padding: 4px 6px;
+            }
+            
+            .time-toggle button {
+                width: 35px;
+                height: 35px;
+                font-size: 1.1em;
+            }
+            
+            .buttons-container {
+                gap: 8px;
+            }
+            
+            .reset-button {
+                padding: 8px 12px;
+                font-size: 0.8em;
+            }
+            
+            .add-button {
+                padding: 8px 10px;
+                font-size: 0.8em;
+                min-width: 40px;
+            }
+        }
+        
+        @media (max-width: 320px) {
+            .container {
+                min-width: 200px;
+                max-width: 280px;
+                padding: 8px;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+            
+            .time-display {
+                font-size: 0.9em;
+                min-width: 50px;
+                padding: 3px 5px;
+            }
+            
+            .time-toggle button {
+                width: 32px;
+                height: 32px;
+                font-size: 1em;
+            }
+            
+            .timer-controls {
+                gap: 8px;
+            }
+            
+            .buttons-container {
+                gap: 6px;
+            }
+            
+            .reset-button {
+                padding: 6px 10px;
+                font-size: 0.75em;
+            }
+            
+            .add-button {
+                padding: 6px 8px;
+                font-size: 0.75em;
+                min-width: 35px;
+            }
         }
     </style>
     
 </head>
 <body>
     <div class="container">
-        <h1>츄의 궁금증 체크</h1>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="title-container">
+                    <h1>Chu's Check</h1>
+                    <button class="minimize-button" id="minimize-btn">−</button>
+                </div>
 
-        <div id="counters-container" class="button-group">
-            <!-- Dynamic counters will be inserted here -->
+                <div id="counters-container" class="button-group">
+                    <!-- Dynamic counters will be inserted here -->
+                </div>
+                
+                <div id="timers-container" class="time-group">
+                    <!-- Dynamic timers will be inserted here -->
+                </div>
+                
+                <div class="buttons-container">
+                    <div class="left-buttons">
+                        <button id="reset-button" class="reset-button">🔄 초기화</button>
+                    </div>
+                    <div class="right-buttons">
+                        <button id="add-counter-button" class="add-button add-counter-btn">➕ 카추</button>
+                        <button id="add-timer-button" class="add-button add-timer-btn">⏱️ 타추</button>
+                        <button id="history-toggle-button" class="add-button history-button">📋 히스토리</button>
+                    </div>
+                </div>
+                
+                <button class="expand-button" id="expand-btn" style="display: none;">🔍 확장</button>
+            </div>
+            
+            <div class="right-panel" id="history-panel">
+                <h3 style="margin-top: 0; font-size: 1.1em; color: #e0e0e0;">📊 기록 히스토리</h3>
+                <button id="stats-button" class="stats-button">📈 통계 보기</button>
+                <div id="history-list">
+                    <!-- 과거 기록들이 여기에 표시됩니다 -->
+                </div>
+                <button id="today-button" class="expand-button" style="display: none; margin-top: 15px;">🏠 오늘로 돌아가기</button>
+            </div>
         </div>
-        
-        <div class="add-buttons-group">
-            <button id="add-counter-button" class="add-button">카운터 추가</button>
-            <button id="add-timer-button" class="add-button">타이머 추가</button>
-        </div>
-
-        <div id="timers-container" class="time-group">
-            <!-- Dynamic timers will be inserted here -->
-        </div>
-        
-        <button id="reset-button" class="reset-button">모든 데이터 초기화</button>
     </div>
 
     <div class="modal" id="edit-modal">
         <div class="modal-content">
             <h3 id="modal-title">텍스트 수정</h3>
-            <input type="text" id="edit-input">
+            <div class="input-container">
+                <input type="text" id="edit-input">
+                <button class="stt-button" id="stt-button" title="음성 인식 (중국어 번체)">🎤</button>
+            </div>
             <div class="modal-buttons">
                 <button class="modal-button save-button" id="save-button">저장</button>
                 <button class="modal-button cancel-button" id="cancel-button">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-modal" id="chart-modal">
+        <div class="chart-content">
+            <div class="chart-header">
+                <h3 style="margin: 0; color: #e0e0e0;">📊 카운터 통계</h3>
+                <button class="chart-close" id="chart-close">✕</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="statsChart"></canvas>
             </div>
         </div>
     </div>
@@ -277,64 +901,211 @@
         let lastFocusTime = Date.now(); // Track the last focus time
         let nextCounterId = 1;
         let nextTimerId = 1;
+        let isCompactMode = false;
+        let isHistoryVisible = true; // 히스토리 패널 표시 상태
+        let currentDate = getCurrentDateString();
+        let viewingDate = currentDate; // 현재 보고 있는 날짜
+        
+        // 날짜 문자열 생성 함수
+        function getCurrentDateString() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        }
+
+        // 날짜별 데이터 로드
+        function loadDateData(dateString) {
+            const savedData = localStorage.getItem(`chuData_${dateString}`);
+            if (savedData) {
+                return JSON.parse(savedData);
+            }
+            return null;
+        }
+        
+        // 날짜별 데이터 저장
+        function saveDateData(dateString, data) {
+            localStorage.setItem(`chuData_${dateString}`, JSON.stringify(data));
+        }
+        
+        // 모든 저장된 날짜 목록 가져오기
+        function getAllSavedDates() {
+            const dates = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('chuData_') && key !== 'chuData') {
+                    dates.push(key.replace('chuData_', ''));
+                }
+            }
+            return dates.sort().reverse(); // 최신 날짜부터
+        }
 
         // 로컬 스토리지에서 데이터 불러오기
         function loadFromLocalStorage() {
-            const savedData = localStorage.getItem('chuData');
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                counters = data.counters || [
-                    { id: 'counter-1', label: '🔴', count: 0 },
-                    { id: 'counter-2', label: '🟢', count: 0 },
-                    { id: 'counter-3', label: '🫐', count: 0 }
-                ];
-                timers = (data.timers || [
-                    { id: 'timer-1', label: '시간 체크 1', elapsedTime: 0, running: false, sessionStartTime: 0, interval: null },
-                    { id: 'timer-2', label: '시간 체크 2', elapsedTime: 0, running: false, sessionStartTime: 0, interval: null }
+            // 오늘 날짜 확인
+            const today = getCurrentDateString();
+            if (currentDate !== today) {
+                // 새로운 날짜이면 기존 데이터 저장하고 초기화
+                saveCurrentData();
+                currentDate = today;
+                viewingDate = today;
+            }
+            
+            // 현재 보고 있는 날짜의 데이터 로드
+            const dateData = loadDateData(viewingDate);
+            
+            if (dateData) {
+                counters = dateData.counters || [];
+                timers = (dateData.timers || [
+                    { id: 'timer-1', label: '⏰ 시간 체크 1', elapsedTime: 0, running: false, sessionStartTime: 0, interval: null }
                 ]).map(timer => ({ ...timer, baseElapsedTime: timer.elapsedTime || 0, interval: null }));
 
-                nextCounterId = data.nextCounterId || 4; // Start from 4 for new counters
-                nextTimerId = data.nextTimerId || 3;     // Start from 3 for new timers
+                nextCounterId = dateData.nextCounterId || 1;
+                nextTimerId = dateData.nextTimerId || 2;
                 
-                // Re-initialize intervals for *running* timers after loading (they cannot be serialized)
-                // This is the ONLY place where intervals are re-created after loading.
-                timers.forEach(timer => {
-                    if (timer.running) {
-                        // Temporarily set running to false to allow toggleTimer to correctly initialize
-                        let wasRunning = timer.running;
-                        timer.running = false; 
-                        toggleTimer(timer.id);
-                        timer.running = wasRunning; 
-                    }
-                });
+                // 타이머 복원 (오늘 데이터인 경우만)
+                if (viewingDate === today) {
+                    timers.forEach(timer => {
+                        if (timer.running) {
+                            let wasRunning = timer.running;
+                            timer.running = false; 
+                            toggleTimer(timer.id);
+                            timer.running = wasRunning; 
+                        }
+                    });
+                }
 
-                updateUI(); // Initial full UI update to render all elements and states
+                updateUI();
+                updateHistoryList();
             } else {
-                // Initial setup if no data in local storage
-                counters = [
-                    { id: 'counter-1', label: '🔴', count: 0 },
-                    { id: 'counter-2', label: '🟢', count: 0 },
-                    { id: 'counter-3', label: '🫐', count: 0 }
-                ];
+                // 해당 날짜에 데이터가 없으면 기본 설정
+                counters = [];
                 timers = [
-                    { id: 'timer-1', label: '시간 체크 1', elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null },
-                    { id: 'timer-2', label: '시간 체크 2', elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null }
+                    { id: 'timer-1', label: '⏰ 시간 체크 1', elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null }
                 ];
-                nextCounterId = 4; // Next ID for a new counter
-                nextTimerId = 3;     // Next ID for a new timer
-                updateUI(); // Initial full UI update
+                nextCounterId = 1;
+                nextTimerId = 2;
+                updateUI();
+                updateHistoryList();
             }
         }
-
-        // 로컬 스토리지에 데이터 저장
-        function saveToLocalStorage() {
+        
+        // 현재 데이터 저장
+        function saveCurrentData() {
             const data = {
                 counters: counters.map(c => ({ id: c.id, label: c.label, count: c.count })),
                 timers: timers.map(t => ({ id: t.id, label: t.label, elapsedTime: t.elapsedTime, running: t.running })),
                 nextCounterId,
-                nextTimerId
+                nextTimerId,
+                date: viewingDate
             };
-            localStorage.setItem('chuData', JSON.stringify(data));
+            saveDateData(viewingDate, data);
+        }
+
+        // 로컬 스토리지에 데이터 저장
+        function saveToLocalStorage() {
+            saveCurrentData();
+        }
+        
+        // 히스토리 리스트 업데이트
+        function updateHistoryList() {
+            const historyList = document.getElementById('history-list');
+            const dates = getAllSavedDates();
+            const today = getCurrentDateString();
+            
+            historyList.innerHTML = '';
+            
+            if (dates.length === 0) {
+                historyList.innerHTML = '<p style="color: #888; font-size: 0.9em; text-align: center;">저장된 기록이 없습니다</p>';
+                return;
+            }
+            
+            dates.forEach(date => {
+                if (date === today) return; // 오늘 날짜는 제외
+                
+                const dateData = loadDateData(date);
+                if (!dateData) return;
+                
+                const totalTime = (dateData.timers || []).reduce((acc, timer) => acc + (timer.elapsedTime || 0), 0);
+                const totalCounts = (dateData.counters || []).reduce((acc, counter) => acc + (counter.count || 0), 0);
+                
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div class="history-date">${formatDateKorean(date)}</div>
+                    <div class="history-stats">
+                        <small>시간: ${formatTime(totalTime)}</small><br>
+                        <small>카운트: ${totalCounts}</small>
+                    </div>
+                `;
+                historyItem.style.cssText = `
+                    padding: 10px;
+                    margin-bottom: 8px;
+                    background-color: #333;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    transition: background-color 0.2s ease;
+                    border: 1px solid #444;
+                `;
+                
+                historyItem.addEventListener('mouseenter', () => {
+                    historyItem.style.backgroundColor = '#404040';
+                });
+                historyItem.addEventListener('mouseleave', () => {
+                    historyItem.style.backgroundColor = '#333';
+                });
+                
+                historyItem.addEventListener('click', () => {
+                    loadHistoryDate(date);
+                });
+                
+                historyList.appendChild(historyItem);
+            });
+        }
+        
+        // 날짜를 한국어 형식으로 포맷
+        function formatDateKorean(dateString) {
+            const [year, month, day] = dateString.split('-');
+            return `${month}월 ${day}일`;
+        }
+        
+        // 과거 기록 로드
+        function loadHistoryDate(date) {
+            const today = getCurrentDateString();
+            
+            // 현재 데이터 저장 (오늘 데이터인 경우)
+            if (viewingDate === today) {
+                saveCurrentData();
+            }
+            
+            viewingDate = date;
+            loadFromLocalStorage();
+            
+            // UI 상태 업데이트
+            document.getElementById('today-button').style.display = 'block';
+            document.querySelector('.title-container h1').textContent = `Chu's Check - ${formatDateKorean(date)}`;
+            
+            // 과거 기록에서는 타이머 비활성화
+            timers.forEach(timer => {
+                if (timer.running) {
+                    timer.running = false;
+                    if (timer.interval) {
+                        clearInterval(timer.interval);
+                        timer.interval = null;
+                    }
+                }
+            });
+            
+            updateUI();
+        }
+        
+        // 오늘로 돌아가기
+        function returnToToday() {
+            const today = getCurrentDateString();
+            viewingDate = today;
+            currentDate = today;
+            loadFromLocalStorage();
+            
+            document.getElementById('today-button').style.display = 'none';
+            document.querySelector('.title-container h1').textContent = "Chu's Check";
         }
 
         // UI 업데이트
@@ -362,11 +1133,13 @@
                     
                     // Create inner structure once for new buttons
                     button.innerHTML = `
-                        <span class="button-label"></span>
-                        <span class="count-value"></span>
-                        <span class="edit-icon" data-id="${counter.id}" data-type="counter-label">✏️</span>
-                        <span class="reset-individual-icon" data-id="${counter.id}" data-type="counter-reset">🔄</span>
-                        <span class="remove-individual-icon" data-id="${counter.id}" data-type="counter-remove">🗑️</span>
+                        <div class="counter-label">
+                            <span class="button-label"></span>
+                            <span class="edit-icon" data-id="${counter.id}" data-type="counter-label">✏️</span>
+                            <span class="reset-individual-icon" data-id="${counter.id}" data-type="counter-reset">🔄</span>
+                            <span class="remove-individual-icon" data-id="${counter.id}" data-type="counter-remove">🗑️</span>
+                            <div class="count-display"></div>
+                        </div>
                     `;
                     countersContainer.appendChild(button);
                 }
@@ -380,7 +1153,7 @@
 
                 // Update content directly
                 button.querySelector('.button-label').textContent = counter.label;
-                button.querySelector('.count-value').textContent = counter.count;
+                button.querySelector('.count-display').textContent = counter.count;
             });
 
             // --- Update Timers ---
@@ -414,8 +1187,14 @@
                             <span class="reset-individual-icon" data-id="${timer.id}" data-type="timer-reset">🔄</span>
                             <span class="remove-individual-icon" data-id="${timer.id}" data-type="timer-remove">🗑️</span>
                         </div>
-                        <button data-id="${timer.id}"></button>
-                        <div class="time-display"></div>
+                        <div class="timer-controls">
+                            <div class="timer-left">
+                                <div class="time-display"></div>
+                            </div>
+                            <div class="timer-right">
+                                <button data-id="${timer.id}"></button>
+                            </div>
+                        </div>
                     `;
                     timersContainer.appendChild(timeToggleDiv);
                 }
@@ -423,7 +1202,7 @@
                 // Update content of existing elements directly
                 timeToggleDiv.querySelector('.time-label-text').textContent = timer.label;
                 
-                let playPauseButton = timeToggleDiv.querySelector('button');
+                let playPauseButton = timeToggleDiv.querySelector('.timer-right button');
                 playPauseButton.textContent = timer.running ? '⏸️' : '▶️';
                 if (timer.running) {
                     playPauseButton.classList.add('active');
@@ -431,20 +1210,39 @@
                     playPauseButton.classList.remove('active');
                 }
 
-                timeToggleDiv.querySelector('.time-display').textContent = formatTime(timer.elapsedTime);
+                timeToggleDiv.querySelector('.timer-left .time-display').textContent = formatTime(timer.elapsedTime);
                 totalElapsedTime += timer.elapsedTime;
             });
             
-            // Update total time display
+            // Update total time display (only show if more than one timer)
             let totalTimeDisplay = document.getElementById('total-time');
-            if (!totalTimeDisplay) {
-                const totalTimeDiv = document.createElement('div');
-                totalTimeDiv.classList.add('time-display');
-                totalTimeDiv.innerHTML = `총 합산 시간: <span id="total-time">${formatTime(totalElapsedTime)}</span>`;
-                timersContainer.appendChild(totalTimeDiv);
-                totalTimeDisplay = document.getElementById('total-time');
+            const totalTimeContainer = document.getElementById('total-time-container');
+            
+            if (timers.length > 1) {
+                if (!totalTimeDisplay) {
+                    const totalTimeDiv = document.createElement('div');
+                    totalTimeDiv.id = 'total-time-container';
+                    totalTimeDiv.classList.add('time-display');
+                    totalTimeDiv.style.marginTop = '15px';
+                    totalTimeDiv.style.backgroundColor = '#2a2a2a';
+                    totalTimeDiv.style.border = '1px solid #444';
+                    totalTimeDiv.innerHTML = `총 합산 시간: <span id="total-time">${formatTime(totalElapsedTime)}</span>`;
+                    timersContainer.appendChild(totalTimeDiv);
+                    totalTimeDisplay = document.getElementById('total-time');
+                } else {
+                    totalTimeDisplay.textContent = formatTime(totalElapsedTime);
+                    totalTimeContainer.style.display = 'block';
+                }
+            } else if (totalTimeContainer) {
+                totalTimeContainer.style.display = 'none';
+            }
+            
+            // Update page title with total time
+            const baseTitle = "Chu's Check";
+            if (totalElapsedTime > 0) {
+                document.getElementById('page-title').textContent = `${baseTitle} - ${formatTime(totalElapsedTime)}`;
             } else {
-                 totalTimeDisplay.textContent = formatTime(totalElapsedTime);
+                document.getElementById('page-title').textContent = baseTitle;
             }
         }
 
@@ -454,16 +1252,16 @@
         // 시간 포맷 변경 함수
         function formatTime(seconds) {
             if (seconds < 60) {
-                return seconds.toFixed(1) + '초';
+                return Math.floor(seconds) + '초';
             } else if (seconds < 3600) {
                 const minutes = Math.floor(seconds / 60);
-                const remainingSeconds = seconds % 60; 
-                return `${minutes}분 ${remainingSeconds.toFixed(1)}초`;
+                const remainingSeconds = Math.floor(seconds % 60); 
+                return `${minutes}분 ${remainingSeconds.toString().padStart(2, '0')}초`;
             } else {
                 const hours = Math.floor(seconds / 3600);
                 const remainingMinutes = Math.floor((seconds % 3600) / 60);
-                const remainingSeconds = seconds % 60; 
-                return `${hours}시간 ${remainingMinutes}분 ${remainingSeconds.toFixed(1)}초`;
+                const remainingSeconds = Math.floor(seconds % 60); 
+                return `${hours}시간 ${remainingMinutes}분 ${remainingSeconds.toString().padStart(2, '0')}초`;
             }
         }
 
@@ -473,6 +1271,11 @@
         const modalTitle = document.getElementById('modal-title');
         const saveButton = document.getElementById('save-button');
         const cancelButton = document.getElementById('cancel-button');
+        const sttButton = document.getElementById('stt-button');
+        
+        // STT 관련 변수
+        let recognition = null;
+        let isRecording = false;
 
         function openModal(title, initialValue, targetId, targetType) {
             modalTitle.textContent = title;
@@ -484,6 +1287,79 @@
         function closeModal() {
             modal.style.display = 'none';
             currentEditTarget = null;
+            stopRecording();
+        }
+        
+        // STT 초기화 함수
+        function initializeSTT() {
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+            } else if ('SpeechRecognition' in window) {
+                recognition = new SpeechRecognition();
+            } else {
+                console.log('STT를 지원하지 않는 브라우저입니다.');
+                sttButton.style.display = 'none';
+                return;
+            }
+            
+            recognition.lang = 'zh-TW'; // 중국어 번체 (대만)
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            
+            recognition.onstart = function() {
+                isRecording = true;
+                sttButton.classList.add('recording');
+                sttButton.title = '음성 인식 중... (클릭하여 중지)';
+            };
+            
+            recognition.onresult = function(event) {
+                const result = event.results[0][0].transcript;
+                editInput.value = result;
+                stopRecording();
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('STT 오류:', event.error);
+                stopRecording();
+                alert('음성 인식에 실패했습니다. 다시 시도해주세요.');
+            };
+            
+            recognition.onend = function() {
+                stopRecording();
+            };
+        }
+        
+        // 녹음 시작/중지 함수
+        function toggleRecording() {
+            if (!recognition) {
+                alert('음성 인식을 지원하지 않는 브라우저입니다.');
+                return;
+            }
+            
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        }
+        
+        function startRecording() {
+            try {
+                recognition.start();
+            } catch (error) {
+                console.error('STT 시작 오류:', error);
+                alert('음성 인식을 시작할 수 없습니다.');
+            }
+        }
+        
+        function stopRecording() {
+            if (recognition && isRecording) {
+                recognition.stop();
+            }
+            isRecording = false;
+            sttButton.classList.remove('recording');
+            sttButton.title = '음성 인식 (중국어 번체)';
         }
 
         // Event Delegation for count buttons
@@ -506,14 +1382,14 @@
                 counter.count = 0;
                 saveToLocalStorage();
                 // Directly update the DOM for this counter
-                button.querySelector('.count-value').textContent = counter.count;
+                button.querySelector('.count-display').textContent = counter.count;
             } else if (target.classList.contains('remove-individual-icon')) {
                 removeCounter(id); // This will call updateUI() to remove the element
             } else {
                 counter.count++;
                 saveToLocalStorage();
                 // Directly update the DOM for this counter
-                button.querySelector('.count-value').textContent = counter.count;
+                button.querySelector('.count-display').textContent = counter.count;
             }
         });
 
@@ -551,6 +1427,11 @@
         document.getElementById('add-timer-button').addEventListener('click', () => {
             addTimer();
         });
+        
+        // History Toggle button event
+        document.getElementById('history-toggle-button').addEventListener('click', () => {
+            toggleHistoryPanel();
+        });
 
         // Timer toggle function
         function toggleTimer(id) {
@@ -558,8 +1439,8 @@
             if (!timer) return;
 
             timer.running = !timer.running;
-            const button = document.querySelector(`.time-toggle[data-id="${id}"] button`);
-            const timeDisplay = document.querySelector(`.time-toggle[data-id="${id}"] .time-display`);
+            const button = document.querySelector(`.time-toggle[data-id="${id}"] .timer-right button`);
+            const timeDisplay = document.querySelector(`.time-toggle[data-id="${id}"] .timer-left .time-display`);
             
             if (timer.running) {
                 button.textContent = '⏸️';
@@ -599,9 +1480,9 @@
             saveToLocalStorage();
             
             // Directly update the DOM for this timer
-            document.querySelector(`.time-toggle[data-id="${id}"] button`).textContent = '▶️';
-            document.querySelector(`.time-toggle[data-id="${id}"] button`).classList.remove('active');
-            document.querySelector(`.time-toggle[data-id="${id}"] .time-display`).textContent = formatTime(timer.elapsedTime);
+            document.querySelector(`.time-toggle[data-id="${id}"] .timer-right button`).textContent = '▶️';
+            document.querySelector(`.time-toggle[data-id="${id}"] .timer-right button`).classList.remove('active');
+            document.querySelector(`.time-toggle[data-id="${id}"] .timer-left .time-display`).textContent = formatTime(timer.elapsedTime);
             updateTotalTimeDisplay();
             // No updateUI() call here.
         }
@@ -609,7 +1490,7 @@
         // Add new counter
         function addCounter() {
             const newId = `counter-${nextCounterId++}`;
-            const newCounter = { id: newId, label: `새 카운터 ${nextCounterId - 1}`, count: 0 };
+            const newCounter = { id: newId, label: `✅ 새 카운터 ${nextCounterId - 1}`, count: 0 };
             counters.push(newCounter);
             saveToLocalStorage();
             updateUI(); // Call updateUI here as the structure changes
@@ -625,7 +1506,7 @@
         // Add new timer
         function addTimer() {
             const newId = `timer-${nextTimerId++}`;
-            const newTimer = { id: newId, label: `새 타이머 ${nextTimerId - 1}`, elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null };
+            const newTimer = { id: newId, label: `⏰ 새 타이머 ${nextTimerId - 1}`, elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null };
             timers.push(newTimer);
             saveToLocalStorage();
             updateUI(); // Call updateUI here as the structure changes
@@ -648,7 +1529,21 @@
         // Update total time display separately to avoid full UI re-render on every interval tick
         function updateTotalTimeDisplay() {
             const totalTime = timers.reduce((acc, timer) => acc + timer.elapsedTime, 0);
-            document.getElementById('total-time').textContent = formatTime(totalTime);
+            const totalTimeDisplay = document.getElementById('total-time');
+            const totalTimeContainer = document.getElementById('total-time-container');
+            
+            // Only update if multiple timers exist and display is visible
+            if (totalTimeDisplay && timers.length > 1) {
+                totalTimeDisplay.textContent = formatTime(totalTime);
+            }
+            
+            // Update page title with total time
+            const baseTitle = "Chu's Check";
+            if (totalTime > 0) {
+                document.getElementById('page-title').textContent = `${baseTitle} - ${formatTime(totalTime)}`;
+            } else {
+                document.getElementById('page-title').textContent = baseTitle;
+            }
         }
 
         // Page focus/blur event handling for timers
@@ -668,7 +1563,7 @@
                     timer.sessionStartTime = now;
                     // elapsedTime 즉시 갱신
                     timer.elapsedTime = timer.baseElapsedTime;
-                    document.querySelector(`.time-toggle[data-id="${timer.id}"] .time-display`).textContent = formatTime(timer.elapsedTime);
+                    document.querySelector(`.time-toggle[data-id="${timer.id}"] .timer-left .time-display`).textContent = formatTime(timer.elapsedTime);
                 }
             });
             updateTotalTimeDisplay();
@@ -703,6 +1598,13 @@
 
         // 취소 버튼 이벤트
         cancelButton.addEventListener('click', closeModal);
+        
+        // STT 버튼 이벤트
+        sttButton.addEventListener('click', toggleRecording);
+        
+        // 통계 버튼 이벤트
+        document.getElementById('stats-button').addEventListener('click', showStatistics);
+        document.getElementById('chart-close').addEventListener('click', closeStatistics);
 
         // 초기화 버튼 이벤트 (all data)
         document.getElementById('reset-button').addEventListener('click', () => {
@@ -714,25 +1616,459 @@
                     }
                 });
                 
-                counters = [
-                    { id: 'counter-1', label: '🔴', count: 0 },
-                    { id: 'counter-2', label: '🟢', count: 0 },
-                    { id: 'counter-3', label: '🫐', count: 0 }
-                ];
+                counters = [];
                 timers = [
-                    { id: 'timer-1', label: '시간 체크 1', elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null },
-                    { id: 'timer-2', label: '시간 체크 2', elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null }
+                    { id: 'timer-1', label: '⏰ 시간 체크 1', elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null }
                 ];
-                nextCounterId = 4; // Reset to 4 for next new counter
-                nextTimerId = 3;     // Reset to 3 for next new timer
+                nextCounterId = 1; // Reset to 1 for next new counter
+                nextTimerId = 2;     // Reset to 2 for next new timer
 
                 saveToLocalStorage();
                 updateUI(); // Call updateUI for a full re-render on reset
             }
         });
 
+        // 최소화/확장 기능
+        function toggleCompactMode() {
+            const container = document.querySelector('.container');
+            const body = document.body;
+            const minimizeBtn = document.getElementById('minimize-btn');
+            const expandBtn = document.getElementById('expand-btn');
+            
+            isCompactMode = !isCompactMode;
+            
+            if (isCompactMode) {
+                container.classList.add('compact');
+                body.classList.add('compact-mode');
+                minimizeBtn.style.display = 'none';
+                expandBtn.style.display = 'block';
+                minimizeBtn.textContent = '+';
+            } else {
+                container.classList.remove('compact');
+                body.classList.remove('compact-mode');
+                minimizeBtn.style.display = 'block';
+                expandBtn.style.display = 'none';
+                minimizeBtn.textContent = '−';
+            }
+        }
+        
+        // 히스토리 패널 토글 기능
+        function toggleHistoryPanel() {
+            const historyPanel = document.getElementById('history-panel');
+            const historyButton = document.getElementById('history-toggle-button');
+            
+            isHistoryVisible = !isHistoryVisible;
+            
+            if (isHistoryVisible) {
+                historyPanel.classList.remove('hidden');
+                historyButton.textContent = '📋 히스토리';
+            } else {
+                historyPanel.classList.add('hidden');
+                historyButton.textContent = '👁️ 히스토리';
+            }
+        }
+        
+        // 통계 관련 함수들
+        function showStatistics() {
+            const modal = document.getElementById('chart-modal');
+            modal.style.display = 'flex';
+            generateChart();
+        }
+        
+        function closeStatistics() {
+            const modal = document.getElementById('chart-modal');
+            modal.style.display = 'none';
+            
+            // 기존 차트 인스턴스 파괴
+            if (window.statsChartInstance) {
+                window.statsChartInstance.destroy();
+                window.statsChartInstance = null;
+            }
+        }
+        
+        function generateChart() {
+            const allDates = getAllSavedDates();
+            const today = getCurrentDateString();
+            
+            // 오늘 포함한 모든 날짜
+            const dates = [...allDates, today].sort().slice(-14); // 최근 14일
+            
+            // 카운터 이름별로 데이터 수집
+            const counterStats = {};
+            // 타이머 이름별로 데이터 수집
+            const timerStats = {};
+            // 총 시간 데이터 수집
+            const totalTimeStats = [];
+            
+            dates.forEach(date => {
+                const dateData = loadDateData(date);
+                let dailyTotalTime = 0;
+                
+                if (dateData && dateData.counters) {
+                    dateData.counters.forEach(counter => {
+                        // 이모지 제거하고 실제 이름만 추출
+                        const cleanName = counter.label.replace(/^[^\w\s가-힣]+\s*/, '').trim();
+                        
+                        if (!counterStats[cleanName]) {
+                            counterStats[cleanName] = {
+                                dates: [],
+                                counts: []
+                            };
+                        }
+                        
+                        const existingIndex = counterStats[cleanName].dates.indexOf(date);
+                        if (existingIndex >= 0) {
+                            counterStats[cleanName].counts[existingIndex] += counter.count;
+                        } else {
+                            counterStats[cleanName].dates.push(date);
+                            counterStats[cleanName].counts.push(counter.count);
+                        }
+                    });
+                }
+                
+                // 타이머별 시간 계산 (분 단위)
+                if (dateData && dateData.timers) {
+                    dateData.timers.forEach(timer => {
+                        // 이모지 제거하고 실제 이름만 추출
+                        const cleanName = timer.label.replace(/^[^\w\s가-힣]+\s*/, '').trim();
+                        const timerMinutes = Math.round((timer.elapsedTime || 0) / 60);
+                        
+                        if (!timerStats[cleanName]) {
+                            timerStats[cleanName] = {
+                                dates: [],
+                                times: []
+                            };
+                        }
+                        
+                        const existingIndex = timerStats[cleanName].dates.indexOf(date);
+                        if (existingIndex >= 0) {
+                            timerStats[cleanName].times[existingIndex] += timerMinutes;
+                        } else {
+                            timerStats[cleanName].dates.push(date);
+                            timerStats[cleanName].times.push(timerMinutes);
+                        }
+                        
+                        dailyTotalTime += timerMinutes;
+                    });
+                }
+                totalTimeStats.push(dailyTotalTime);
+            });
+            
+            // 모든 날짜에 대해 빈 값 채우기 (카운터)
+            Object.keys(counterStats).forEach(counterName => {
+                const fullDates = [];
+                const fullCounts = [];
+                
+                dates.forEach(date => {
+                    fullDates.push(date);
+                    const index = counterStats[counterName].dates.indexOf(date);
+                    fullCounts.push(index >= 0 ? counterStats[counterName].counts[index] : 0);
+                });
+                
+                counterStats[counterName].dates = fullDates;
+                counterStats[counterName].counts = fullCounts;
+            });
+            
+            // 모든 날짜에 대해 빈 값 채우기 (타이머)
+            Object.keys(timerStats).forEach(timerName => {
+                const fullDates = [];
+                const fullTimes = [];
+                
+                dates.forEach(date => {
+                    fullDates.push(date);
+                    const index = timerStats[timerName].dates.indexOf(date);
+                    fullTimes.push(index >= 0 ? timerStats[timerName].times[index] : 0);
+                });
+                
+                timerStats[timerName].dates = fullDates;
+                timerStats[timerName].times = fullTimes;
+            });
+            
+            // Chart.js 데이터 설정
+            const datasets = [];
+            const colors = [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
+                '#9966FF', '#FF9F40', '#C9CBCF', '#E91E63'
+            ];
+            
+            const timeColors = [
+                '#FF6B35', '#FF8C42', '#FFA726', '#FFB74D',
+                '#FFCC02', '#FDD835', '#F9A825', '#F57F17'
+            ];
+            
+            // 카운터 데이터셋 추가
+            Object.keys(counterStats).forEach((counterName, index) => {
+                datasets.push({
+                    label: `${counterName} (카운트)`,
+                    data: counterStats[counterName].counts,
+                    borderColor: colors[index % colors.length],
+                    backgroundColor: colors[index % colors.length] + '20',
+                    tension: 0.4,
+                    fill: false,
+                    yAxisID: 'y'
+                });
+            });
+            
+            // 개별 타이머 데이터셋 추가
+            Object.keys(timerStats).forEach((timerName, index) => {
+                const color = timeColors[index % timeColors.length];
+                datasets.push({
+                    label: `⏰ ${timerName} (분)`,
+                    data: timerStats[timerName].times,
+                    borderColor: color,
+                    backgroundColor: color + '30',
+                    tension: 0.3,
+                    fill: false,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: color,
+                    pointBorderColor: '#FFFFFF',
+                    pointBorderWidth: 1,
+                    pointHoverBackgroundColor: color,
+                    pointHoverBorderColor: '#FFFFFF',
+                    pointHoverBorderWidth: 2,
+                    yAxisID: 'y1',
+                    borderDash: [5, 5] // 점선으로 구분
+                });
+            });
+            
+            // 총 합산시간 데이터셋 추가 (특별한 스타일)
+            datasets.push({
+                label: '🔥 총 합산시간 (분)',
+                data: totalTimeStats,
+                borderColor: '#FF4500',
+                backgroundColor: function(context) {
+                    const ctx = context.chart.ctx;
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                    gradient.addColorStop(0, 'rgba(255, 69, 0, 0.4)');
+                    gradient.addColorStop(0.5, 'rgba(255, 69, 0, 0.2)');
+                    gradient.addColorStop(1, 'rgba(255, 69, 0, 0.05)');
+                    return gradient;
+                },
+                tension: 0.3,
+                fill: true,
+                borderWidth: 5,
+                pointRadius: 7,
+                pointHoverRadius: 9,
+                pointBackgroundColor: '#FF4500',
+                pointBorderColor: '#FFFFFF',
+                pointBorderWidth: 3,
+                pointHoverBackgroundColor: '#FF6347',
+                pointHoverBorderColor: '#FFFFFF',
+                pointHoverBorderWidth: 4,
+                yAxisID: 'y1',
+                borderCapStyle: 'round',
+                borderJoinStyle: 'round'
+            });
+            
+            const ctx = document.getElementById('statsChart').getContext('2d');
+            
+            // 기존 차트 제거
+            if (window.statsChartInstance) {
+                window.statsChartInstance.destroy();
+            }
+            
+            window.statsChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates.map(date => {
+                        const [year, month, day] = date.split('-');
+                        return `${month}/${day}`;
+                    }),
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeInOutQuart'
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '📊 카운터 & ⏰ 시간 통계',
+                            color: '#e0e0e0',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            labels: {
+                                color: '#e0e0e0',
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#FFFFFF',
+                            borderColor: '#FF6B35',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: true,
+                            callbacks: {
+                                afterBody: function(context) {
+                                    const timeData = context.find(item => item.datasetIndex === datasets.length - 1);
+                                    if (timeData) {
+                                        const hours = Math.floor(timeData.parsed.y / 60);
+                                        const minutes = timeData.parsed.y % 60;
+                                        if (hours > 0) {
+                                            return [`⏰ ${hours}시간 ${minutes}분`];
+                                        } else {
+                                            return [`⏰ ${minutes}분`];
+                                        }
+                                    }
+                                    return [];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#e0e0e0'
+                            },
+                            grid: {
+                                color: '#444'
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '카운트 수',
+                                color: '#e0e0e0'
+                            },
+                            ticks: {
+                                color: '#e0e0e0'
+                            },
+                            grid: {
+                                color: '#444'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '⏰ 시간 (분)',
+                                color: '#FF6B35',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                color: '#FF6B35',
+                                font: {
+                                    weight: 'bold'
+                                },
+                                callback: function(value) {
+                                    if (value >= 60) {
+                                        const hours = Math.floor(value / 60);
+                                        const minutes = value % 60;
+                                        return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+                                    }
+                                    return `${value}m`;
+                                }
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                                color: '#FF6B35',
+                                lineWidth: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 이벤트 리스너 추가
+        document.getElementById('minimize-btn').addEventListener('click', toggleCompactMode);
+        document.getElementById('expand-btn').addEventListener('click', toggleCompactMode);
+        document.getElementById('today-button').addEventListener('click', returnToToday);
+        
+        // 테스트 데이터 생성 함수
+        function createTestData() {
+            const today = new Date();
+            const testDates = [];
+            
+            // 최근 7일간의 데이터 생성
+            for (let i = 7; i >= 1; i--) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                testDates.push(dateString);
+            }
+            
+            testDates.forEach((date, index) => {
+                const testData = {
+                    counters: [
+                        { id: 'counter-1', label: '✅ 운동하기', count: Math.floor(Math.random() * 3) + 0 },
+                        { id: 'counter-2', label: '✅ 물마시기', count: Math.floor(Math.random() * 10) + 5 },
+                        { id: 'counter-3', label: '✅ 독서하기', count: Math.floor(Math.random() * 2) + 0 },
+                        { id: 'counter-4', label: '✅ 커피마시기', count: Math.floor(Math.random() * 5) + 1 },
+                        { id: 'counter-5', label: '✅ 산책하기', count: Math.floor(Math.random() * 2) + 0 }
+                    ],
+                    timers: [
+                        { 
+                            id: 'timer-1', 
+                            label: '⏰ 집중 시간', 
+                            elapsedTime: Math.floor(Math.random() * 7200) + 1800, // 30분~2시간
+                            running: false 
+                        },
+                        { 
+                            id: 'timer-2', 
+                            label: '⏰ 공부 시간', 
+                            elapsedTime: Math.floor(Math.random() * 5400) + 900, // 15분~1.5시간
+                            running: false 
+                        }
+                    ],
+                    nextCounterId: 6,
+                    nextTimerId: 3,
+                    date: date
+                };
+                
+                saveDateData(date, testData);
+            });
+            
+            console.log('테스트 데이터가 생성되었습니다!');
+            updateHistoryList();
+        }
+        
+        // 테스트 데이터 삭제 함수
+        function clearTestData() {
+            const dates = getAllSavedDates();
+            dates.forEach(date => {
+                localStorage.removeItem(`chuData_${date}`);
+            });
+            console.log('모든 테스트 데이터가 삭제되었습니다!');
+            updateHistoryList();
+        }
+        
         // 페이지 로드 시 초기화
         loadFromLocalStorage();
+        initializeSTT();
+        
+        // 개발자 도구에서 사용할 수 있는 전역 함수들
+        window.createTestData = createTestData;
+        window.clearTestData = clearTestData;
     </script>
 </body>
 </html>
