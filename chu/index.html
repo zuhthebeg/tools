@@ -41,9 +41,9 @@
         }
         
         .container.compact {
-            width: 250px;
-            min-width: 250px;
-            max-width: 250px;
+            width: auto;
+            min-width: unset;
+            max-width: none;
             padding: 12px;
             position: fixed;
             bottom: 20px;
@@ -133,7 +133,42 @@
             background-color: #1976D2;
         }
         
-        .container.compact .title-container,
+        .expand-button-small {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+        
+        .expand-button-small:hover {
+            background-color: #1976D2;
+            transform: scale(1.05);
+        }
+        
+        .container.compact .title-container {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        
+        .container.compact .title-container h1 {
+            font-size: 1em;
+            margin: 0;
+        }
+        
+        .container.compact .minimize-button {
+            display: none;
+        }
+        
         .container.compact .buttons-container {
             display: none;
         }
@@ -164,42 +199,55 @@
         
         .container.compact .counter-label .count-display {
             font-size: 1em;
-            padding: 4px 8px;
-            min-width: 40px;
+            padding: 4px 6px;
+            min-width: 30px;
         }
         
         .container.compact .time-toggle {
             margin-bottom: 6px;
             padding: 8px;
-            flex-direction: column;
-            align-items: stretch;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 0;
         }
         
         .container.compact .time-label {
             font-size: 0.8em;
-            margin-bottom: 6px;
-            width: 100%;
-            justify-content: flex-start;
+            margin-bottom: 0;
+            margin-right: 8px;
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        
+        .container.compact .time-label-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         .container.compact .timer-controls {
-            justify-content: space-between;
+            flex-shrink: 0;
+            display: flex;
             align-items: center;
             gap: 6px;
-            width: 100%;
         }
         
         .container.compact .time-display {
-            font-size: 0.9em;
-            min-width: 70px;
-            padding: 4px 8px;
+            font-size: 0.85em;
+            min-width: 45px;
+            padding: 3px 5px;
         }
         
         .container.compact .timer-right button {
-            width: 24px;
-            height: 24px;
-            font-size: 0.8em;
-            min-width: 24px;
+            width: 22px;
+            height: 22px;
+            font-size: 0.75em;
+            min-width: 22px;
             flex-shrink: 0;
         }
 
@@ -684,6 +732,10 @@
                 max-width: 600px;
                 padding: 15px;
             }
+            
+            .container.compact {
+                min-width: unset;
+            }
         }
         
         @media (max-width: 768px) {
@@ -691,6 +743,10 @@
                 min-width: 280px;
                 max-width: 450px;
                 padding: 12px;
+            }
+            
+            .container.compact {
+                min-width: unset;
             }
             
             .count-button {
@@ -725,6 +781,10 @@
                 min-width: 220px;
                 max-width: 320px;
                 padding: 10px;
+            }
+            
+            .container.compact {
+                min-width: unset;
             }
             
             .button-group {
@@ -786,6 +846,10 @@
                 padding: 8px;
             }
             
+            .container.compact {
+                min-width: unset;
+            }
+            
             .button-group {
                 grid-template-columns: 1fr 1fr;
                 gap: 6px;
@@ -831,6 +895,7 @@
             <div class="left-panel">
                 <div class="title-container">
                     <h1>Chu's Check</h1>
+                    <button class="expand-button-small" id="expand-btn-small" style="display: none;">+</button>
                     <button class="minimize-button" id="minimize-btn">−</button>
                 </div>
 
@@ -852,7 +917,6 @@
                         <button id="history-toggle-button" class="add-button history-button">📋</button>
                     </div>
                 </div>
-                
                 <button class="expand-button" id="expand-btn" style="display: none;">🔍 확장</button>
             </div>
             
@@ -1634,6 +1698,7 @@
             const body = document.body;
             const minimizeBtn = document.getElementById('minimize-btn');
             const expandBtn = document.getElementById('expand-btn');
+            const expandBtnSmall = document.getElementById('expand-btn-small');
             
             isCompactMode = !isCompactMode;
             
@@ -1641,14 +1706,14 @@
                 container.classList.add('compact');
                 body.classList.add('compact-mode');
                 minimizeBtn.style.display = 'none';
-                expandBtn.style.display = 'block';
-                minimizeBtn.textContent = '+';
+                expandBtn.style.display = 'none';
+                expandBtnSmall.style.display = 'flex';
             } else {
                 container.classList.remove('compact');
                 body.classList.remove('compact-mode');
                 minimizeBtn.style.display = 'block';
                 expandBtn.style.display = 'none';
-                minimizeBtn.textContent = '−';
+                expandBtnSmall.style.display = 'none';
             }
         }
         
@@ -1798,6 +1863,14 @@
             
             // Counter 데이터셋 추가
             Object.keys(counterStats).forEach((counterName, index) => {
+                // 오늘 데이터가 있는 카운터인지 확인
+                const todayData = loadDateData(today);
+                const hasToday = todayData && todayData.counters && 
+                    todayData.counters.some(counter => {
+                        const cleanName = counter.label.replace(/^[^\w\s가-힣]+\s*/, '').trim();
+                        return cleanName === counterName;
+                    });
+                
                 datasets.push({
                     label: `${counterName} (카운트)`,
                     data: counterStats[counterName].counts,
@@ -1805,12 +1878,21 @@
                     backgroundColor: colors[index % colors.length] + '20',
                     tension: 0.4,
                     fill: false,
-                    yAxisID: 'y'
+                    yAxisID: 'y',
+                    hidden: !hasToday // 오늘 데이터가 없으면 숨김
                 });
             });
             
             // 개별 타이머 데이터셋 추가
             Object.keys(timerStats).forEach((timerName, index) => {
+                // 오늘 데이터가 있는 타이머인지 확인
+                const todayData = loadDateData(today);
+                const hasToday = todayData && todayData.timers && 
+                    todayData.timers.some(timer => {
+                        const cleanName = timer.label.replace(/^[^\w\s가-힣]+\s*/, '').trim();
+                        return cleanName === timerName;
+                    });
+                
                 const color = timeColors[index % timeColors.length];
                 datasets.push({
                     label: `⏰ ${timerName} (분)`,
@@ -1829,7 +1911,8 @@
                     pointHoverBorderColor: '#FFFFFF',
                     pointHoverBorderWidth: 2,
                     yAxisID: 'y1',
-                    borderDash: [5, 5] // 점선으로 구분
+                    borderDash: [5, 5], // 점선으로 구분
+                    hidden: !hasToday // 오늘 데이터가 없으면 숨김
                 });
             });
             
@@ -1907,6 +1990,15 @@
                                 font: {
                                     size: 12
                                 }
+                            },
+                            onClick: function(e, legendItem, legend) {
+                                const index = legendItem.datasetIndex;
+                                const chart = legend.chart;
+                                const meta = chart.getDatasetMeta(index);
+                                
+                                // 데이터셋 표시/숨김 토글
+                                meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+                                chart.update();
                             }
                         },
                         tooltip: {
@@ -2002,6 +2094,7 @@
         // 이벤트 리스너 추가
         document.getElementById('minimize-btn').addEventListener('click', toggleCompactMode);
         document.getElementById('expand-btn').addEventListener('click', toggleCompactMode);
+        document.getElementById('expand-btn-small').addEventListener('click', toggleCompactMode);
         document.getElementById('today-button').addEventListener('click', returnToToday);
         
         // 테스트 데이터 생성 함수
