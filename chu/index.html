@@ -659,11 +659,11 @@
         }
         
         .history-button {
-            background-color: #6a1b9a;
+            background-color: #546e7a;
         }
         
         .history-button:hover {
-            background-color: #8e24aa;
+            background-color: #607d8b;
             transform: translateY(-1px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
         }
@@ -847,9 +847,9 @@
                         <button id="reset-button" class="reset-button">🔄 초기화</button>
                     </div>
                     <div class="right-buttons">
-                        <button id="add-counter-button" class="add-button add-counter-btn">➕ 카추</button>
+                        <button id="add-counter-button" class="add-button add-counter-btn">✅ 카추</button>
                         <button id="add-timer-button" class="add-button add-timer-btn">⏱️ 타추</button>
-                        <button id="history-toggle-button" class="add-button history-button">📋 히스토리</button>
+                        <button id="history-toggle-button" class="add-button history-button">📋</button>
                     </div>
                 </div>
                 
@@ -884,7 +884,7 @@
     <div class="chart-modal" id="chart-modal">
         <div class="chart-content">
             <div class="chart-header">
-                <h3 style="margin: 0; color: #e0e0e0;">📊 카운터 통계</h3>
+                <h3 style="margin: 0; color: #e0e0e0;">📊 Counter 통계</h3>
                 <button class="chart-close" id="chart-close">✕</button>
             </div>
             <div class="chart-container">
@@ -896,7 +896,7 @@
     <script>
         // 데이터 초기화 및 로컬 스토리지 불러오기
         let counters = []; // [{ id: 'red', label: '🔴', count: 0 }, ...]
-        let timers = [];   // [{ id: 1, label: '시간 체크 1', elapsedTime: 0, running: false, startTime: 0, interval: null }, ...]
+        let timers = [];   // [{ id: 1, label: 'Timer 1', elapsedTime: 0, running: false, startTime: 0, interval: null }, ...]
         let currentEditTarget = null;
         let lastFocusTime = Date.now(); // Track the last focus time
         let nextCounterId = 1;
@@ -955,7 +955,7 @@
             if (dateData) {
                 counters = dateData.counters || [];
                 timers = (dateData.timers || [
-                    { id: 'timer-1', label: '⏰ 시간 체크 1', elapsedTime: 0, running: false, sessionStartTime: 0, interval: null }
+                    { id: 'timer-1', label: '⏰ Timer 1', elapsedTime: 0, running: false, sessionStartTime: 0, interval: null }
                 ]).map(timer => ({ ...timer, baseElapsedTime: timer.elapsedTime || 0, interval: null }));
 
                 nextCounterId = dateData.nextCounterId || 1;
@@ -979,7 +979,7 @@
                 // 해당 날짜에 데이터가 없으면 기본 설정
                 counters = [];
                 timers = [
-                    { id: 'timer-1', label: '⏰ 시간 체크 1', elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null }
+                    { id: 'timer-1', label: '⏰ Timer 1', elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null }
                 ];
                 nextCounterId = 1;
                 nextTimerId = 2;
@@ -1373,7 +1373,7 @@
 
             if (target.classList.contains('edit-icon')) {
                 openModal(
-                    `카운터 텍스트 수정`, 
+                    `Counter 텍스트 수정`, 
                     counter.label,
                     id,
                     'counter-label'
@@ -1490,7 +1490,7 @@
         // Add new counter
         function addCounter() {
             const newId = `counter-${nextCounterId++}`;
-            const newCounter = { id: newId, label: `✅ 새 카운터 ${nextCounterId - 1}`, count: 0 };
+            const newCounter = { id: newId, label: `Counter ${nextCounterId - 1}`, count: 0 };
             counters.push(newCounter);
             saveToLocalStorage();
             updateUI(); // Call updateUI here as the structure changes
@@ -1506,7 +1506,7 @@
         // Add new timer
         function addTimer() {
             const newId = `timer-${nextTimerId++}`;
-            const newTimer = { id: newId, label: `⏰ 새 타이머 ${nextTimerId - 1}`, elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null };
+            const newTimer = { id: newId, label: `⏰ 타이머 ${nextTimerId - 1}`, elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null };
             timers.push(newTimer);
             saveToLocalStorage();
             updateUI(); // Call updateUI here as the structure changes
@@ -1618,7 +1618,7 @@
                 
                 counters = [];
                 timers = [
-                    { id: 'timer-1', label: '⏰ 시간 체크 1', elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null }
+                    { id: 'timer-1', label: '⏰ Timer 1', elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null }
                 ];
                 nextCounterId = 1; // Reset to 1 for next new counter
                 nextTimerId = 2;     // Reset to 2 for next new timer
@@ -1661,10 +1661,10 @@
             
             if (isHistoryVisible) {
                 historyPanel.classList.remove('hidden');
-                historyButton.textContent = '📋 히스토리';
+                historyButton.textContent = '📋';
             } else {
                 historyPanel.classList.add('hidden');
-                historyButton.textContent = '👁️ 히스토리';
+                historyButton.textContent = '📋';
             }
         }
         
@@ -1693,7 +1693,7 @@
             // 오늘 포함한 모든 날짜
             const dates = [...allDates, today].sort().slice(-14); // 최근 14일
             
-            // 카운터 이름별로 데이터 수집
+            // Counter 이름별로 데이터 수집
             const counterStats = {};
             // 타이머 이름별로 데이터 수집
             const timerStats = {};
@@ -1754,7 +1754,7 @@
                 totalTimeStats.push(dailyTotalTime);
             });
             
-            // 모든 날짜에 대해 빈 값 채우기 (카운터)
+            // 모든 날짜에 대해 빈 값 채우기 (Counter)
             Object.keys(counterStats).forEach(counterName => {
                 const fullDates = [];
                 const fullCounts = [];
@@ -1796,7 +1796,7 @@
                 '#FFCC02', '#FDD835', '#F9A825', '#F57F17'
             ];
             
-            // 카운터 데이터셋 추가
+            // Counter 데이터셋 추가
             Object.keys(counterStats).forEach((counterName, index) => {
                 datasets.push({
                     label: `${counterName} (카운트)`,
@@ -1892,7 +1892,7 @@
                     plugins: {
                         title: {
                             display: true,
-                            text: '📊 카운터 & ⏰ 시간 통계',
+                            text: '📊 Counter & ⏰ 시간 통계',
                             color: '#e0e0e0',
                             font: {
                                 size: 16,
@@ -2020,11 +2020,11 @@
             testDates.forEach((date, index) => {
                 const testData = {
                     counters: [
-                        { id: 'counter-1', label: '✅ 운동하기', count: Math.floor(Math.random() * 3) + 0 },
-                        { id: 'counter-2', label: '✅ 물마시기', count: Math.floor(Math.random() * 10) + 5 },
-                        { id: 'counter-3', label: '✅ 독서하기', count: Math.floor(Math.random() * 2) + 0 },
-                        { id: 'counter-4', label: '✅ 커피마시기', count: Math.floor(Math.random() * 5) + 1 },
-                        { id: 'counter-5', label: '✅ 산책하기', count: Math.floor(Math.random() * 2) + 0 }
+                        { id: 'counter-1', label: '운동하기', count: Math.floor(Math.random() * 3) + 0 },
+                        { id: 'counter-2', label: '물마시기', count: Math.floor(Math.random() * 10) + 5 },
+                        { id: 'counter-3', label: '독서하기', count: Math.floor(Math.random() * 2) + 0 },
+                        { id: 'counter-4', label: '커피마시기', count: Math.floor(Math.random() * 5) + 1 },
+                        { id: 'counter-5', label: '산책하기', count: Math.floor(Math.random() * 2) + 0 }
                     ],
                     timers: [
                         { 
