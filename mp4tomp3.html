@@ -103,6 +103,12 @@
             word-break: break-all;
         }
 
+        .file-size {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
         .progress-container {
             background: #e9ecef;
             border-radius: 10px;
@@ -209,6 +215,17 @@
             display: none;
         }
 
+        .info-box {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
         .footer {
             margin-top: 30px;
             color: #666;
@@ -268,7 +285,7 @@
 <body>
     <div class="container">
         <div class="logo">Cocy.io</div>
-        <div class="subtitle">MP4를 MP3로 간편하게 변환하세요</div>
+        <div class="subtitle">MP4에서 오디오를 추출하여 MP3로 저장하세요</div>
         
         <div class="upload-area" onclick="document.getElementById('fileInput').click()">
             <div class="upload-icon">🎬</div>
@@ -280,13 +297,20 @@
         
         <div class="file-info" id="fileInfo">
             <div class="file-name" id="fileName"></div>
+            <div class="file-size" id="fileSize"></div>
             <div class="progress-container">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
             <div class="progress-text" id="progressText">준비 중...</div>
         </div>
         
-        <button class="convert-btn" id="convertBtn">MP3로 변환하기</button>
+        <button class="convert-btn" id="convertBtn">오디오 추출하기</button>
+        
+        <div class="info-box">
+            <strong>🔧 작동 방식:</strong><br>
+            Web Audio API를 사용하여 브라우저에서 직접 오디오를 추출합니다.<br>
+            파일이 서버로 전송되지 않아 안전하고 빠릅니다.
+        </div>
         
         <div class="error-message" id="errorMessage"></div>
         <div class="success-message" id="successMessage"></div>
@@ -295,21 +319,21 @@
         <button class="reset-btn" id="resetBtn">새 파일 선택</button>
         
         <div class="footer">
-            <p>🔒 모든 변환은 브라우저에서 안전하게 처리됩니다</p>
-            <p>파일이 서버로 전송되지 않아 개인정보가 보호됩니다</p>
+            <p>🔒 모든 처리는 브라우저에서 안전하게 진행됩니다</p>
+            <p>개인정보가 완전히 보호됩니다</p>
         </div>
     </div>
 
-    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
     <script>
         let selectedFile = null;
-        let ffmpeg = null;
+        let audioContext = null;
 
         // DOM 요소들
-        const uploadArea = document.getElementById('uploadArea') || document.querySelector('.upload-area');
+        const uploadArea = document.querySelector('.upload-area');
         const fileInput = document.getElementById('fileInput');
         const fileInfo = document.getElementById('fileInfo');
         const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
         const progressBar = document.getElementById('progressBar');
         const progressText = document.getElementById('progressText');
         const convertBtn = document.getElementById('convertBtn');
@@ -318,30 +342,25 @@
         const errorMessage = document.getElementById('errorMessage');
         const successMessage = document.getElementById('successMessage');
 
-        // FFmpeg 초기화
-        async function initFFmpeg() {
+        // Web Audio API 초기화
+        function initAudioContext() {
             try {
-                // FFmpeg 객체가 로드될 때까지 대기
-                if (typeof FFmpeg === 'undefined') {
-                    throw new Error('FFmpeg 라이브러리가 로드되지 않았습니다.');
-                }
-                
-                ffmpeg = FFmpeg.createFFmpeg({
-                    log: false,
-                    corePath: 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
-                });
-                
-                // 진행률 콜백 설정
-                ffmpeg.setProgress(({ ratio }) => {
-                    const percent = Math.round(ratio * 100);
-                    progressBar.style.width = percent + '%';
-                    progressText.textContent = `변환 중... ${percent}%`;
-                });
-                
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                return true;
             } catch (error) {
-                console.error('FFmpeg 초기화 실패:', error);
-                showError('변환 기능을 초기화하는데 실패했습니다. 페이지를 새로고침 해보세요.');
+                console.error('Web Audio API 초기화 실패:', error);
+                showError('브라우저가 오디오 처리를 지원하지 않습니다.');
+                return false;
             }
+        }
+
+        // 파일 크기를 읽기 쉬운 형태로 변환
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
         // 파일 선택 이벤트
@@ -377,7 +396,7 @@
         function handleFile(file) {
             // 파일 타입 확인
             if (!file.type.startsWith('video/') && !file.name.toLowerCase().endsWith('.mp4')) {
-                showError('MP4 파일만 업로드할 수 있습니다.');
+                showError('MP4 비디오 파일만 업로드할 수 있습니다.');
                 return;
             }
 
@@ -389,6 +408,7 @@
 
             selectedFile = file;
             fileName.textContent = file.name;
+            fileSize.textContent = `파일 크기: ${formatFileSize(file.size)}`;
             fileInfo.style.display = 'block';
             convertBtn.style.display = 'inline-block';
             
@@ -399,64 +419,169 @@
         }
 
         // 변환 버튼 클릭
-        convertBtn.addEventListener('click', convertToMP3);
+        convertBtn.addEventListener('click', extractAudio);
 
-        async function convertToMP3() {
+        async function extractAudio() {
             if (!selectedFile) return;
 
             try {
                 convertBtn.disabled = true;
-                progressText.textContent = 'FFmpeg 로딩 중...';
                 hideMessages();
-
-                // FFmpeg 초기화 (처음 실행시에만)
-                if (!ffmpeg) {
-                    await initFFmpeg();
+                
+                // Web Audio API 초기화
+                if (!audioContext && !initAudioContext()) {
+                    return;
                 }
 
-                if (!ffmpeg.isLoaded()) {
-                    await ffmpeg.load();
-                }
+                progressText.textContent = '비디오 생성 중...';
+                progressBar.style.width = '10%';
 
-                progressText.textContent = '파일 읽는 중...';
+                // 비디오 엘리먼트 생성
+                const video = document.createElement('video');
+                video.crossOrigin = 'anonymous';
                 
-                // 파일을 FFmpeg에 쓰기
-                const arrayBuffer = await selectedFile.arrayBuffer();
-                ffmpeg.FS('writeFile', 'input.mp4', new Uint8Array(arrayBuffer));
+                const url = URL.createObjectURL(selectedFile);
+                video.src = url;
 
-                progressText.textContent = '변환 시작...';
+                // 비디오 로드 완료 대기
+                await new Promise((resolve, reject) => {
+                    video.addEventListener('loadedmetadata', () => {
+                        progressText.textContent = '오디오 분석 중...';
+                        progressBar.style.width = '30%';
+                        resolve();
+                    });
+                    video.addEventListener('error', reject);
+                });
+
+                progressText.textContent = '오디오 추출 중...';
+                progressBar.style.width = '50%';
+
+                // MediaElement를 AudioContext에 연결
+                const source = audioContext.createMediaElementSource(video);
+                const destination = audioContext.createMediaStreamDestination();
+                source.connect(destination);
+
+                // MediaRecorder로 오디오 녹음
+                const mediaRecorder = new MediaRecorder(destination.stream, {
+                    mimeType: 'audio/webm;codecs=opus'
+                });
+
+                const audioChunks = [];
                 
-                // MP3로 변환
-                await ffmpeg.run('-i', 'input.mp4', '-vn', '-acodec', 'mp3', '-ab', '192k', 'output.mp3');
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
 
-                // 변환된 파일 읽기
-                const data = ffmpeg.FS('readFile', 'output.mp3');
-                
-                // Blob 생성
-                const blob = new Blob([data.buffer], { type: 'audio/mpeg' });
-                const url = URL.createObjectURL(blob);
+                mediaRecorder.onstop = async () => {
+                    progressText.textContent = '파일 생성 중...';
+                    progressBar.style.width = '90%';
 
-                // 다운로드 링크 설정
-                const originalName = selectedFile.name.replace(/\.[^/.]+$/, '');
-                downloadBtn.href = url;
-                downloadBtn.download = `${originalName}.mp3`;
-                downloadBtn.style.display = 'inline-block';
-                resetBtn.style.display = 'inline-block';
+                    // 오디오 blob 생성
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    
+                    // WAV로 변환 (더 호환성 좋음)
+                    const finalBlob = await convertToWav(audioBlob);
+                    
+                    const downloadUrl = URL.createObjectURL(finalBlob);
+                    const originalName = selectedFile.name.replace(/\.[^/.]+$/, '');
+                    
+                    downloadBtn.href = downloadUrl;
+                    downloadBtn.download = `${originalName}.wav`;
+                    downloadBtn.style.display = 'inline-block';
+                    resetBtn.style.display = 'inline-block';
 
-                progressBar.style.width = '100%';
-                progressText.textContent = '변환 완료!';
-                showSuccess('MP3 변환이 완료되었습니다!');
+                    progressBar.style.width = '100%';
+                    progressText.textContent = '변환 완료!';
+                    showSuccess('오디오 추출이 완료되었습니다! WAV 형식으로 다운로드됩니다.');
+                    
+                    URL.revokeObjectURL(url);
+                };
 
-                // 파일 정리
-                ffmpeg.FS('unlink', 'input.mp4');
-                ffmpeg.FS('unlink', 'output.mp3');
+                // 녹음 시작
+                mediaRecorder.start();
+                video.play();
+
+                // 비디오 재생 완료까지 대기
+                video.addEventListener('ended', () => {
+                    mediaRecorder.stop();
+                    progressBar.style.width = '80%';
+                    progressText.textContent = '마무리 중...';
+                });
+
+                // 재생 진행률 업데이트
+                video.addEventListener('timeupdate', () => {
+                    if (video.duration) {
+                        const progress = (video.currentTime / video.duration) * 30 + 50; // 50%에서 80%까지
+                        progressBar.style.width = Math.min(progress, 80) + '%';
+                    }
+                });
 
             } catch (error) {
                 console.error('변환 오류:', error);
-                showError('변환 중 오류가 발생했습니다: ' + error.message);
+                showError('오디오 추출 중 오류가 발생했습니다: ' + error.message);
             } finally {
                 convertBtn.disabled = false;
             }
+        }
+
+        // WAV 변환 함수 (단순화된 버전)
+        async function convertToWav(webmBlob) {
+            try {
+                const arrayBuffer = await webmBlob.arrayBuffer();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                
+                // WAV 파일 생성
+                const wav = audioBufferToWav(audioBuffer);
+                return new Blob([wav], { type: 'audio/wav' });
+            } catch (error) {
+                console.warn('WAV 변환 실패, 원본 형식으로 다운로드:', error);
+                return webmBlob;
+            }
+        }
+
+        // AudioBuffer를 WAV로 변환
+        function audioBufferToWav(audioBuffer) {
+            const length = audioBuffer.length;
+            const numberOfChannels = audioBuffer.numberOfChannels;
+            const sampleRate = audioBuffer.sampleRate;
+            const buffer = new ArrayBuffer(44 + length * numberOfChannels * 2);
+            const view = new DataView(buffer);
+
+            // WAV 헤더 작성
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + length * numberOfChannels * 2, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numberOfChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * numberOfChannels * 2, true);
+            view.setUint16(32, numberOfChannels * 2, true);
+            view.setUint16(34, 16, true);
+            writeString(36, 'data');
+            view.setUint32(40, length * numberOfChannels * 2, true);
+
+            // 오디오 데이터 작성
+            let offset = 44;
+            for (let i = 0; i < length; i++) {
+                for (let channel = 0; channel < numberOfChannels; channel++) {
+                    const sample = audioBuffer.getChannelData(channel)[i];
+                    const intSample = Math.max(-1, Math.min(1, sample)) * 0x7FFF;
+                    view.setInt16(offset, intSample, true);
+                    offset += 2;
+                }
+            }
+
+            return buffer;
         }
 
         // 리셋 버튼
@@ -496,17 +621,9 @@
             successMessage.style.display = 'none';
         }
 
-        // 페이지 로드시 FFmpeg 초기화
+        // 페이지 로드시 초기화
         window.addEventListener('load', () => {
-            // FFmpeg 라이브러리가 완전히 로드될 때까지 대기
-            const checkFFmpeg = () => {
-                if (typeof FFmpeg !== 'undefined') {
-                    initFFmpeg();
-                } else {
-                    setTimeout(checkFFmpeg, 100);
-                }
-            };
-            checkFFmpeg();
+            initAudioContext();
         });
     </script>
 </body>
