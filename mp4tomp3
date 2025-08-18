@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP4 to MP3 Converter - Cocy.io</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px 20px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background-color: rgba(102, 126, 234, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .file-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .file-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+
+        .progress-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .convert-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .convert-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .convert-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .download-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 10px;
+            display: none;
+            text-decoration: none;
+        }
+
+        .download-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 10px;
+            display: none;
+        }
+
+        .reset-btn:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            .logo {
+                font-size: 2em;
+            }
+
+            .upload-area {
+                padding: 30px 15px;
+            }
+
+            .upload-icon {
+                font-size: 3em;
+            }
+
+            .upload-text {
+                font-size: 1.1em;
+            }
+
+            .convert-btn, .download-btn, .reset-btn {
+                padding: 12px 30px;
+                font-size: 1em;
+                margin: 10px 5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            .logo {
+                font-size: 1.8em;
+            }
+
+            .upload-area {
+                padding: 25px 10px;
+            }
+
+            .convert-btn, .download-btn, .reset-btn {
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">Cocy.io</div>
+        <div class="subtitle">MP4를 MP3로 간편하게 변환하세요</div>
+        
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">🎬</div>
+            <div class="upload-text">MP4 파일을 선택하거나 드래그하세요</div>
+            <div class="upload-subtext">최대 100MB까지 지원됩니다</div>
+        </div>
+        
+        <input type="file" id="fileInput" accept=".mp4,video/mp4">
+        
+        <div class="file-info" id="fileInfo">
+            <div class="file-name" id="fileName"></div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="progress-text" id="progressText">준비 중...</div>
+        </div>
+        
+        <button class="convert-btn" id="convertBtn">MP3로 변환하기</button>
+        
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+        
+        <a class="download-btn" id="downloadBtn" download>MP3 다운로드</a>
+        <button class="reset-btn" id="resetBtn">새 파일 선택</button>
+        
+        <div class="footer">
+            <p>🔒 모든 변환은 브라우저에서 안전하게 처리됩니다</p>
+            <p>파일이 서버로 전송되지 않아 개인정보가 보호됩니다</p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+    <script>
+        let selectedFile = null;
+        let ffmpeg = null;
+
+        // DOM 요소들
+        const uploadArea = document.getElementById('uploadArea') || document.querySelector('.upload-area');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const convertBtn = document.getElementById('convertBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+
+        // FFmpeg 초기화
+        async function initFFmpeg() {
+            try {
+                // FFmpeg 객체가 로드될 때까지 대기
+                if (typeof FFmpeg === 'undefined') {
+                    throw new Error('FFmpeg 라이브러리가 로드되지 않았습니다.');
+                }
+                
+                ffmpeg = FFmpeg.createFFmpeg({
+                    log: false,
+                    corePath: 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
+                });
+                
+                // 진행률 콜백 설정
+                ffmpeg.setProgress(({ ratio }) => {
+                    const percent = Math.round(ratio * 100);
+                    progressBar.style.width = percent + '%';
+                    progressText.textContent = `변환 중... ${percent}%`;
+                });
+                
+            } catch (error) {
+                console.error('FFmpeg 초기화 실패:', error);
+                showError('변환 기능을 초기화하는데 실패했습니다. 페이지를 새로고침 해보세요.');
+            }
+        }
+
+        // 파일 선택 이벤트
+        fileInput.addEventListener('change', handleFileSelect);
+
+        // 드래그 앤 드롭
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        // 파일 처리
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            // 파일 타입 확인
+            if (!file.type.startsWith('video/') && !file.name.toLowerCase().endsWith('.mp4')) {
+                showError('MP4 파일만 업로드할 수 있습니다.');
+                return;
+            }
+
+            // 파일 크기 확인 (100MB)
+            if (file.size > 100 * 1024 * 1024) {
+                showError('파일 크기가 100MB를 초과합니다.');
+                return;
+            }
+
+            selectedFile = file;
+            fileName.textContent = file.name;
+            fileInfo.style.display = 'block';
+            convertBtn.style.display = 'inline-block';
+            
+            hideMessages();
+            
+            progressBar.style.width = '0%';
+            progressText.textContent = '변환 준비 완료';
+        }
+
+        // 변환 버튼 클릭
+        convertBtn.addEventListener('click', convertToMP3);
+
+        async function convertToMP3() {
+            if (!selectedFile) return;
+
+            try {
+                convertBtn.disabled = true;
+                progressText.textContent = 'FFmpeg 로딩 중...';
+                hideMessages();
+
+                // FFmpeg 초기화 (처음 실행시에만)
+                if (!ffmpeg) {
+                    await initFFmpeg();
+                }
+
+                if (!ffmpeg.isLoaded()) {
+                    await ffmpeg.load();
+                }
+
+                progressText.textContent = '파일 읽는 중...';
+                
+                // 파일을 FFmpeg에 쓰기
+                const arrayBuffer = await selectedFile.arrayBuffer();
+                ffmpeg.FS('writeFile', 'input.mp4', new Uint8Array(arrayBuffer));
+
+                progressText.textContent = '변환 시작...';
+                
+                // MP3로 변환
+                await ffmpeg.run('-i', 'input.mp4', '-vn', '-acodec', 'mp3', '-ab', '192k', 'output.mp3');
+
+                // 변환된 파일 읽기
+                const data = ffmpeg.FS('readFile', 'output.mp3');
+                
+                // Blob 생성
+                const blob = new Blob([data.buffer], { type: 'audio/mpeg' });
+                const url = URL.createObjectURL(blob);
+
+                // 다운로드 링크 설정
+                const originalName = selectedFile.name.replace(/\.[^/.]+$/, '');
+                downloadBtn.href = url;
+                downloadBtn.download = `${originalName}.mp3`;
+                downloadBtn.style.display = 'inline-block';
+                resetBtn.style.display = 'inline-block';
+
+                progressBar.style.width = '100%';
+                progressText.textContent = '변환 완료!';
+                showSuccess('MP3 변환이 완료되었습니다!');
+
+                // 파일 정리
+                ffmpeg.FS('unlink', 'input.mp4');
+                ffmpeg.FS('unlink', 'output.mp3');
+
+            } catch (error) {
+                console.error('변환 오류:', error);
+                showError('변환 중 오류가 발생했습니다: ' + error.message);
+            } finally {
+                convertBtn.disabled = false;
+            }
+        }
+
+        // 리셋 버튼
+        resetBtn.addEventListener('click', resetAll);
+
+        function resetAll() {
+            selectedFile = null;
+            fileInput.value = '';
+            fileInfo.style.display = 'none';
+            convertBtn.style.display = 'none';
+            downloadBtn.style.display = 'none';
+            resetBtn.style.display = 'none';
+            
+            if (downloadBtn.href) {
+                URL.revokeObjectURL(downloadBtn.href);
+                downloadBtn.href = '';
+            }
+            
+            hideMessages();
+        }
+
+        // 메시지 표시 함수들
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+        }
+
+        function hideMessages() {
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+
+        // 페이지 로드시 FFmpeg 초기화
+        window.addEventListener('load', () => {
+            // FFmpeg 라이브러리가 완전히 로드될 때까지 대기
+            const checkFFmpeg = () => {
+                if (typeof FFmpeg !== 'undefined') {
+                    initFFmpeg();
+                } else {
+                    setTimeout(checkFFmpeg, 100);
+                }
+            };
+            checkFFmpeg();
+        });
+    </script>
+</body>
+</html>
