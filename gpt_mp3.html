@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MP4 → MP3 변환기 (브라우저에서 동작)</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #121a2b;
+      --text: #e8eefc;
+      --muted: #9fb0d0;
+      --accent: #6aa1ff;
+      --accent-2: #4ad6c2;
+      --danger: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Apple SD Gothic Neo, "맑은 고딕", sans-serif; }
+    .wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+    .card { width: 100%; max-width: 880px; background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); border-radius: 20px; padding: 24px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .header { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    h1 { font-size: clamp(20px, 2.4vw, 28px); margin: 0; letter-spacing: 0.2px; }
+    .sub { color: var(--muted); font-size: 13px; }
+
+    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 16px; }
+    @media (min-width: 860px) {
+      .grid { grid-template-columns: 1.1fr 0.9fr; }
+    }
+
+    .panel { background: var(--card); border-radius: 16px; padding: 16px; border: 1px solid rgba(255,255,255,0.06); }
+
+    .drop {
+      border: 2px dashed rgba(255,255,255,0.18);
+      border-radius: 16px; padding: 24px; text-align: center; cursor: pointer; transition: 0.2s border-color, 0.2s background;
+    }
+    .drop:hover { border-color: var(--accent); background: rgba(106,161,255,0.06); }
+    .drop.dragover { border-color: var(--accent-2); background: rgba(74,214,194,0.07); }
+
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; }
+    .row > * { flex: 1 1 auto; }
+
+    .btn { appearance: none; border: 0; border-radius: 12px; padding: 12px 16px; font-weight: 600; cursor: pointer; transition: transform .04s ease, background .2s; }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: linear-gradient(90deg, var(--accent), #8bb5ff); color: #081227; }
+    .btn-ghost { background: rgba(255,255,255,0.06); color: var(--text); }
+    .btn-danger { background: linear-gradient(90deg, var(--danger), #ff8b8b); color: #2a0a0a; }
+
+    input[type="file"] { display: none; }
+
+    .progress { height: 10px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
+    .bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); transition: width .2s; }
+
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 6px; font-size: 12px; }
+
+    .hint { color: var(--muted); font-size: 12px; line-height: 1.6; }
+
+    .output { display: grid; gap: 10px; }
+    .badge { display: inline-block; padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,0.08); font-size: 12px; color: var(--muted); }
+    a.dl { text-decoration: none; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <div>
+          <h1>MP4 → MP3 변환기</h1>
+          <div class="sub">브라우저에서 오프라인으로 실행 · 영상의 오디오 트랙만 추출</div>
+        </div>
+        <button class="btn btn-ghost" id="btnReset" title="초기화">초기화</button>
+      </div>
+
+      <div class="grid">
+        <div class="panel" id="left">
+          <label class="drop" id="drop">
+            <input type="file" id="file" accept="video/mp4,video/*" />
+            <div style="display:grid;gap:10px;place-items:center;">
+              <div style="font-size:20px;">파일 선택 또는 드래그&드롭</div>
+              <div class="hint">MP4 등 동영상 파일을 올리면 MP3로 변환합니다.</div>
+              <div class="hint">대용량 파일은 변환에 시간이 걸릴 수 있습니다. (로컬에서 처리)</div>
+              <div>
+                <span class="kbd">Ctrl/Cmd</span> + <span class="kbd">O</span> 로도 선택 가능
+              </div>
+            </div>
+          </label>
+
+          <div style="display:grid; gap:10px; margin-top:16px;">
+            <div class="row">
+              <select id="bitrate" class="btn btn-ghost" style="flex:0 0 auto">
+                <option value="128k">비트레이트: 128 kbps</option>
+                <option value="192k" selected>비트레이트: 192 kbps</option>
+                <option value="256k">비트레이트: 256 kbps</option>
+                <option value="320k">비트레이트: 320 kbps</option>
+              </select>
+              <button class="btn btn-primary" id="btnConvert" disabled>변환 시작</button>
+            </div>
+
+            <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+            <div id="status" class="hint">준비 중…</div>
+          </div>
+        </div>
+
+        <div class="panel" id="right">
+          <div class="output" id="output">
+            <div class="badge">출력 파일</div>
+            <div id="resultEmpty" class="hint">아직 변환된 파일이 없습니다.</div>
+            <div id="result" class="hidden">
+              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <audio id="audio" controls style="width:100%"></audio>
+                <a id="download" class="btn btn-primary dl" download>다운로드</a>
+                <button class="btn btn-danger" id="btnClear">결과 지우기</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="hint" style="margin-top:16px;">
+        * 변환은 <strong>브라우저에서만</strong> 수행되며, 파일이 서버로 업로드되지 않습니다. 메모리가 부족한 기기에서는 큰 파일 변환이 실패할 수 있습니다.
+      </p>
+    </div>
+  </div>
+
+  <script type="module">
+    // FFmpeg WASM (ESM) 로드
+    import { FFmpeg } from 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/ffmpeg.min.js';
+    import { fetchFile } from 'https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/dist/esm/index.js';
+
+    const els = {
+      file: document.getElementById('file'),
+      drop: document.getElementById('drop'),
+      bitrate: document.getElementById('bitrate'),
+      btnConvert: document.getElementById('btnConvert'),
+      bar: document.getElementById('bar'),
+      status: document.getElementById('status'),
+      resultEmpty: document.getElementById('resultEmpty'),
+      result: document.getElementById('result'),
+      audio: document.getElementById('audio'),
+      download: document.getElementById('download'),
+      btnClear: document.getElementById('btnClear'),
+      btnReset: document.getElementById('btnReset'),
+    };
+
+    let userFile = null;
+    let ffmpeg = null;
+    let loaded = false;
+
+    // 접근성: 클릭으로 파일 선택
+    els.drop.addEventListener('click', () => els.file.click());
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'o') {
+        e.preventDefault();
+        els.file.click();
+      }
+    });
+
+    // 드래그&드롭
+    for (const ev of ['dragenter','dragover']) {
+      els.drop.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); els.drop.classList.add('dragover'); });
+    }
+    for (const ev of ['dragleave','drop']) {
+      els.drop.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); els.drop.classList.remove('dragover'); });
+    }
+    els.drop.addEventListener('drop', (e) => {
+      const f = e.dataTransfer.files?.[0];
+      if (f) setFile(f);
+    });
+
+    els.file.addEventListener('change', (e) => {
+      const f = e.target.files?.[0];
+      if (f) setFile(f);
+    });
+
+    function setFile(f) {
+      userFile = f;
+      els.status.textContent = `선택됨: ${f.name} (${(f.size/1024/1024).toFixed(2)} MB)`;
+      els.btnConvert.disabled = false;
+    }
+
+    async function ensureFFmpeg() {
+      if (loaded) return;
+      els.status.textContent = 'FFmpeg 초기화 중… (최초 10~30MB 로드)';
+      ffmpeg = new FFmpeg();
+      ffmpeg.on('log', ({ message }) => {
+        // 로그는 필요시 디버깅용으로 유지
+        // console.log(message);
+      });
+      ffmpeg.on('progress', ({ progress, time }) => {
+        const pct = Math.min(100, Math.round((progress || 0) * 100));
+        els.bar.style.width = pct + '%';
+        els.status.textContent = `변환 중… ${pct}% (처리 시간: ${Math.round((time||0)/1000)}초)`;
+      });
+      await ffmpeg.load();
+      loaded = true;
+      els.status.textContent = '준비 완료. 파일을 선택하세요.';
+    }
+
+    els.btnConvert.addEventListener('click', async () => {
+      if (!userFile) return alert('먼저 동영상 파일을 선택하세요.');
+      try {
+        els.btnConvert.disabled = true;
+        await ensureFFmpeg();
+
+        const inName = 'input.mp4';
+        const outName = 'output.mp3';
+        const bitrate = els.bitrate.value;
+
+        els.status.textContent = '파일 읽는 중…';
+        await ffmpeg.writeFile(inName, await fetchFile(userFile));
+
+        els.bar.style.width = '0%';
+        els.status.textContent = '변환 시작…';
+        // -vn: 비디오 제거, libmp3lame 사용, 선택한 비트레이트
+        await ffmpeg.exec(['-i', inName, '-vn', '-acodec', 'libmp3lame', '-b:a', bitrate, outName]);
+
+        els.status.textContent = '출력 파일 준비 중…';
+        const data = await ffmpeg.readFile(outName); // Uint8Array
+        const blob = new Blob([data.buffer], { type: 'audio/mpeg' });
+        const url = URL.createObjectURL(blob);
+
+        els.audio.src = url;
+        els.download.href = url;
+        const safeName = (userFile.name.replace(/\.[^.]+$/, '') || 'audio') + '.mp3';
+        els.download.download = safeName;
+
+        els.resultEmpty.classList.add('hidden');
+        els.result.classList.remove('hidden');
+        els.status.textContent = '완료! 아래에서 미리 듣거나 다운로드하세요.';
+      } catch (err) {
+        console.error(err);
+        els.status.textContent = '오류가 발생했습니다. (메모리 부족 또는 손상 파일일 수 있음)';
+        alert('변환 중 오류가 발생했습니다. 콘솔을 확인하거나 더 작은 파일로 시도해 보세요.');
+      } finally {
+        els.btnConvert.disabled = false;
+        // 임시 파일 정리 (중요: 가상 FS 공간 회수)
+        try {
+          await ffmpeg.deleteFile('input.mp4');
+          await ffmpeg.deleteFile('output.mp3');
+        } catch {}
+      }
+    });
+
+    els.btnClear.addEventListener('click', () => {
+      els.audio.removeAttribute('src');
+      els.download.removeAttribute('href');
+      els.result.classList.add('hidden');
+      els.resultEmpty.classList.remove('hidden');
+      els.bar.style.width = '0%';
+      els.status.textContent = '결과를 지웠습니다.';
+    });
+
+    els.btnReset.addEventListener('click', () => {
+      userFile = null;
+      els.file.value = '';
+      els.audio.removeAttribute('src');
+      els.download.removeAttribute('href');
+      els.result.classList.add('hidden');
+      els.resultEmpty.classList.remove('hidden');
+      els.bar.style.width = '0%';
+      els.btnConvert.disabled = true;
+      els.status.textContent = '초기화되었습니다. 파일을 선택하세요.';
+    });
+
+    // 초기 상태 표시
+    els.status.textContent = 'FFmpeg 로드를 위해 파일 선택 전 잠시 시간이 걸릴 수 있습니다.';
+  </script>
+</body>
+</html>
