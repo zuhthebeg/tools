@@ -1,12 +1,30 @@
 [
     {
+        "title": "CIDR 서브넷",
+        "icon": "https://tool.cocy.io/cidr/icon.svg",
+        "url": "https://tool.cocy.io/cidr/",
+        "desc": "CIDR 서브넷 계산기",
+        "badge": "NEW",
+        "platforms": [
+            "WEB"
+        ],
+        "languages": [
+            "🌍"
+        ],
+        "category": "tool"
+    },
+    {
         "title": "색상 팔레트",
         "icon": "https://tool.cocy.io/color/icon.svg",
         "url": "https://tool.cocy.io/color/",
         "desc": "색상 조합 생성 도구",
         "badge": "NEW",
-        "platforms": ["WEB"],
-        "languages": ["🌍"],
+        "platforms": [
+            "WEB"
+        ],
+        "languages": [
+            "🌍"
+        ],
         "category": "tool"
     },
     {
@@ -15,8 +33,12 @@
         "url": "https://tool.cocy.io/base64/",
         "desc": "텍스트 인코딩/디코딩 도구",
         "badge": "TOOL",
-        "platforms": ["WEB"],
-        "languages": ["🌍"],
+        "platforms": [
+            "WEB"
+        ],
+        "languages": [
+            "🌍"
+        ],
         "category": "tool"
     },
     {
@@ -25,8 +47,12 @@
         "url": "https://tool.cocy.io/json/",
         "desc": "JSON 정렬 및 검증 도구",
         "badge": "TOOL",
-        "platforms": ["WEB"],
-        "languages": ["🌍"],
+        "platforms": [
+            "WEB"
+        ],
+        "languages": [
+            "🌍"
+        ],
         "category": "tool"
     },
     {
@@ -35,8 +61,12 @@
         "url": "https://tool.cocy.io/llm/",
         "desc": "AI 모델 토큰 계산기",
         "badge": "TOOL",
-        "platforms": ["WEB"],
-        "languages": ["🌍"],
+        "platforms": [
+            "WEB"
+        ],
+        "languages": [
+            "🌍"
+        ],
         "category": "tool"
     },
     {
@@ -45,8 +75,12 @@
         "url": "https://tool.cocy.io/qr/",
         "desc": "QR 코드 생성 및 스캐너",
         "badge": "TOOL",
-        "platforms": ["WEB"],
-        "languages": ["🌍"],
+        "platforms": [
+            "WEB"
+        ],
+        "languages": [
+            "🌍"
+        ],
         "category": "tool"
     },
     {
@@ -55,8 +89,12 @@
         "url": "https://tool.cocy.io/url/",
         "desc": "URL 인코딩/디코딩 도구",
         "badge": "TOOL",
-        "platforms": ["WEB"],
-        "languages": ["🌍"],
+        "platforms": [
+            "WEB"
+        ],
+        "languages": [
+            "🌍"
+        ],
         "category": "tool"
     },
     {
@@ -65,8 +103,12 @@
         "url": "https://tool.cocy.io/net/",
         "desc": "IP/DNS Lookup",
         "badge": "TOOL",
-        "platforms": ["WEB"],
-        "languages": ["🌍"],
+        "platforms": [
+            "WEB"
+        ],
+        "languages": [
+            "🌍"
+        ],
         "category": "tool"
     },
     {
@@ -75,8 +117,12 @@
         "url": "https://tool.cocy.io/chu/",
         "desc": "츄 궁금증 체크",
         "badge": "TOOL",
-        "platforms": ["WEB"],
-        "languages": ["🌍"],
+        "platforms": [
+            "WEB"
+        ],
+        "languages": [
+            "🌍"
+        ],
         "category": "tool"
     },
     {
@@ -85,8 +131,12 @@
         "url": "https://tool.cocy.io/dday/",
         "desc": "D-Day Counter",
         "badge": "TOOL",
-        "platforms": ["PWA"],
-        "languages": ["🌍"],
+        "platforms": [
+            "PWA"
+        ],
+        "languages": [
+            "🌍"
+        ],
         "category": "tool"
     },
     {
@@ -95,8 +145,12 @@
         "url": "https://tool.cocy.io/neon/",
         "desc": "Web Neon Sign",
         "badge": "TOOL",
-        "platforms": ["PWA"],
-        "languages": ["🌍"],
+        "platforms": [
+            "PWA"
+        ],
+        "languages": [
+            "🌍"
+        ],
         "category": "tool"
     },
     {
@@ -105,8 +159,12 @@
         "url": "https://tool.cocy.io/count/",
         "desc": "Word Counter",
         "badge": "TOOL",
-        "platforms": ["PWA"],
-        "languages": ["🌍"],
+        "platforms": [
+            "PWA"
+        ],
+        "languages": [
+            "🌍"
+        ],
         "category": "tool"
     },
     {
@@ -115,8 +173,13 @@
         "url": "https://game.cocy.io/tileslider/",
         "desc": "슬라이딩 숫자/이미지 퍼즐",
         "badge": "HOT",
-        "platforms": ["PWA", "TWA"],
-        "languages": ["🌍"],
+        "platforms": [
+            "PWA",
+            "TWA"
+        ],
+        "languages": [
+            "🌍"
+        ],
         "category": "game"
     },
     {
@@ -125,8 +188,12 @@
         "url": "https://game.cocy.io/blockpuzzle/",
         "desc": "블럭 조합 퍼즐",
         "badge": "NEW",
-        "platforms": ["PWA"],
-        "languages": ["🌍"],
+        "platforms": [
+            "PWA"
+        ],
+        "languages": [
+            "🌍"
+        ],
         "category": "game"
     },
     {
@@ -135,8 +202,16 @@
         "url": "https://game.cocy.io/pikmin/",
         "desc": "피크민 수집 관리",
         "badge": "HOT",
-        "platforms": ["PWA"],
-        "languages": ["한국어", "日本語", "中文(简体)","中文(繁體)", "English"],
+        "platforms": [
+            "PWA"
+        ],
+        "languages": [
+            "한국어",
+            "日本語",
+            "中文(简体)",
+            "中文(繁體)",
+            "English"
+        ],
         "category": "game"
     },
     {
@@ -145,8 +220,12 @@
         "url": "https://game.cocy.io/snake/",
         "desc": "snake game",
         "badge": "Dev",
-        "platforms": ["PWA"],
-        "languages": ["🌍"],
+        "platforms": [
+            "PWA"
+        ],
+        "languages": [
+            "🌍"
+        ],
         "category": "game"
     },
     {
@@ -155,8 +234,12 @@
         "url": "https://game.cocy.io/mine/",
         "desc": "mine game",
         "badge": "Dev",
-        "platforms": ["PWA"],
-        "languages": ["🌍"],
+        "platforms": [
+            "PWA"
+        ],
+        "languages": [
+            "🌍"
+        ],
         "category": "game"
     }
 ]
