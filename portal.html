@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>도구 포털 - Tool.cocy.io</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0f172a;
+                --card-bg: #1e293b;
+                --text: #f1f5f9;
+                --text-secondary: #94a3b8;
+                --border: #334155;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 3rem 1.5rem;
+            text-align: center;
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .search-box {
+            max-width: 600px;
+            margin: -2rem auto 3rem;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: var(--card-bg);
+            color: var(--text);
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .category {
+            margin-bottom: 3rem;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid var(--border);
+        }
+
+        .category-icon {
+            font-size: 2rem;
+        }
+
+        .category-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .category-count {
+            margin-left: auto;
+            padding: 0.25rem 0.75rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .tool-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .tool-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .tool-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .tool-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+        }
+
+        .tool-info {
+            flex: 1;
+        }
+
+        .tool-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .tool-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        .badge-new {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-hot {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-tool {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .tool-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .tool-meta {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-tag {
+            padding: 0.25rem 0.75rem;
+            background: var(--bg);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .category-header {
+                flex-wrap: wrap;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tool-card {
+            animation: fadeIn 0.4s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛠️ 도구 포털</h1>
+        <p>필요한 도구를 쉽고 빠르게 찾아보세요</p>
+    </div>
+
+    <div class="container">
+        <div class="search-box">
+            <input
+                type="text"
+                class="search-input"
+                id="searchInput"
+                placeholder="🔍 도구 검색..."
+                autocomplete="off"
+            >
+        </div>
+
+        <div id="categoriesContainer"></div>
+    </div>
+
+    <script>
+        const categories = {
+            'encoding': {
+                icon: '🔐',
+                title: '인코딩/변환',
+                tools: ['base64', 'url', 'json']
+            },
+            'network': {
+                icon: '🌐',
+                title: '네트워크',
+                tools: ['cidr', 'net']
+            },
+            'design': {
+                icon: '🎨',
+                title: '디자인',
+                tools: ['new-app', 'color', 'qr']
+            },
+            'utility': {
+                icon: '⚡',
+                title: '유틸리티',
+                tools: ['count', 'dday', 'llm', 'neon']
+            },
+            'personal': {
+                icon: '🎯',
+                title: '개인',
+                tools: ['chu']
+            }
+        };
+
+        const toolsData = {
+            'new-app': { title: '색상 코드', desc: '색상 코드 변환기', badge: 'NEW', badgeClass: 'badge-new' },
+            'cidr': { title: 'CIDR 서브넷', desc: 'CIDR 서브넷 계산기', badge: 'NEW', badgeClass: 'badge-new' },
+            'color': { title: '색상 팔레트', desc: '색상 조합 생성 도구', badge: 'NEW', badgeClass: 'badge-new' },
+            'base64': { title: 'Base64 인코더', desc: '텍스트 인코딩/디코딩 도구', badge: 'TOOL', badgeClass: 'badge-tool' },
+            'json': { title: 'JSON 포맷터', desc: 'JSON 정렬 및 검증 도구', badge: 'TOOL', badgeClass: 'badge-tool' },
+            'llm': { title: 'LLM 토크나이저', desc: 'AI 모델 토큰 계산기', badge: 'TOOL', badgeClass: 'badge-tool' },
+            'qr': { title: 'QR 코드 생성기', desc: 'QR 코드 생성 및 스캐너', badge: 'TOOL', badgeClass: 'badge-tool' },
+            'url': { title: 'URL 인코더', desc: 'URL 인코딩/디코딩 도구', badge: 'TOOL', badgeClass: 'badge-tool' },
+            'net': { title: 'IP/DNS Lookup', desc: 'IP/DNS Lookup', badge: 'TOOL', badgeClass: 'badge-tool' },
+            'chu': { title: '궁금증 츄크', desc: '츄 궁금증 체크', badge: 'TOOL', badgeClass: 'badge-tool' },
+            'dday': { title: 'D-Day Counter', desc: 'D-Day Counter', badge: 'TOOL', badgeClass: 'badge-tool' },
+            'neon': { title: 'Neon Sign', desc: 'Web Neon Sign', badge: 'TOOL', badgeClass: 'badge-tool' },
+            'count': { title: 'Word Counter', desc: 'Word Counter', badge: 'TOOL', badgeClass: 'badge-tool' }
+        };
+
+        function renderCategories(filter = '') {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+
+            Object.entries(categories).forEach(([catId, catData]) => {
+                const filteredTools = catData.tools.filter(toolId => {
+                    const tool = toolsData[toolId];
+                    return !filter ||
+                           tool.title.toLowerCase().includes(filter) ||
+                           tool.desc.toLowerCase().includes(filter);
+                });
+
+                if (filteredTools.length === 0 && filter) return;
+
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+
+                categoryDiv.innerHTML = `
+                    <div class="category-header">
+                        <span class="category-icon">${catData.icon}</span>
+                        <h2 class="category-title">${catData.title}</h2>
+                        <span class="category-count">${filteredTools.length}</span>
+                    </div>
+                    <div class="tools-grid">
+                        ${filteredTools.map(toolId => {
+                            const tool = toolsData[toolId];
+                            return `
+                                <a href="https://tool.cocy.io/${toolId}/" class="tool-card">
+                                    <div class="tool-header">
+                                        <div class="tool-icon">${catData.icon}</div>
+                                        <div class="tool-info">
+                                            <div class="tool-title">${tool.title}</div>
+                                            <span class="tool-badge ${tool.badgeClass}">${tool.badge}</span>
+                                        </div>
+                                    </div>
+                                    <div class="tool-desc">${tool.desc}</div>
+                                    <div class="tool-meta">
+                                        <span class="meta-tag">🌍 Web</span>
+                                    </div>
+                                </a>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+
+                container.appendChild(categoryDiv);
+            });
+
+            if (container.children.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <h3>검색 결과가 없습니다</h3>
+                        <p>다른 키워드로 검색해보세요</p>
+                    </div>
+                `;
+            }
+        }
+
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', (e) => {
+            renderCategories(e.target.value.toLowerCase());
+        });
+
+        renderCategories();
+    </script>
+</body>
+</html>
