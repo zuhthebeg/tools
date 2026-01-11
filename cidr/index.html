@@ -3,14 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>cidr</title>
+    <title>CIDR 서브넷 계산기</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>cidr</h1>
-        <p>앱이 생성되었습니다.</p>
+        <h1>🌐 CIDR 서브넷 계산기</h1>
+        <p class="subtitle">IPv4 CIDR 표기법을 분석하고 서브넷 정보를 계산합니다</p>
+
+        <div class="input-section">
+            <label for="cidr-input">CIDR 주소 입력</label>
+            <input
+                type="text"
+                id="cidr-input"
+                placeholder="예: 192.168.1.0/24"
+                autocomplete="off"
+            >
+            <button id="calculate-btn">계산</button>
+        </div>
+
+        <div id="result" class="result hidden">
+            <h2>계산 결과</h2>
+
+            <div class="info-group">
+                <h3>기본 정보</h3>
+                <div class="info-row">
+                    <span class="label">IP 주소:</span>
+                    <span class="value" id="ip-address"></span>
+                </div>
+                <div class="info-row">
+                    <span class="label">서브넷 마스크:</span>
+                    <span class="value" id="subnet-mask"></span>
+                </div>
+                <div class="info-row">
+                    <span class="label">와일드카드 마스크:</span>
+                    <span class="value" id="wildcard-mask"></span>
+                </div>
+            </div>
+
+            <div class="info-group">
+                <h3>네트워크 정보</h3>
+                <div class="info-row">
+                    <span class="label">네트워크 주소:</span>
+                    <span class="value" id="network-address"></span>
+                </div>
+                <div class="info-row">
+                    <span class="label">브로드캐스트 주소:</span>
+                    <span class="value" id="broadcast-address"></span>
+                </div>
+                <div class="info-row">
+                    <span class="label">사용 가능한 첫 IP:</span>
+                    <span class="value" id="first-ip"></span>
+                </div>
+                <div class="info-row">
+                    <span class="label">사용 가능한 마지막 IP:</span>
+                    <span class="value" id="last-ip"></span>
+                </div>
+            </div>
+
+            <div class="info-group">
+                <h3>주소 범위</h3>
+                <div class="info-row">
+                    <span class="label">전체 호스트 수:</span>
+                    <span class="value" id="total-hosts"></span>
+                </div>
+                <div class="info-row">
+                    <span class="label">사용 가능한 호스트 수:</span>
+                    <span class="value" id="usable-hosts"></span>
+                </div>
+                <div class="info-row">
+                    <span class="label">IP 클래스:</span>
+                    <span class="value" id="ip-class"></span>
+                </div>
+            </div>
+
+            <div class="info-group">
+                <h3>이진 표기</h3>
+                <div class="info-row binary">
+                    <span class="label">IP 주소 (2진):</span>
+                    <span class="value" id="ip-binary"></span>
+                </div>
+                <div class="info-row binary">
+                    <span class="label">서브넷 마스크 (2진):</span>
+                    <span class="value" id="mask-binary"></span>
+                </div>
+            </div>
+        </div>
+
+        <div id="error" class="error hidden"></div>
     </div>
+
     <script src="app.js"></script>
 </body>
 </html>
