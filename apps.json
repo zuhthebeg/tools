@@ -1,5 +1,19 @@
 [
     {
+        "title": "색상 코드",
+        "icon": "https://tool.cocy.io/new-app/icon.svg",
+        "url": "https://tool.cocy.io/new-app/",
+        "desc": "색상 코드 변환기",
+        "badge": "NEW",
+        "platforms": [
+            "WEB"
+        ],
+        "languages": [
+            "🌍"
+        ],
+        "category": "tool"
+    },
+    {
         "title": "CIDR 서브넷",
         "icon": "https://tool.cocy.io/cidr/icon.svg",
         "url": "https://tool.cocy.io/cidr/",
