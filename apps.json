@@ -15,8 +15,8 @@
     },
     {
         "title": "색상 코드",
-        "icon": "https://tool.cocy.io/new-app/icon.svg",
-        "url": "https://tool.cocy.io/new-app/",
+        "icon": "https://tool.cocy.io/color/icon.svg",
+        "url": "https://tool.cocy.io/color/",
         "desc": "색상 코드 변환기",
         "badge": "NEW",
         "platforms": [
