@@ -1,0 +1,46 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3498db;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2980b9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 계산기 본체 -->
+  <rect x="30" y="20" width="140" height="160" rx="12" fill="url(#grad)" />
+  
+  <!-- 디스플레이 -->
+  <rect x="40" y="30" width="120" height="40" rx="6" fill="#1a1a1a" />
+  <text x="155" y="60" font-size="20" font-weight="bold" text-anchor="end" fill="#ecf0f1">123</text>
+  
+  <!-- 버튼들 -->
+  <!-- 첫번째 줄 -->
+  <circle cx="55" cy="100" r="12" fill="#e74c3c" opacity="0.8" />
+  <text x="55" y="104" font-size="14" font-weight="bold" text-anchor="middle" fill="white">C</text>
+  
+  <circle cx="95" cy="100" r="12" fill="#f39c12" opacity="0.8" />
+  <text x="95" y="104" font-size="14" font-weight="middle" text-anchor="middle" fill="white">÷</text>
+  
+  <circle cx="135" cy="100" r="12" fill="#f39c12" opacity="0.8" />
+  <text x="135" y="104" font-size="14" font-weight="bold" text-anchor="middle" fill="white">×</text>
+  
+  <!-- 두번째 줄 -->
+  <circle cx="55" cy="130" r="12" fill="#7f8c8d" opacity="0.9" />
+  <text x="55" y="134" font-size="14" font-weight="bold" text-anchor="middle" fill="white">7</text>
+  
+  <circle cx="95" cy="130" r="12" fill="#7f8c8d" opacity="0.9" />
+  <text x="95" y="134" font-size="14" font-weight="bold" text-anchor="middle" fill="white">8</text>
+  
+  <circle cx="135" cy="130" r="12" fill="#7f8c8d" opacity="0.9" />
+  <text x="135" y="134" font-size="14" font-weight="bold" text-anchor="middle" fill="white">9</text>
+  
+  <!-- 세번째 줄 -->
+  <circle cx="55" cy="160" r="12" fill="#2ecc71" opacity="0.9" />
+  <text x="55" y="164" font-size="14" font-weight="bold" text-anchor="middle" fill="white">=</text>
+  
+  <circle cx="95" cy="160" r="12" fill="#7f8c8d" opacity="0.9" />
+  <text x="95" y="164" font-size="14" font-weight="bold" text-anchor="middle" fill="white">0</text>
+  
+  <circle cx="135" cy="160" r="12" fill="#f39c12" opacity="0.8" />
+  <text x="135" y="164" font-size="14" font-weight="bold" text-anchor="middle" fill="white">+</text>
+</svg>

@@ -1,5 +1,19 @@
 [
     {
+        "title": "계산기",
+        "icon": "https://tool.cocy.io/calc/icon.svg",
+        "url": "https://tool.cocy.io/calc/",
+        "desc": "쉼표 지원 및 붙여넣기 가능한 계산기",
+        "badge": "NEW",
+        "platforms": [
+            "WEB"
+        ],
+        "languages": [
+            "🌍"
+        ],
+        "category": "tool"
+    },
+    {
         "title": "색상 코드",
         "icon": "https://tool.cocy.io/new-app/icon.svg",
         "url": "https://tool.cocy.io/new-app/",
