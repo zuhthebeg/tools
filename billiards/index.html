@@ -298,9 +298,9 @@
 
         // Game state
         let gameState = {
-            cueBall: { x: 100, y: 200, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
-            targetBall1: { x: 550, y: 250, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 }, // 빨간공 (제1적구)
-            targetBall2: { x: 550, y: 150, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 }, // 노란공 (제2적구)
+            cueBall: { x: 600, y: 200, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 }, // 노란공 (수구 - 사용자가 치는 공)
+            targetBall1: { x: 100, y: 150, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 }, // 흰공 (제1적구)
+            targetBall2: { x: 100, y: 250, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 }, // 빨간공 (제2적구)
             cushionHits: 0,
             score: 0,
             isRunning: false,
@@ -361,9 +361,9 @@
 
         function resetGame() {
             gameState = {
-                cueBall: { x: 100, y: 200, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
-                targetBall1: { x: 550, y: 250, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
-                targetBall2: { x: 550, y: 150, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
+                cueBall: { x: 600, y: 200, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
+                targetBall1: { x: 100, y: 150, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
+                targetBall2: { x: 100, y: 250, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
                 cushionHits: 0,
                 score: gameState.score,
                 isRunning: false,
@@ -559,8 +559,8 @@
                 ctx.fillRect(corner.x - 4, corner.y - 4, 8, 8);
             });
 
-            // Draw cue ball (white)
-            ctx.fillStyle = '#fff';
+            // Draw cue ball (yellow - 노란공)
+            ctx.fillStyle = '#ffdd44';
             ctx.beginPath();
             ctx.arc(gameState.cueBall.x, gameState.cueBall.y, gameState.ballRadius, 0, Math.PI * 2);
             ctx.fill();
@@ -577,9 +577,9 @@
                 ctx.stroke();
             }
 
-            // Draw target balls (red/yellow)
+            // Draw target balls (white/red)
             [gameState.targetBall1, gameState.targetBall2].forEach((ball, idx) => {
-                ctx.fillStyle = idx === 0 ? '#ff4444' : '#ffdd44';
+                ctx.fillStyle = idx === 0 ? '#fff' : '#ff4444'; // 흰공, 빨간공
                 ctx.beginPath();
                 ctx.arc(ball.x, ball.y, gameState.ballRadius, 0, Math.PI * 2);
                 ctx.fill();
