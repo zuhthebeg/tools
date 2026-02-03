@@ -140,6 +140,10 @@
             font-size: 12px;
         }
 
+        .weekday.weekend {
+            color: #ff6b6b;
+        }
+
         .days {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -169,13 +173,36 @@
             color: #ccc;
         }
 
+        .day.weekend {
+            color: #ff6b6b;
+        }
+
+        .day.weekend.other-month {
+            color: #f0d0d0;
+        }
+
         .day.today {
             background: #667eea;
             color: white;
             font-weight: bold;
         }
 
+        .day.today.weekend {
+            color: white;
+        }
+
         .day.selected {
+            background: #764ba2;
+            color: white;
+        }
+
+        .day.range {
+            background: #e0d5f2;
+            color: #333;
+        }
+
+        .day.range-start,
+        .day.range-end {
             background: #764ba2;
             color: white;
         }
@@ -233,13 +260,45 @@
             margin-bottom: 10px;
         }
 
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab-btn {
+            padding: 8px 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #999;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         .memo-input-group {
             display: flex;
             gap: 8px;
             margin-bottom: 15px;
         }
 
-        .memo-input {
+        .memo-input,
+        .memo-date-input {
             flex: 1;
             padding: 8px;
             border: 2px solid #ddd;
@@ -248,7 +307,8 @@
             font-family: inherit;
         }
 
-        .memo-input:focus {
+        .memo-input:focus,
+        .memo-date-input:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -271,6 +331,28 @@
         .memo-add-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
+        }
+
+        .range-inputs {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .range-inputs input {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .range-inputs span {
+            font-size: 12px;
+            color: #999;
+            min-width: 20px;
+            text-align: center;
         }
 
         .memo-list {
@@ -306,6 +388,11 @@
             font-size: 14px;
             color: #333;
             word-break: break-word;
+        }
+
+        .memo-text.range {
+            color: #764ba2;
+            font-weight: 600;
         }
 
         .memo-delete-btn {
@@ -354,13 +441,13 @@
         <div class="calendar-wrapper">
             <div class="calendar-section">
                 <div class="weekdays">
-                    <div class="weekday">일</div>
+                    <div class="weekday weekend">일</div>
                     <div class="weekday">월</div>
                     <div class="weekday">화</div>
                     <div class="weekday">수</div>
                     <div class="weekday">목</div>
                     <div class="weekday">금</div>
-                    <div class="weekday">토</div>
+                    <div class="weekday weekend">토</div>
                 </div>
                 <div class="days" id="daysContainer"></div>
             </div>
@@ -368,16 +455,44 @@
             <div class="memo-section">
                 <div class="memo-header">일정</div>
                 <div class="memo-date" id="selectedDateDisplay">날짜를 선택하세요</div>
-                <div class="memo-input-group">
-                    <input
-                        type="text"
-                        id="memoInput"
-                        class="memo-input"
-                        placeholder="일정을 입력하세요"
-                        onkeypress="handleMemoKeyPress(event)"
-                    />
-                    <button class="memo-add-btn" onclick="addMemo()">추가</button>
+
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('single')">단일</button>
+                    <button class="tab-btn" onclick="switchTab('range')">기간</button>
                 </div>
+
+                <!-- Single Day Memo -->
+                <div id="single-tab" class="tab-content active">
+                    <div class="memo-input-group">
+                        <input
+                            type="text"
+                            id="memoInput"
+                            class="memo-input"
+                            placeholder="일정을 입력하세요"
+                            onkeypress="handleMemoKeyPress(event)"
+                        />
+                        <button class="memo-add-btn" onclick="addMemo()">추가</button>
+                    </div>
+                </div>
+
+                <!-- Range Memo -->
+                <div id="range-tab" class="tab-content">
+                    <div class="memo-input-group">
+                        <input
+                            type="text"
+                            id="rangeMemoInput"
+                            class="memo-input"
+                            placeholder="기간 일정명"
+                        />
+                        <button class="memo-add-btn" onclick="addRangeMemo()">추가</button>
+                    </div>
+                    <div class="range-inputs">
+                        <input type="date" id="rangeStartDate" />
+                        <span>~</span>
+                        <input type="date" id="rangeEndDate" />
+                    </div>
+                </div>
+
                 <div class="memo-list" id="memoList"></div>
             </div>
         </div>
@@ -386,7 +501,9 @@
     <script>
         let currentDate = new Date();
         let selectedDate = null;
-        let memos = {}; // { 'YYYY-MM-DD': ['memo1', 'memo2'] }
+        let memos = {}; // { 'YYYY-MM-DD': ['memo1', { type: 'range', text: 'memo', start: 'YYYY-MM-DD', end: 'YYYY-MM-DD' }] }
+        let rangeSelecting = false;
+        let rangeStart = null;
 
         // Load data from localStorage
         function loadData() {
@@ -399,6 +516,14 @@
         // Save data to localStorage
         function saveData() {
             localStorage.setItem('calendar_memos', JSON.stringify(memos));
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tab + '-tab').classList.add('active');
         }
 
         function initializeSelectors() {
@@ -426,6 +551,11 @@
                 if (index === now.getMonth()) option.selected = true;
                 monthSelect.appendChild(option);
             });
+
+            // Initialize date inputs for range
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('rangeStartDate').value = today;
+            document.getElementById('rangeEndDate').value = today;
         }
 
         function handleYearChange() {
@@ -444,6 +574,11 @@
 
         function getDateKey(date) {
             return date.toISOString().split('T')[0];
+        }
+
+        function isWeekend(date) {
+            const day = date.getDay();
+            return day === 0 || day === 6;
         }
 
         function renderCalendar() {
@@ -469,6 +604,8 @@
             for (let i = startingDayOfWeek - 1; i >= 0; i--) {
                 const dayDiv = document.createElement('div');
                 dayDiv.className = 'day other-month';
+                const date = new Date(year, month - 1, prevMonthLastDay - i);
+                if (isWeekend(date)) dayDiv.classList.add('weekend');
                 dayDiv.textContent = prevMonthLastDay - i;
                 daysContainer.appendChild(dayDiv);
             }
@@ -484,12 +621,26 @@
                 const dateKey = getDateKey(date);
                 const isToday = date.toDateString() === today.toDateString();
 
+                if (isWeekend(date)) {
+                    dayDiv.classList.add('weekend');
+                }
+
                 if (isToday) {
                     dayDiv.classList.add('today');
                 }
 
-                if (memos[dateKey] && memos[dateKey].length > 0) {
-                    dayDiv.classList.add('has-event');
+                // Check for memos
+                if (memos[dateKey]) {
+                    const hasSingleMemo = memos[dateKey].some(m => typeof m === 'string');
+                    const hasRangeMemo = memos[dateKey].some(m => typeof m === 'object' && m.type === 'range');
+
+                    if (hasSingleMemo || hasRangeMemo) {
+                        dayDiv.classList.add('has-event');
+                    }
+
+                    if (hasRangeMemo) {
+                        dayDiv.classList.add('range');
+                    }
                 }
 
                 if (selectedDate && date.toDateString() === selectedDate.toDateString()) {
@@ -510,6 +661,8 @@
             for (let i = 1; i <= remainingDays; i++) {
                 const dayDiv = document.createElement('div');
                 dayDiv.className = 'day other-month';
+                const date = new Date(year, month + 1, i);
+                if (isWeekend(date)) dayDiv.classList.add('weekend');
                 dayDiv.textContent = i;
                 daysContainer.appendChild(dayDiv);
             }
@@ -539,14 +692,27 @@
                 memoList.innerHTML = '<div class="empty-message">일정이 없습니다</div>';
             } else {
                 memoList.innerHTML = dayMemos
-                    .map(
-                        (memo, index) => `
-                    <div class="memo-item">
-                        <span class="memo-text">${escapeHtml(memo)}</span>
-                        <button class="memo-delete-btn" onclick="deleteMemo(${index})">삭제</button>
-                    </div>
-                `
-                    )
+                    .map((memo, index) => {
+                        if (typeof memo === 'string') {
+                            return `
+                        <div class="memo-item">
+                            <span class="memo-text">${escapeHtml(memo)}</span>
+                            <button class="memo-delete-btn" onclick="deleteMemo(${index})">삭제</button>
+                        </div>
+                    `;
+                        } else if (memo.type === 'range') {
+                            const startDate = new Date(memo.start);
+                            const endDate = new Date(memo.end);
+                            const startStr = startDate.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+                            const endStr = endDate.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+                            return `
+                        <div class="memo-item">
+                            <span class="memo-text range">${escapeHtml(memo.text)} (${startStr}~${endStr})</span>
+                            <button class="memo-delete-btn" onclick="deleteRangeMemo(${index})">삭제</button>
+                        </div>
+                    `;
+                        }
+                    })
                     .join('');
             }
 
@@ -579,6 +745,49 @@
             updateMemoDisplay();
         }
 
+        function addRangeMemo() {
+            const memoText = document.getElementById('rangeMemoInput').value.trim();
+            const startDate = document.getElementById('rangeStartDate').value;
+            const endDate = document.getElementById('rangeEndDate').value;
+
+            if (!memoText) {
+                alert('기간 일정명을 입력해주세요');
+                return;
+            }
+
+            if (!startDate || !endDate) {
+                alert('시작일과 종료일을 입력해주세요');
+                return;
+            }
+
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+
+            if (start > end) {
+                alert('시작일이 종료일보다 클 수 없습니다');
+                return;
+            }
+
+            // Add memo to all dates in range
+            const rangeObject = { type: 'range', text: memoText, start: startDate, end: endDate };
+            const current = new Date(start);
+
+            while (current <= end) {
+                const dateKey = getDateKey(current);
+                if (!memos[dateKey]) {
+                    memos[dateKey] = [];
+                }
+                memos[dateKey].push(JSON.parse(JSON.stringify(rangeObject)));
+                current.setDate(current.getDate() + 1);
+            }
+
+            saveData();
+            renderCalendar();
+            updateMemoDisplay();
+
+            document.getElementById('rangeMemoInput').value = '';
+        }
+
         function deleteMemo(index) {
             if (!selectedDate) return;
 
@@ -587,6 +796,40 @@
                 memos[dateKey].splice(index, 1);
                 if (memos[dateKey].length === 0) {
                     delete memos[dateKey];
+                }
+                saveData();
+                renderCalendar();
+                updateMemoDisplay();
+            }
+        }
+
+        function deleteRangeMemo(index) {
+            if (!selectedDate) return;
+
+            const dateKey = getDateKey(selectedDate);
+            if (memos[dateKey]) {
+                const memoToDelete = memos[dateKey][index];
+                if (memoToDelete.type === 'range') {
+                    const start = new Date(memoToDelete.start);
+                    const end = new Date(memoToDelete.end);
+                    const current = new Date(start);
+
+                    // Remove from all dates in range
+                    while (current <= end) {
+                        const key = getDateKey(current);
+                        if (memos[key]) {
+                            memos[key] = memos[key].filter(m => {
+                                if (m.type === 'range') {
+                                    return !(m.text === memoToDelete.text && m.start === memoToDelete.start && m.end === memoToDelete.end);
+                                }
+                                return true;
+                            });
+                            if (memos[key].length === 0) {
+                                delete memos[key];
+                            }
+                        }
+                        current.setDate(current.getDate() + 1);
+                    }
                 }
                 saveData();
                 renderCalendar();
