@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="30" fill="url(#grad)"/>
+  <rect x="30" y="35" width="132" height="122" rx="8" fill="white"/>
+  <rect x="30" y="35" width="132" height="35" rx="8" fill="#667eea"/>
+  <circle cx="50" cy="25" r="6" fill="white"/>
+  <circle cx="142" cy="25" r="6" fill="white"/>
+  <line x1="50" y1="15" x2="50" y2="30" stroke="white" stroke-width="2"/>
+  <line x1="142" y1="15" x2="142" y2="30" stroke="white" stroke-width="2"/>
+  <text x="96" y="60" text-anchor="middle" font-size="20" font-weight="bold" fill="#667eea" font-family="Arial">일</text>
+  <rect x="45" y="80" width="16" height="16" rx="2" fill="#667eea"/>
+</svg>

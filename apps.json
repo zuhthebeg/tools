@@ -269,5 +269,19 @@
             "🌍"
         ],
         "category": "game"
+    },
+    {
+        "title": "캘린더",
+        "icon": "https://tool.cocy.io/calendar/icon.svg",
+        "url": "https://tool.cocy.io/calendar/",
+        "desc": "간단한 월간 캘린더",
+        "badge": "NEW",
+        "platforms": [
+            "WEB"
+        ],
+        "languages": [
+            "🌍"
+        ],
+        "category": "tool"
     }
 ]
