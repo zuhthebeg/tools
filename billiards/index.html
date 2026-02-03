@@ -230,20 +230,20 @@
             <div class="controls">
                 <div class="control-group">
                     <label>각도 (°)</label>
-                    <input type="range" id="angleInput" min="0" max="360" value="0" />
+                    <input type="range" id="angleInput" min="0" max="720" value="0" />
                     <div class="value-display">
                         <span>0°</span>
                         <span id="angleValue">0°</span>
-                        <span>360°</span>
+                        <span>720°</span>
                     </div>
                 </div>
 
                 <div class="control-group">
                     <label>힘 (Power)</label>
-                    <input type="range" id="powerInput" min="1" max="100" value="50" />
+                    <input type="range" id="powerInput" min="1" max="200" value="100" />
                     <div class="value-display">
                         <span>약</span>
-                        <span id="powerValue">50</span>
+                        <span id="powerValue">100</span>
                         <span>강</span>
                     </div>
                 </div>
@@ -279,13 +279,13 @@
                 </div>
 
                 <div class="instructions">
-                    <strong>📖 규칙 (초구):</strong><br>
-                    • 노란공(우측 하단) 먼저 칠하기<br>
-                    • 쿠션 3번 이상 충돌<br>
-                    • 3쿠션 후 다시 공 접촉 = 1점<br>
+                    <strong>📖 3쿠션 규칙:</strong><br>
+                    • 빨간공 + 노란공 모두 칠하기<br>
+                    • 쿠션 3번 이상 충돌 필수<br>
+                    • 두 공 모두 + 3쿠션 = 1점<br>
                     <br>
                     <strong>조작:</strong><br>
-                    • 각도, 힘, 스핀 조절<br>
+                    • 각도(0~720°), 힘, 스핀<br>
                     • 슈팅 클릭
                 </div>
             </div>
@@ -299,8 +299,8 @@
         // Game state
         let gameState = {
             cueBall: { x: 100, y: 200, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
-            targetBall1: { x: 550, y: 150, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
-            targetBall2: { x: 550, y: 250, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 }, // 노란공 (먼저 쳐야함)
+            targetBall1: { x: 550, y: 250, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 }, // 빨간공 (제1적구)
+            targetBall2: { x: 550, y: 150, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 }, // 노란공 (제2적구)
             cushionHits: 0,
             score: 0,
             isRunning: false,
@@ -310,7 +310,8 @@
             friction: 0.985,
             spinFriction: 0.99,
             margin: 10,
-            yellowBallHit: false, // 초구 규칙: 노란공 먼저 칠해야 함
+            redBallHit: false,
+            yellowBallHit: false,
         };
 
         const angleInput = document.getElementById('angleInput');
@@ -361,8 +362,8 @@
         function resetGame() {
             gameState = {
                 cueBall: { x: 100, y: 200, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
-                targetBall1: { x: 550, y: 150, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
-                targetBall2: { x: 550, y: 250, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
+                targetBall1: { x: 550, y: 250, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
+                targetBall2: { x: 550, y: 150, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
                 cushionHits: 0,
                 score: gameState.score,
                 isRunning: false,
@@ -372,12 +373,13 @@
                 friction: 0.985,
                 spinFriction: 0.99,
                 margin: 10,
+                redBallHit: false,
                 yellowBallHit: false,
             };
             angleInput.value = 0;
             angleValue.textContent = '0°';
-            powerInput.value = 50;
-            powerValue.textContent = '50';
+            powerInput.value = 100;
+            powerValue.textContent = '100';
             spinInput.value = 0;
             spinValue.textContent = '0';
             cushionHitsDisplay.textContent = '0';
@@ -510,20 +512,26 @@
                 ball2.spinX += ball1.spinX * 0.3;
                 ball2.spinY += ball1.spinY * 0.3;
 
-                // 초구 규칙: 먼저 노란공(targetBall2)을 쳐야 함
+                // 3쿠션 규칙: 제1적구(빨간공)와 제2적구(노란공) 접촉 추적
+                if (ball1 === gameState.cueBall && ball2 === gameState.targetBall1) {
+                    gameState.redBallHit = true;
+                }
                 if (ball1 === gameState.cueBall && ball2 === gameState.targetBall2) {
                     gameState.yellowBallHit = true;
                 }
 
-                // 점수 판정: 노란공 먼저 친 후, 3쿠션 이상, 다시 공 접촉
+                // 점수 판정: 두 공 모두 접촉 + 3쿠션 이상 = 1점
                 if (
                     ball1 === gameState.cueBall &&
+                    gameState.redBallHit &&
                     gameState.yellowBallHit &&
-                    gameState.cushionHits >= 3 &&
-                    (ball2 === gameState.targetBall1 || ball2 === gameState.targetBall2)
+                    gameState.cushionHits >= 3
                 ) {
                     gameState.score++;
                     scoreDisplay.textContent = gameState.score;
+                    gameState.redBallHit = false;
+                    gameState.yellowBallHit = false;
+                    gameState.cushionHits = 0;
                 }
             }
         }
