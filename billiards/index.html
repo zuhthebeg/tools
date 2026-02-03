@@ -279,10 +279,10 @@
                 </div>
 
                 <div class="instructions">
-                    <strong>📖 규칙:</strong><br>
-                    • 수구로 두 목구 모두 칠하기<br>
-                    • 쿠션 3번 이상 충돌 필수<br>
-                    • 3쿠션 후 목구 접촉 = 1점<br>
+                    <strong>📖 규칙 (초구):</strong><br>
+                    • 노란공(우측 하단) 먼저 칠하기<br>
+                    • 쿠션 3번 이상 충돌<br>
+                    • 3쿠션 후 다시 공 접촉 = 1점<br>
                     <br>
                     <strong>조작:</strong><br>
                     • 각도, 힘, 스핀 조절<br>
@@ -300,7 +300,7 @@
         let gameState = {
             cueBall: { x: 100, y: 200, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
             targetBall1: { x: 550, y: 150, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
-            targetBall2: { x: 550, y: 250, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
+            targetBall2: { x: 550, y: 250, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 }, // 노란공 (먼저 쳐야함)
             cushionHits: 0,
             score: 0,
             isRunning: false,
@@ -310,6 +310,7 @@
             friction: 0.985,
             spinFriction: 0.99,
             margin: 10,
+            yellowBallHit: false, // 초구 규칙: 노란공 먼저 칠해야 함
         };
 
         const angleInput = document.getElementById('angleInput');
@@ -371,6 +372,7 @@
                 friction: 0.985,
                 spinFriction: 0.99,
                 margin: 10,
+                yellowBallHit: false,
             };
             angleInput.value = 0;
             angleValue.textContent = '0°';
@@ -508,9 +510,15 @@
                 ball2.spinX += ball1.spinX * 0.3;
                 ball2.spinY += ball1.spinY * 0.3;
 
-                // Check for scoring
+                // 초구 규칙: 먼저 노란공(targetBall2)을 쳐야 함
+                if (ball1 === gameState.cueBall && ball2 === gameState.targetBall2) {
+                    gameState.yellowBallHit = true;
+                }
+
+                // 점수 판정: 노란공 먼저 친 후, 3쿠션 이상, 다시 공 접촉
                 if (
                     ball1 === gameState.cueBall &&
+                    gameState.yellowBallHit &&
                     gameState.cushionHits >= 3 &&
                     (ball2 === gameState.targetBall1 || ball2 === gameState.targetBall2)
                 ) {
@@ -572,11 +580,11 @@
                 ctx.stroke();
             });
 
-            // Draw extended angle guide
+            // Draw extended angle guide (full table width)
             if (!gameState.isRunning) {
                 const angle = (parseInt(angleInput.value) * Math.PI) / 180;
-                const guideLength = 250; // Much longer
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                const guideLength = gameState.tableWidth; // Full table width
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
                 ctx.lineWidth = 2;
                 ctx.setLineDash([5, 5]); // Dashed line
                 ctx.beginPath();
