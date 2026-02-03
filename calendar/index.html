@@ -18,64 +18,132 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 10px;
         }
 
         .container {
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
+            padding: 20px;
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
+        }
+
+        @media (min-width: 600px) {
+            .container {
+                padding: 40px;
+            }
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            min-width: 100%;
         }
 
         .header button {
             background: #667eea;
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 8px 12px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
             transition: background 0.2s;
+            flex: 1;
         }
 
         .header button:hover {
             background: #5568d3;
         }
 
+        .header button.today {
+            background: #764ba2;
+        }
+
         .header h1 {
-            font-size: 24px;
+            font-size: 20px;
             color: #333;
+            flex: 1;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        @media (min-width: 600px) {
+            .header {
+                flex-wrap: nowrap;
+            }
+
+            .header-controls {
+                min-width: auto;
+                flex: none;
+            }
+
+            .header h1 {
+                flex: none;
+                min-width: auto;
+            }
+        }
+
+        .selectors {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        select {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .calendar-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+
+            @media (max-width: 600px) {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .calendar-section {
+            flex: 1;
         }
 
         .weekdays {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
         .weekday {
             text-align: center;
             font-weight: bold;
             color: #667eea;
-            padding: 10px;
-            font-size: 14px;
+            padding: 8px;
+            font-size: 12px;
         }
 
         .days {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
+            gap: 8px;
         }
 
         .day {
@@ -88,6 +156,8 @@
             transition: all 0.2s;
             font-weight: 500;
             border: 2px solid transparent;
+            font-size: 14px;
+            position: relative;
         }
 
         .day.empty {
@@ -110,6 +180,16 @@
             color: white;
         }
 
+        .day.has-event::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            width: 4px;
+            height: 4px;
+            background: #ff6b6b;
+            border-radius: 50%;
+        }
+
         .day:not(.empty):not(.other-month):hover {
             border-color: #667eea;
             background: #f0f0f0;
@@ -120,49 +200,261 @@
             color: white;
         }
 
-        .info {
-            margin-top: 20px;
-            padding: 15px;
+        .memo-section {
+            flex: 1;
+            border-left: 2px solid #eee;
+            padding-left: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .memo-section {
+                border-left: none;
+                border-top: 2px solid #eee;
+                padding-left: 0;
+                padding-top: 20px;
+            }
+
+            .calendar-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .memo-header {
+            color: #333;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .memo-date {
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .memo-input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .memo-input {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .memo-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .memo-add-btn {
+            padding: 8px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .memo-add-btn:hover {
+            background: #5568d3;
+        }
+
+        .memo-add-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .memo-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .memo-item {
             background: #f5f5f5;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.2s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .memo-text {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+            word-break: break-word;
+        }
+
+        .memo-delete-btn {
+            padding: 4px 8px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        .memo-delete-btn:hover {
+            background: #ff5252;
+        }
+
+        .empty-message {
+            color: #999;
+            font-size: 14px;
             text-align: center;
-            color: #666;
+            padding: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <button onclick="previousMonth()">&lt;</button>
-            <h1 id="monthYear"></h1>
-            <button onclick="nextMonth()">&gt;</button>
+            <div class="header-controls">
+                <button onclick="previousMonth()">&lt;</button>
+                <h1 id="monthYear"></h1>
+                <button onclick="nextMonth()">&gt;</button>
+                <button class="today" onclick="goToday()">오늘</button>
+            </div>
         </div>
 
-        <div class="weekdays">
-            <div class="weekday">일</div>
-            <div class="weekday">월</div>
-            <div class="weekday">화</div>
-            <div class="weekday">수</div>
-            <div class="weekday">목</div>
-            <div class="weekday">금</div>
-            <div class="weekday">토</div>
+        <div class="selectors">
+            <select id="yearSelect" onchange="handleYearChange()">
+                <!-- Years will be populated by JS -->
+            </select>
+            <select id="monthSelect" onchange="handleMonthChange()">
+                <!-- Months will be populated by JS -->
+            </select>
         </div>
 
-        <div class="days" id="daysContainer"></div>
+        <div class="calendar-wrapper">
+            <div class="calendar-section">
+                <div class="weekdays">
+                    <div class="weekday">일</div>
+                    <div class="weekday">월</div>
+                    <div class="weekday">화</div>
+                    <div class="weekday">수</div>
+                    <div class="weekday">목</div>
+                    <div class="weekday">금</div>
+                    <div class="weekday">토</div>
+                </div>
+                <div class="days" id="daysContainer"></div>
+            </div>
 
-        <div class="info" id="info"></div>
+            <div class="memo-section">
+                <div class="memo-header">일정</div>
+                <div class="memo-date" id="selectedDateDisplay">날짜를 선택하세요</div>
+                <div class="memo-input-group">
+                    <input
+                        type="text"
+                        id="memoInput"
+                        class="memo-input"
+                        placeholder="일정을 입력하세요"
+                        onkeypress="handleMemoKeyPress(event)"
+                    />
+                    <button class="memo-add-btn" onclick="addMemo()">추가</button>
+                </div>
+                <div class="memo-list" id="memoList"></div>
+            </div>
+        </div>
     </div>
 
     <script>
         let currentDate = new Date();
         let selectedDate = null;
+        let memos = {}; // { 'YYYY-MM-DD': ['memo1', 'memo2'] }
+
+        // Load data from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('calendar_memos');
+            if (saved) {
+                memos = JSON.parse(saved);
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('calendar_memos', JSON.stringify(memos));
+        }
+
+        function initializeSelectors() {
+            const yearSelect = document.getElementById('yearSelect');
+            const monthSelect = document.getElementById('monthSelect');
+
+            const now = new Date();
+            const currentYear = now.getFullYear();
+
+            // Populate years (past 10, current, future 10)
+            for (let i = currentYear - 10; i <= currentYear + 10; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i + '년';
+                if (i === currentYear) option.selected = true;
+                yearSelect.appendChild(option);
+            }
+
+            // Populate months
+            const months = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+            months.forEach((month, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = month;
+                if (index === now.getMonth()) option.selected = true;
+                monthSelect.appendChild(option);
+            });
+        }
+
+        function handleYearChange() {
+            const year = parseInt(document.getElementById('yearSelect').value);
+            const month = parseInt(document.getElementById('monthSelect').value);
+            currentDate = new Date(year, month, 1);
+            renderCalendar();
+        }
+
+        function handleMonthChange() {
+            const year = parseInt(document.getElementById('yearSelect').value);
+            const month = parseInt(document.getElementById('monthSelect').value);
+            currentDate = new Date(year, month, 1);
+            renderCalendar();
+        }
+
+        function getDateKey(date) {
+            return date.toISOString().split('T')[0];
+        }
 
         function renderCalendar() {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
-            
-            document.getElementById('monthYear').textContent = 
-                `${year}년 ${month + 1}월`;
+
+            // Update selectors
+            document.getElementById('yearSelect').value = year;
+            document.getElementById('monthSelect').value = month;
+
+            document.getElementById('monthYear').textContent = `${year}년 ${month + 1}월`;
 
             const firstDay = new Date(year, month, 1);
             const lastDay = new Date(year, month + 1, 0);
@@ -189,10 +481,15 @@
                 dayDiv.textContent = i;
 
                 const date = new Date(year, month, i);
+                const dateKey = getDateKey(date);
                 const isToday = date.toDateString() === today.toDateString();
-                
+
                 if (isToday) {
                     dayDiv.classList.add('today');
+                }
+
+                if (memos[dateKey] && memos[dateKey].length > 0) {
+                    dayDiv.classList.add('has-event');
                 }
 
                 if (selectedDate && date.toDateString() === selectedDate.toDateString()) {
@@ -202,7 +499,7 @@
                 dayDiv.addEventListener('click', () => {
                     selectedDate = date;
                     renderCalendar();
-                    updateInfo();
+                    updateMemoDisplay();
                 });
 
                 daysContainer.appendChild(dayDiv);
@@ -218,6 +515,91 @@
             }
         }
 
+        function updateMemoDisplay() {
+            const display = document.getElementById('selectedDateDisplay');
+            const memoList = document.getElementById('memoList');
+            const memoInput = document.getElementById('memoInput');
+
+            if (!selectedDate) {
+                display.textContent = '날짜를 선택하세요';
+                memoList.innerHTML = '<div class="empty-message">날짜를 선택해주세요</div>';
+                memoInput.disabled = true;
+                return;
+            }
+
+            memoInput.disabled = false;
+
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            display.textContent = selectedDate.toLocaleDateString('ko-KR', options);
+
+            const dateKey = getDateKey(selectedDate);
+            const dayMemos = memos[dateKey] || [];
+
+            if (dayMemos.length === 0) {
+                memoList.innerHTML = '<div class="empty-message">일정이 없습니다</div>';
+            } else {
+                memoList.innerHTML = dayMemos
+                    .map(
+                        (memo, index) => `
+                    <div class="memo-item">
+                        <span class="memo-text">${escapeHtml(memo)}</span>
+                        <button class="memo-delete-btn" onclick="deleteMemo(${index})">삭제</button>
+                    </div>
+                `
+                    )
+                    .join('');
+            }
+
+            memoInput.value = '';
+            memoInput.focus();
+        }
+
+        function addMemo() {
+            if (!selectedDate) {
+                alert('날짜를 선택해주세요');
+                return;
+            }
+
+            const input = document.getElementById('memoInput');
+            const memo = input.value.trim();
+
+            if (!memo) {
+                alert('일정을 입력해주세요');
+                return;
+            }
+
+            const dateKey = getDateKey(selectedDate);
+            if (!memos[dateKey]) {
+                memos[dateKey] = [];
+            }
+
+            memos[dateKey].push(memo);
+            saveData();
+            renderCalendar();
+            updateMemoDisplay();
+        }
+
+        function deleteMemo(index) {
+            if (!selectedDate) return;
+
+            const dateKey = getDateKey(selectedDate);
+            if (memos[dateKey]) {
+                memos[dateKey].splice(index, 1);
+                if (memos[dateKey].length === 0) {
+                    delete memos[dateKey];
+                }
+                saveData();
+                renderCalendar();
+                updateMemoDisplay();
+            }
+        }
+
+        function handleMemoKeyPress(event) {
+            if (event.key === 'Enter') {
+                addMemo();
+            }
+        }
+
         function previousMonth() {
             currentDate.setMonth(currentDate.getMonth() - 1);
             renderCalendar();
@@ -228,18 +610,24 @@
             renderCalendar();
         }
 
-        function updateInfo() {
-            const info = document.getElementById('info');
-            if (selectedDate) {
-                const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-                info.textContent = selectedDate.toLocaleDateString('ko-KR', options);
-            } else {
-                info.textContent = '날짜를 선택하세요';
-            }
+        function goToday() {
+            currentDate = new Date();
+            selectedDate = new Date();
+            renderCalendar();
+            updateMemoDisplay();
         }
 
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize
+        loadData();
+        initializeSelectors();
         renderCalendar();
-        updateInfo();
+        updateMemoDisplay();
     </script>
 </body>
 </html>
