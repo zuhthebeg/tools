@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3쿠션 당구 시뮬레이터</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #1e3c72;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 250px;
+            gap: 20px;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        #billiardsCanvas {
+            background: linear-gradient(135deg, #2d5016 0%, #3a6b1f 100%);
+            border: 3px solid #8B4513;
+            border-radius: 8px;
+            display: block;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .controls {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-group label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #2a5298;
+            cursor: pointer;
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #2a5298;
+            cursor: pointer;
+            border: none;
+        }
+
+        .value-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .stats {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: grid;
+            gap: 6px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .stat-value {
+            color: #2a5298;
+            font-weight: bold;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-shoot {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-shoot:hover {
+            background: #218838;
+        }
+
+        .btn-shoot:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-reset {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #c82333;
+        }
+
+        .instructions {
+            background: #e7f3ff;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #2a5298;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #333;
+        }
+
+        .instructions strong {
+            color: #2a5298;
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎱 3쿠션 당구 시뮬레이터</h1>
+            <p>MVP v1.0 - 기본 물리 시뮬레이션</p>
+        </div>
+
+        <div class="main-layout">
+            <div>
+                <canvas id="billiardsCanvas" width="700" height="400"></canvas>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label>각도 (°)</label>
+                    <input type="range" id="angleInput" min="0" max="360" value="45" />
+                    <div class="value-display">
+                        <span>0°</span>
+                        <span id="angleValue">45°</span>
+                        <span>360°</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>힘 (Power)</label>
+                    <input type="range" id="powerInput" min="1" max="100" value="50" />
+                    <div class="value-display">
+                        <span>약</span>
+                        <span id="powerValue">50</span>
+                        <span>강</span>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-row">
+                        <span class="stat-label">쿠션 충돌:</span>
+                        <span class="stat-value" id="cushionHits">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">포인트:</span>
+                        <span class="stat-value" id="score">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">상태:</span>
+                        <span class="stat-value" id="status">준비중</span>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn-shoot" id="shootBtn" onclick="shoot()">슈팅</button>
+                    <button class="btn-reset" onclick="resetGame()">리셋</button>
+                </div>
+
+                <div class="instructions">
+                    <strong>📖 사용법:</strong><br>
+                    1. 각도와 힘을 조절<br>
+                    2. "슈팅" 클릭<br>
+                    3. 쿠션 3번 충돌 후 목구와 닿으면 1점<br>
+                    4. 게임 완료 후 리셋
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('billiardsCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game state
+        let gameState = {
+            cueX: 100,
+            cueY: canvas.height / 2,
+            targetX: 600,
+            targetY: canvas.height / 2,
+            cueVelX: 0,
+            cueVelY: 0,
+            targetVelX: 0,
+            targetVelY: 0,
+            cushionHits: 0,
+            score: 0,
+            isRunning: false,
+            ballRadius: 8,
+            tableWidth: 700,
+            tableHeight: 400,
+            friction: 0.98,
+            margin: 10,
+        };
+
+        const angleInput = document.getElementById('angleInput');
+        const powerInput = document.getElementById('powerInput');
+        const angleValue = document.getElementById('angleValue');
+        const powerValue = document.getElementById('powerValue');
+        const cushionHitsDisplay = document.getElementById('cushionHits');
+        const scoreDisplay = document.getElementById('score');
+        const statusDisplay = document.getElementById('status');
+        const shootBtn = document.getElementById('shootBtn');
+
+        // Update display values
+        angleInput.addEventListener('input', () => {
+            angleValue.textContent = angleInput.value + '°';
+        });
+
+        powerInput.addEventListener('input', () => {
+            powerValue.textContent = powerInput.value;
+        });
+
+        function shoot() {
+            if (gameState.isRunning) return;
+
+            const angle = (parseInt(angleInput.value) * Math.PI) / 180;
+            const power = parseInt(powerInput.value);
+            const speed = power * 0.3;
+
+            gameState.cueVelX = Math.cos(angle) * speed;
+            gameState.cueVelY = Math.sin(angle) * speed;
+            gameState.isRunning = true;
+            gameState.cushionHits = 0;
+            shootBtn.disabled = true;
+            statusDisplay.textContent = '진행중...';
+        }
+
+        function resetGame() {
+            gameState = {
+                cueX: 100,
+                cueY: canvas.height / 2,
+                targetX: 600,
+                targetY: canvas.height / 2,
+                cueVelX: 0,
+                cueVelY: 0,
+                targetVelX: 0,
+                targetVelY: 0,
+                cushionHits: 0,
+                score: gameState.score,
+                isRunning: false,
+                ballRadius: 8,
+                tableWidth: 700,
+                tableHeight: 400,
+                friction: 0.98,
+                margin: 10,
+            };
+            angleInput.value = 45;
+            angleValue.textContent = '45°';
+            powerInput.value = 50;
+            powerValue.textContent = '50';
+            cushionHitsDisplay.textContent = '0';
+            statusDisplay.textContent = '준비중';
+            shootBtn.disabled = false;
+        }
+
+        function updatePhysics() {
+            if (!gameState.isRunning) return;
+
+            // Apply friction
+            gameState.cueVelX *= gameState.friction;
+            gameState.cueVelY *= gameState.friction;
+            gameState.targetVelX *= gameState.friction;
+            gameState.targetVelY *= gameState.friction;
+
+            // Stop if velocities are too small
+            if (Math.abs(gameState.cueVelX) < 0.1) gameState.cueVelX = 0;
+            if (Math.abs(gameState.cueVelY) < 0.1) gameState.cueVelY = 0;
+            if (Math.abs(gameState.targetVelX) < 0.1) gameState.targetVelX = 0;
+            if (Math.abs(gameState.targetVelY) < 0.1) gameState.targetVelY = 0;
+
+            // Update positions
+            gameState.cueX += gameState.cueVelX;
+            gameState.cueY += gameState.cueVelY;
+            gameState.targetX += gameState.targetVelX;
+            gameState.targetY += gameState.targetVelY;
+
+            // Collision with cushions
+            checkCushionCollision(gameState, 'cue');
+            checkCushionCollision(gameState, 'target');
+
+            // Ball-to-ball collision
+            checkBallCollision();
+
+            // Check if game is done
+            const speed =
+                Math.abs(gameState.cueVelX) +
+                Math.abs(gameState.cueVelY) +
+                Math.abs(gameState.targetVelX) +
+                Math.abs(gameState.targetVelY);
+
+            if (speed < 0.01) {
+                gameState.isRunning = false;
+                statusDisplay.textContent = '완료';
+                shootBtn.disabled = false;
+            }
+        }
+
+        function checkCushionCollision(state, ballType) {
+            const isTarget = ballType === 'target';
+            const x = isTarget ? state.targetX : state.cueX;
+            const y = isTarget ? state.targetY : state.cueY;
+            let velX = isTarget ? state.targetVelX : state.cueVelX;
+            let velY = isTarget ? state.targetVelY : state.cueVelY;
+
+            // Top/Bottom walls
+            if (y - state.ballRadius < state.margin) {
+                if (isTarget) {
+                    state.targetY = state.margin + state.ballRadius;
+                    state.targetVelY *= -0.9;
+                } else {
+                    state.cueY = state.margin + state.ballRadius;
+                    state.cueVelY *= -0.9;
+                }
+                if (ballType === 'cue') state.cushionHits++;
+            }
+
+            if (y + state.ballRadius > state.tableHeight - state.margin) {
+                if (isTarget) {
+                    state.targetY = state.tableHeight - state.margin - state.ballRadius;
+                    state.targetVelY *= -0.9;
+                } else {
+                    state.cueY = state.tableHeight - state.margin - state.ballRadius;
+                    state.cueVelY *= -0.9;
+                }
+                if (ballType === 'cue') state.cushionHits++;
+            }
+
+            // Left/Right walls
+            if (x - state.ballRadius < state.margin) {
+                if (isTarget) {
+                    state.targetX = state.margin + state.ballRadius;
+                    state.targetVelX *= -0.9;
+                } else {
+                    state.cueX = state.margin + state.ballRadius;
+                    state.cueVelX *= -0.9;
+                }
+                if (ballType === 'cue') state.cushionHits++;
+            }
+
+            if (x + state.ballRadius > state.tableWidth - state.margin) {
+                if (isTarget) {
+                    state.targetX = state.tableWidth - state.margin - state.ballRadius;
+                    state.targetVelX *= -0.9;
+                } else {
+                    state.cueX = state.tableWidth - state.margin - state.ballRadius;
+                    state.cueVelX *= -0.9;
+                }
+                if (ballType === 'cue') state.cushionHits++;
+            }
+        }
+
+        function checkBallCollision() {
+            const dx = gameState.targetX - gameState.cueX;
+            const dy = gameState.targetY - gameState.cueY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const minDistance = gameState.ballRadius * 2;
+
+            if (distance < minDistance) {
+                // Collision detected
+                const angle = Math.atan2(dy, dx);
+                const sin = Math.sin(angle);
+                const cos = Math.cos(angle);
+
+                // Elastic collision
+                const vx1 = gameState.cueVelX * cos + gameState.cueVelY * sin;
+                const vy1 = gameState.cueVelY * cos - gameState.cueVelX * sin;
+                const vx2 = gameState.targetVelX * cos + gameState.targetVelY * sin;
+                const vy2 = gameState.targetVelY * cos - gameState.targetVelX * sin;
+
+                gameState.cueVelX = vx2 * cos - vy1 * sin;
+                gameState.cueVelY = vy1 * cos + vx2 * sin;
+                gameState.targetVelX = vx1 * cos - vy2 * sin;
+                gameState.targetVelY = vy2 * cos + vx1 * sin;
+
+                // Separate balls
+                const overlap = minDistance - distance;
+                gameState.cueX -= (overlap / 2) * cos;
+                gameState.cueY -= (overlap / 2) * sin;
+                gameState.targetX += (overlap / 2) * cos;
+                gameState.targetY += (overlap / 2) * sin;
+
+                // Check for scoring (3 cushion hits + ball collision = 1 point)
+                if (gameState.cushionHits >= 3) {
+                    gameState.score++;
+                    scoreDisplay.textContent = gameState.score;
+                }
+            }
+        }
+
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = 'rgba(45, 80, 22, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw table border
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(gameState.margin, gameState.margin, gameState.tableWidth - gameState.margin * 2, gameState.tableHeight - gameState.margin * 2);
+
+            // Draw cushions (pockets area visualization)
+            ctx.fillStyle = '#654321';
+            const corners = [
+                { x: gameState.margin, y: gameState.margin },
+                { x: gameState.tableWidth - gameState.margin, y: gameState.margin },
+                { x: gameState.margin, y: gameState.tableHeight - gameState.margin },
+                { x: gameState.tableWidth - gameState.margin, y: gameState.tableHeight - gameState.margin },
+            ];
+
+            corners.forEach(corner => {
+                ctx.fillRect(corner.x - 4, corner.y - 4, 8, 8);
+            });
+
+            // Draw cue ball (white)
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(gameState.cueX, gameState.cueY, gameState.ballRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#999';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Draw target ball (red)
+            ctx.fillStyle = '#ff4444';
+            ctx.beginPath();
+            ctx.arc(gameState.targetX, gameState.targetY, gameState.ballRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Draw angle guide (when not running)
+            if (!gameState.isRunning) {
+                const angle = (parseInt(angleInput.value) * Math.PI) / 180;
+                const guideLength = 80;
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(gameState.cueX, gameState.cueY);
+                ctx.lineTo(
+                    gameState.cueX + Math.cos(angle) * guideLength,
+                    gameState.cueY + Math.sin(angle) * guideLength
+                );
+                ctx.stroke();
+            }
+
+            // Update stats
+            cushionHitsDisplay.textContent = gameState.cushionHits;
+        }
+
+        function gameLoop() {
+            updatePhysics();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initialize
+        gameLoop();
+    </script>
+</body>
+</html>
