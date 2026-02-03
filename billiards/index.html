@@ -230,10 +230,10 @@
             <div class="controls">
                 <div class="control-group">
                     <label>각도 (°)</label>
-                    <input type="range" id="angleInput" min="0" max="720" value="0" />
+                    <input type="range" id="angleInput" min="0" max="720" value="180" />
                     <div class="value-display">
                         <span>0°</span>
-                        <span id="angleValue">0°</span>
+                        <span id="angleValue">180°</span>
                         <span>720°</span>
                     </div>
                 </div>
@@ -279,14 +279,15 @@
                 </div>
 
                 <div class="instructions">
-                    <strong>📖 3쿠션 규칙:</strong><br>
-                    • 빨간공 + 노란공 모두 칠하기<br>
+                    <strong>📖 3쿠션 PBA 규칙:</strong><br>
+                    • 흰공(중앙) + 빨간공(우측)칠하기<br>
                     • 쿠션 3번 이상 충돌 필수<br>
                     • 두 공 모두 + 3쿠션 = 1점<br>
                     <br>
-                    <strong>조작:</strong><br>
-                    • 각도(0~720°), 힘, 스핀<br>
-                    • 슈팅 클릭
+                    <strong>초구 배치:</strong><br>
+                    • 노란공(왼쪽) - 사용자 수구<br>
+                    • 흰공(중앙) - 제1적구<br>
+                    • 빨간공(우측 상단) - 제2적구
                 </div>
             </div>
         </div>
@@ -298,17 +299,17 @@
 
         // Game state
         let gameState = {
-            cueBall: { x: 600, y: 200, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 }, // 노란공 (수구 - 사용자가 치는 공)
-            targetBall1: { x: 100, y: 150, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 }, // 흰공 (제1적구)
-            targetBall2: { x: 100, y: 250, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 }, // 빨간공 (제2적구)
+            cueBall: { x: 100, y: 200, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 }, // 노란공 (수구 - 왼쪽)
+            targetBall1: { x: 350, y: 200, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 }, // 흰공 (중앙)
+            targetBall2: { x: 550, y: 170, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 }, // 빨간공 (우측, 흰공 위에)
             cushionHits: 0,
             score: 0,
             isRunning: false,
             ballRadius: 8,
             tableWidth: 700,
             tableHeight: 400,
-            friction: 0.985,
-            spinFriction: 0.99,
+            friction: 0.98,
+            spinFriction: 0.95,
             margin: 10,
             redBallHit: false,
             yellowBallHit: false,
@@ -361,23 +362,23 @@
 
         function resetGame() {
             gameState = {
-                cueBall: { x: 600, y: 200, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
-                targetBall1: { x: 100, y: 150, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
-                targetBall2: { x: 100, y: 250, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
+                cueBall: { x: 100, y: 200, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
+                targetBall1: { x: 350, y: 200, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
+                targetBall2: { x: 550, y: 170, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
                 cushionHits: 0,
                 score: gameState.score,
                 isRunning: false,
                 ballRadius: 8,
                 tableWidth: 700,
                 tableHeight: 400,
-                friction: 0.985,
-                spinFriction: 0.99,
+                friction: 0.98,
+                spinFriction: 0.95,
                 margin: 10,
                 redBallHit: false,
                 yellowBallHit: false,
             };
-            angleInput.value = 0;
-            angleValue.textContent = '0°';
+            angleInput.value = 180;
+            angleValue.textContent = '180°';
             powerInput.value = 100;
             powerValue.textContent = '100';
             spinInput.value = 0;
@@ -399,9 +400,9 @@
                 ball.spinX *= gameState.spinFriction;
                 ball.spinY *= gameState.spinFriction;
 
-                // Convert spin to velocity
-                ball.vx += ball.spinX * 0.05;
-                ball.vy += ball.spinY * 0.05;
+                // Convert spin to velocity (스핀을 더 크게 반영)
+                ball.vx += ball.spinX * 0.15;
+                ball.vy += ball.spinY * 0.15;
 
                 // Stop if velocities are too small
                 if (Math.abs(ball.vx) < 0.1) ball.vx = 0;
@@ -545,6 +546,21 @@
             ctx.strokeStyle = '#8B4513';
             ctx.lineWidth = 3;
             ctx.strokeRect(gameState.margin, gameState.margin, gameState.tableWidth - gameState.margin * 2, gameState.tableHeight - gameState.margin * 2);
+
+            // Draw diamond points (포인트 마킹)
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            const tableW = gameState.tableWidth - gameState.margin * 2;
+            const tableH = gameState.tableHeight - gameState.margin * 2;
+            const pointsX = [0, 0.25, 0.5, 0.75, 1];
+            const pointsY = [0, 0.25, 0.5, 0.75, 1];
+
+            pointsX.forEach(px => {
+                pointsY.forEach(py => {
+                    const x = gameState.margin + tableW * px;
+                    const y = gameState.margin + tableH * py;
+                    ctx.fillRect(x - 2, y - 2, 4, 4);
+                });
+            });
 
             // Draw cushions
             ctx.fillStyle = '#654321';
