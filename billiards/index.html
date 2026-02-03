@@ -48,7 +48,7 @@
 
         .main-layout {
             display: grid;
-            grid-template-columns: 1fr 250px;
+            grid-template-columns: 1fr 280px;
             gap: 20px;
             align-items: start;
         }
@@ -219,7 +219,7 @@
     <div class="container">
         <div class="header">
             <h1>🎱 3쿠션 당구 시뮬레이터</h1>
-            <p>MVP v1.0 - 기본 물리 시뮬레이션</p>
+            <p>v2.0 - 초구, 스핀, 확장된 가이드라인</p>
         </div>
 
         <div class="main-layout">
@@ -230,10 +230,10 @@
             <div class="controls">
                 <div class="control-group">
                     <label>각도 (°)</label>
-                    <input type="range" id="angleInput" min="0" max="360" value="45" />
+                    <input type="range" id="angleInput" min="0" max="360" value="0" />
                     <div class="value-display">
                         <span>0°</span>
-                        <span id="angleValue">45°</span>
+                        <span id="angleValue">0°</span>
                         <span>360°</span>
                     </div>
                 </div>
@@ -245,6 +245,16 @@
                         <span>약</span>
                         <span id="powerValue">50</span>
                         <span>강</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>스핀 (Spin)</label>
+                    <input type="range" id="spinInput" min="-100" max="100" value="0" />
+                    <div class="value-display">
+                        <span>우회전</span>
+                        <span id="spinValue">0</span>
+                        <span>좌회전</span>
                     </div>
                 </div>
 
@@ -269,11 +279,14 @@
                 </div>
 
                 <div class="instructions">
-                    <strong>📖 사용법:</strong><br>
-                    1. 각도와 힘을 조절<br>
-                    2. "슈팅" 클릭<br>
-                    3. 쿠션 3번 충돌 후 목구와 닿으면 1점<br>
-                    4. 게임 완료 후 리셋
+                    <strong>📖 규칙:</strong><br>
+                    • 수구로 두 목구 모두 칠하기<br>
+                    • 쿠션 3번 이상 충돌 필수<br>
+                    • 3쿠션 후 목구 접촉 = 1점<br>
+                    <br>
+                    <strong>조작:</strong><br>
+                    • 각도, 힘, 스핀 조절<br>
+                    • 슈팅 클릭
                 </div>
             </div>
         </div>
@@ -285,28 +298,26 @@
 
         // Game state
         let gameState = {
-            cueX: 100,
-            cueY: canvas.height / 2,
-            targetX: 600,
-            targetY: canvas.height / 2,
-            cueVelX: 0,
-            cueVelY: 0,
-            targetVelX: 0,
-            targetVelY: 0,
+            cueBall: { x: 100, y: 200, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
+            targetBall1: { x: 550, y: 150, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
+            targetBall2: { x: 550, y: 250, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
             cushionHits: 0,
             score: 0,
             isRunning: false,
             ballRadius: 8,
             tableWidth: 700,
             tableHeight: 400,
-            friction: 0.98,
+            friction: 0.985,
+            spinFriction: 0.99,
             margin: 10,
         };
 
         const angleInput = document.getElementById('angleInput');
         const powerInput = document.getElementById('powerInput');
+        const spinInput = document.getElementById('spinInput');
         const angleValue = document.getElementById('angleValue');
         const powerValue = document.getElementById('powerValue');
+        const spinValue = document.getElementById('spinValue');
         const cushionHitsDisplay = document.getElementById('cushionHits');
         const scoreDisplay = document.getElementById('score');
         const statusDisplay = document.getElementById('status');
@@ -321,15 +332,25 @@
             powerValue.textContent = powerInput.value;
         });
 
+        spinInput.addEventListener('input', () => {
+            const spinVal = parseInt(spinInput.value);
+            spinValue.textContent = spinVal;
+        });
+
         function shoot() {
             if (gameState.isRunning) return;
 
             const angle = (parseInt(angleInput.value) * Math.PI) / 180;
             const power = parseInt(powerInput.value);
+            const spin = parseInt(spinInput.value) * 0.1;
             const speed = power * 0.3;
 
-            gameState.cueVelX = Math.cos(angle) * speed;
-            gameState.cueVelY = Math.sin(angle) * speed;
+            gameState.cueBall.vx = Math.cos(angle) * speed;
+            gameState.cueBall.vy = Math.sin(angle) * speed;
+            gameState.cueBall.spin = spin;
+            gameState.cueBall.spinX = Math.cos(angle) * spin * 0.5;
+            gameState.cueBall.spinY = Math.sin(angle) * spin * 0.5;
+
             gameState.isRunning = true;
             gameState.cushionHits = 0;
             shootBtn.disabled = true;
@@ -338,27 +359,25 @@
 
         function resetGame() {
             gameState = {
-                cueX: 100,
-                cueY: canvas.height / 2,
-                targetX: 600,
-                targetY: canvas.height / 2,
-                cueVelX: 0,
-                cueVelY: 0,
-                targetVelX: 0,
-                targetVelY: 0,
+                cueBall: { x: 100, y: 200, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
+                targetBall1: { x: 550, y: 150, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
+                targetBall2: { x: 550, y: 250, vx: 0, vy: 0, spin: 0, spinX: 0, spinY: 0 },
                 cushionHits: 0,
                 score: gameState.score,
                 isRunning: false,
                 ballRadius: 8,
                 tableWidth: 700,
                 tableHeight: 400,
-                friction: 0.98,
+                friction: 0.985,
+                spinFriction: 0.99,
                 margin: 10,
             };
-            angleInput.value = 45;
-            angleValue.textContent = '45°';
+            angleInput.value = 0;
+            angleValue.textContent = '0°';
             powerInput.value = 50;
             powerValue.textContent = '50';
+            spinInput.value = 0;
+            spinValue.textContent = '0';
             cushionHitsDisplay.textContent = '0';
             statusDisplay.textContent = '준비중';
             shootBtn.disabled = false;
@@ -367,102 +386,97 @@
         function updatePhysics() {
             if (!gameState.isRunning) return;
 
-            // Apply friction
-            gameState.cueVelX *= gameState.friction;
-            gameState.cueVelY *= gameState.friction;
-            gameState.targetVelX *= gameState.friction;
-            gameState.targetVelY *= gameState.friction;
+            [gameState.cueBall, gameState.targetBall1, gameState.targetBall2].forEach(ball => {
+                // Apply friction to velocity
+                ball.vx *= gameState.friction;
+                ball.vy *= gameState.friction;
 
-            // Stop if velocities are too small
-            if (Math.abs(gameState.cueVelX) < 0.1) gameState.cueVelX = 0;
-            if (Math.abs(gameState.cueVelY) < 0.1) gameState.cueVelY = 0;
-            if (Math.abs(gameState.targetVelX) < 0.1) gameState.targetVelX = 0;
-            if (Math.abs(gameState.targetVelY) < 0.1) gameState.targetVelY = 0;
+                // Apply spin friction
+                ball.spinX *= gameState.spinFriction;
+                ball.spinY *= gameState.spinFriction;
 
-            // Update positions
-            gameState.cueX += gameState.cueVelX;
-            gameState.cueY += gameState.cueVelY;
-            gameState.targetX += gameState.targetVelX;
-            gameState.targetY += gameState.targetVelY;
+                // Convert spin to velocity
+                ball.vx += ball.spinX * 0.05;
+                ball.vy += ball.spinY * 0.05;
+
+                // Stop if velocities are too small
+                if (Math.abs(ball.vx) < 0.1) ball.vx = 0;
+                if (Math.abs(ball.vy) < 0.1) ball.vy = 0;
+                if (Math.abs(ball.spinX) < 0.05) ball.spinX = 0;
+                if (Math.abs(ball.spinY) < 0.05) ball.spinY = 0;
+
+                // Update positions
+                ball.x += ball.vx;
+                ball.y += ball.vy;
+            });
 
             // Collision with cushions
-            checkCushionCollision(gameState, 'cue');
-            checkCushionCollision(gameState, 'target');
+            [gameState.cueBall, gameState.targetBall1, gameState.targetBall2].forEach((ball, idx) => {
+                checkCushionCollision(ball, idx === 0);
+            });
 
             // Ball-to-ball collision
-            checkBallCollision();
+            checkBallCollision(gameState.cueBall, gameState.targetBall1);
+            checkBallCollision(gameState.cueBall, gameState.targetBall2);
+            checkBallCollision(gameState.targetBall1, gameState.targetBall2);
 
             // Check if game is done
             const speed =
-                Math.abs(gameState.cueVelX) +
-                Math.abs(gameState.cueVelY) +
-                Math.abs(gameState.targetVelX) +
-                Math.abs(gameState.targetVelY);
+                Math.abs(gameState.cueBall.vx) +
+                Math.abs(gameState.cueBall.vy) +
+                Math.abs(gameState.targetBall1.vx) +
+                Math.abs(gameState.targetBall1.vy) +
+                Math.abs(gameState.targetBall2.vx) +
+                Math.abs(gameState.targetBall2.vy);
 
-            if (speed < 0.01) {
+            if (speed < 0.05) {
                 gameState.isRunning = false;
                 statusDisplay.textContent = '완료';
                 shootBtn.disabled = false;
             }
         }
 
-        function checkCushionCollision(state, ballType) {
-            const isTarget = ballType === 'target';
-            const x = isTarget ? state.targetX : state.cueX;
-            const y = isTarget ? state.targetY : state.cueY;
-            let velX = isTarget ? state.targetVelX : state.cueVelX;
-            let velY = isTarget ? state.targetVelY : state.cueVelY;
+        function checkCushionCollision(ball, isCueBall) {
+            let hitWall = false;
 
             // Top/Bottom walls
-            if (y - state.ballRadius < state.margin) {
-                if (isTarget) {
-                    state.targetY = state.margin + state.ballRadius;
-                    state.targetVelY *= -0.9;
-                } else {
-                    state.cueY = state.margin + state.ballRadius;
-                    state.cueVelY *= -0.9;
-                }
-                if (ballType === 'cue') state.cushionHits++;
+            if (ball.y - gameState.ballRadius < gameState.margin) {
+                ball.y = gameState.margin + gameState.ballRadius;
+                ball.vy *= -0.9;
+                ball.spinX *= -0.8;
+                hitWall = true;
             }
 
-            if (y + state.ballRadius > state.tableHeight - state.margin) {
-                if (isTarget) {
-                    state.targetY = state.tableHeight - state.margin - state.ballRadius;
-                    state.targetVelY *= -0.9;
-                } else {
-                    state.cueY = state.tableHeight - state.margin - state.ballRadius;
-                    state.cueVelY *= -0.9;
-                }
-                if (ballType === 'cue') state.cushionHits++;
+            if (ball.y + gameState.ballRadius > gameState.tableHeight - gameState.margin) {
+                ball.y = gameState.tableHeight - gameState.margin - gameState.ballRadius;
+                ball.vy *= -0.9;
+                ball.spinX *= -0.8;
+                hitWall = true;
             }
 
             // Left/Right walls
-            if (x - state.ballRadius < state.margin) {
-                if (isTarget) {
-                    state.targetX = state.margin + state.ballRadius;
-                    state.targetVelX *= -0.9;
-                } else {
-                    state.cueX = state.margin + state.ballRadius;
-                    state.cueVelX *= -0.9;
-                }
-                if (ballType === 'cue') state.cushionHits++;
+            if (ball.x - gameState.ballRadius < gameState.margin) {
+                ball.x = gameState.margin + gameState.ballRadius;
+                ball.vx *= -0.9;
+                ball.spinY *= -0.8;
+                hitWall = true;
             }
 
-            if (x + state.ballRadius > state.tableWidth - state.margin) {
-                if (isTarget) {
-                    state.targetX = state.tableWidth - state.margin - state.ballRadius;
-                    state.targetVelX *= -0.9;
-                } else {
-                    state.cueX = state.tableWidth - state.margin - state.ballRadius;
-                    state.cueVelX *= -0.9;
-                }
-                if (ballType === 'cue') state.cushionHits++;
+            if (ball.x + gameState.ballRadius > gameState.tableWidth - gameState.margin) {
+                ball.x = gameState.tableWidth - gameState.margin - gameState.ballRadius;
+                ball.vx *= -0.9;
+                ball.spinY *= -0.8;
+                hitWall = true;
+            }
+
+            if (hitWall && isCueBall) {
+                gameState.cushionHits++;
             }
         }
 
-        function checkBallCollision() {
-            const dx = gameState.targetX - gameState.cueX;
-            const dy = gameState.targetY - gameState.cueY;
+        function checkBallCollision(ball1, ball2) {
+            const dx = ball2.x - ball1.x;
+            const dy = ball2.y - ball1.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             const minDistance = gameState.ballRadius * 2;
 
@@ -473,25 +487,33 @@
                 const cos = Math.cos(angle);
 
                 // Elastic collision
-                const vx1 = gameState.cueVelX * cos + gameState.cueVelY * sin;
-                const vy1 = gameState.cueVelY * cos - gameState.cueVelX * sin;
-                const vx2 = gameState.targetVelX * cos + gameState.targetVelY * sin;
-                const vy2 = gameState.targetVelY * cos - gameState.targetVelX * sin;
+                const vx1 = ball1.vx * cos + ball1.vy * sin;
+                const vy1 = ball1.vy * cos - ball1.vx * sin;
+                const vx2 = ball2.vx * cos + ball2.vy * sin;
+                const vy2 = ball2.vy * cos - ball2.vx * sin;
 
-                gameState.cueVelX = vx2 * cos - vy1 * sin;
-                gameState.cueVelY = vy1 * cos + vx2 * sin;
-                gameState.targetVelX = vx1 * cos - vy2 * sin;
-                gameState.targetVelY = vy2 * cos + vx1 * sin;
+                ball1.vx = vx2 * cos - vy1 * sin;
+                ball1.vy = vy1 * cos + vx2 * sin;
+                ball2.vx = vx1 * cos - vy2 * sin;
+                ball2.vy = vy2 * cos + vx1 * sin;
 
                 // Separate balls
                 const overlap = minDistance - distance;
-                gameState.cueX -= (overlap / 2) * cos;
-                gameState.cueY -= (overlap / 2) * sin;
-                gameState.targetX += (overlap / 2) * cos;
-                gameState.targetY += (overlap / 2) * sin;
+                ball1.x -= (overlap / 2) * cos;
+                ball1.y -= (overlap / 2) * sin;
+                ball2.x += (overlap / 2) * cos;
+                ball2.y += (overlap / 2) * sin;
 
-                // Check for scoring (3 cushion hits + ball collision = 1 point)
-                if (gameState.cushionHits >= 3) {
+                // Transfer spin
+                ball2.spinX += ball1.spinX * 0.3;
+                ball2.spinY += ball1.spinY * 0.3;
+
+                // Check for scoring
+                if (
+                    ball1 === gameState.cueBall &&
+                    gameState.cushionHits >= 3 &&
+                    (ball2 === gameState.targetBall1 || ball2 === gameState.targetBall2)
+                ) {
                     gameState.score++;
                     scoreDisplay.textContent = gameState.score;
                 }
@@ -500,7 +522,7 @@
 
         function draw() {
             // Clear canvas
-            ctx.fillStyle = 'rgba(45, 80, 22, 0.3)';
+            ctx.fillStyle = 'rgba(45, 80, 22, 0.2)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // Draw table border
@@ -508,7 +530,7 @@
             ctx.lineWidth = 3;
             ctx.strokeRect(gameState.margin, gameState.margin, gameState.tableWidth - gameState.margin * 2, gameState.tableHeight - gameState.margin * 2);
 
-            // Draw cushions (pockets area visualization)
+            // Draw cushions
             ctx.fillStyle = '#654321';
             const corners = [
                 { x: gameState.margin, y: gameState.margin },
@@ -524,32 +546,47 @@
             // Draw cue ball (white)
             ctx.fillStyle = '#fff';
             ctx.beginPath();
-            ctx.arc(gameState.cueX, gameState.cueY, gameState.ballRadius, 0, Math.PI * 2);
+            ctx.arc(gameState.cueBall.x, gameState.cueBall.y, gameState.ballRadius, 0, Math.PI * 2);
             ctx.fill();
             ctx.strokeStyle = '#999';
             ctx.lineWidth = 1;
             ctx.stroke();
 
-            // Draw target ball (red)
-            ctx.fillStyle = '#ff4444';
-            ctx.beginPath();
-            ctx.arc(gameState.targetX, gameState.targetY, gameState.ballRadius, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
+            // Draw spin indicator on cue ball
+            if (gameState.cueBall.spin !== 0) {
+                ctx.strokeStyle = '#ff6666';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(gameState.cueBall.x, gameState.cueBall.y, gameState.ballRadius + 2, 0, Math.PI * 2);
+                ctx.stroke();
+            }
 
-            // Draw angle guide (when not running)
+            // Draw target balls (red/yellow)
+            [gameState.targetBall1, gameState.targetBall2].forEach((ball, idx) => {
+                ctx.fillStyle = idx === 0 ? '#ff4444' : '#ffdd44';
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, gameState.ballRadius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#999';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            });
+
+            // Draw extended angle guide
             if (!gameState.isRunning) {
                 const angle = (parseInt(angleInput.value) * Math.PI) / 180;
-                const guideLength = 80;
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                const guideLength = 250; // Much longer
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
                 ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]); // Dashed line
                 ctx.beginPath();
-                ctx.moveTo(gameState.cueX, gameState.cueY);
+                ctx.moveTo(gameState.cueBall.x, gameState.cueBall.y);
                 ctx.lineTo(
-                    gameState.cueX + Math.cos(angle) * guideLength,
-                    gameState.cueY + Math.sin(angle) * guideLength
+                    gameState.cueBall.x + Math.cos(angle) * guideLength,
+                    gameState.cueBall.y + Math.sin(angle) * guideLength
                 );
                 ctx.stroke();
+                ctx.setLineDash([]);
             }
 
             // Update stats
