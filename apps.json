@@ -284,18 +284,4 @@
         ],
         "category": "tool"
     },
-    {
-        "title": "3쿠션 당구 시뮬레이터",
-        "icon": "https://tool.cocy.io/billiards/icon.svg",
-        "url": "https://tool.cocy.io/billiards/",
-        "desc": "기본 물리 시뮬레이션으로 즐기는 당구",
-        "badge": "NEW",
-        "platforms": [
-            "WEB"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "game"
-    }
 ]
