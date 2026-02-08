@@ -1,271 +1,659 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSON Formatter - Online JSON Validator & Beautifier</title>
-    <meta name="description" content="Free online JSON formatter with syntax highlighting. Validate, beautify, and minify JSON data instantly.">
-    <meta name="keywords" content="JSON formatter, JSON validator, JSON 정렬, JSON 검증, 온라인 JSON 도구, JSON 미니파이">
-    <meta name="author" content="cocy.io">
-    <meta property="og:title" content="Online JSON Formatter and Validator">
-    <meta property="og:description" content="Instant JSON formatting and validation tool with syntax highlighting">
-    <meta property="og:image" content="https://tool.cocy.io/json/icon.svg">
-    <meta property="og:url" content="https://tool.cocy.io/json/">
-    <link rel="canonical" href="https://tool.cocy.io/json/" />
+    <title>JSON 포맷터 - 온라인 JSON 정렬/검증 도구</title>
+    <meta name="description" content="무료 온라인 JSON 포맷터. 구문 하이라이팅, 검증, 정렬, 압축을 한 번에.">
+    <meta name="keywords" content="JSON formatter, JSON validator, JSON 정렬, JSON 검증, 온라인 JSON 도구">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
     
-    <!-- Open Graph tags -->
-    <meta property="og:title" content="Free Online JSON Formatter & Validator">
-    <meta property="og:description" content="Instant JSON formatting and validation tool for developers">
-    <meta property="og:image" content="/tools/json.svg">
-    <meta property="og:url" content="https://tool.cocy.io/json">
-
-    <script src="../localization.js"></script>
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607"
-    crossorigin="anonymous"></script>
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KLF3L6R84V"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-KLF3L6R84V');
-    </script>
     <style>
-        /* 개선된 공통 스타일 */
         :root {
-            --json-primary: #8A2BE2;
-            --json-secondary: #6A1B9A;
-            --json-accent: #E1BEE7;
+            --bg: #1a1b26;
+            --surface: #24283b;
+            --border: #414868;
+            --text: #c0caf5;
+            --text-dim: #565f89;
+            --primary: #7aa2f7;
+            --success: #9ece6a;
+            --error: #f7768e;
+            --warning: #e0af68;
+            --json-key: #7dcfff;
+            --json-string: #9ece6a;
+            --json-number: #ff9e64;
+            --json-boolean: #bb9af7;
+            --json-null: #f7768e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 1rem;
         }
 
         .container {
-            max-width: 800px;
-            padding: 2rem;
-            background: rgba(255,255,255,0.05);
-            border-radius: 1.5rem;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .grid {
+        header {
             display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin: 0;
-            display: flex;
+            justify-content: space-between;
             align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
             gap: 1rem;
         }
 
-        .input-group {
+        h1 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h1 svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .toolbar {
             display: flex;
             gap: 0.5rem;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         button {
-            background: var(--json-primary);
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 0.5rem;
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: all 0.2s;
         }
 
         button:hover {
-            background: var(--json-secondary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+            background: var(--border);
+            border-color: var(--primary);
+        }
+
+        button.primary {
+            background: var(--primary);
+            color: #1a1b26;
+            border-color: var(--primary);
+        }
+
+        button.primary:hover {
+            filter: brightness(1.1);
+        }
+
+        select {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .editor-panel {
+            background: var(--surface);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .editor-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .editor-actions button {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .editor-wrapper {
+            position: relative;
+            flex: 1;
+            min-height: 400px;
         }
 
         textarea {
             width: 100%;
-            height: 200px;
+            height: 100%;
+            min-height: 400px;
             padding: 1rem;
-            border: 2px solid var(--json-accent);
-            border-radius: 0.8rem;
-            background: rgba(255,255,255,0.05);
-            color: white;
-            font-family: 'Courier New', monospace;
+            padding-left: 3.5rem;
+            background: transparent;
+            color: var(--text);
+            border: none;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
             resize: vertical;
-            transition: border-color 0.3s ease;
+            white-space: pre;
+            overflow-wrap: normal;
+            overflow-x: auto;
         }
 
         textarea:focus {
             outline: none;
-            border-color: var(--json-primary);
         }
 
-        .result-group {
+        .line-numbers {
+            position: absolute;
+            left: 0;
+            top: 0;
+            padding: 1rem 0.5rem;
+            background: rgba(0,0,0,0.2);
+            color: var(--text-dim);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            text-align: right;
+            user-select: none;
+            min-width: 3rem;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .output-container {
             position: relative;
         }
 
-        .copy-btn {
-            position: absolute;
-            right: 1rem;
-            bottom: 1rem;
+        #outputDisplay {
+            width: 100%;
+            min-height: 400px;
+            padding: 1rem;
+            padding-left: 3.5rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow: auto;
+            white-space: pre;
+        }
+
+        .json-key { color: var(--json-key); }
+        .json-string { color: var(--json-string); }
+        .json-number { color: var(--json-number); }
+        .json-boolean { color: var(--json-boolean); }
+        .json-null { color: var(--json-null); }
+        .json-bracket { color: var(--text-dim); }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding: 0.5rem 1rem;
-            background: var(--json-secondary);
+            background: var(--surface);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
-        .json-error {
-            position: absolute;
-            bottom: 1rem;
-            left: 1rem;
-            font-size: 0.9em;
-            font-weight: 500;
+        .status-message {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-            /* 반응형 가운데 정렬 추가 */
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-        padding: 1rem;
-        background: rgba(0,0,0,0.1);
-    }
 
-    .container {
-        max-width: 800px;
-        width: 100%;
-        margin: 0 auto; /* 데스크탑에서 가운데 정렬 유지 */
-        /* ... 기존 컨테이너 스타일 유지 ... */
-    }
+        .status-message.success { color: var(--success); }
+        .status-message.error { color: var(--error); }
 
-    /* 모바일 대응 미디어 쿼리 */
-    @media (max-width: 768px) {
-        .container {
-            padding: 1.5rem;
-            border-radius: 1rem;
+        .status-info {
+            color: var(--text-dim);
         }
-        
-        h1 {
-            font-size: 2rem;
+
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-dim);
+            display: none;
         }
-        
-        button {
-            padding: 0.6rem 1.2rem;
-            font-size: 0.9em;
+
+        .drop-zone.active {
+            display: block;
+            border-color: var(--primary);
+            background: rgba(122, 162, 247, 0.1);
         }
-        
-        textarea {
-            height: 150px;
+
+        .hidden-input {
+            display: none;
         }
-    }
-    body {
-        color: #333; /* 기본 텍스트 색상 변경 */
-        background: #f8f9fa; /* 배경색 밝게 조정 */
-    }
 
-    textarea {
-        color: #2d3436; /* 어두운 회색 텍스트 */
-        background: rgba(255,255,255,0.9); /* 투명도 조정 */
-        border: 2px solid var(--json-accent);
-    }
+        .shortcuts {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
 
-    .container {
-        background: rgba(255,255,255,0.95); /* 컨테이너 배경 더 밝게 */
-        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-    }
+        .shortcuts kbd {
+            background: var(--surface);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
 
-    footer {
-        color: #666 !important; /* 푸터 텍스트 색상 조정 */
-    }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            color: var(--text-dim);
+            font-size: 0.875rem;
+        }
 
-    /* 에러 메시지 색상 유지 */
-    .json-error {
-        color: #FF5252 !important;
-    }
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
     </style>
 </head>
-
 <body>
     <div class="container">
-        <h1>JSON Formatter</h1>
-        <div class="grid">
-            <h2 class="sr-only">JSON Processing Tool</h2>
-            <div class="input-group">
-                <button onclick="formatJSON()">Pretty Print</button>
-                <button onclick="minifyJSON()">Minify</button>
-                <button onclick="validateJSON()">Validate</button>
+        <header>
+            <h1>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 6h16M4 12h16M4 18h12"/>
+                </svg>
+                JSON 포맷터
+            </h1>
+            <div class="toolbar">
+                <button class="primary" onclick="formatJSON()" title="Ctrl+Enter">
+                    ✨ 정렬
+                </button>
+                <button onclick="minifyJSON()">
+                    📦 압축
+                </button>
+                <button onclick="validateJSON()">
+                    ✓ 검증
+                </button>
+                <select id="indentSize" onchange="formatJSON()">
+                    <option value="2">2칸 들여쓰기</option>
+                    <option value="4" selected>4칸 들여쓰기</option>
+                    <option value="tab">탭 들여쓰기</option>
+                </select>
             </div>
-            
-            <textarea id="input" placeholder="Paste your JSON here..."></textarea>
-            
-            <div class="result-group">
-                <textarea id="output" readonly></textarea>
-                <button class="copy-btn" onclick="copyResult()">📋 Copy</button>
-                <div class="json-error" id="error"></div>
+        </header>
+
+        <div class="editor-container">
+            <div class="editor-panel">
+                <div class="editor-header">
+                    <span class="editor-title">📥 입력</span>
+                    <div class="editor-actions">
+                        <button onclick="document.getElementById('fileInput').click()">📁 파일</button>
+                        <button onclick="pasteFromClipboard()">📋 붙여넣기</button>
+                        <button onclick="clearInput()">🗑️ 지우기</button>
+                    </div>
+                </div>
+                <div class="editor-wrapper">
+                    <div class="line-numbers" id="inputLines">1</div>
+                    <textarea 
+                        id="input" 
+                        placeholder="JSON을 여기에 붙여넣거나 파일을 드래그하세요..."
+                        spellcheck="false"
+                        oninput="updateLineNumbers('input', 'inputLines'); autoFormat()"
+                        onscroll="syncScroll('input', 'inputLines')"
+                    ></textarea>
+                </div>
+            </div>
+
+            <div class="editor-panel">
+                <div class="editor-header">
+                    <span class="editor-title">📤 출력</span>
+                    <div class="editor-actions">
+                        <button onclick="copyOutput()">📋 복사</button>
+                        <button onclick="downloadJSON()">💾 다운로드</button>
+                    </div>
+                </div>
+                <div class="editor-wrapper output-container">
+                    <div class="line-numbers" id="outputLines">1</div>
+                    <div id="outputDisplay"></div>
+                </div>
             </div>
         </div>
-        
-        <footer style="margin-top: 2rem; text-align: center; color: #aaa;">
-            <p>© 2025 JSON Formatter. COCY.IO All rights reserved. 
+
+        <div class="status-bar">
+            <div class="status-message" id="statusMessage">
+                JSON을 입력하세요
+            </div>
+            <div class="status-info" id="statusInfo"></div>
+            <div class="shortcuts">
+                <kbd>Ctrl</kbd>+<kbd>Enter</kbd> 정렬 | 
+                <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> 복사
+            </div>
+        </div>
+
+        <input type="file" id="fileInput" class="hidden-input" accept=".json,.txt" onchange="handleFile(event)">
+
+        <footer>
+            <a href="https://tool.cocy.io">tool.cocy.io</a> © 2025
         </footer>
     </div>
 
     <script>
+        let autoFormatEnabled = true;
+        let lastValidJSON = null;
+
+        // 줄 번호 업데이트
+        function updateLineNumbers(textareaId, lineNumId) {
+            const textarea = document.getElementById(textareaId);
+            const lineNumbers = document.getElementById(lineNumId);
+            const lines = textarea.value.split('\n').length;
+            lineNumbers.innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('<br>');
+        }
+
+        // 출력 줄 번호
+        function updateOutputLineNumbers() {
+            const output = document.getElementById('outputDisplay');
+            const lineNumbers = document.getElementById('outputLines');
+            const text = output.textContent || '';
+            const lines = text.split('\n').length;
+            lineNumbers.innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('<br>');
+        }
+
+        // 스크롤 동기화
+        function syncScroll(textareaId, lineNumId) {
+            const textarea = document.getElementById(textareaId);
+            const lineNumbers = document.getElementById(lineNumId);
+            lineNumbers.scrollTop = textarea.scrollTop;
+        }
+
+        // JSON 포맷
         function formatJSON() {
+            const input = document.getElementById('input').value.trim();
+            if (!input) {
+                clearOutput();
+                return;
+            }
+
             try {
-                const input = document.getElementById('input').value.trim();
                 const parsed = JSON.parse(input);
-                document.getElementById('output').value = JSON.stringify(parsed, null, 4);
-                clearError();
+                const indent = getIndent();
+                const formatted = JSON.stringify(parsed, null, indent);
+                displayOutput(formatted, parsed);
+                showStatus('success', '✓ 유효한 JSON', getStats(parsed, formatted));
+                lastValidJSON = formatted;
             } catch (e) {
                 showError(e);
             }
         }
 
+        // 들여쓰기 설정 가져오기
+        function getIndent() {
+            const value = document.getElementById('indentSize').value;
+            return value === 'tab' ? '\t' : parseInt(value);
+        }
+
+        // 압축
         function minifyJSON() {
+            const input = document.getElementById('input').value.trim();
+            if (!input) return;
+
             try {
-                const input = document.getElementById('input').value.trim();
                 const parsed = JSON.parse(input);
-                document.getElementById('output').value = JSON.stringify(parsed);
-                clearError();
+                const minified = JSON.stringify(parsed);
+                displayOutput(minified, parsed);
+                showStatus('success', '✓ 압축 완료', `${minified.length} bytes`);
+                lastValidJSON = minified;
             } catch (e) {
                 showError(e);
             }
         }
 
+        // 검증만
         function validateJSON() {
+            const input = document.getElementById('input').value.trim();
+            if (!input) return;
+
             try {
-                JSON.parse(document.getElementById('input').value.trim());
-                document.getElementById('error').textContent = "✓ Valid JSON";
-                document.getElementById('error').style.color = "#4CAF50";
+                const parsed = JSON.parse(input);
+                showStatus('success', '✓ 유효한 JSON입니다', getStats(parsed, input));
             } catch (e) {
                 showError(e);
             }
         }
 
+        // 구문 하이라이팅 출력
+        function displayOutput(json, parsed) {
+            const output = document.getElementById('outputDisplay');
+            output.innerHTML = syntaxHighlight(json);
+            updateOutputLineNumbers();
+        }
+
+        // 구문 하이라이팅
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        // 통계 계산
+        function getStats(parsed, formatted) {
+            const keys = countKeys(parsed);
+            const size = new Blob([formatted]).size;
+            return `${keys}개 키 | ${formatBytes(size)}`;
+        }
+
+        function countKeys(obj) {
+            let count = 0;
+            if (typeof obj === 'object' && obj !== null) {
+                if (Array.isArray(obj)) {
+                    obj.forEach(item => count += countKeys(item));
+                } else {
+                    count = Object.keys(obj).length;
+                    Object.values(obj).forEach(val => count += countKeys(val));
+                }
+            }
+            return count;
+        }
+
+        function formatBytes(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        // 에러 표시
         function showError(e) {
-            const errorElem = document.getElementById('error');
-            errorElem.textContent = `Error: ${e.message.split('\n')[0]}`;
-            errorElem.style.color = "#FF5252";
+            const match = e.message.match(/position (\d+)/);
+            let location = '';
+            if (match) {
+                const pos = parseInt(match[1]);
+                const input = document.getElementById('input').value;
+                const lines = input.substring(0, pos).split('\n');
+                const line = lines.length;
+                const col = lines[lines.length - 1].length + 1;
+                location = ` (${line}행 ${col}열)`;
+            }
+            showStatus('error', `✗ JSON 오류${location}`, e.message.split('\n')[0]);
+            document.getElementById('outputDisplay').innerHTML = '';
+            document.getElementById('outputLines').innerHTML = '1';
         }
 
-        function clearError() {
-            document.getElementById('error').textContent = '';
+        // 상태 표시
+        function showStatus(type, message, info = '') {
+            const statusEl = document.getElementById('statusMessage');
+            const infoEl = document.getElementById('statusInfo');
+            statusEl.className = 'status-message ' + type;
+            statusEl.textContent = message;
+            infoEl.textContent = info;
         }
 
-        function copyResult() {
-            const output = document.getElementById('output');
-            output.select();
-            navigator.clipboard.writeText(output.value)
-                .then(() => alert('Copied!'))
-                .catch(err => alert('Copy failed: ' + err));
+        // 자동 포맷
+        function autoFormat() {
+            if (!autoFormatEnabled) return;
+            clearTimeout(window.autoFormatTimer);
+            window.autoFormatTimer = setTimeout(formatJSON, 300);
         }
+
+        // 클립보드에서 붙여넣기
+        async function pasteFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('input').value = text;
+                updateLineNumbers('input', 'inputLines');
+                formatJSON();
+            } catch (e) {
+                showStatus('error', '클립보드 접근 실패', e.message);
+            }
+        }
+
+        // 출력 복사
+        async function copyOutput() {
+            const output = document.getElementById('outputDisplay').textContent;
+            if (!output) return;
+            
+            try {
+                await navigator.clipboard.writeText(output);
+                showStatus('success', '✓ 복사됨!', '');
+                setTimeout(() => formatJSON(), 1500);
+            } catch (e) {
+                showStatus('error', '복사 실패', e.message);
+            }
+        }
+
+        // JSON 다운로드
+        function downloadJSON() {
+            const output = document.getElementById('outputDisplay').textContent;
+            if (!output) return;
+
+            const blob = new Blob([output], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'formatted.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showStatus('success', '✓ 다운로드 시작', '');
+        }
+
+        // 파일 처리
+        function handleFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('input').value = e.target.result;
+                updateLineNumbers('input', 'inputLines');
+                formatJSON();
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // 입력 지우기
+        function clearInput() {
+            document.getElementById('input').value = '';
+            clearOutput();
+            updateLineNumbers('input', 'inputLines');
+            showStatus('', 'JSON을 입력하세요', '');
+        }
+
+        // 출력 지우기
+        function clearOutput() {
+            document.getElementById('outputDisplay').innerHTML = '';
+            document.getElementById('outputLines').innerHTML = '1';
+            document.getElementById('statusInfo').textContent = '';
+        }
+
+        // 키보드 단축키
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+Enter: 포맷
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                formatJSON();
+            }
+            // Ctrl+Shift+C: 복사
+            if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+                e.preventDefault();
+                copyOutput();
+            }
+        });
+
+        // 드래그 앤 드롭
+        const container = document.querySelector('.container');
+        
+        container.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        });
+
+        container.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    document.getElementById('input').value = ev.target.result;
+                    updateLineNumbers('input', 'inputLines');
+                    formatJSON();
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // 초기화
+        updateLineNumbers('input', 'inputLines');
     </script>
 </body>
-</html> 
+</html>
