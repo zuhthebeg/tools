@@ -1,5 +1,19 @@
 [
     {
+        "title": "로또번호 생성기",
+        "icon": "https://tool.cocy.io/lotto/icon.svg",
+        "url": "https://tool.cocy.io/lotto/",
+        "desc": "행운의 로또 번호 생성 + 동행복권 링크",
+        "badge": "NEW",
+        "platforms": [
+            "WEB"
+        ],
+        "languages": [
+            "🌍"
+        ],
+        "category": "tool"
+    },
+    {
         "title": "계산기",
         "icon": "https://tool.cocy.io/calc/icon.svg",
         "url": "https://tool.cocy.io/calc/",
