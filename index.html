@@ -182,7 +182,6 @@
     <div class="tabs">
         <button class="tab active" data-filter="all">전체</button>
         <button class="tab" data-filter="tool">🔧 도구</button>
-        <button class="tab" data-filter="game">🎮 게임</button>
         <button class="tab" data-filter="dev">🧪 개발중</button>
     </div>
 
@@ -223,7 +222,6 @@
             
             let filtered = apps;
             if (currentFilter === 'tool') filtered = apps.filter(a => a.category === 'tool');
-            else if (currentFilter === 'game') filtered = apps.filter(a => a.category === 'game');
             else if (currentFilter === 'dev') filtered = apps.filter(a => a.badge === 'Dev');
 
             if (filtered.length === 0) {
