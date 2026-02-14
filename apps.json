@@ -267,34 +267,6 @@
         "category": "game"
     },
     {
-        "title": "snake game",
-        "icon": "https://game.cocy.io/snake/icon.svg",
-        "url": "https://game.cocy.io/snake/",
-        "desc": "snake game",
-        "badge": "Dev",
-        "platforms": [
-            "PWA"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "game"
-    },
-    {
-        "title": "mine sweeper",
-        "icon": "https://game.cocy.io/mine/icon.svg",
-        "url": "https://game.cocy.io/mine/",
-        "desc": "mine game",
-        "badge": "Dev",
-        "platforms": [
-            "PWA"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "game"
-    },
-    {
         "title": "캘린더",
         "icon": "https://tool.cocy.io/calendar/icon.svg",
         "url": "https://tool.cocy.io/calendar/",
