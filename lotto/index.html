@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로또번호 생성기</title>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
+<!-- End Google Tag Manager -->
+
+    <title>로또번호 ?�성�?/title>
     <link rel="icon" href="icon.svg">
     <style>
         :root {
@@ -254,27 +259,31 @@
     </style>
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
     <div class="container">
         <header>
-            <h1>🎱 로또번호 생성기</h1>
-            <p class="subtitle">행운의 번호를 뽑아보세요!</p>
+            <h1>?�� 로또번호 ?�성�?/h1>
+            <p class="subtitle">?�운??번호�?뽑아보세??</p>
         </header>
         
         <div class="card">
             <div class="controls">
                 <div class="control-group">
-                    <label for="setCount">생성 개수:</label>
+                    <label for="setCount">?�성 개수:</label>
                     <select id="setCount">
-                        <option value="1">1세트</option>
-                        <option value="3">3세트</option>
-                        <option value="5" selected>5세트</option>
-                        <option value="10">10세트</option>
+                        <option value="1">1?�트</option>
+                        <option value="3">3?�트</option>
+                        <option value="5" selected>5?�트</option>
+                        <option value="10">10?�트</option>
                     </select>
                 </div>
             </div>
             
             <button class="generate-btn" onclick="generate()">
-                🎰 번호 생성
+                ?�� 번호 ?�성
             </button>
             
             <div class="results" id="results"></div>
@@ -282,14 +291,13 @@
         
         <div class="link-section">
             <a href="https://dhlottery.co.kr" target="_blank" rel="noopener" class="link-btn">
-                🎫 동행복권 바로가기
-            </a>
+                ?�� ?�행복권 바로가�?            </a>
         </div>
         
         <div class="card history">
             <div class="history-title">
-                <span>📜 생성 기록</span>
-                <button class="clear-btn" onclick="clearHistory()">전체 삭제</button>
+                <span>?�� ?�성 기록</span>
+                <button class="clear-btn" onclick="clearHistory()">?�체 ??��</button>
             </div>
             <div id="historyList"></div>
         </div>
@@ -333,7 +341,7 @@
                 if (count > 1) {
                     const label = document.createElement('div');
                     label.className = 'set-label';
-                    label.textContent = `${String.fromCharCode(65 + i)}조`;
+                    label.textContent = `${String.fromCharCode(65 + i)}�?;
                     setDiv.appendChild(label);
                 }
                 
@@ -383,7 +391,7 @@
         function renderHistory() {
             const historyList = document.getElementById('historyList');
             if (history.length === 0) {
-                historyList.innerHTML = '<div class="empty-state">아직 생성 기록이 없습니다</div>';
+                historyList.innerHTML = '<div class="empty-state">?�직 ?�성 기록???�습?�다</div>';
                 return;
             }
             
@@ -396,7 +404,7 @@
         }
         
         function clearHistory() {
-            if (confirm('모든 기록을 삭제할까요?')) {
+            if (confirm('모든 기록????��?�까??')) {
                 history = [];
                 localStorage.removeItem('lottoHistory');
                 renderHistory();

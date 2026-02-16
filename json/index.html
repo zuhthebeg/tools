@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSON 포맷터 - 온라인 JSON 정렬/검증 도구</title>
-    <meta name="description" content="무료 온라인 JSON 포맷터. 구문 하이라이팅, 검증, 정렬, 압축을 한 번에.">
-    <meta name="keywords" content="JSON formatter, JSON validator, JSON 정렬, JSON 검증, 온라인 JSON 도구">
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
+<!-- End Google Tag Manager -->
+
+    <title>JSON ?�맷??- ?�라??JSON ?�렬/검�??�구</title>
+    <meta name="description" content="무료 ?�라??JSON ?�맷?? 구문 ?�이?�이?? 검�? ?�렬, ?�축????번에.">
+    <meta name="keywords" content="JSON formatter, JSON validator, JSON ?�렬, JSON 검�? ?�라??JSON ?�구">
     <link rel="icon" href="icon.svg" type="image/svg+xml">
     
     <style>
@@ -295,28 +300,30 @@
     </style>
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
     <div class="container">
         <header>
             <h1>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M4 6h16M4 12h16M4 18h12"/>
                 </svg>
-                JSON 포맷터
-            </h1>
+                JSON ?�맷??            </h1>
             <div class="toolbar">
                 <button class="primary" onclick="formatJSON()" title="Ctrl+Enter">
-                    ✨ 정렬
+                    ???�렬
                 </button>
                 <button onclick="minifyJSON()">
-                    📦 압축
+                    ?�� ?�축
                 </button>
                 <button onclick="validateJSON()">
-                    ✓ 검증
-                </button>
+                    ??검�?                </button>
                 <select id="indentSize" onchange="formatJSON()">
-                    <option value="2">2칸 들여쓰기</option>
-                    <option value="4" selected>4칸 들여쓰기</option>
-                    <option value="tab">탭 들여쓰기</option>
+                    <option value="2">2�??�여?�기</option>
+                    <option value="4" selected>4�??�여?�기</option>
+                    <option value="tab">???�여?�기</option>
                 </select>
             </div>
         </header>
@@ -324,18 +331,18 @@
         <div class="editor-container">
             <div class="editor-panel">
                 <div class="editor-header">
-                    <span class="editor-title">📥 입력</span>
+                    <span class="editor-title">?�� ?�력</span>
                     <div class="editor-actions">
-                        <button onclick="document.getElementById('fileInput').click()">📁 파일</button>
-                        <button onclick="pasteFromClipboard()">📋 붙여넣기</button>
-                        <button onclick="clearInput()">🗑️ 지우기</button>
+                        <button onclick="document.getElementById('fileInput').click()">?�� ?�일</button>
+                        <button onclick="pasteFromClipboard()">?�� 붙여?�기</button>
+                        <button onclick="clearInput()">?���?지?�기</button>
                     </div>
                 </div>
                 <div class="editor-wrapper">
                     <div class="line-numbers" id="inputLines">1</div>
                     <textarea 
                         id="input" 
-                        placeholder="JSON을 여기에 붙여넣거나 파일을 드래그하세요..."
+                        placeholder="JSON???�기??붙여?�거???�일???�래그하?�요..."
                         spellcheck="false"
                         oninput="updateLineNumbers('input', 'inputLines'); autoFormat()"
                         onscroll="syncScroll('input', 'inputLines')"
@@ -345,10 +352,10 @@
 
             <div class="editor-panel">
                 <div class="editor-header">
-                    <span class="editor-title">📤 출력</span>
+                    <span class="editor-title">?�� 출력</span>
                     <div class="editor-actions">
-                        <button onclick="copyOutput()">📋 복사</button>
-                        <button onclick="downloadJSON()">💾 다운로드</button>
+                        <button onclick="copyOutput()">?�� 복사</button>
+                        <button onclick="downloadJSON()">?�� ?�운로드</button>
                     </div>
                 </div>
                 <div class="editor-wrapper output-container">
@@ -360,11 +367,10 @@
 
         <div class="status-bar">
             <div class="status-message" id="statusMessage">
-                JSON을 입력하세요
-            </div>
+                JSON???�력?�세??            </div>
             <div class="status-info" id="statusInfo"></div>
             <div class="shortcuts">
-                <kbd>Ctrl</kbd>+<kbd>Enter</kbd> 정렬 | 
+                <kbd>Ctrl</kbd>+<kbd>Enter</kbd> ?�렬 | 
                 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> 복사
             </div>
         </div>
@@ -380,7 +386,7 @@
         let autoFormatEnabled = true;
         let lastValidJSON = null;
 
-        // 줄 번호 업데이트
+        // �?번호 ?�데?�트
         function updateLineNumbers(textareaId, lineNumId) {
             const textarea = document.getElementById(textareaId);
             const lineNumbers = document.getElementById(lineNumId);
@@ -388,7 +394,7 @@
             lineNumbers.innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('<br>');
         }
 
-        // 출력 줄 번호
+        // 출력 �?번호
         function updateOutputLineNumbers() {
             const output = document.getElementById('outputDisplay');
             const lineNumbers = document.getElementById('outputLines');
@@ -397,14 +403,13 @@
             lineNumbers.innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('<br>');
         }
 
-        // 스크롤 동기화
-        function syncScroll(textareaId, lineNumId) {
+        // ?�크�??�기??        function syncScroll(textareaId, lineNumId) {
             const textarea = document.getElementById(textareaId);
             const lineNumbers = document.getElementById(lineNumId);
             lineNumbers.scrollTop = textarea.scrollTop;
         }
 
-        // JSON 포맷
+        // JSON ?�맷
         function formatJSON() {
             const input = document.getElementById('input').value.trim();
             if (!input) {
@@ -417,20 +422,19 @@
                 const indent = getIndent();
                 const formatted = JSON.stringify(parsed, null, indent);
                 displayOutput(formatted, parsed);
-                showStatus('success', '✓ 유효한 JSON', getStats(parsed, formatted));
+                showStatus('success', '???�효??JSON', getStats(parsed, formatted));
                 lastValidJSON = formatted;
             } catch (e) {
                 showError(e);
             }
         }
 
-        // 들여쓰기 설정 가져오기
-        function getIndent() {
+        // ?�여?�기 ?�정 가?�오�?        function getIndent() {
             const value = document.getElementById('indentSize').value;
             return value === 'tab' ? '\t' : parseInt(value);
         }
 
-        // 압축
+        // ?�축
         function minifyJSON() {
             const input = document.getElementById('input').value.trim();
             if (!input) return;
@@ -439,7 +443,7 @@
                 const parsed = JSON.parse(input);
                 const minified = JSON.stringify(parsed);
                 displayOutput(minified, parsed);
-                showStatus('success', '✓ 압축 완료', `${minified.length} bytes`);
+                showStatus('success', '???�축 ?�료', `${minified.length} bytes`);
                 lastValidJSON = minified;
             } catch (e) {
                 showError(e);
@@ -453,21 +457,20 @@
 
             try {
                 const parsed = JSON.parse(input);
-                showStatus('success', '✓ 유효한 JSON입니다', getStats(parsed, input));
+                showStatus('success', '???�효??JSON?�니??, getStats(parsed, input));
             } catch (e) {
                 showError(e);
             }
         }
 
-        // 구문 하이라이팅 출력
+        // 구문 ?�이?�이??출력
         function displayOutput(json, parsed) {
             const output = document.getElementById('outputDisplay');
             output.innerHTML = syntaxHighlight(json);
             updateOutputLineNumbers();
         }
 
-        // 구문 하이라이팅
-        function syntaxHighlight(json) {
+        // 구문 ?�이?�이??        function syntaxHighlight(json) {
             json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
                 let cls = 'json-number';
@@ -486,11 +489,11 @@
             });
         }
 
-        // 통계 계산
+        // ?�계 계산
         function getStats(parsed, formatted) {
             const keys = countKeys(parsed);
             const size = new Blob([formatted]).size;
-            return `${keys}개 키 | ${formatBytes(size)}`;
+            return `${keys}�???| ${formatBytes(size)}`;
         }
 
         function countKeys(obj) {
@@ -512,7 +515,7 @@
             return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
         }
 
-        // 에러 표시
+        // ?�러 ?�시
         function showError(e) {
             const match = e.message.match(/position (\d+)/);
             let location = '';
@@ -522,14 +525,14 @@
                 const lines = input.substring(0, pos).split('\n');
                 const line = lines.length;
                 const col = lines[lines.length - 1].length + 1;
-                location = ` (${line}행 ${col}열)`;
+                location = ` (${line}??${col}??`;
             }
-            showStatus('error', `✗ JSON 오류${location}`, e.message.split('\n')[0]);
+            showStatus('error', `??JSON ?�류${location}`, e.message.split('\n')[0]);
             document.getElementById('outputDisplay').innerHTML = '';
             document.getElementById('outputLines').innerHTML = '1';
         }
 
-        // 상태 표시
+        // ?�태 ?�시
         function showStatus(type, message, info = '') {
             const statusEl = document.getElementById('statusMessage');
             const infoEl = document.getElementById('statusInfo');
@@ -538,14 +541,14 @@
             infoEl.textContent = info;
         }
 
-        // 자동 포맷
+        // ?�동 ?�맷
         function autoFormat() {
             if (!autoFormatEnabled) return;
             clearTimeout(window.autoFormatTimer);
             window.autoFormatTimer = setTimeout(formatJSON, 300);
         }
 
-        // 클립보드에서 붙여넣기
+        // ?�립보드?�서 붙여?�기
         async function pasteFromClipboard() {
             try {
                 const text = await navigator.clipboard.readText();
@@ -553,7 +556,7 @@
                 updateLineNumbers('input', 'inputLines');
                 formatJSON();
             } catch (e) {
-                showStatus('error', '클립보드 접근 실패', e.message);
+                showStatus('error', '?�립보드 ?�근 ?�패', e.message);
             }
         }
 
@@ -564,14 +567,14 @@
             
             try {
                 await navigator.clipboard.writeText(output);
-                showStatus('success', '✓ 복사됨!', '');
+                showStatus('success', '??복사??', '');
                 setTimeout(() => formatJSON(), 1500);
             } catch (e) {
-                showStatus('error', '복사 실패', e.message);
+                showStatus('error', '복사 ?�패', e.message);
             }
         }
 
-        // JSON 다운로드
+        // JSON ?�운로드
         function downloadJSON() {
             const output = document.getElementById('outputDisplay').textContent;
             if (!output) return;
@@ -583,10 +586,10 @@
             a.download = 'formatted.json';
             a.click();
             URL.revokeObjectURL(url);
-            showStatus('success', '✓ 다운로드 시작', '');
+            showStatus('success', '???�운로드 ?�작', '');
         }
 
-        // 파일 처리
+        // ?�일 처리
         function handleFile(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -601,24 +604,23 @@
             event.target.value = '';
         }
 
-        // 입력 지우기
+        // ?�력 지?�기
         function clearInput() {
             document.getElementById('input').value = '';
             clearOutput();
             updateLineNumbers('input', 'inputLines');
-            showStatus('', 'JSON을 입력하세요', '');
+            showStatus('', 'JSON???�력?�세??, '');
         }
 
-        // 출력 지우기
+        // 출력 지?�기
         function clearOutput() {
             document.getElementById('outputDisplay').innerHTML = '';
             document.getElementById('outputLines').innerHTML = '1';
             document.getElementById('statusInfo').textContent = '';
         }
 
-        // 키보드 단축키
-        document.addEventListener('keydown', (e) => {
-            // Ctrl+Enter: 포맷
+        // ?�보???�축??        document.addEventListener('keydown', (e) => {
+            // Ctrl+Enter: ?�맷
             if (e.ctrlKey && e.key === 'Enter') {
                 e.preventDefault();
                 formatJSON();
@@ -630,7 +632,7 @@
             }
         });
 
-        // 드래그 앤 드롭
+        // ?�래�????�롭
         const container = document.querySelector('.container');
         
         container.addEventListener('dragover', (e) => {
@@ -652,8 +654,7 @@
             }
         });
 
-        // 초기화
-        updateLineNumbers('input', 'inputLines');
+        // 초기??        updateLineNumbers('input', 'inputLines');
     </script>
 </body>
 </html>

@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
+<!-- End Google Tag Manager -->
+
     <title>Base64 Online Converter | Encode/Decode Text & Strings</title>
     <meta name="description" content="Free online Base64 encoder/decoder tool with charset support. Instantly convert text to Base64 and vice versa with UTF-8, ISO-8859-1, Windows-1252 encoding support.">
-    <meta name="keywords" content="Base64 converter, Base64 인코더, Base64 디코더, online tool, text encoding, charset converter, base64 변환기">
+    <meta name="keywords" content="Base64 converter, Base64 ?�코?? Base64 ?�코?? online tool, text encoding, charset converter, base64 변?�기">
     <meta name="author" content="cocy.io">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Online Base64 Converter with Charset Support">
@@ -164,7 +169,7 @@
             transform: rotate(360deg);
         }
 
-        /* 스크롤바 스타일링 */
+        /* ?�크롤바 ?��??�링 */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -183,7 +188,7 @@
             background: var(--secondary-gradient);
         }
 
-        /* 반응형 */
+        /* 반응??*/
         @media (max-width: 768px) {
             .container-main {
                 margin: 1rem;
@@ -195,7 +200,7 @@
             }
         }
 
-        /* 토스트 알림 스타일 */
+        /* ?�스???�림 ?��???*/
         .toast {
             position: fixed;
             top: 20px;
@@ -226,7 +231,11 @@
 </script>
 
 <body class="overflow-x-hidden">
-    <!-- 헤더 -->
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+    <!-- ?�더 -->
     <header class="w-full py-6 px-4">
         <div class="max-w-6xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -246,11 +255,11 @@
         </div>
     </header>
 
-    <!-- 메인 컨테이너 -->
+    <!-- 메인 컨테?�너 -->
     <main class="w-full max-w-4xl mx-auto px-4 pb-8">
         <div class="glass container-main p-6 md:p-8 floating">
             
-            <!-- 설명 섹션 -->
+            <!-- ?�명 ?�션 -->
             <div class="text-center mb-8">
                 <p class="text-gray-300 text-lg leading-relaxed">
                     Encode and decode text using Base64 with multiple charset support. 
@@ -258,7 +267,7 @@
                 </p>
             </div>
 
-            <!-- 컨트롤 섹션 -->
+            <!-- 컨트�??�션 -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="space-y-2">
                     <label class="block text-sm font-medium text-gray-300">Character Encoding</label>
@@ -281,14 +290,14 @@
                 <div class="flex items-end">
                     <button onclick="convert()" 
                             class="btn-primary w-full p-3 rounded-lg font-semibold text-white">
-                        🔄 Convert
+                        ?�� Convert
                     </button>
                 </div>
             </div>
 
-            <!-- 입력/출력 섹션 -->
+            <!-- ?�력/출력 ?�션 -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 grid-main">
-                <!-- 입력 -->
+                <!-- ?�력 -->
                 <div class="space-y-3">
                     <div class="flex items-center justify-between">
                         <label class="block text-sm font-medium text-gray-300">Input</label>
@@ -316,11 +325,11 @@
                         <div class="flex space-x-2">
                             <button onclick="copyResult()" 
                                     class="copy-btn text-xs px-3 py-1 rounded-md text-white font-medium">
-                                📋 Copy
+                                ?�� Copy
                             </button>
                             <button onclick="downloadResult()" 
                                     class="text-xs px-3 py-1 rounded-md bg-purple-600 hover:bg-purple-700 text-white font-medium transition-colors">
-                                💾 Download
+                                ?�� Download
                             </button>
                         </div>
                     </div>
@@ -337,7 +346,7 @@
                 </div>
             </div>
 
-            <!-- 상태 표시 -->
+            <!-- ?�태 ?�시 -->
             <div class="mt-6 flex items-center justify-between text-sm">
                 <div class="flex items-center space-x-4">
                     <span id="status" class="text-gray-400">Ready to convert</span>
@@ -347,40 +356,40 @@
                 </div>
                 
                 <div class="flex items-center space-x-4 text-gray-500">
-                    <span>🔒 Client-side processing</span>
-                    <span>⚡ Real-time conversion</span>
+                    <span>?�� Client-side processing</span>
+                    <span>??Real-time conversion</span>
                 </div>
             </div>
         </div>
 
-        <!-- 기능 설명 -->
+        <!-- 기능 ?�명 -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
             <div class="glass glass-hover p-6 text-center">
-                <div class="text-3xl mb-3">🚀</div>
+                <div class="text-3xl mb-3">??</div>
                 <h3 class="text-lg font-semibold gradient-text mb-2">Lightning Fast</h3>
                 <p class="text-gray-400 text-sm">Instant conversion with real-time processing. No server delays!</p>
             </div>
             
             <div class="glass glass-hover p-6 text-center">
-                <div class="text-3xl mb-3">🔒</div>
+                <div class="text-3xl mb-3">?��</div>
                 <h3 class="text-lg font-semibold gradient-text mb-2">100% Secure</h3>
                 <p class="text-gray-400 text-sm">All processing happens in your browser. Your data never leaves your device.</p>
             </div>
             
             <div class="glass glass-hover p-6 text-center">
-                <div class="text-3xl mb-3">📱</div>
+                <div class="text-3xl mb-3">?��</div>
                 <h3 class="text-lg font-semibold gradient-text mb-2">Mobile Friendly</h3>
                 <p class="text-gray-400 text-sm">Responsive design that works perfectly on all devices and screen sizes.</p>
             </div>
         </div>
     </main>
 
-    <!-- 푸터 -->
+    <!-- ?�터 -->
     <footer class="w-full max-w-4xl mx-auto px-4 py-8 mt-16">
         <div class="glass p-6 text-center">
             <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
                 <div class="text-gray-400">
-                    © 2025 Base64 Converter. Made with ❤️ by 
+                    © 2025 Base64 Converter. Made with ?�️ by 
                     <a href="https://cocy.io" 
                        class="gradient-text font-semibold hover:underline transition-all"
                        target="_blank">COCY.IO</a>
@@ -388,16 +397,16 @@
                 
                 <div class="flex items-center space-x-6 text-sm text-gray-500">
                     <span>Privacy-First</span>
-                    <span>•</span>
+                    <span>??/span>
                     <span>Open Source</span>
-                    <span>•</span>
+                    <span>??/span>
                     <span>No Tracking</span>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- 토스트 알림 -->
+    <!-- ?�스???�림 -->
     <div id="toast" class="toast">
         <span id="toastMessage"></span>
     </div>
@@ -417,7 +426,7 @@
             const status = document.getElementById('status');
             status.textContent = message;
             
-            // 상태에 따른 색상 변경
+            // ?�태???�른 ?�상 변�?
             status.className = type === 'error' ? 'text-red-400' : 
                               type === 'success' ? 'text-green-400' : 'text-gray-400';
         }
@@ -441,11 +450,11 @@
 
         function isBase64(str) {
             try {
-                // Base64 정규식 체크
+                // Base64 ?�규??체크
                 if (!str || str.length % 4 !== 0 || !/^[A-Za-z0-9+/]*={0,2}$/.test(str)) {
                     return false;
                 }
-                // 실제 디코딩 테스트
+                // ?�제 ?�코???�스??
                 atob(str);
                 return true;
             } catch (e) {
@@ -472,7 +481,7 @@
                 let operation = '';
 
                 if (mode === 'auto') {
-                    // 자동 감지: Base64인지 확인
+                    // ?�동 감�?: Base64?��? ?�인
                     if (isBase64(input)) {
                         result = decodeBase64(input, charset);
                         operation = 'Decoded from Base64';
@@ -489,12 +498,12 @@
                 }
 
                 output.value = result;
-                showStatus(`✅ ${operation} successfully`, 'success');
+                showStatus(`??${operation} successfully`, 'success');
                 updateCharacterCount();
                 
             } catch (error) {
                 output.value = '';
-                showStatus(`❌ Error: ${error.message}`, 'error');
+                showStatus(`??Error: ${error.message}`, 'error');
                 console.error('Conversion error:', error);
             } finally {
                 showLoading(false);
@@ -508,7 +517,7 @@
                     const bytes = encoder.encode(text);
                     return btoa(String.fromCharCode(...bytes));
                 } else {
-                    // 폴백: UTF-8 인코딩
+                    // ?�백: UTF-8 ?�코??
                     const utf8 = unescape(encodeURIComponent(text));
                     return btoa(utf8);
                 }
@@ -519,7 +528,7 @@
 
         function decodeBase64(base64, charset) {
             try {
-                // 패딩 보정
+                // ?�딩 보정
                 const paddedBase64 = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, '=');
                 const decoded = atob(paddedBase64);
                 
@@ -529,12 +538,12 @@
                         const decoder = new TextDecoder(charset, { fatal: true });
                         return decoder.decode(bytes);
                     } catch (e) {
-                        // 폴백: UTF-8로 시도
+                        // ?�백: UTF-8�??�도
                         const decoder = new TextDecoder('utf-8', { fatal: false });
                         return decoder.decode(bytes);
                     }
                 } else {
-                    // 폴백: URI 디코딩
+                    // ?�백: URI ?�코??
                     return decodeURIComponent(escape(decoded));
                 }
             } catch (error) {
@@ -546,7 +555,7 @@
             updateCharacterCount();
             
             if (autoConvertEnabled && document.getElementById('input').value.trim()) {
-                setTimeout(convert, 300); // 300ms 디바운스
+                setTimeout(convert, 300); // 300ms ?�바?�스
             }
         }
 
@@ -568,7 +577,7 @@
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(output.value)
                     .then(() => {
-                        showToast('📋 Copied to clipboard!');
+                        showToast('?�� Copied to clipboard!');
                     })
                     .catch(err => {
                         console.error('Failed to copy: ', err);
@@ -582,11 +591,11 @@
         function fallbackCopy(output) {
             try {
                 output.select();
-                output.setSelectionRange(0, 99999); // 모바일 지원
+                output.setSelectionRange(0, 99999); // 모바??지??
                 document.execCommand('copy');
-                showToast('📋 Copied to clipboard!');
+                showToast('?�� Copied to clipboard!');
             } catch (err) {
-                showToast('❌ Failed to copy. Please copy manually.');
+                showToast('??Failed to copy. Please copy manually.');
             }
         }
 
@@ -609,34 +618,34 @@
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
             
-            showToast('💾 File downloaded!');
+            showToast('?�� File downloaded!');
         }
 
-        // 키보드 단축키
+        // ?�보???�축??
         document.addEventListener('keydown', function(e) {
-            // Ctrl/Cmd + Enter: 변환
+            // Ctrl/Cmd + Enter: 변??
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                 e.preventDefault();
                 convert();
             }
             
-            // Ctrl/Cmd + C: 결과 복사 (output에 포커스된 경우)
+            // Ctrl/Cmd + C: 결과 복사 (output???�커?�된 경우)
             if ((e.ctrlKey || e.metaKey) && e.key === 'c' && document.activeElement.id === 'output') {
                 e.preventDefault();
                 copyResult();
             }
         });
 
-        // 초기화
+        // 초기??
         document.addEventListener('DOMContentLoaded', function() {
             updateCharacterCount();
             showStatus('Ready to convert');
             
-            // 입력 필드에 포커스
+            // ?�력 ?�드???�커??
             document.getElementById('input').focus();
         });
 
-        // 드래그 앤 드롭 파일 업로드
+        // ?�래�????�롭 ?�일 ?�로??
         const inputArea = document.getElementById('input');
         
         inputArea.addEventListener('dragover', function(e) {
@@ -656,7 +665,7 @@
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 const file = files[0];
-                if (file.type.startsWith('text/') || file.size < 1024 * 1024) { // 1MB 제한
+                if (file.type.startsWith('text/') || file.size < 1024 * 1024) { // 1MB ?�한
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         inputArea.value = e.target.result;
@@ -665,7 +674,7 @@
                     };
                     reader.readAsText(file);
                 } else {
-                    showToast('❌ Please drop a text file (max 1MB)');
+                    showToast('??Please drop a text file (max 1MB)');
                 }
             }
         });

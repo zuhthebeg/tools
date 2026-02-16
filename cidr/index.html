@@ -3,20 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CIDR 서브넷 계산기</title>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
+<!-- End Google Tag Manager -->
+
+    <title>CIDR ?�브??계산�?/title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
     <div class="container">
-        <h1>🌐 CIDR 서브넷 계산기</h1>
-        <p class="subtitle">IPv4 CIDR 표기법을 분석하고 서브넷 정보를 계산합니다</p>
+        <h1>?�� CIDR ?�브??계산�?/h1>
+        <p class="subtitle">IPv4 CIDR ?�기법을 분석?�고 ?�브???�보�?계산?�니??/p>
 
         <div class="input-section">
-            <label for="cidr-input">CIDR 주소 입력</label>
+            <label for="cidr-input">CIDR 주소 ?�력</label>
             <input
                 type="text"
                 id="cidr-input"
-                placeholder="예: 192.168.1.0/24"
+                placeholder="?? 192.168.1.0/24"
                 autocomplete="off"
             >
             <button id="calculate-btn">계산</button>
@@ -26,37 +35,37 @@
             <h2>계산 결과</h2>
 
             <div class="info-group">
-                <h3>기본 정보</h3>
+                <h3>기본 ?�보</h3>
                 <div class="info-row">
                     <span class="label">IP 주소:</span>
                     <span class="value" id="ip-address"></span>
                 </div>
                 <div class="info-row">
-                    <span class="label">서브넷 마스크:</span>
+                    <span class="label">?�브??마스??</span>
                     <span class="value" id="subnet-mask"></span>
                 </div>
                 <div class="info-row">
-                    <span class="label">와일드카드 마스크:</span>
+                    <span class="label">?�?�드카드 마스??</span>
                     <span class="value" id="wildcard-mask"></span>
                 </div>
             </div>
 
             <div class="info-group">
-                <h3>네트워크 정보</h3>
+                <h3>?�트?�크 ?�보</h3>
                 <div class="info-row">
-                    <span class="label">네트워크 주소:</span>
+                    <span class="label">?�트?�크 주소:</span>
                     <span class="value" id="network-address"></span>
                 </div>
                 <div class="info-row">
-                    <span class="label">브로드캐스트 주소:</span>
+                    <span class="label">브로?�캐?�트 주소:</span>
                     <span class="value" id="broadcast-address"></span>
                 </div>
                 <div class="info-row">
-                    <span class="label">사용 가능한 첫 IP:</span>
+                    <span class="label">?�용 가?�한 �?IP:</span>
                     <span class="value" id="first-ip"></span>
                 </div>
                 <div class="info-row">
-                    <span class="label">사용 가능한 마지막 IP:</span>
+                    <span class="label">?�용 가?�한 마�?�?IP:</span>
                     <span class="value" id="last-ip"></span>
                 </div>
             </div>
@@ -64,27 +73,27 @@
             <div class="info-group">
                 <h3>주소 범위</h3>
                 <div class="info-row">
-                    <span class="label">전체 호스트 수:</span>
+                    <span class="label">?�체 ?�스????</span>
                     <span class="value" id="total-hosts"></span>
                 </div>
                 <div class="info-row">
-                    <span class="label">사용 가능한 호스트 수:</span>
+                    <span class="label">?�용 가?�한 ?�스????</span>
                     <span class="value" id="usable-hosts"></span>
                 </div>
                 <div class="info-row">
-                    <span class="label">IP 클래스:</span>
+                    <span class="label">IP ?�래??</span>
                     <span class="value" id="ip-class"></span>
                 </div>
             </div>
 
             <div class="info-group">
-                <h3>이진 표기</h3>
+                <h3>?�진 ?�기</h3>
                 <div class="info-row binary">
-                    <span class="label">IP 주소 (2진):</span>
+                    <span class="label">IP 주소 (2�?:</span>
                     <span class="value" id="ip-binary"></span>
                 </div>
                 <div class="info-row binary">
-                    <span class="label">서브넷 마스크 (2진):</span>
+                    <span class="label">?�브??마스??(2�?:</span>
                     <span class="value" id="mask-binary"></span>
                 </div>
             </div>
