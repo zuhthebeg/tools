@@ -3,6 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <meta name="description" content="텍스트를 네온 사인 스타일로 꾸미고 화면에 표시하는 도구입니다.">
+    <link rel="canonical" href="https://tool.cocy.io/neon/">
+    <meta property="og:title" content="네온 사인 메이커 | tool.cocy.io">
+    <meta property="og:description" content="텍스트를 네온 사인 스타일로 꾸미고 화면에 표시하는 도구입니다.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tool.cocy.io/neon/">
+    <meta property="og:locale" content="ko_KR">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="네온 사인 메이커 | tool.cocy.io">
+    <meta name="twitter:description" content="텍스트를 네온 사인 스타일로 꾸미고 화면에 표시하는 도구입니다.">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "네온 사인 메이커",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web",
+      "description": "텍스트를 네온 사인 스타일로 꾸미고 화면에 표시하는 도구입니다.",
+      "url": "https://tool.cocy.io/neon/",
+      "inLanguage": "ko-KR"
+    }
+    </script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
@@ -151,31 +174,31 @@
   <div id="controls">
     <label>
       <span data-translate-key="neon_text">문구</span>:
-      <input type="text" id="textInput" data-translate-placeholder="true" placeholder="문구�??�력?�세?? />
+      <input type="text" id="textInput" data-translate-placeholder="true" placeholder="문구�??�력?�세?? />
     </label>
     <label>
-      <span data-translate-key="neon_size">글???�기</span>:
+      <span data-translate-key="neon_size">글???�기</span>:
       <input type="range" id="fontSizeSlider" min="1" max="12" step="0.1" value="4" />
       <span id="fontSizeVal">4</span>rem
     </label>
     <label>
       <input type="checkbox" id="marqueeCheck" />
-      <span data-translate-key="neon_marquee">?�르??글??/span>
+      <span data-translate-key="neon_marquee">?�르??글??/span>
     </label>
     <label id="marqueeDirectionLabel" style="display: none;">
-      <span data-translate-key="neon_marquee_direction">?�르??방향</span>:
+      <span data-translate-key="neon_marquee_direction">?�르??방향</span>:
       <select id="marqueeDirection">
-        <option value="left" data-translate-key="marquee_left">?�쪽</option>
-        <option value="up" data-translate-key="marquee_up">?�쪽</option>
-        <option value="down" data-translate-key="marquee_down">?�래�?/option>
+        <option value="left" data-translate-key="marquee_left">?�쪽</option>
+        <option value="up" data-translate-key="marquee_up">?�쪽</option>
+        <option value="down" data-translate-key="marquee_down">?�래�?/option>
       </select>
     </label>
     <label>
       <input type="checkbox" id="rainbowCheck" />
-      <span data-translate-key="neon_rainbow">?�인보우</span>
+      <span data-translate-key="neon_rainbow">?�인보우</span>
     </label>
     <label>
-      <span data-translate-key="neon_color">?�온 ?�상</span>:
+      <span data-translate-key="neon_color">?�온 ?�상</span>:
       <input type="color" id="neonColor" value="#00ffff" />
     </label>
     <button id="fullscreenBtn" data-translate-key="fullscreen_enter">OK</button>
@@ -183,7 +206,7 @@
 
   <div id="neonContainer">
     <div class="neon-wrapper">
-      <div id="neonText">?�온?�인 ?�스??/div>
+      <div id="neonText">?�온?�인 ?�스??/div>
     </div>
   </div>
 

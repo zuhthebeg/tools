@@ -1,27 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="GPT, Claude 등 LLM 입력 텍스트의 토큰 수를 추정하는 온라인 계산기입니다.">
+    <link rel="canonical" href="https://tool.cocy.io/llm/">
+    <meta property="og:title" content="LLM 토큰 계산기 | tool.cocy.io">
+    <meta property="og:description" content="GPT, Claude 등 LLM 입력 텍스트의 토큰 수를 추정하는 온라인 계산기입니다.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tool.cocy.io/llm/">
+    <meta property="og:locale" content="ko_KR">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="LLM 토큰 계산기 | tool.cocy.io">
+    <meta name="twitter:description" content="GPT, Claude 등 LLM 입력 텍스트의 토큰 수를 추정하는 온라인 계산기입니다.">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "LLM 토큰 계산기",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web",
+      "description": "GPT, Claude 등 LLM 입력 텍스트의 토큰 수를 추정하는 온라인 계산기입니다.",
+      "url": "https://tool.cocy.io/llm/",
+      "inLanguage": "ko-KR"
+    }
+    </script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
 <!-- End Google Tag Manager -->
-
-    <meta name="description" content="Accurate token counter for LLMs like GPT-4, Claude, and Mistral. Calculate tokens for AI models with real-time estimation.">
-    <meta name="keywords" content="LLM token counter, AI ?�큰 계산�? GPT-4 tokens, Claude token estimator, Mistral ?�큰 카운?? AI 모델 ?�큰 계산">
+<meta name="keywords" content="LLM token counter, AI ?�큰 계산�? GPT-4 tokens, Claude token estimator, Mistral ?�큰 카운?? AI 모델 ?�큰 계산">
     <meta name="author" content="cocy.io">
-    <meta property="og:title" content="LLM Token Calculator for AI Models">
-    <meta property="og:description" content="Real-time token estimation tool for large language models (GPT-4, Claude, Mistral)">
-    <meta property="og:image" content="https://tool.cocy.io/llm/icon.svg">
-    <meta property="og:url" content="https://tool.cocy.io/llm/">
+<meta property="og:description" content="Real-time token estimation tool for large language models (GPT-4, Claude, Mistral)">
+<meta property="og:url" content="https://tool.cocy.io/llm/">
     <title>LLM Token Calculator</title>
     <script src="../localization.js"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
-            padding: 20px 10px; /* ?�쪽 ?�딩 추�? */
+            padding: 20px 10px; /* ?�쪽 ?�딩 추�? */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -43,13 +62,13 @@
         textarea {
             width: 100%;
             height: 150px;
-            min-height: 100px; /* 최소 ?�이 보장 */
+            min-height: 100px; /* 최소 ?�이 보장 */
             padding: 10px;
             border: 1px solid #444;
             border-radius: 5px;
             background: #2a2a2a;
             color: #ffffff;
-            resize: vertical; /* ?�로 리사?�즈�??�용 */
+            resize: vertical; /* ?�로 리사?�즈�??�용 */
         }
         select {
             width: 100%;
@@ -65,7 +84,7 @@
             font-size: 1.2em;
         }
         footer {
-            margin-top: auto; /* ?�터�??�단??고정 */
+            margin-top: auto; /* ?�터�??�단??고정 */
             padding: 1rem 0;
         }
         footer a:hover {
@@ -79,28 +98,28 @@
             border-bottom: 1px solid #333;
         }
 
-        /* 모바???�??미디??쿼리 개선??*/
+        /* 모바???�??미디??쿼리 개선??*/
         @media (max-width: 600px) {
             body {
-                padding: 0 !important;  /* 좌우 ?�딩 ?�전 ?�거 */
-                min-height: 100vh;  /* ?�이 ?�설??*/
+                padding: 0 !important;  /* 좌우 ?�딩 ?�전 ?�거 */
+                min-height: 100vh;  /* ?�이 ?�설??*/
             }
             .container {
                 width: 100%;
-                max-width: 100%;  /* 최�? ?�비 ?�장 */
+                max-width: 100%;  /* 최�? ?�비 ?�장 */
                 border-radius: 0;
                 margin: 0;
-                padding: 15px 8px;  /* 좌우 ?�딩 축소 */
-                box-sizing: border-box; /* ?�딩 ?�함 ?�비 계산 */
+                padding: 15px 8px;  /* 좌우 ?�딩 축소 */
+                box-sizing: border-box; /* ?�딩 ?�함 ?�비 계산 */
             }
             h2 {
                 font-size: 1.5em;
                 padding-bottom: 10px;
             }
             textarea {
-                width: calc(100% - 16px); /* 컨테?�너 ?�딩 고려 */
+                width: calc(100% - 16px); /* 컨테?�너 ?�딩 고려 */
                 margin: 8px 0;
-                box-sizing: border-box; /* ?�두�??�함 ?�비 */
+                box-sizing: border-box; /* ?�두�??�함 ?�비 */
             }
             select {
                 width: calc(100% - 16px);

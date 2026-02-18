@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://tool.cocy.io/sitemap.xml

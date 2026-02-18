@@ -3,13 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="나만의 요리 레시피를 저장하고 관리할 수 있는 온라인 레시피 노트입니다.">
+    <link rel="canonical" href="https://tool.cocy.io/recipe/">
+    <meta property="og:title" content="레시피 노트 | tool.cocy.io">
+    <meta property="og:description" content="나만의 요리 레시피를 저장하고 관리할 수 있는 온라인 레시피 노트입니다.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tool.cocy.io/recipe/">
+    <meta property="og:locale" content="ko_KR">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="레시피 노트 | tool.cocy.io">
+    <meta name="twitter:description" content="나만의 요리 레시피를 저장하고 관리할 수 있는 온라인 레시피 노트입니다.">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "레시피 노트",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web",
+      "description": "나만의 요리 레시피를 저장하고 관리할 수 있는 온라인 레시피 노트입니다.",
+      "url": "https://tool.cocy.io/recipe/",
+      "inLanguage": "ko-KR"
+    }
+    </script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
 <!-- End Google Tag Manager -->
 
-    <title>?�� ?�시???�트 - Recipe Note</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>?��</text></svg>">
+    <title>?�� ?�시???�트 - Recipe Note</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>?��</text></svg>">
     <style>
         :root {
             --primary: #f97316;
@@ -265,26 +288,26 @@
 <!-- End Google Tag Manager (noscript) -->
 
     <header class="header">
-        <h1>?�� ?�시???�트</h1>
+        <h1>?�� ?�시???�트</h1>
     </header>
 
     <div class="container">
         <div class="search">
-            <input type="text" id="searchInput" placeholder="?�시??검??.." oninput="filterRecipes()">
+            <input type="text" id="searchInput" placeholder="?�시??검??.." oninput="filterRecipes()">
         </div>
 
         <div class="add-form" id="addForm" style="display:none;">
-            <input type="text" id="recipeName" placeholder="?�시???�름">
-            <input type="text" id="recipeCategory" placeholder="카테고리 (?? ?�식, ?�식, ?��???">
-            <textarea id="recipeIngredients" placeholder="?�료 (??줄에 ?�나??"></textarea>
+            <input type="text" id="recipeName" placeholder="?�시???�름">
+            <input type="text" id="recipeCategory" placeholder="카테고리 (?? ?�식, ?�식, ?��???">
+            <textarea id="recipeIngredients" placeholder="?�료 (??줄에 ?�나??"></textarea>
             <textarea id="recipeSteps" placeholder="조리 방법"></textarea>
-            <button onclick="saveRecipe()">?�??/button>
+            <button onclick="saveRecipe()">?�??/button>
         </div>
 
         <div class="recipe-list" id="recipeList"></div>
         <div class="empty" id="emptyState">
-            <span>?��</span>
-            <p>?�?�된 ?�시?��? ?�습?�다<br>+ 버튼???�러 추�??�세??/p>
+            <span>?��</span>
+            <p>?�?�된 ?�시?��? ?�습?�다<br>+ 버튼???�러 추�??�세??/p>
         </div>
     </div>
 
@@ -298,15 +321,15 @@
                 <button class="modal-close" onclick="closeModal()">×</button>
             </div>
             <div class="modal-section">
-                <h4>?�� ?�료</h4>
+                <h4>?�� ?�료</h4>
                 <pre id="modalIngredients"></pre>
             </div>
             <div class="modal-section">
-                <h4>?��?��?조리 방법</h4>
+                <h4>?��?��?조리 방법</h4>
                 <pre id="modalSteps"></pre>
             </div>
             <div class="modal-actions">
-                <button class="btn-delete" onclick="deleteRecipe()">??��</button>
+                <button class="btn-delete" onclick="deleteRecipe()">??��</button>
             </div>
         </div>
     </div>
@@ -355,7 +378,7 @@
             const ingredients = document.getElementById('recipeIngredients').value.trim();
             const steps = document.getElementById('recipeSteps').value.trim();
 
-            if (!name) { alert('?�시???�름???�력?�세??); return; }
+            if (!name) { alert('?�시???�름???�력?�세??); return; }
 
             recipes.push({
                 id: Date.now().toString(),
@@ -384,8 +407,8 @@
 
             currentRecipeId = id;
             document.getElementById('modalTitle').textContent = recipe.name;
-            document.getElementById('modalIngredients').textContent = recipe.ingredients || '(?�음)';
-            document.getElementById('modalSteps').textContent = recipe.steps || '(?�음)';
+            document.getElementById('modalIngredients').textContent = recipe.ingredients || '(?�음)';
+            document.getElementById('modalSteps').textContent = recipe.steps || '(?�음)';
             document.getElementById('detailModal').classList.add('active');
         }
 
@@ -396,7 +419,7 @@
 
         function deleteRecipe() {
             if (!currentRecipeId) return;
-            if (!confirm('???�시?��? ??��?�까??')) return;
+            if (!confirm('???�시?��? ??��?�까??')) return;
 
             recipes = recipes.filter(r => r.id !== currentRecipeId);
             localStorage.setItem('cocy_recipes', JSON.stringify(recipes));

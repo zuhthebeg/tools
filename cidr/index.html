@@ -3,12 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="IPv4 CIDR 대역을 계산하고 네트워크/브로드캐스트/사용 가능 호스트를 확인하는 도구입니다.">
+    <link rel="canonical" href="https://tool.cocy.io/cidr/">
+    <meta property="og:title" content="CIDR 서브넷 계산기 | tool.cocy.io">
+    <meta property="og:description" content="IPv4 CIDR 대역을 계산하고 네트워크/브로드캐스트/사용 가능 호스트를 확인하는 도구입니다.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tool.cocy.io/cidr/">
+    <meta property="og:locale" content="ko_KR">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="CIDR 서브넷 계산기 | tool.cocy.io">
+    <meta name="twitter:description" content="IPv4 CIDR 대역을 계산하고 네트워크/브로드캐스트/사용 가능 호스트를 확인하는 도구입니다.">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "CIDR 서브넷 계산기",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web",
+      "description": "IPv4 CIDR 대역을 계산하고 네트워크/브로드캐스트/사용 가능 호스트를 확인하는 도구입니다.",
+      "url": "https://tool.cocy.io/cidr/",
+      "inLanguage": "ko-KR"
+    }
+    </script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
 <!-- End Google Tag Manager -->
 
-    <title>CIDR ?�브??계산�?/title>
+    <title>CIDR ?�브??계산�?/title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,11 +40,11 @@
 <!-- End Google Tag Manager (noscript) -->
 
     <div class="container">
-        <h1>?�� CIDR ?�브??계산�?/h1>
-        <p class="subtitle">IPv4 CIDR ?�기법을 분석?�고 ?�브???�보�?계산?�니??/p>
+        <h1>?�� CIDR ?�브??계산�?/h1>
+        <p class="subtitle">IPv4 CIDR ?�기법을 분석?�고 ?�브???�보�?계산?�니??/p>
 
         <div class="input-section">
-            <label for="cidr-input">CIDR 주소 ?�력</label>
+            <label for="cidr-input">CIDR 주소 ?�력</label>
             <input
                 type="text"
                 id="cidr-input"
@@ -35,37 +58,37 @@
             <h2>계산 결과</h2>
 
             <div class="info-group">
-                <h3>기본 ?�보</h3>
+                <h3>기본 ?�보</h3>
                 <div class="info-row">
                     <span class="label">IP 주소:</span>
                     <span class="value" id="ip-address"></span>
                 </div>
                 <div class="info-row">
-                    <span class="label">?�브??마스??</span>
+                    <span class="label">?�브??마스??</span>
                     <span class="value" id="subnet-mask"></span>
                 </div>
                 <div class="info-row">
-                    <span class="label">?�?�드카드 마스??</span>
+                    <span class="label">?�?�드카드 마스??</span>
                     <span class="value" id="wildcard-mask"></span>
                 </div>
             </div>
 
             <div class="info-group">
-                <h3>?�트?�크 ?�보</h3>
+                <h3>?�트?�크 ?�보</h3>
                 <div class="info-row">
-                    <span class="label">?�트?�크 주소:</span>
+                    <span class="label">?�트?�크 주소:</span>
                     <span class="value" id="network-address"></span>
                 </div>
                 <div class="info-row">
-                    <span class="label">브로?�캐?�트 주소:</span>
+                    <span class="label">브로?�캐?�트 주소:</span>
                     <span class="value" id="broadcast-address"></span>
                 </div>
                 <div class="info-row">
-                    <span class="label">?�용 가?�한 �?IP:</span>
+                    <span class="label">?�용 가?�한 �?IP:</span>
                     <span class="value" id="first-ip"></span>
                 </div>
                 <div class="info-row">
-                    <span class="label">?�용 가?�한 마�?�?IP:</span>
+                    <span class="label">?�용 가?�한 마�?�?IP:</span>
                     <span class="value" id="last-ip"></span>
                 </div>
             </div>
@@ -73,27 +96,27 @@
             <div class="info-group">
                 <h3>주소 범위</h3>
                 <div class="info-row">
-                    <span class="label">?�체 ?�스????</span>
+                    <span class="label">?�체 ?�스????</span>
                     <span class="value" id="total-hosts"></span>
                 </div>
                 <div class="info-row">
-                    <span class="label">?�용 가?�한 ?�스????</span>
+                    <span class="label">?�용 가?�한 ?�스????</span>
                     <span class="value" id="usable-hosts"></span>
                 </div>
                 <div class="info-row">
-                    <span class="label">IP ?�래??</span>
+                    <span class="label">IP ?�래??</span>
                     <span class="value" id="ip-class"></span>
                 </div>
             </div>
 
             <div class="info-group">
-                <h3>?�진 ?�기</h3>
+                <h3>?�진 ?�기</h3>
                 <div class="info-row binary">
-                    <span class="label">IP 주소 (2�?:</span>
+                    <span class="label">IP 주소 (2�?:</span>
                     <span class="value" id="ip-binary"></span>
                 </div>
                 <div class="info-row binary">
-                    <span class="label">?�브??마스??(2�?:</span>
+                    <span class="label">?�브??마스??(2�?:</span>
                     <span class="value" id="mask-binary"></span>
                 </div>
             </div>

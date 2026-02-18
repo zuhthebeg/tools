@@ -3,19 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="QR 코드를 생성하고 스캔할 수 있는 무료 온라인 QR 도구입니다.">
+    <link rel="canonical" href="https://tool.cocy.io/qr/">
+    <meta property="og:title" content="QR 코드 생성기 | tool.cocy.io">
+    <meta property="og:description" content="QR 코드를 생성하고 스캔할 수 있는 무료 온라인 QR 도구입니다.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tool.cocy.io/qr/">
+    <meta property="og:locale" content="ko_KR">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="QR 코드 생성기 | tool.cocy.io">
+    <meta name="twitter:description" content="QR 코드를 생성하고 스캔할 수 있는 무료 온라인 QR 도구입니다.">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "QR 코드 생성기",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web",
+      "description": "QR 코드를 생성하고 스캔할 수 있는 무료 온라인 QR 도구입니다.",
+      "url": "https://tool.cocy.io/qr/",
+      "inLanguage": "ko-KR"
+    }
+    </script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
 <!-- End Google Tag Manager -->
 
     <title>QR Code Generator and Scanner</title>
-    <meta name="description" content="Generate and scan QR codes instantly. Supports URLs, text, contact info, and WiFi credentials. Works on all devices.">
-    <meta name="keywords" content="QR code generator, QR code scanner, online QR tools, mobile QR generator">
+<meta name="keywords" content="QR code generator, QR code scanner, online QR tools, mobile QR generator">
     <meta name="author" content="cocy.io">
-    <meta property="og:title" content="Online QR Code Generator and Scanner">
-    <meta property="og:description" content="Free web-based QR code generation and scanning tool with real-time preview">
-    <meta property="og:image" content="https://tool.cocy.io/qr/icon.svg">
-    <meta property="og:url" content="https://tool.cocy.io/qr/">
+<meta property="og:description" content="Free web-based QR code generation and scanning tool with real-time preview">
+<meta property="og:url" content="https://tool.cocy.io/qr/">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -52,7 +72,7 @@
     
     <!-- MediaPipe for AI -->
     <script type="module">
-        // MediaPipe???�요?????�적?�로 로드??
+        // MediaPipe???�요?????�적?�로 로드??
     </script>
     
     <style>
@@ -83,7 +103,7 @@
                 QR Code Generator & Scanner
             </h1>
             <button id="themeToggle" class="p-2 rounded-lg bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors">
-                <span id="themeIcon" class="text-2xl">?��</span>
+                <span id="themeIcon" class="text-2xl">?��</span>
             </button>
         </div>
         
@@ -91,40 +111,40 @@
         <div class="mb-8">
             <div class="flex border-b border-gray-700 dark:border-gray-600">
                 <button class="tab-btn active px-6 py-3 font-medium border-b-2 border-primary text-primary" data-tab="generate">
-                    QR ?�성
+                    QR ?�성
                 </button>
                 <button class="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-primary transition-colors" data-tab="wifi">
                     WiFi QR
                 </button>
                 <button class="tab-btn px-6 py-3 font-medium border-b-2 border-transparent hover:text-primary transition-colors" data-tab="scan">
-                    QR ?�캔
+                    QR ?�캔
                 </button>
             </div>
         </div>
 
         <!-- Tab Contents -->
         <div id="tab-contents">
-            <!-- QR ?�성 ??-->
+            <!-- QR ?�성 ??-->
             <div id="generate-tab" class="tab-content active">
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                     <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white border-b-2 border-primary pb-2 inline-block">
-                        QR 코드 ?�성
+                        QR 코드 ?�성
                     </h2>
                     <div class="mb-6">
                         <div class="flex gap-2">
                             <input type="text" id="qrText" 
                                    class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
-                                   placeholder="?�스???�는 URL???�력?�세??>
+                                   placeholder="?�스???�는 URL???�력?�세??>
                             <button onclick="generateQR()" 
                                     class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors font-medium">
-                                ?�성?�기
+                                ?�성?�기
                             </button>
                         </div>
                     </div>
                     <div id="qrcode" class="qr-container flex items-center justify-center rounded-lg p-4 mb-4"></div>
                     <button id="downloadBtn" style="display:none;" 
                             class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
-                        QR 코드 ?�운로드
+                        QR 코드 ?�운로드
                     </button>
                 </div>
             </div>
@@ -133,52 +153,52 @@
             <div id="wifi-tab" class="tab-content hidden">
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                     <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white border-b-2 border-primary pb-2 inline-block">
-                        WiFi QR 코드 ?�성
+                        WiFi QR 코드 ?�성
                     </h2>
                     
-                    <!-- WiFi ???�비게이??-->
+                    <!-- WiFi ???�비게이??-->
                     <div class="mb-6">
                         <div class="flex border-b border-gray-200 dark:border-gray-600">
                             <button class="wifi-tab-btn active px-4 py-2 font-medium border-b-2 border-primary text-primary" data-wifi-tab="manual">
-                                ?�동 ?�력
+                                ?�동 ?�력
                             </button>
                             <button class="wifi-tab-btn px-4 py-2 font-medium border-b-2 border-transparent hover:text-primary transition-colors" data-wifi-tab="ocr">
-                                ?��?지?�서 추출 (OCR)
+                                ?��?지?�서 추출 (OCR)
                             </button>
                         </div>
                     </div>
 
-                    <!-- ?�동 ?�력 ??-->
+                    <!-- ?�동 ?�력 ??-->
                     <div id="manual-wifi" class="wifi-tab-content active">
                         <form class="mb-6 space-y-4">
                             <div>
                                 <label for="ssid" class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                                    ?�트?�크 ?�름 (SSID)
+                                    ?�트?�크 ?�름 (SSID)
                                 </label>
                                 <input type="text" id="ssid" required
                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
                             </div>
                             <div>
                                 <label for="password" class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                                    비�?번호
+                                    비�?번호
                                 </label>
                                 <input type="password" id="password" required
                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
                             </div>
                             <div>
                                 <label for="encryption" class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                                    ?�호??방식
+                                    ?�호??방식
                                 </label>
                                 <select id="encryption" 
                                         class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
                                     <option value="WPA">WPA/WPA2</option>
                                     <option value="WEP">WEP</option>
-                                    <option value="nopass">?�호???�음</option>
+                                    <option value="nopass">?�호???�음</option>
                                 </select>
                             </div>
                             <button type="button" onclick="generateWifiQR()" 
                                     class="w-full px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors font-medium">
-                                WiFi QR ?�성
+                                WiFi QR ?�성
                             </button>
                         </form>
                     </div>
@@ -187,29 +207,29 @@
                     <div id="ocr-wifi" class="wifi-tab-content">
                         <div class="mb-6">
                             <label for="wifiImageUpload" class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                                ?���?WiFi ?�보가 ?�는 ?��?지 ?�로??
+                                ?���?WiFi ?�보가 ?�는 ?��?지 ?�로??
                             </label>
                             <input type="file" id="wifiImageUpload" accept="image/*" 
                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                카페???�스?�랑?�서 ?�공?�는 WiFi ?�보 ?�진???�로?�하?�요
+                                카페???�스?�랑?�서 ?�공?�는 WiFi ?�보 ?�진???�로?�하?�요
                             </p>
                         </div>
                         
                         <div class="mb-6">
                             <button onclick="extractWiFiFromImage()" 
                                     class="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
-                                ?�� AI�?WiFi ?�보 추출
+                                ?�� AI�?WiFi ?�보 추출
                             </button>
                         </div>
                         
-                        <!-- 추출???�보 ?�시 -->
+                        <!-- 추출???�보 ?�시 -->
                         <div id="extractedWifiInfo" class="hidden mb-6 p-4 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg">
-                            <h3 class="font-bold text-blue-900 dark:text-blue-100 mb-2">추출??WiFi ?�보:</h3>
+                            <h3 class="font-bold text-blue-900 dark:text-blue-100 mb-2">추출??WiFi ?�보:</h3>
                             <div id="extractedWifiDetails" class="text-blue-800 dark:text-blue-200 space-y-1"></div>
                             <button onclick="generateFromExtracted()" 
                                     class="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
-                                ???�보�?QR ?�성
+                                ???�보�?QR ?�성
                             </button>
                         </div>
                     </div>
@@ -217,77 +237,77 @@
                     <div id="wifiQrcode" class="qr-container flex items-center justify-center rounded-lg p-4 mb-4"></div>
                     <button id="wifiDownloadBtn" style="display:none;" 
                             class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
-                        WiFi QR ?�운로드
+                        WiFi QR ?�운로드
                     </button>
                 </div>
             </div>
 
-            <!-- QR ?�캔 ??-->
+            <!-- QR ?�캔 ??-->
             <div id="scan-tab" class="tab-content hidden">
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                     <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white border-b-2 border-primary pb-2 inline-block">
-                        QR 코드 ?�캔
+                        QR 코드 ?�캔
                     </h2>
                     
-                    <!-- 카메??컨트�?-->
+                    <!-- 카메??컨트�?-->
                     <div class="mb-6 flex flex-col sm:flex-row gap-4 items-center">
                         <select id="cameraSelect" 
                                 class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
-                            <option value="">카메???�택</option>
+                            <option value="">카메???�택</option>
                         </select>
                         <span id="statusIndicator" class="px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                             준비됨
                         </span>
                     </div>
                     
-                    <!-- ?��?지 ?�로??-->
+                    <!-- ?��?지 ?�로??-->
                     <div class="mb-6">
                         <label for="qrImageUpload" class="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
-                            ?�� QR 코드 ?��?지 ?�로??
+                            ?�� QR 코드 ?��?지 ?�로??
                         </label>
                         <input type="file" id="qrImageUpload" accept="image/*" 
                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
                     </div>
                     
-                    <!-- 비디??컨테?�너 -->
+                    <!-- 비디??컨테?�너 -->
                     <div class="mb-6">
                         <div id="video-container" class="hidden relative w-full max-w-md mx-auto rounded-lg overflow-hidden bg-black">
                             <video id="qr-video" class="w-full h-auto block" playsinline></video>
                         </div>
                         <div id="scan-placeholder" class="text-center p-8 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                            <div class="text-4xl mb-4">?��</div>
+                            <div class="text-4xl mb-4">?��</div>
                             <p class="text-gray-600 dark:text-gray-300">
-                                ?�캔 ?�작 버튼???�러 카메?��? ?�성?�하거나<br>
-                                ?�에???��?지�??�로?�하?�요
+                                ?�캔 ?�작 버튼???�러 카메?��? ?�성?�하거나<br>
+                                ?�에???��?지�??�로?�하?�요
                             </p>
                         </div>
                     </div>
                     
-                    <!-- ?�캔 결과 -->
+                    <!-- ?�캔 결과 -->
                     <div id="scanResult" class="hidden mb-6 p-4 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg">
-                        <h3 class="font-bold text-blue-900 dark:text-blue-100 mb-2">?�캔 결과:</h3>
+                        <h3 class="font-bold text-blue-900 dark:text-blue-100 mb-2">?�캔 결과:</h3>
                         <div id="resultText" class="text-blue-800 dark:text-blue-200 break-all mb-3"></div>
                         <div class="flex gap-2">
                             <button onclick="copyResult()" 
                                     class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
-                                ?�� 복사
+                                ?�� 복사
                             </button>
                             <button id="openBtn" onclick="openResult()" style="display:none;" 
                                     class="px-4 py-2 bg-success text-white rounded-lg hover:bg-green-600 transition-colors text-sm">
-                                ?�� ?�기
+                                ?�� ?�기
                             </button>
                         </div>
                     </div>
                     
-                    <!-- ?�캔 버튼??-->
+                    <!-- ?�캔 버튼??-->
                     <div class="space-y-3">
                         <button id="scanBtn" onclick="toggleScanner()" 
                                 class="w-full px-6 py-3 bg-success text-white rounded-lg hover:bg-green-600 transition-colors font-medium">
-                            ?�� ?�캔 ?�작
+                            ?�� ?�캔 ?�작
                         </button>
                         <button id="stopBtn" onclick="stopScanner()" style="display:none;" 
                                 class="w-full px-6 py-3 bg-danger text-white rounded-lg hover:bg-red-600 transition-colors font-medium">
-                            ?�️ ?�캔 중�?
+                            ?�️ ?�캔 중�?
                         </button>
                     </div>
                 </div>
