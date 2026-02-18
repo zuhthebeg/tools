@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="description" content="츄 체크와 카운트다운, 상태 추적 기능을 제공하는 온라인 도구입니다.">
+    <meta name="description" content="�?체크?� 카운?�다?? ?�태 추적 기능???�공?�는 ?�라???�구?�니??">
     <link rel="canonical" href="https://tool.cocy.io/chu/">
     <meta property="og:title" content="Chu 체크 | tool.cocy.io">
-    <meta property="og:description" content="츄 체크와 카운트다운, 상태 추적 기능을 제공하는 온라인 도구입니다.">
+    <meta property="og:description" content="�?체크?� 카운?�다?? ?�태 추적 기능???�공?�는 ?�라???�구?�니??">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://tool.cocy.io/chu/">
     <meta property="og:locale" content="ko_KR">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Chu 체크 | tool.cocy.io">
-    <meta name="twitter:description" content="츄 체크와 카운트다운, 상태 추적 기능을 제공하는 온라인 도구입니다.">
+    <meta name="twitter:description" content="�?체크?� 카운?�다?? ?�태 추적 기능???�공?�는 ?�라???�구?�니??">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -21,7 +21,7 @@
       "name": "Chu 체크",
       "applicationCategory": "UtilitiesApplication",
       "operatingSystem": "Web",
-      "description": "츄 체크와 카운트다운, 상태 추적 기능을 제공하는 온라인 도구입니다.",
+      "description": "�?체크?� 카운?�다?? ?�태 추적 기능???�공?�는 ?�라???�구?�니??",
       "url": "https://tool.cocy.io/chu/",
       "inLanguage": "ko-KR"
     }
@@ -29,6 +29,7 @@
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607" crossorigin="anonymous"></script>
 <!-- End Google Tag Manager -->
 
     <title id="page-title">Chu's Check</title>
@@ -956,7 +957,7 @@
                 <div id="history-list">
                     <!-- 과거 기록?�이 ?�기???�시?�니??-->
                 </div>
-                <button id="today-button" class="expand-button" style="display: none; margin-top: 15px;">?�� ?�늘�??�아가�?/button>
+                <button id="today-button" class="expand-button" style="display: none; margin-top: 15px;">?�� ?�늘�??�아가�?/button>
             </div>
         </div>
     </div>
@@ -969,7 +970,7 @@
                 <button class="stt-button" id="stt-button" title="?�성 ?�식 (중국??번체)">?��</button>
             </div>
             <div class="modal-buttons">
-                <button class="modal-button save-button" id="save-button">?�??/button>
+                <button class="modal-button save-button" id="save-button">?�??/button>
                 <button class="modal-button cancel-button" id="cancel-button">취소</button>
             </div>
         </div>
@@ -988,7 +989,7 @@
     </div>
 
     <script>
-        // ?�이??초기??�?로컬 ?�토리�? 불러?�기
+        // ?�이??초기??�?로컬 ?�토리�? 불러?�기
         let counters = []; // [{ id: 'red', label: '?��', count: 0 }, ...]
         let timers = [];   // [{ id: 1, label: 'Timer 1', elapsedTime: 0, running: false, startTime: 0, interval: null }, ...]
         let currentEditTarget = null;
@@ -1006,7 +1007,7 @@
             return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         }
 
-        // ?�짜�??�이??로드
+        // ?�짜�??�이??로드
         function loadDateData(dateString) {
             const savedData = localStorage.getItem(`chuData_${dateString}`);
             if (savedData) {
@@ -1015,12 +1016,12 @@
             return null;
         }
         
-        // ?�짜�??�이???�??
+        // ?�짜�??�이???�??
         function saveDateData(dateString, data) {
             localStorage.setItem(`chuData_${dateString}`, JSON.stringify(data));
         }
         
-        // 모든 ?�?�된 ?�짜 목록 가?�오�?
+        // 모든 ?�?�된 ?�짜 목록 가?�오�?
         function getAllSavedDates() {
             const dates = [];
             for (let i = 0; i < localStorage.length; i++) {
@@ -1037,7 +1038,7 @@
             // ?�늘 ?�짜 ?�인
             const today = getCurrentDateString();
             if (currentDate !== today) {
-                // ?�로???�짜?�면 기존 ?�이???�?�하�?초기??
+                // ?�로???�짜?�면 기존 ?�이???�?�하�?초기??
                 saveCurrentData();
                 currentDate = today;
                 viewingDate = today;
@@ -1055,7 +1056,7 @@
                 nextCounterId = dateData.nextCounterId || 1;
                 nextTimerId = dateData.nextTimerId || 2;
                 
-                // ?�?�머 복원 (?�늘 ?�이?�인 경우�?
+                // ?�?�머 복원 (?�늘 ?�이?�인 경우�?
                 if (viewingDate === today) {
                     timers.forEach(timer => {
                         if (timer.running) {
@@ -1070,7 +1071,7 @@
                 updateUI();
                 updateHistoryList();
             } else {
-                // ?�당 ?�짜???�이?��? ?�으�?기본 ?�정
+                // ?�당 ?�짜???�이?��? ?�으�?기본 ?�정
                 counters = [];
                 timers = [
                     { id: 'timer-1', label: '??Timer 1', elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null }
@@ -1082,7 +1083,7 @@
             }
         }
         
-        // ?�재 ?�이???�??
+        // ?�재 ?�이???�??
         function saveCurrentData() {
             const data = {
                 counters: counters.map(c => ({ id: c.id, label: c.label, count: c.count })),
@@ -1094,7 +1095,7 @@
             saveDateData(viewingDate, data);
         }
 
-        // 로컬 ?�토리�????�이???�??
+        // 로컬 ?�토리�????�이???�??
         function saveToLocalStorage() {
             saveCurrentData();
         }
@@ -1108,7 +1109,7 @@
             historyList.innerHTML = '';
             
             if (dates.length === 0) {
-                historyList.innerHTML = '<p style="color: #888; font-size: 0.9em; text-align: center;">?�?�된 기록???�습?�다</p>';
+                historyList.innerHTML = '<p style="color: #888; font-size: 0.9em; text-align: center;">?�?�된 기록???�습?�다</p>';
                 return;
             }
             
@@ -1155,7 +1156,7 @@
             });
         }
         
-        // ?�짜�??�국???�식?�로 ?�맷
+        // ?�짜�??�국???�식?�로 ?�맷
         function formatDateKorean(dateString) {
             const [year, month, day] = dateString.split('-');
             return `${month}??${day}??;
@@ -1165,7 +1166,7 @@
         function loadHistoryDate(date) {
             const today = getCurrentDateString();
             
-            // ?�재 ?�이???�??(?�늘 ?�이?�인 경우)
+            // ?�재 ?�이???�??(?�늘 ?�이?�인 경우)
             if (viewingDate === today) {
                 saveCurrentData();
             }
@@ -1177,7 +1178,7 @@
             document.getElementById('today-button').style.display = 'block';
             document.querySelector('.title-container h1').textContent = `Chu's Check - ${formatDateKorean(date)}`;
             
-            // 과거 기록?�서???�?�머 비활?�화
+            // 과거 기록?�서???�?�머 비활?�화
             timers.forEach(timer => {
                 if (timer.running) {
                     timer.running = false;
@@ -1191,7 +1192,7 @@
             updateUI();
         }
         
-        // ?�늘�??�아가�?
+        // ?�늘�??�아가�?
         function returnToToday() {
             const today = getCurrentDateString();
             viewingDate = today;
@@ -1231,7 +1232,7 @@
                             <span class="button-label"></span>
                             <span class="edit-icon" data-id="${counter.id}" data-type="counter-label">?�️</span>
                             <span class="reset-individual-icon" data-id="${counter.id}" data-type="counter-reset">?��</span>
-                            <span class="remove-individual-icon" data-id="${counter.id}" data-type="counter-remove">?���?/span>
+                            <span class="remove-individual-icon" data-id="${counter.id}" data-type="counter-remove">?���?/span>
                             <div class="count-display"></div>
                         </div>
                     `;
@@ -1279,7 +1280,7 @@
                             <span class="time-label-text"></span>
                             <span class="edit-icon" data-id="${timer.id}" data-type="timer-label">?�️</span>
                             <span class="reset-individual-icon" data-id="${timer.id}" data-type="timer-reset">?��</span>
-                            <span class="remove-individual-icon" data-id="${timer.id}" data-type="timer-remove">?���?/span>
+                            <span class="remove-individual-icon" data-id="${timer.id}" data-type="timer-remove">?���?/span>
                         </div>
                         <div class="timer-controls">
                             <div class="timer-left">
@@ -1320,7 +1321,7 @@
                     totalTimeDiv.style.marginTop = '15px';
                     totalTimeDiv.style.backgroundColor = '#2a2a2a';
                     totalTimeDiv.style.border = '1px solid #444';
-                    totalTimeDiv.innerHTML = `�??�산 ?�간: <span id="total-time">${formatTime(totalElapsedTime)}</span>`;
+                    totalTimeDiv.innerHTML = `�??�산 ?�간: <span id="total-time">${formatTime(totalElapsedTime)}</span>`;
                     timersContainer.appendChild(totalTimeDiv);
                     totalTimeDisplay = document.getElementById('total-time');
                 } else {
@@ -1340,22 +1341,22 @@
             }
         }
 
-        // �??�간 ?�데?�트 - now handled by updateUI
+        // �??�간 ?�데?�트 - now handled by updateUI
         // function updateTotalTime() { ... }
 
-        // ?�간 ?�맷 변�??�수
+        // ?�간 ?�맷 변�??�수
         function formatTime(seconds) {
             if (seconds < 60) {
-                return Math.floor(seconds) + '�?;
+                return Math.floor(seconds) + '�?;
             } else if (seconds < 3600) {
                 const minutes = Math.floor(seconds / 60);
                 const remainingSeconds = Math.floor(seconds % 60); 
-                return `${minutes}�?${remainingSeconds.toString().padStart(2, '0')}�?;
+                return `${minutes}�?${remainingSeconds.toString().padStart(2, '0')}�?;
             } else {
                 const hours = Math.floor(seconds / 3600);
                 const remainingMinutes = Math.floor((seconds % 3600) / 60);
                 const remainingSeconds = Math.floor(seconds % 60); 
-                return `${hours}?�간 ${remainingMinutes}�?${remainingSeconds.toString().padStart(2, '0')}�?;
+                return `${hours}?�간 ${remainingMinutes}�?${remainingSeconds.toString().padStart(2, '0')}�?;
             }
         }
 
@@ -1391,7 +1392,7 @@
             } else if ('SpeechRecognition' in window) {
                 recognition = new SpeechRecognition();
             } else {
-                console.log('STT�?지?�하지 ?�는 브라?��??�니??');
+                console.log('STT�?지?�하지 ?�는 브라?��??�니??');
                 sttButton.style.display = 'none';
                 return;
             }
@@ -1404,7 +1405,7 @@
             recognition.onstart = function() {
                 isRecording = true;
                 sttButton.classList.add('recording');
-                sttButton.title = '?�성 ?�식 �?.. (?�릭?�여 중�?)';
+                sttButton.title = '?�성 ?�식 �?.. (?�릭?�여 중�?)';
             };
             
             recognition.onresult = function(event) {
@@ -1600,7 +1601,7 @@
         // Add new timer
         function addTimer() {
             const newId = `timer-${nextTimerId++}`;
-            const newTimer = { id: newId, label: `???�?�머 ${nextTimerId - 1}`, elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null };
+            const newTimer = { id: newId, label: `???�?�머 ${nextTimerId - 1}`, elapsedTime: 0, baseElapsedTime: 0, running: false, sessionStartTime: 0, interval: null };
             timers.push(newTimer);
             saveToLocalStorage();
             updateUI(); // Call updateUI here as the structure changes
@@ -1653,7 +1654,7 @@
                 if (timer.running) {
                     // baseElapsedTime??unfocused ?�간만큼 ?�해주고,
                     timer.baseElapsedTime += focusDuration;
-                    // sessionStartTime???�재�??�설??(중복 ?�적 방�?)
+                    // sessionStartTime???�재�??�설??(중복 ?�적 방�?)
                     timer.sessionStartTime = now;
                     // elapsedTime 즉시 갱신
                     timer.elapsedTime = timer.baseElapsedTime;
@@ -1664,7 +1665,7 @@
             saveToLocalStorage();
         });
 
-        // ?�??버튼 ?�벤??(from modal)
+        // ?�??버튼 ?�벤??(from modal)
         saveButton.addEventListener('click', () => {
             const newValue = editInput.value.trim();
             if (!currentEditTarget) return;
@@ -1702,7 +1703,7 @@
 
         // 초기??버튼 ?�벤??(all data)
         document.getElementById('reset-button').addEventListener('click', () => {
-            if (confirm('모든 ?�이?��? 초기?�하?�겠?�니�?')) {
+            if (confirm('모든 ?�이?��? 초기?�하?�겠?�니�?')) {
                 timers.forEach(timer => {
                     if (timer.interval) {
                         clearInterval(timer.interval);
@@ -1790,9 +1791,9 @@
             
             // Counter ?�름별로 ?�이???�집
             const counterStats = {};
-            // ?�?�머 ?�름별로 ?�이???�집
+            // ?�?�머 ?�름별로 ?�이???�집
             const timerStats = {};
-            // �??�간 ?�이???�집
+            // �??�간 ?�이???�집
             const totalTimeStats = [];
             
             dates.forEach(date => {
@@ -1801,7 +1802,7 @@
                 
                 if (dateData && dateData.counters) {
                     dateData.counters.forEach(counter => {
-                        // ?�모지 ?�거?�고 ?�제 ?�름�?추출
+                        // ?�모지 ?�거?�고 ?�제 ?�름�?추출
                         const cleanName = counter.label.replace(/^[^\w\s가-??+\s*/, '').trim();
                         
                         if (!counterStats[cleanName]) {
@@ -1821,10 +1822,10 @@
                     });
                 }
                 
-                // ?�?�머�??�간 계산 (�??�위)
+                // ?�?�머�??�간 계산 (�??�위)
                 if (dateData && dateData.timers) {
                     dateData.timers.forEach(timer => {
-                        // ?�모지 ?�거?�고 ?�제 ?�름�?추출
+                        // ?�모지 ?�거?�고 ?�제 ?�름�?추출
                         const cleanName = timer.label.replace(/^[^\w\s가-??+\s*/, '').trim();
                         const timerMinutes = Math.round((timer.elapsedTime || 0) / 60);
                         
@@ -1849,7 +1850,7 @@
                 totalTimeStats.push(dailyTotalTime);
             });
             
-            // 모든 ?�짜???�??�?�?채우�?(Counter)
+            // 모든 ?�짜???�??�?�?채우�?(Counter)
             Object.keys(counterStats).forEach(counterName => {
                 const fullDates = [];
                 const fullCounts = [];
@@ -1864,7 +1865,7 @@
                 counterStats[counterName].counts = fullCounts;
             });
             
-            // 모든 ?�짜???�??�?�?채우�?(?�?�머)
+            // 모든 ?�짜???�??�?�?채우�?(?�?�머)
             Object.keys(timerStats).forEach(timerName => {
                 const fullDates = [];
                 const fullTimes = [];
@@ -1909,13 +1910,13 @@
                     tension: 0.4,
                     fill: false,
                     yAxisID: 'y',
-                    hidden: !hasToday // ?�늘 ?�이?��? ?�으�??��?
+                    hidden: !hasToday // ?�늘 ?�이?��? ?�으�??��?
                 });
             });
             
-            // 개별 ?�?�머 ?�이?�셋 추�?
+            // 개별 ?�?�머 ?�이?�셋 추�?
             Object.keys(timerStats).forEach((timerName, index) => {
-                // ?�늘 ?�이?��? ?�는 ?�?�머?��? ?�인
+                // ?�늘 ?�이?��? ?�는 ?�?�머?��? ?�인
                 const todayData = loadDateData(today);
                 const hasToday = todayData && todayData.timers && 
                     todayData.timers.some(timer => {
@@ -1925,7 +1926,7 @@
                 
                 const color = timeColors[index % timeColors.length];
                 datasets.push({
-                    label: `??${timerName} (�?`,
+                    label: `??${timerName} (�?`,
                     data: timerStats[timerName].times,
                     borderColor: color,
                     backgroundColor: color + '30',
@@ -1942,13 +1943,13 @@
                     pointHoverBorderWidth: 2,
                     yAxisID: 'y1',
                     borderDash: [5, 5], // ?�선?�로 구분
-                    hidden: !hasToday // ?�늘 ?�이?��? ?�으�??��?
+                    hidden: !hasToday // ?�늘 ?�이?��? ?�으�??��?
                 });
             });
             
-            // �??�산?�간 ?�이?�셋 추�? (?�별???��???
+            // �??�산?�간 ?�이?�셋 추�? (?�별???��???
             datasets.push({
-                label: '?�� �??�산?�간 (�?',
+                label: '?�� �??�산?�간 (�?',
                 data: totalTimeStats,
                 borderColor: '#FF4500',
                 backgroundColor: function(context) {
@@ -2046,9 +2047,9 @@
                                         const hours = Math.floor(timeData.parsed.y / 60);
                                         const minutes = timeData.parsed.y % 60;
                                         if (hours > 0) {
-                                            return [`??${hours}?�간 ${minutes}�?];
+                                            return [`??${hours}?�간 ${minutes}�?];
                                         } else {
-                                            return [`??${minutes}�?];
+                                            return [`??${minutes}�?];
                                         }
                                     }
                                     return [];
@@ -2089,7 +2090,7 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: '???�간 (�?',
+                                text: '???�간 (�?',
                                 color: '#FF6B35',
                                 font: {
                                     size: 14,
@@ -2146,20 +2147,20 @@
                         { id: 'counter-1', label: '?�동?�기', count: Math.floor(Math.random() * 3) + 0 },
                         { id: 'counter-2', label: '물마?�기', count: Math.floor(Math.random() * 10) + 5 },
                         { id: 'counter-3', label: '?�서?�기', count: Math.floor(Math.random() * 2) + 0 },
-                        { id: 'counter-4', label: '커피마시�?, count: Math.floor(Math.random() * 5) + 1 },
+                        { id: 'counter-4', label: '커피마시�?, count: Math.floor(Math.random() * 5) + 1 },
                         { id: 'counter-5', label: '?�책?�기', count: Math.floor(Math.random() * 2) + 0 }
                     ],
                     timers: [
                         { 
                             id: 'timer-1', 
                             label: '??집중 ?�간', 
-                            elapsedTime: Math.floor(Math.random() * 7200) + 1800, // 30�?2?�간
+                            elapsedTime: Math.floor(Math.random() * 7200) + 1800, // 30�?2?�간
                             running: false 
                         },
                         { 
                             id: 'timer-2', 
                             label: '??공�? ?�간', 
-                            elapsedTime: Math.floor(Math.random() * 5400) + 900, // 15�?1.5?�간
+                            elapsedTime: Math.floor(Math.random() * 5400) + 900, // 15�?1.5?�간
                             running: false 
                         }
                     ],
