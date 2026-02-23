@@ -193,7 +193,6 @@
     <div class="tabs">
         <button class="tab active" data-filter="all">전체</button>
         <button class="tab" data-filter="tool">🔧 도구</button>
-        <button class="tab" data-filter="game">🎮 게임</button>
         <button class="tab" data-filter="devtools">🧪 개발</button>
         <button class="tab" data-filter="converter">🔁 변환</button>
         <button class="tab" data-filter="network">🌐 네트워크</button>
@@ -216,7 +215,6 @@
 
         const sectionLabels = {
             tool: '🔧 도구',
-            game: '🎮 게임',
             devtools: '🧪 개발',
             converter: '🔁 변환',
             network: '🌐 네트워크',
@@ -226,7 +224,6 @@
 
         function inferGroup(app) {
             const key = (app.url || '').toLowerCase();
-            if (app.category === 'game') return 'game';
             if (key.includes('/json') || key.includes('/base64') || key.includes('/url') || key.includes('/color') || key.includes('/qr')) return 'converter';
             if (key.includes('/cidr') || key.includes('/net')) return 'network';
             if (key.includes('/llm') || key.includes('/count')) return 'devtools';
@@ -249,7 +246,10 @@
         fetch('apps.json?' + Date.now())
             .then(r => r.json())
             .then(data => {
-                apps = data.filter(a => !(a.url || '').includes('/chu/'));
+                apps = data.filter(a => {
+                    const url = (a.url || '').toLowerCase();
+                    return !url.includes('/chu/') && a.category !== 'game' && !url.includes('game.cocy.io');
+                });
                 renderApps();
             });
 
@@ -277,9 +277,8 @@
                 grouped[group].push(app);
             });
 
-            let sectionOrder = ['tool', 'game', 'devtools', 'converter', 'network', 'productivity', 'utility'];
+            let sectionOrder = ['tool', 'devtools', 'converter', 'network', 'productivity', 'utility'];
             if (currentFilter === 'tool') sectionOrder = ['devtools', 'converter', 'network', 'productivity', 'utility'];
-            else if (currentFilter === 'game') sectionOrder = ['game'];
             else if (currentFilter !== 'all') sectionOrder = [currentFilter];
 
             const visibleSections = sectionOrder
@@ -287,8 +286,7 @@
                 .filter(section => section.items.length > 0)
                 .filter(section => {
                     if (currentFilter === 'all') return true;
-                    if (currentFilter === 'tool') return section.key !== 'game';
-                    if (currentFilter === 'game') return section.key === 'game';
+                    if (currentFilter === 'tool') return true;
                     return section.key === currentFilter;
                 });
 
