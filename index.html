@@ -92,6 +92,17 @@
             gap: 12px;
         }
 
+        .section {
+            margin-bottom: 1.6rem;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.7rem;
+            color: var(--accent);
+        }
+
         @media (min-width: 768px) {
             .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
         }
@@ -182,10 +193,16 @@
     <div class="tabs">
         <button class="tab active" data-filter="all">전체</button>
         <button class="tab" data-filter="tool">🔧 도구</button>
+        <button class="tab" data-filter="game">🎮 게임</button>
+        <button class="tab" data-filter="devtools">🧪 개발</button>
+        <button class="tab" data-filter="converter">🔁 변환</button>
+        <button class="tab" data-filter="network">🌐 네트워크</button>
+        <button class="tab" data-filter="productivity">🗂️ 생산성</button>
+        <button class="tab" data-filter="utility">🛠️ 기타</button>
     </div>
 
     <div class="container">
-        <div class="grid" id="appGrid"></div>
+        <div id="sections"></div>
         <div class="empty" id="emptyState" style="display:none;">표시할 앱이 없습니다</div>
     </div>
 
@@ -197,11 +214,42 @@
         let apps = [];
         let currentFilter = 'all';
 
+        const sectionLabels = {
+            tool: '🔧 도구',
+            game: '🎮 게임',
+            devtools: '🧪 개발',
+            converter: '🔁 변환',
+            network: '🌐 네트워크',
+            productivity: '🗂️ 생산성',
+            utility: '🛠️ 기타'
+        };
+
+        function inferGroup(app) {
+            const key = (app.url || '').toLowerCase();
+            if (app.category === 'game') return 'game';
+            if (key.includes('/json') || key.includes('/base64') || key.includes('/url') || key.includes('/color') || key.includes('/qr')) return 'converter';
+            if (key.includes('/cidr') || key.includes('/net')) return 'network';
+            if (key.includes('/llm') || key.includes('/count')) return 'devtools';
+            if (key.includes('/calendar') || key.includes('/dday') || key.includes('/lotto') || key.includes('/recipe')) return 'productivity';
+            return 'utility';
+        }
+
+        function toCard(app) {
+            return `
+                <a href="${app.url}" class="card">
+                    ${app.badge ? `<span class="card-badge badge-${app.badge.toLowerCase()}">${app.badge}</span>` : ''}
+                    <img class="card-icon" src="${app.icon}" alt="" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🔧</text></svg>'">
+                    <div class="card-title">${app.title}</div>
+                    <div class="card-desc">${app.desc}</div>
+                </a>
+            `;
+        }
+
         // Load apps
         fetch('apps.json?' + Date.now())
             .then(r => r.json())
             .then(data => {
-                apps = data;
+                apps = data.filter(a => !(a.url || '').includes('/chu/'));
                 renderApps();
             });
 
@@ -211,31 +259,51 @@
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
                 currentFilter = tab.dataset.filter;
+                if (window.dataLayer) {
+                    window.dataLayer.push({ event: 'tool_tab_click', tab: currentFilter });
+                }
                 renderApps();
             });
         });
 
         function renderApps() {
-            const grid = document.getElementById('appGrid');
+            const sectionsEl = document.getElementById('sections');
             const empty = document.getElementById('emptyState');
-            
-            let filtered = apps;
-            if (currentFilter === 'tool') filtered = apps.filter(a => a.category === 'tool');
 
-            if (filtered.length === 0) {
-                grid.innerHTML = '';
+            const grouped = {};
+            apps.forEach(app => {
+                const group = inferGroup(app);
+                if (!grouped[group]) grouped[group] = [];
+                grouped[group].push(app);
+            });
+
+            let sectionOrder = ['tool', 'game', 'devtools', 'converter', 'network', 'productivity', 'utility'];
+            if (currentFilter === 'tool') sectionOrder = ['devtools', 'converter', 'network', 'productivity', 'utility'];
+            else if (currentFilter === 'game') sectionOrder = ['game'];
+            else if (currentFilter !== 'all') sectionOrder = [currentFilter];
+
+            const visibleSections = sectionOrder
+                .map(key => ({ key, items: (grouped[key] || []).filter(app => currentFilter === 'all' || currentFilter === 'tool' ? true : true) }))
+                .filter(section => section.items.length > 0)
+                .filter(section => {
+                    if (currentFilter === 'all') return true;
+                    if (currentFilter === 'tool') return section.key !== 'game';
+                    if (currentFilter === 'game') return section.key === 'game';
+                    return section.key === currentFilter;
+                });
+
+            if (visibleSections.length === 0) {
+                sectionsEl.innerHTML = '';
                 empty.style.display = 'block';
                 return;
             }
 
             empty.style.display = 'none';
-            grid.innerHTML = filtered.map(app => `
-                <a href="${app.url}" class="card">
-                    ${app.badge ? `<span class="card-badge badge-${app.badge.toLowerCase()}">${app.badge}</span>` : ''}
-                    <img class="card-icon" src="${app.icon}" alt="" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🔧</text></svg>'">
-                    <div class="card-title">${app.title}</div>
-                    <div class="card-desc">${app.desc}</div>
-                </a>
+            sectionsEl.innerHTML = visibleSections.map(section => `
+                <section class="section">
+                    <h2 class="section-title">${sectionLabels[section.key] || section.key}</h2>
+                    <div class="grid">${section.items.map(toCard).join('')}</div>
+                </section>
             `).join('');
         }
     </script>
