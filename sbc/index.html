@@ -3,42 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
-<!-- End Google Tag Manager -->
-
-    <title>Vocal Class - 로그??/title>
+    <title>Vocal Class - 로그인</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4F46E5"/>
 </head>
 <body class="bg-gray-100 flex items-center justify-center h-screen">
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-
 
     <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
         <div class="text-center">
             <h1 class="text-3xl font-bold text-gray-900">Vocal Class</h1>
-            <p class="mt-2 text-sm text-gray-600">?�업 관리�? ?�한 ?�앱</p>
+            <p class="mt-2 text-sm text-gray-600">수업 관리를 위한 웹앱</p>
         </div>
 
         <form id="login-form" class="space-y-6">
             <div>
-                <label for="name" class="text-sm font-medium text-gray-700">?�름</label>
+                <label for="name" class="text-sm font-medium text-gray-700">이름</label>
                 <input id="name" name="name" type="text" required
                        class="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                       placeholder="?�름???�력?�세??>
+                       placeholder="이름을 입력하세요">
             </div>
 
             <div>
-                <label for="role" class="text-sm font-medium text-gray-700">??��</label>
+                <label for="role" class="text-sm font-medium text-gray-700">역할</label>
                 <select id="role" name="role"
                         class="w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="student">?�강??/option>
+                    <option value="student">수강생</option>
                     <option value="teacher">강사</option>
                 </select>
             </div>
@@ -46,7 +37,7 @@
             <div>
                 <button type="submit"
                         class="w-full px-4 py-2 font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    로그??
+                    로그인
                 </button>
             </div>
         </form>
@@ -57,7 +48,7 @@
         // For local testing: submit attendance to local server (run server.js on port 3001)
         window.LOCAL_ATTENDANCE_ENDPOINT = 'http://localhost:3001/api/attendance';
 
-        // PWA ?�비???�커 ?�록
+        // PWA 서비스 워커 등록
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/service-worker.js')
@@ -70,7 +61,7 @@
             });
         }
 
-        // 로그??처리
+        // 로그인 처리
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const name = document.getElementById('name').value;

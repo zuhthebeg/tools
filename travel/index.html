@@ -3,12 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
-<!-- End Google Tag Manager -->
-
-<title>?��??�행 ?�정 (??�?</title>
+<title>대만 여행 일정 (한/중)</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 <style>
   :root{
@@ -201,16 +196,12 @@
 </style>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-
   <header>
-    <h1>?��??�행 ?�정?????�·중 병기</h1>
-    <p class="lead">기간: 11/13(�? ~ 11/16(?? ???�간?�별로 보기 ?�게 ?�리?�습?�다. (?�국??/ �?��)</p>
+    <h1>대만 여행 일정표 — 한·중 병기</h1>
+    <p class="lead">기간: 11/13(목) ~ 11/16(일) — 시간대별로 보기 쉽게 정리했습니다. (한국어 / 中文)</p>
     <div class="controls">
-        <button class="btn" onclick="exportData()">?�보?�기</button>
-        <button class="btn" onclick="document.getElementById('import-file').click()">가?�오�?/button>
+        <button class="btn" onclick="exportData()">내보내기</button>
+        <button class="btn" onclick="document.getElementById('import-file').click()">가져오기</button>
         <input type="file" id="import-file" style="display: none" onchange="importData(event)" accept=".json">
     </div>
   </header>
@@ -227,53 +218,53 @@
 <script>
 const initialData = {
   "d13": {
-    "title": "11/13 (�?",
-    "subTitle": "11??3?�（?�四�?,
-    "daySub": "출발??/ ?�發??,
-    "meta": "?�소: ?�北市萬???�?��街二�?24??(Airbnb)",
+    "title": "11/13 (목)",
+    "subTitle": "11月13日（週四）",
+    "daySub": "출발일 / 出發日",
+    "meta": "숙소: 台北市萬華區武昌街二段124號 (Airbnb)",
     "items": [
-      { "time": "10:30", "k": "?�천공항 T2 ?�착 / 仁川機場 T2 ?�達", "c": "공항버스 ?�약 / ?�約機場巴士", "link": "", "linkText": "", "important": false },
-      { "time": "12:30", "k": "출발 / ?�發", "c": "비행�?출발 ?�간 / ?�班?�發?�間", "link": "", "linkText": "", "important": true },
-      { "time": "14:20", "k": "?�?�위??공항 T1 ?�착 / 桃園機場 T1 ?�達", "c": "?�?�베???�동 준�?/ 準備?��??�北", "link": "", "linkText": "", "important": true },
-      { "time": "15:13??5:49", "k": "공항철도 ???�?�베?�역 (??NT$160) / 機場?�運 ???�北車站（約NT$160�?, "c": "교통카드 준�?/ 準備交通卡", "link": "", "linkText": "", "important": false },
-      { "time": "??16:30", "k": "Airbnb 체크??(?�華?� �?��街二�?24?? / Airbnb ?�住", "c": "주소: ?�北市萬???�?��街二�?24??, "link": "", "linkText": "", "important": false },
-      { "time": "18:00", "k": "?�오보티�?/ 小啵下班 (?�규�?카페 ?�는 ?�정)", "c": "??18:00 방문 ?�정 / ?�計18:00", "link": "", "linkText": "", "important": false },
-      { "time": "?�??, "k": "?�시??방문 / 享曼夜市", "c": "?�디 ?�시?? ?�치 미정 / 夜市?�點?�定", "note": "?�시???�치�??�하�?추�? ?�데?�트 가??/ ?�確定夜市地點可?�更??, "link": "", "linkText": "", "important": false }
+      { "time": "10:30", "k": "인천공항 T2 도착 / 仁川機場 T2 抵達", "c": "공항버스 예약 / 預約機場巴士", "link": "", "linkText": "", "important": false },
+      { "time": "12:30", "k": "출발 / 出發", "c": "비행기 출발 시간 / 航班出發時間", "link": "", "linkText": "", "important": true },
+      { "time": "14:20", "k": "타오위안 공항 T1 도착 / 桃園機場 T1 抵達", "c": "타이베이 이동 준비 / 準備前往台北", "link": "", "linkText": "", "important": true },
+      { "time": "15:13–15:49", "k": "공항철도 → 타이베이역 (약 NT$160) / 機場捷運 → 台北車站（約NT$160）", "c": "교통카드 준비 / 準備交通卡", "link": "", "linkText": "", "important": false },
+      { "time": "약 16:30", "k": "Airbnb 체크인 (萬華區 武昌街二段124號) / Airbnb 入住", "c": "주소: 台北市萬華區武昌街二段124號", "link": "", "linkText": "", "important": false },
+      { "time": "18:00", "k": "사오보티쿤 / 小啵下班 (소규모 카페 또는 일정)", "c": "약 18:00 방문 예정 / 預計18:00", "link": "", "linkText": "", "important": false },
+      { "time": "저녁", "k": "야시장 방문 / 享曼夜市", "c": "어디 야시장? 위치 미정 / 夜市地點未定", "note": "야시장 위치를 정하면 추가 업데이트 가능 / 若確定夜市地點可再更新", "link": "", "linkText": "", "important": false }
     ]
   },
   "d14": {
-    "title": "11/14 (�?",
-    "subTitle": "11??4?�（?�五�?,
-    "daySub": "?��? & 지?��? ?�어 / ?�分 & 九份 ?�遊",
+    "title": "11/14 (금)",
+    "subTitle": "11月14日（週五）",
+    "daySub": "스펀 & 지우펀 투어 / 十分 & 九份 郊遊",
     "items": [
-      { "time": "?�전", "k": "?�만식 ?�침 (豆漿/?�餅 ?? / ?�灣?�餐", "c": "백종??추천 가�?고려 / ?�薦店�?（백종원�?, "link": "", "linkText": "", "important": false },
-      { "time": "13:00", "k": "?��? ??�� & 지?��? ?�어 출발 / ?�分?�布 & 九份 一?�遊 ?�發", "c": "B코스: ?��? & ?��? ??�� & 지?��? ?�거�?/ 行程?�括?�分?�布?�九份老街", "link": "", "linkText": "", "important": false },
-      { "time": "20:00", "k": "?�?�베??복�? / 返回?�北", "c": "?�상?�으�?20:00�??�료 ?�정 / ?�計�?0:00結束", "link": "", "linkText": "", "important": false },
-      { "time": "?�??, "k": "?�?�식?? ?�炒 ?�는 ?��? ?�당 / ?�炒餐廳", "c": "?�치 미정 / ?�點?�定", "link": "", "linkText": "", "important": false }
+      { "time": "오전", "k": "대만식 아침 (豆漿/蛋餅 등) / 台灣早餐", "c": "백종원 추천 가게 고려 / 推薦店家（백종원）", "link": "", "linkText": "", "important": false },
+      { "time": "13:00", "k": "스펀 폭포 & 지우펀 투어 출발 / 十分瀑布 & 九份 一日遊 出發", "c": "B코스: 스펀 & 스펀 폭포 & 지우펀 옛거리 / 行程包括十分瀑布與九份老街", "link": "", "linkText": "", "important": false },
+      { "time": "20:00", "k": "타이베이 복귀 / 返回台北", "c": "정상적으로 20:00경 완료 예정 / 預計約20:00結束", "link": "", "linkText": "", "important": false },
+      { "time": "저녁", "k": "저녁식사: 熱炒 또는 현지 식당 / 熱炒餐廳", "c": "위치 미정 / 地點未定", "link": "", "linkText": "", "important": false }
     ]
   },
   "d15": {
-    "title": "11/15 (??",
-    "subTitle": "11??5?�（?�六�?,
-    "daySub": "?�?�베???�내 / ?�北市內",
+    "title": "11/15 (토)",
+    "subTitle": "11月15日（週六）",
+    "daySub": "타이베이 시내 / 台北市內",
     "items": [
-      { "time": "?�전", "k": "?�만식 ?�침: 豆漿?�餅 / ?�灣?�餐", "c": "?�안???�침 / 輕鬆?�早??, "link": "", "linkText": "", "important": false },
-      { "time": "?�후", "k": "?�?�베??101 방문 / ?��? ?�北101", "c": "관�?�??�핑 / 觀?�與購物", "link": "", "linkText": "", "important": false },
-      { "time": "19:00", "k": "콘서??관??/ ?�加?�樂??, "c": "?�켓 �??�소 ?�인 ?�요 / ?�確認?�票與?�地", "link": "", "linkText": "", "important": true },
-      { "time": "?�??, "k": "?�시??/ 마사지 ?�택 가??/ 夜市?�按??, "c": "마사지 ?�약 ???�후 ?�간 ?�인 / ?�要?�摩請確認時??, "link": "", "linkText": "", "important": false }
+      { "time": "오전", "k": "대만식 아침: 豆漿蛋餅 / 台灣早餐", "c": "편안한 아침 / 輕鬆的早晨", "link": "", "linkText": "", "important": false },
+      { "time": "오후", "k": "타이베이 101 방문 / 參觀 台北101", "c": "관광 및 쇼핑 / 觀光與購物", "link": "", "linkText": "", "important": false },
+      { "time": "19:00", "k": "콘서트 관람 / 參加音樂會", "c": "티켓 및 장소 확인 필요 / 需確認門票與場地", "link": "", "linkText": "", "important": true },
+      { "time": "저녁", "k": "야시장 / 마사지 선택 가능 / 夜市或按摩", "c": "마사지 예약 시 오후 시간 확인 / 若要按摩請確認時間", "link": "", "linkText": "", "important": false }
     ]
   },
   "d16": {
-    "title": "11/16 (??",
-    "subTitle": "11??6?�（?�日�?,
-    "daySub": "귀�?�� / ?�程??,
-    "meta": "체크?�웃/체크???�간: 체크?�웃 11:00 ??권장 / ?�住?�退?�時?�請依Airbnb規定?�主",
+    "title": "11/16 (일)",
+    "subTitle": "11月16日（週日）",
+    "daySub": "귀국일 / 回程日",
+    "meta": "체크아웃/체크인 시간: 체크아웃 11:00 전 권장 / 入住與退房時間請依Airbnb規定為主",
     "items": [
-      { "time": "?�전", "k": "??��, ?�유로운 ?�침 / ?�晚一點，?�閒?�餐", "c": "豆漿?�餅 추천 / ?�薦豆漿?�餅", "link": "", "linkText": "", "important": false },
-      { "time": "11:30??2:00", "k": "체크?�웃 & 캐리??보�? (로커) / ?�??& 寄放行李（置?�櫃�?, "c": "12:00까�? 로커 ?�는 ?�소??보�? / 建�?12:00?�寄??, "link": "", "linkText": "", "important": false },
-      { "time": "14:00 (권장)", "k": "마사지 (?�택) / ?�摩（可?�）", "c": "?�후 ?�간 권장 / 建�?安排?�下??, "link": "", "linkText": "", "important": false },
-      { "time": "18:00", "k": "?�?�위??공항 T1 ?�착 / 桃園機場 T1 ?�達", "c": "공항 ?�동 ?�간 ?�보 / 建�??�留足夠?�間?��?機場", "link": "", "linkText": "", "important": true },
-      { "time": "20:00", "k": "출발 (귀�? / ?�發（返?�韓?�）", "c": "비행�?출발 ?�간 ?�인 / 確認?�班?�間", "link": "", "linkText": "", "important": true }
+      { "time": "오전", "k": "늦잠, 여유로운 아침 / 睡晚一點，悠閒早餐", "c": "豆漿蛋餅 추천 / 推薦豆漿蛋餅", "link": "", "linkText": "", "important": false },
+      { "time": "11:30–12:00", "k": "체크아웃 & 캐리어 보관 (로커) / 退房 & 寄放行李（置物櫃）", "c": "12:00까지 로커 또는 숙소에 보관 / 建議12:00前寄放", "link": "", "linkText": "", "important": false },
+      { "time": "14:00 (권장)", "k": "마사지 (선택) / 按摩（可選）", "c": "오후 시간 권장 / 建議安排在下午", "link": "", "linkText": "", "important": false },
+      { "time": "18:00", "k": "타오위안 공항 T1 도착 / 桃園機場 T1 抵達", "c": "공항 이동 시간 확보 / 建議預留足夠時間前往機場", "link": "", "linkText": "", "important": true },
+      { "time": "20:00", "k": "출발 (귀국) / 出發（返回韓國）", "c": "비행기 출발 시간 확인 / 確認航班時間", "link": "", "linkText": "", "important": true }
     ]
   }
 };
@@ -335,7 +326,7 @@ function renderSchedule() {
                     <span class="k" contenteditable="true" onblur="updateItem('${dayId}', ${index}, 'k', this.innerText)">${item.k}</span>
                     <span class="c" contenteditable="true" onblur="updateItem('${dayId}', ${index}, 'c', this.innerText)">${item.c}</span>
                     ${item.note ? `<span class="note" contenteditable="true" onblur="updateItem('${dayId}', ${index}, 'note', this.innerText)">${item.note}</span>` : ''}
-                    ${item.link ? `<a href="${item.link}" target="_blank" class="item-link" contenteditable="true" onblur="updateItem('${dayId}', ${index}, 'link', this.innerText)">${item.linkText || item.link}</a>` : `<span class="item-link" contenteditable="true" onblur="updateItem('${dayId}', ${index}, 'link', this.innerText)">링크 추�?</span>`}
+                    ${item.link ? `<a href="${item.link}" target="_blank" class="item-link" contenteditable="true" onblur="updateItem('${dayId}', ${index}, 'link', this.innerText)">${item.linkText || item.link}</a>` : `<span class="item-link" contenteditable="true" onblur="updateItem('${dayId}', ${index}, 'link', this.innerText)">링크 추가</span>`}
                     <div class="important-toggle">
                         <label><input type="checkbox" ${item.important ? 'checked' : ''} onchange="toggleImportant('${dayId}', ${index})"> 중요</label>
                     </div>
@@ -346,7 +337,7 @@ function renderSchedule() {
 
         const controls = document.createElement('div');
         controls.className = 'controls';
-        controls.innerHTML = `<button class="btn" onclick="addItem('${dayId}')">?�정 추�?</button>`;
+        controls.innerHTML = `<button class="btn" onclick="addItem('${dayId}')">일정 추가</button>`;
 
         dayCard.appendChild(dayHead);
         dayCard.appendChild(timeline);
@@ -390,7 +381,7 @@ function updateItem(dayId, itemIndex, field, value) {
 }
 
 function addItem(dayId) {
-  travelData[dayId].items.push({ time: "???�간", k: "???�정", c: "?�용", link: "", linkText: "", important: false });
+  travelData[dayId].items.push({ time: "새 시간", k: "새 일정", c: "내용", link: "", linkText: "", important: false });
   saveData();
   renderSchedule();
 }
@@ -399,7 +390,7 @@ function deleteItem(dayId, itemIndex) {
     const itemElement = document.querySelector(`.item[data-day-id='${dayId}'][data-item-index='${itemIndex}']`);
     const actualIndex = Array.from(itemElement.parentNode.children).indexOf(itemElement);
 
-  if (confirm('???�정????��?�시겠습?�까?')) {
+  if (confirm('이 일정을 삭제하시겠습니까?')) {
     travelData[dayId].items.splice(actualIndex, 1);
     saveData();
     renderSchedule();
@@ -468,7 +459,7 @@ function importData(event) {
             saveData();
             renderSchedule();
         } catch (error) {
-            alert('가?�오�??�패: ?�효?��? ?��? JSON ?�일?�니??');
+            alert('가져오기 실패: 유효하지 않은 JSON 파일입니다.');
         }
     };
     reader.readAsText(file);

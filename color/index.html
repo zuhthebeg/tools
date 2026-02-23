@@ -3,35 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-    <meta name="description" content="HEX, RGB, HSL ?�상 코드�??�호 변?�하�??�상???�인?????�는 ?�구?�니??">
-    <link rel="canonical" href="https://tool.cocy.io/color/">
-    <meta property="og:title" content="?�상 코드 변?�기 | tool.cocy.io">
-    <meta property="og:description" content="HEX, RGB, HSL ?�상 코드�??�호 변?�하�??�상???�인?????�는 ?�구?�니??">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://tool.cocy.io/color/">
-    <meta property="og:locale" content="ko_KR">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="?�상 코드 변?�기 | tool.cocy.io">
-    <meta name="twitter:description" content="HEX, RGB, HSL ?�상 코드�??�호 변?�하�??�상???�인?????�는 ?�구?�니??">
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "?�상 코드 변?�기",
-      "applicationCategory": "UtilitiesApplication",
-      "operatingSystem": "Web",
-      "description": "HEX, RGB, HSL ?�상 코드�??�호 변?�하�??�상???�인?????�는 ?�구?�니??",
-      "url": "https://tool.cocy.io/color/",
-      "inLanguage": "ko-KR"
-    }
-    </script>
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607" crossorigin="anonymous"></script>
-<!-- End Google Tag Manager -->
-<title>?�상 코드 변?�기 | cocy.io</title>
+    <meta name="description" content="색상 코드 변환기 - HEX, RGB, HSL 변환">
+    <title>색상 코드 변환기 | cocy.io</title>
     <style>
         * {
             margin: 0;
@@ -376,15 +349,11 @@
     </style>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-
-    <button class="theme-btn" onclick="toggleTheme()">?��</button>
+    <button class="theme-btn" onclick="toggleTheme()">🌙</button>
 
     <div class="container">
         <div class="header">
-            <h1>?�� ?�상 변?�기</h1>
+            <h1>🎨 색상 변환기</h1>
         </div>
 
         <div class="card">
@@ -427,7 +396,7 @@
                     </div>
                 </div>
                 <div class="input-group" style="margin-top: 15px;">
-                    <label>RGB ?�식</label>
+                    <label>RGB 형식</label>
                     <div class="input-wrapper">
                         <input type="text" id="rgb-input" placeholder="rgb(0, 0, 0)" readonly>
                         <button class="copy-btn" onclick="copyToClipboard('rgb-input')">복사</button>
@@ -455,7 +424,7 @@
                     </div>
                 </div>
                 <div class="input-group" style="margin-top: 15px;">
-                    <label>HSL ?�식</label>
+                    <label>HSL 형식</label>
                     <div class="input-wrapper">
                         <input type="text" id="hsl-input" placeholder="hsl(0, 0%, 0%)" readonly>
                         <button class="copy-btn" onclick="copyToClipboard('hsl-input')">복사</button>
@@ -464,14 +433,14 @@
             </div>
 
             <div style="margin-top: 20px;">
-                <label style="display: block; font-size: 12px; margin-bottom: 10px; color: #bbb; text-transform: uppercase;">최근 ?�상</label>
+                <label style="display: block; font-size: 12px; margin-bottom: 10px; color: #bbb; text-transform: uppercase;">최근 색상</label>
                 <div class="recent-colors" id="recent-colors"></div>
             </div>
         </div>
     </div>
 
-    <div class="copy-feedback" id="copy-feedback">복사?�었?�니??</div>
-    <footer>© 2025 cocy.io - ?�상 변?�기</footer>
+    <div class="copy-feedback" id="copy-feedback">복사되었습니다!</div>
+    <footer>© 2025 cocy.io - 색상 변환기</footer>
 
     <script>
         let currentColor = {
@@ -486,7 +455,7 @@
 
         let recentColors = JSON.parse(localStorage.getItem('recentColors')) || [];
 
-        // ???�환
+        // 탭 전환
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -497,7 +466,7 @@
             });
         });
 
-        // RGB ?�라?�더
+        // RGB 슬라이더
         document.querySelectorAll('#rgb-r, #rgb-g, #rgb-b').forEach(slider => {
             slider.addEventListener('input', (e) => {
                 currentColor.r = parseInt(document.getElementById('rgb-r').value);
@@ -507,7 +476,7 @@
             });
         });
 
-        // HSL ?�라?�더
+        // HSL 슬라이더
         document.querySelectorAll('#hsl-h, #hsl-s, #hsl-l').forEach(slider => {
             slider.addEventListener('input', (e) => {
                 currentColor.h = parseInt(document.getElementById('hsl-h').value);
@@ -517,7 +486,7 @@
             });
         });
 
-        // HEX ?�력
+        // HEX 입력
         document.getElementById('hex-input').addEventListener('input', (e) => {
             let hex = e.target.value;
             if(hex.startsWith('#') && hex.length === 7) {
@@ -557,7 +526,7 @@
         }
 
         function updateDisplay() {
-            // ?�리�??�데?�트
+            // 프리뷰 업데이트
             document.getElementById('preview').style.backgroundColor = currentColor.hex;
 
             // HEX
@@ -696,7 +665,7 @@
             document.body.classList.toggle('dark-mode');
         }
 
-        // 초기??
+        // 초기화
         renderRecentColors();
         updateDisplay();
     </script>

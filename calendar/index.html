@@ -3,36 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <meta name="description" content="?�별 ?�정???�인?�고 ?�짜�??�쉽�??�색?????�는 ?�라??캘린?�입?�다.">
-    <link rel="canonical" href="https://tool.cocy.io/calendar/">
-    <meta property="og:title" content="캘린??| tool.cocy.io">
-    <meta property="og:description" content="?�별 ?�정???�인?�고 ?�짜�??�쉽�??�색?????�는 ?�라??캘린?�입?�다.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://tool.cocy.io/calendar/">
-    <meta property="og:locale" content="ko_KR">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="캘린??| tool.cocy.io">
-    <meta name="twitter:description" content="?�별 ?�정???�인?�고 ?�짜�??�쉽�??�색?????�는 ?�라??캘린?�입?�다.">
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "캘린??,
-      "applicationCategory": "UtilitiesApplication",
-      "operatingSystem": "Web",
-      "description": "?�별 ?�정???�인?�고 ?�짜�??�쉽�??�색?????�는 ?�라??캘린?�입?�다.",
-      "url": "https://tool.cocy.io/calendar/",
-      "inLanguage": "ko-KR"
-    }
-    </script>
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607" crossorigin="anonymous"></script>
-<!-- End Google Tag Manager -->
-
-    <title>캘린??/title>
+    <title>캘린더</title>
     <style>
         * {
             margin: 0;
@@ -482,17 +453,13 @@
     </style>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-
     <div class="container">
         <div class="header">
             <div class="header-controls">
                 <button onclick="previousMonth()">&lt;</button>
                 <h1 id="monthYear"></h1>
                 <button onclick="nextMonth()">&gt;</button>
-                <button class="today" onclick="goToday()">?�늘</button>
+                <button class="today" onclick="goToday()">오늘</button>
             </div>
         </div>
 
@@ -508,23 +475,23 @@
         <div class="calendar-wrapper">
             <div class="calendar-section">
                 <div class="weekdays">
-                    <div class="weekday weekend">??/div>
-                    <div class="weekday">??/div>
-                    <div class="weekday">??/div>
-                    <div class="weekday">??/div>
-                    <div class="weekday">�?/div>
-                    <div class="weekday">�?/div>
-                    <div class="weekday weekend">??/div>
+                    <div class="weekday weekend">일</div>
+                    <div class="weekday">월</div>
+                    <div class="weekday">화</div>
+                    <div class="weekday">수</div>
+                    <div class="weekday">목</div>
+                    <div class="weekday">금</div>
+                    <div class="weekday weekend">토</div>
                 </div>
                 <div class="days" id="daysContainer"></div>
             </div>
 
             <div class="memo-section">
-                <div class="memo-header">?�정</div>
-                <div class="memo-date" id="selectedDateDisplay">?�짜�??�택?�세??/div>
+                <div class="memo-header">일정</div>
+                <div class="memo-date" id="selectedDateDisplay">날짜를 선택하세요</div>
 
                 <div class="tabs">
-                    <button class="tab-btn active" onclick="switchTab('single')">?�일</button>
+                    <button class="tab-btn active" onclick="switchTab('single')">단일</button>
                     <button class="tab-btn" onclick="switchTab('range')">기간</button>
                     <button class="tab-btn" onclick="switchTab('repeat')">반복</button>
                 </div>
@@ -536,10 +503,10 @@
                             type="text"
                             id="memoInput"
                             class="memo-input"
-                            placeholder="?�정???�력?�세??
+                            placeholder="일정을 입력하세요"
                             onkeypress="handleMemoKeyPress(event)"
                         />
-                        <button class="memo-add-btn" onclick="addMemo()">추�?</button>
+                        <button class="memo-add-btn" onclick="addMemo()">추가</button>
                     </div>
                 </div>
 
@@ -550,9 +517,9 @@
                             type="text"
                             id="rangeMemoInput"
                             class="memo-input"
-                            placeholder="기간 ?�정�?
+                            placeholder="기간 일정명"
                         />
-                        <button class="memo-add-btn" onclick="addRangeMemo()">추�?</button>
+                        <button class="memo-add-btn" onclick="addRangeMemo()">추가</button>
                     </div>
                     <div class="range-inputs">
                         <input type="date" id="rangeStartDate" />
@@ -568,7 +535,7 @@
                             type="text"
                             id="repeatMemoInput"
                             class="memo-input"
-                            placeholder="반복 ?�정�?
+                            placeholder="반복 일정명"
                         />
                     </div>
                     <div class="repeat-inputs">
@@ -585,7 +552,7 @@
                             <input type="date" id="repeatEndDate" />
                         </div>
                         <div class="memo-input-group">
-                            <button class="memo-add-btn" onclick="addRepeatMemo()" style="flex: 1;">추�?</button>
+                            <button class="memo-add-btn" onclick="addRepeatMemo()" style="flex: 1;">추가</button>
                         </div>
                     </div>
                 </div>
@@ -632,13 +599,13 @@
             for (let i = currentYear - 10; i <= currentYear + 10; i++) {
                 const option = document.createElement('option');
                 option.value = i;
-                option.textContent = i + '??;
+                option.textContent = i + '년';
                 if (i === currentYear) option.selected = true;
                 yearSelect.appendChild(option);
             }
 
             // Populate months
-            const months = ['1??, '2??, '3??, '4??, '5??, '6??, '7??, '8??, '9??, '10??, '11??, '12??];
+            const months = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
             months.forEach((month, index) => {
                 const option = document.createElement('option');
                 option.value = index;
@@ -705,7 +672,7 @@
 
             document.getElementById('yearSelect').value = year;
             document.getElementById('monthSelect').value = month;
-            document.getElementById('monthYear').textContent = `${year}??${month + 1}??;
+            document.getElementById('monthYear').textContent = `${year}년 ${month + 1}월`;
 
             const firstDay = new Date(year, month, 1);
             const lastDay = new Date(year, month + 1, 0);
@@ -785,8 +752,8 @@
             const memoInput = document.getElementById('memoInput');
 
             if (!selectedDate) {
-                display.textContent = '?�짜�??�택?�세??;
-                memoList.innerHTML = '<div class="empty-message">?�짜�??�택?�주?�요</div>';
+                display.textContent = '날짜를 선택하세요';
+                memoList.innerHTML = '<div class="empty-message">날짜를 선택해주세요</div>';
                 memoInput.disabled = true;
                 return;
             }
@@ -800,7 +767,7 @@
             const dayMemos = memos[dateKey] || [];
 
             if (dayMemos.length === 0) {
-                memoList.innerHTML = '<div class="empty-message">?�정???�습?�다</div>';
+                memoList.innerHTML = '<div class="empty-message">일정이 없습니다</div>';
             } else {
                 memoList.innerHTML = dayMemos
                     .map((memo, index) => {
@@ -808,7 +775,7 @@
                             return `
                         <div class="memo-item">
                             <span class="memo-text">${escapeHtml(memo)}</span>
-                            <button class="memo-delete-btn" onclick="deleteMemo(${index})">??��</button>
+                            <button class="memo-delete-btn" onclick="deleteMemo(${index})">삭제</button>
                         </div>
                     `;
                         } else if (memo.type === 'range') {
@@ -819,7 +786,7 @@
                             return `
                         <div class="memo-item">
                             <span class="memo-text range">${escapeHtml(memo.text)} (${startStr}~${endStr})</span>
-                            <button class="memo-delete-btn" onclick="deleteMemo(${index})">??��</button>
+                            <button class="memo-delete-btn" onclick="deleteMemo(${index})">삭제</button>
                         </div>
                     `;
                         } else if (memo.type === 'repeat') {
@@ -827,7 +794,7 @@
                             return `
                         <div class="memo-item">
                             <span class="memo-text repeat">${escapeHtml(memo.text)} (${repeatLabel})</span>
-                            <button class="memo-delete-btn" onclick="deleteRepeatMemo(${index})">??��</button>
+                            <button class="memo-delete-btn" onclick="deleteRepeatMemo(${index})">삭제</button>
                         </div>
                     `;
                         }
@@ -841,7 +808,7 @@
 
         function addMemo() {
             if (!selectedDate) {
-                alert('?�짜�??�택?�주?�요');
+                alert('날짜를 선택해주세요');
                 return;
             }
 
@@ -849,7 +816,7 @@
             const memo = input.value.trim();
 
             if (!memo) {
-                alert('?�정???�력?�주?�요');
+                alert('일정을 입력해주세요');
                 return;
             }
 
@@ -870,12 +837,12 @@
             const endDate = document.getElementById('rangeEndDate').value;
 
             if (!memoText) {
-                alert('기간 ?�정명을 ?�력?�주?�요');
+                alert('기간 일정명을 입력해주세요');
                 return;
             }
 
             if (!startDate || !endDate) {
-                alert('?�작?�과 종료?�을 ?�력?�주?�요');
+                alert('시작일과 종료일을 입력해주세요');
                 return;
             }
 
@@ -883,7 +850,7 @@
             const end = new Date(endDate);
 
             if (start > end) {
-                alert('?�작?�이 종료?�보???????�습?�다');
+                alert('시작일이 종료일보다 클 수 없습니다');
                 return;
             }
 
@@ -908,7 +875,7 @@
 
         function addRepeatMemo() {
             if (!selectedDate) {
-                alert('?�짜�??�택?�주?�요');
+                alert('날짜를 선택해주세요');
                 return;
             }
 
@@ -917,12 +884,12 @@
             const endDate = document.getElementById('repeatEndDate').value;
 
             if (!memoText) {
-                alert('반복 ?�정명을 ?�력?�주?�요');
+                alert('반복 일정명을 입력해주세요');
                 return;
             }
 
             if (!endDate) {
-                alert('종료?�을 ?�력?�주?�요');
+                alert('종료일을 입력해주세요');
                 return;
             }
 
