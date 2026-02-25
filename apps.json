@@ -269,5 +269,19 @@
             "🌍"
         ],
         "category": "tool"
+    },
+    {
+        "title": "JWT 디코더",
+        "icon": "https://tool.cocy.io/jwt/icon.svg",
+        "url": "https://tool.cocy.io/jwt/",
+        "desc": "JWT 토큰 디코드/만료확인/HS256 검증",
+        "badge": "NEW",
+        "platforms": [
+            "WEB"
+        ],
+        "languages": [
+            "🌍"
+        ],
+        "category": "tool"
     }
 ]

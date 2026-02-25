@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JWT 디코더 | tool.cocy.io</title>
+  <style>
+    :root {
+      --bg: #070b14;
+      --panel: #0f1629;
+      --panel-2: #151f37;
+      --line: #2a365d;
+      --text: #ecf2ff;
+      --muted: #93a3c8;
+      --accent: #66d9ff;
+      --good: #45d483;
+      --warn: #ffb84d;
+      --bad: #ff6b7d;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: radial-gradient(circle at 80% -10%, #213169 0%, var(--bg) 38%, #04060b 100%); color: var(--text); font-family: "Pretendard", "Segoe UI", sans-serif; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 20px 14px 34px; }
+    .hero { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; margin-bottom: 14px; }
+    h1 { margin: 0; font-size: clamp(22px, 4vw, 30px); letter-spacing: -0.02em; }
+    .desc { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+    .pill { border: 1px solid #33517b; background: rgba(40,72,116,.33); color: #afe9ff; border-radius: 999px; padding: 7px 12px; font-size: 12px; }
+
+    .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 12px; }
+    @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
+
+    .card { background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0)), var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+    .card .hd { padding: 12px 14px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.02); font-size: 13px; color: #b6d3ff; display: flex; justify-content: space-between; align-items: center; }
+    .card .bd { padding: 12px; }
+
+    textarea { width: 100%; min-height: 160px; resize: vertical; border: 1px solid var(--line); border-radius: 10px; padding: 11px; background: var(--panel-2); color: var(--text); font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; margin-top: 10px; }
+    input[type="text"] { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 11px; background: var(--panel-2); color: var(--text); font-size: 13px; }
+    button { border: 1px solid #3a4f80; background: #1b2b4a; color: #d9e8ff; border-radius: 10px; padding: 10px 12px; cursor: pointer; font-weight: 600; }
+    button:hover { background: #22355a; }
+
+    .token-bits { margin-top: 10px; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
+    .bit { border: 1px dashed #41598f; border-radius: 10px; padding: 8px; font-family: ui-monospace, monospace; font-size: 12px; color: #c8d8ff; background: #101a30; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .status { margin-top: 9px; border-radius: 10px; padding: 9px 10px; font-size: 13px; border: 1px solid var(--line); background: #11182b; color: #c8d4ef; }
+    .status.good { border-color: rgba(69,212,131,.35); color: #9df1c0; background: rgba(69,212,131,.08); }
+    .status.warn { border-color: rgba(255,184,77,.4); color: #ffd499; background: rgba(255,184,77,.1); }
+    .status.bad { border-color: rgba(255,107,125,.45); color: #ffb7c0; background: rgba(255,107,125,.1); }
+
+    pre { margin: 0; max-height: 300px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; padding: 11px; background: #0d1427; color: #dce7ff; font: 12px/1.52 ui-monospace, monospace; }
+    .mini { color: var(--muted); font-size: 12px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { border-bottom: 1px solid #223053; padding: 8px 6px; text-align: left; vertical-align: top; }
+    th { color: #9ec0ff; font-size: 12px; }
+    .claim { font-family: ui-monospace, monospace; color: #d8e7ff; }
+
+    .footer-note { margin-top: 12px; color: #8ea3cf; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div>
+        <h1>JWT 디코더</h1>
+        <p class="desc">토큰 붙여넣으면 Header/Payload를 즉시 디코드하고 만료 상태를 확인해줘.</p>
+      </div>
+      <div class="pill">Decode First · Local Only</div>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <div class="hd">JWT 입력 <span class="mini">jwt.io 스타일 빠른 디버깅</span></div>
+        <div class="bd">
+          <textarea id="jwtInput" placeholder="eyJhbGciOi... 형태의 JWT를 붙여넣어"></textarea>
+          <div class="row">
+            <input id="secretInput" type="text" placeholder="(선택) HS256 검증용 secret" />
+            <button id="decodeBtn">디코드</button>
+            <button id="sampleBtn">샘플</button>
+            <button id="clearBtn">초기화</button>
+          </div>
+          <div class="token-bits">
+            <div class="bit" id="partHeader">header.part</div>
+            <div class="bit" id="partPayload">payload.part</div>
+            <div class="bit" id="partSig">signature.part</div>
+          </div>
+          <div id="status" class="status">토큰을 입력해줘.</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="hd">토큰 상태 요약</div>
+        <div class="bd">
+          <table>
+            <tbody id="summary"></tbody>
+          </table>
+          <div class="footer-note">주의: 민감한 토큰은 공유하지 마. 이 페이지는 서버 전송 없이 브라우저에서만 처리해.</div>
+        </div>
+      </section>
+    </div>
+
+    <div class="grid" style="margin-top:12px;">
+      <section class="card">
+        <div class="hd">Header (Decoded JSON)</div>
+        <div class="bd"><pre id="headerOut">{}</pre></div>
+      </section>
+      <section class="card">
+        <div class="hd">Payload (Decoded JSON)</div>
+        <div class="bd"><pre id="payloadOut">{}</pre></div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:12px;">
+      <div class="hd">시간형 클레임 해석 (exp / nbf / iat)</div>
+      <div class="bd">
+        <table>
+          <thead><tr><th>Claim</th><th>Raw</th><th>KST</th><th>상태</th></tr></thead>
+          <tbody id="claimsTime"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const jwtInput = $('jwtInput');
+const secretInput = $('secretInput');
+const statusEl = $('status');
+
+function setStatus(text, type='') {
+  statusEl.className = 'status' + (type ? ' ' + type : '');
+  statusEl.textContent = text;
+}
+
+function b64urlToUtf8(str) {
+  const norm = str.replace(/-/g, '+').replace(/_/g, '/');
+  const pad = norm.length % 4 ? '='.repeat(4 - (norm.length % 4)) : '';
+  const bytes = Uint8Array.from(atob(norm + pad), c => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+function tryJsonDecode(part) {
+  try { return JSON.parse(b64urlToUtf8(part)); } catch { return null; }
+}
+
+function formatDate(sec) {
+  if (!Number.isFinite(sec)) return '-';
+  const d = new Date(sec * 1000);
+  return d.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', hour12: false });
+}
+
+function toPre(obj) {
+  return JSON.stringify(obj ?? {}, null, 2);
+}
+
+async function verifyHs256(jwt, secret) {
+  const [h,p,sig] = jwt.split('.');
+  if (!h || !p || !sig || !secret) return null;
+
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const signed = await crypto.subtle.sign('HMAC', key, enc.encode(`${h}.${p}`));
+  const calc = btoa(String.fromCharCode(...new Uint8Array(signed))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  return calc === sig;
+}
+
+function renderSummary(header, payload, token) {
+  const rows = [];
+  rows.push(['alg', header?.alg || '-']);
+  rows.push(['typ', header?.typ || '-']);
+  rows.push(['iss', payload?.iss || '-']);
+  rows.push(['sub', payload?.sub || '-']);
+  rows.push(['aud', Array.isArray(payload?.aud) ? payload.aud.join(', ') : (payload?.aud || '-')]);
+  rows.push(['length', token.length + ' chars']);
+  $('summary').innerHTML = rows.map(([k,v]) => `<tr><th>${k}</th><td>${String(v)}</td></tr>`).join('');
+}
+
+function renderTimeClaims(payload) {
+  const keys = ['exp','nbf','iat'];
+  const now = Math.floor(Date.now()/1000);
+  const rows = keys.map((k) => {
+    const v = Number(payload?.[k]);
+    if (!Number.isFinite(v)) return `<tr><td class="claim">${k}</td><td>-</td><td>-</td><td>-</td></tr>`;
+    let st = '정상';
+    if (k === 'exp' && v < now) st = '만료';
+    if (k === 'nbf' && v > now) st = '아직 유효 아님';
+    return `<tr><td class="claim">${k}</td><td>${v}</td><td>${formatDate(v)}</td><td>${st}</td></tr>`;
+  });
+  $('claimsTime').innerHTML = rows.join('');
+}
+
+async function decodeJWT() {
+  const token = jwtInput.value.trim();
+  if (!token) { setStatus('토큰을 입력해줘.', 'warn'); return; }
+
+  const parts = token.split('.');
+  $('partHeader').textContent = parts[0] || 'header.part';
+  $('partPayload').textContent = parts[1] || 'payload.part';
+  $('partSig').textContent = parts[2] || 'signature.part';
+
+  if (parts.length < 2) {
+    setStatus('JWT 형식이 아님 (점으로 2~3개 파트 필요).', 'bad');
+    return;
+  }
+
+  const header = tryJsonDecode(parts[0]);
+  const payload = tryJsonDecode(parts[1]);
+
+  if (!header || !payload) {
+    setStatus('디코드 실패: Base64URL 또는 JSON 형식 확인 필요.', 'bad');
+    return;
+  }
+
+  $('headerOut').textContent = toPre(header);
+  $('payloadOut').textContent = toPre(payload);
+  renderSummary(header, payload, token);
+  renderTimeClaims(payload);
+
+  let msg = '디코드 성공';
+  let type = 'good';
+
+  const now = Math.floor(Date.now()/1000);
+  if (Number.isFinite(Number(payload.exp)) && Number(payload.exp) < now) {
+    msg += ' · 토큰 만료됨';
+    type = 'warn';
+  }
+
+  if (header.alg === 'HS256' && secretInput.value.trim()) {
+    const ok = await verifyHs256(token, secretInput.value.trim());
+    msg += ok ? ' · HS256 서명 일치' : ' · HS256 서명 불일치';
+    type = ok ? type : 'bad';
+  }
+
+  setStatus(msg, type);
+}
+
+$('decodeBtn').addEventListener('click', decodeJWT);
+jwtInput.addEventListener('input', () => { if (jwtInput.value.trim()) decodeJWT(); });
+secretInput.addEventListener('input', () => { if (jwtInput.value.trim()) decodeJWT(); });
+
+$('sampleBtn').addEventListener('click', () => {
+  jwtInput.value = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImNvY3kiLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6NDEwMjQ0NDgwMH0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+  decodeJWT();
+});
+$('clearBtn').addEventListener('click', () => {
+  jwtInput.value = '';
+  secretInput.value = '';
+  $('headerOut').textContent = '{}';
+  $('payloadOut').textContent = '{}';
+  $('summary').innerHTML = '';
+  $('claimsTime').innerHTML = '';
+  $('partHeader').textContent = 'header.part';
+  $('partPayload').textContent = 'payload.part';
+  $('partSig').textContent = 'signature.part';
+  setStatus('토큰을 입력해줘.');
+});
+</script>
+</body>
+</html>
