@@ -1,147 +1,316 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IP / DNS Lookup | tool.cocy.io</title>
+<meta name="description" content="내 IP 확인, IP 정보 조회, DNS 레코드 조회 도구">
+<link rel="canonical" href="https://tool.cocy.io/net/">
+<meta property="og:title" content="IP / DNS Lookup | tool.cocy.io">
+<meta property="og:url" content="https://tool.cocy.io/net/">
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f)})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0d0d1a;
+    color: #e0e0f0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 60px;
+  }
+  .wrap { width: 100%; max-width: 640px; }
+  h1 { font-size: 22px; font-weight: 700; color: #c8cfff; margin-bottom: 6px; }
+  .subtitle { font-size: 13px; color: #5a5a7a; margin-bottom: 24px; }
 
-    <meta name="description" content="IP 주소와 도메인 정보를 조회하고 네트워크 정보를 확인하는 도구입니다.">
-    <link rel="canonical" href="https://tool.cocy.io/net/">
-    <meta property="og:title" content="IP/도메인 조회 | tool.cocy.io">
-    <meta property="og:description" content="IP 주소와 도메인 정보를 조회하고 네트워크 정보를 확인하는 도구입니다.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://tool.cocy.io/net/">
-    <meta property="og:locale" content="ko_KR">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="IP/도메인 조회 | tool.cocy.io">
-    <meta name="twitter:description" content="IP 주소와 도메인 정보를 조회하고 네트워크 정보를 확인하는 도구입니다.">
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "IP/도메인 조회",
-      "applicationCategory": "UtilitiesApplication",
-      "operatingSystem": "Web",
-      "description": "IP 주소와 도메인 정보를 조회하고 네트워크 정보를 확인하는 도구입니다.",
-      "url": "https://tool.cocy.io/net/",
-      "inLanguage": "ko-KR"
-    }
-    </script>
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
-<!-- End Google Tag Manager -->
-<meta name="keywords" content="IP, Domain, Lookup, DNS">
-    <script src="../localization.js"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607"
-        crossorigin="anonymous"></script>
-    <title>IP & Domain Lookup Tool</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0;
-            background-color: #2d2d2d;
-            color: #e8e8e8;
-            min-height: 100vh;
-            padding: 20px 0;
-            justify-content: flex-start;
-        }
-        .container {
-            background: #333;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-            width: 90%;
-            max-width: 600px;
-            border: 1px solid #404040;
-        }
-        h2 {
-            color: #f0f0f0;
-            text-align: center;
-            margin-top: 0;
-        }
-        input, button {
-            padding: 10px;
-            margin: 5px;
-            width: calc(100% - 22px);
-            border: 1px solid #555;
-            border-radius: 4px;
-            background-color: #404040;
-            color: #fff;
-        }
-        button {
-            background-color: #3498db;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #2980b9;
-        }
-        #ipResult, #domainResult {
-            margin-top: 20px;
-            padding: 10px;
-            background: #404040;
-            border-radius: 4px;
-            border: 1px solid #bdc3c7;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-family: monospace;
-            color: #fff;
-        }
-        #domainResult a {
-            color: #7fbfff;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        #domainResult a:hover {
-            text-decoration: underline;
-        }
-        pre {
-            margin: 0;
-        }
-        footer {
-            margin-top: auto;
-            padding: 1rem 0;
-        }
-        footer a:hover {
-            opacity: 0.8;
-            transition: opacity 0.2s ease;
-        }
-        @media (max-width: 600px) {
-            footer {
-                font-size: 0.8rem;
-                padding: 1rem;
-                border-top: none;
-            }
-        }
-    </style>
+  /* Tabs */
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+  .tab {
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #12121f;
+    border: 1px solid #24244a;
+    color: #6060a0;
+    transition: all 0.18s;
+  }
+  .tab.active { background: #1a1a3a; border-color: #7c6fff; color: #c8cfff; }
+
+  /* Input row */
+  .input-row { display: flex; gap: 8px; }
+  .input-row input {
+    flex: 1;
+    background: #12121f;
+    border: 1px solid #24244a;
+    border-radius: 10px;
+    color: #e0e0f0;
+    font-size: 14px;
+    padding: 11px 14px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  .input-row input:focus { border-color: #7c6fff; }
+  .input-row input::placeholder { color: #3a3a5a; }
+  .btn {
+    padding: 11px 20px;
+    background: #3a2aff;
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: #5040ff; }
+  .btn:disabled { background: #2a2a4a; color: #5a5a7a; cursor: default; }
+
+  /* Status */
+  .status { font-size: 12px; color: #5a5a7a; margin-top: 6px; min-height: 18px; }
+  .status.loading { color: #7c6fff; }
+  .status.error { color: #ff6060; }
+
+  /* Result cards */
+  .result { margin-top: 16px; }
+  .info-card {
+    background: #12121f;
+    border: 1px solid #1e1e3a;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .info-card-title {
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #5a5a7a;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid #1e1e3a;
+    background: #0f0f1e;
+  }
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 14px;
+    border-bottom: 1px solid #0f0f1e;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-key { font-size: 12px; color: #5a5a7a; min-width: 110px; }
+  .info-val {
+    font-size: 13px;
+    color: #c8cfff;
+    font-weight: 500;
+    text-align: right;
+    word-break: break-all;
+  }
+  .info-val.ip { color: #00d4aa; font-weight: 700; font-size: 16px; }
+  .info-val.mono { font-family: monospace; font-size: 12px; color: #9090b0; }
+
+  /* DNS record chips */
+  .dns-list { padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
+  .dns-record {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #0f0f1e;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: monospace;
+    font-size: 13px;
+  }
+  .dns-type {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #1a1a3a;
+    color: #7c7fff;
+    min-width: 36px;
+    text-align: center;
+  }
+  .dns-val { color: #c8cfff; cursor: pointer; }
+  .dns-val:hover { color: #7c6fff; text-decoration: underline; }
+  .dns-ttl { color: #3a3a5a; font-size: 11px; margin-left: auto; }
+</style>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
 
-    <div class="container">
-        <h2>IP & Domain Lookup Tool</h2>
-        <input type="text" id="domain" placeholder="Enter domain name" data-translate-placeholder="true">
-        <button onclick="lookup()" data-translate-key="net_lookup_button">Lookup Domain</button>
-        <div id="domainResult"></div>
+<div class="wrap">
+  <h1>📡 IP / DNS Lookup</h1>
+  <p class="subtitle">IP 정보 조회 · DNS 레코드 조회</p>
 
-        <input type="text" id="ipInput" placeholder="Enter IP (blank for your IP)" data-translate-placeholder="true">
-        <button onclick="fetchIPInfo()" data-translate-key="net_ip_button">Get IP Info</button>
-        <div id="ipResult"></div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('ip')">🌍 IP 조회</div>
+    <div class="tab" onclick="switchTab('dns')">🔍 DNS 조회</div>
+  </div>
+
+  <!-- IP Tab -->
+  <div id="ipTab">
+    <div class="input-row">
+      <input type="text" id="ipInput" placeholder="IP 주소 (비워두면 내 IP)">
+      <button class="btn" id="ipBtn" onclick="lookupIP()">조회</button>
     </div>
+    <div class="status" id="ipStatus">로딩 중...</div>
+    <div class="result" id="ipResult"></div>
+  </div>
 
-    <script src="script.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('ipInput').placeholder = translate('net_ip_placeholder');
-            initializeLocalization(); // Initialize i18n
-        });
+  <!-- DNS Tab -->
+  <div id="dnsTab" style="display:none;">
+    <div class="input-row">
+      <input type="text" id="domainInput" placeholder="도메인 입력 (예: google.com)" onkeydown="if(event.key==='Enter')lookupDNS()">
+      <button class="btn" id="dnsBtn" onclick="lookupDNS()">조회</button>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+      <button onclick="setType('A')"   class="btn" style="padding:5px 12px;font-size:12px;background:#1a1a3a;color:#7c7fff;">A</button>
+      <button onclick="setType('AAAA')" class="btn" style="padding:5px 12px;font-size:12px;background:#1a1a3a;color:#7c7fff;">AAAA</button>
+      <button onclick="setType('MX')"  class="btn" style="padding:5px 12px;font-size:12px;background:#1a1a3a;color:#7c7fff;">MX</button>
+      <button onclick="setType('TXT')" class="btn" style="padding:5px 12px;font-size:12px;background:#1a1a3a;color:#7c7fff;">TXT</button>
+      <button onclick="setType('NS')"  class="btn" style="padding:5px 12px;font-size:12px;background:#1a1a3a;color:#7c7fff;">NS</button>
+      <button onclick="setType('CNAME')" class="btn" style="padding:5px 12px;font-size:12px;background:#1a1a3a;color:#7c7fff;">CNAME</button>
+    </div>
+    <div class="status" id="dnsStatus"></div>
+    <div class="result" id="dnsResult"></div>
+  </div>
+</div>
 
-    </script>
+<script>
+let currentTab = 'ip';
+let dnsType = 'A';
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('ipTab').style.display = tab === 'ip' ? '' : 'none';
+  document.getElementById('dnsTab').style.display = tab === 'dns' ? '' : 'none';
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', (i === 0) === (tab === 'ip')));
+}
+
+function setType(t) {
+  dnsType = t;
+  document.querySelectorAll('#dnsTab .btn').forEach(b => {
+    if (['A','AAAA','MX','TXT','NS','CNAME'].includes(b.textContent)) {
+      b.style.background = b.textContent === t ? '#2a2a6a' : '#1a1a3a';
+    }
+  });
+  if (document.getElementById('domainInput').value.trim()) lookupDNS();
+}
+
+// ── IP Lookup ──────────────────────────────────────────────────
+async function lookupIP() {
+  const ip = document.getElementById('ipInput').value.trim();
+  const url = ip ? `https://ipapi.co/${ip}/json/` : 'https://ipapi.co/json/';
+  const status = document.getElementById('ipStatus');
+  const result = document.getElementById('ipResult');
+
+  status.textContent = '조회 중...';
+  status.className = 'status loading';
+  result.innerHTML = '';
+
+  try {
+    const res = await fetch(url);
+    const d = await res.json();
+    if (d.error) { status.textContent = d.reason || '조회 실패'; status.className = 'status error'; return; }
+
+    status.textContent = '';
+    result.innerHTML = `
+      <div class="info-card">
+        <div class="info-card-title">IP 주소</div>
+        <div class="info-row"><span class="info-key">IP</span><span class="info-val ip">${d.ip || '-'}</span></div>
+        <div class="info-row"><span class="info-key">버전</span><span class="info-val">IPv${d.version || 4}</span></div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">위치 정보</div>
+        <div class="info-row"><span class="info-key">국가</span><span class="info-val">${d.country_flag_emoji || ''} ${d.country_name || d.country || '-'}</span></div>
+        <div class="info-row"><span class="info-key">지역</span><span class="info-val">${d.region || '-'}</span></div>
+        <div class="info-row"><span class="info-key">도시</span><span class="info-val">${d.city || '-'}</span></div>
+        <div class="info-row"><span class="info-key">우편번호</span><span class="info-val">${d.postal || '-'}</span></div>
+        <div class="info-row"><span class="info-key">시간대</span><span class="info-val">${d.timezone || '-'}</span></div>
+        <div class="info-row"><span class="info-key">좌표</span><span class="info-val mono">${d.latitude || '-'}, ${d.longitude || '-'}</span></div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">네트워크</div>
+        <div class="info-row"><span class="info-key">ISP</span><span class="info-val">${d.org || '-'}</span></div>
+        <div class="info-row"><span class="info-key">ASN</span><span class="info-val mono">${d.asn || '-'}</span></div>
+        <div class="info-row"><span class="info-key">통화</span><span class="info-val">${d.currency_name || '-'} (${d.currency || '-'})</span></div>
+        <div class="info-row"><span class="info-key">언어</span><span class="info-val">${d.languages || '-'}</span></div>
+      </div>
+    `;
+  } catch(e) {
+    status.textContent = '연결 오류: ' + e.message;
+    status.className = 'status error';
+  }
+}
+
+// ── DNS Lookup ────────────────────────────────────────────────
+async function lookupDNS() {
+  const domain = document.getElementById('domainInput').value.trim();
+  if (!domain) return;
+
+  const status = document.getElementById('dnsStatus');
+  const result = document.getElementById('dnsResult');
+  status.textContent = `${dnsType} 레코드 조회 중...`;
+  status.className = 'status loading';
+  result.innerHTML = '';
+
+  try {
+    const res = await fetch(`https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=${dnsType}`, {
+      headers: { 'Accept': 'application/dns-json' }
+    });
+    const d = await res.json();
+
+    if (!d.Answer || !d.Answer.length) {
+      status.textContent = `${dnsType} 레코드 없음`;
+      status.className = 'status';
+      return;
+    }
+
+    status.textContent = `${d.Answer.length}개 레코드 발견`;
+    status.className = 'status';
+
+    const typeNames = {1:'A',2:'NS',5:'CNAME',15:'MX',16:'TXT',28:'AAAA',33:'SRV'};
+    result.innerHTML = `
+      <div class="info-card">
+        <div class="info-card-title">${domain} — ${dnsType} 레코드</div>
+        <div class="dns-list">
+          ${d.Answer.map(r => `
+            <div class="dns-record">
+              <span class="dns-type">${typeNames[r.type] || r.type}</span>
+              <span class="dns-val" onclick="if(${r.type}===1||${r.type}===28){document.getElementById('ipInput').value='${r.data}';switchTab('ip');lookupIP()}">${r.data}</span>
+              <span class="dns-ttl">TTL ${r.TTL}s</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  } catch(e) {
+    status.textContent = '조회 오류: ' + e.message;
+    status.className = 'status error';
+  }
+}
+
+// Auto-load my IP
+lookupIP();
+</script>
+
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+  SiteMeta.init({
+    title: 'IP / DNS Lookup — tool.cocy.io',
+    description: '내 IP 확인, IP 위치 조회, DNS 레코드 조회 도구',
+    url: 'https://tool.cocy.io/net/'
+  });
+</script>
 </body>
 </html>

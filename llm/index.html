@@ -1,224 +1,944 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Accurate token counter for LLMs like GPT-4, Claude, and Mistral. Calculate tokens for AI models with real-time estimation.">
-    <meta name="keywords" content="LLM token counter, AI 토큰 계산기, GPT-4 tokens, Claude token estimator, Mistral 토큰 카운트, AI 모델 토큰 계산">
-    <meta name="author" content="cocy.io">
-    <meta property="og:title" content="LLM Token Calculator for AI Models">
-    <meta property="og:description" content="Real-time token estimation tool for large language models (GPT-4, Claude, Mistral)">
-    <meta property="og:image" content="https://tool.cocy.io/llm/icon.svg">
-    <meta property="og:url" content="https://tool.cocy.io/llm/">
-    <title>LLM Token Calculator</title>
-    <script src="../localization.js"></script>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px 10px; /* 양쪽 패딩 추가 */
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #121212;
-            color: #e0e0e0;
-            box-sizing: border-box;
-        }
-        .container {
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            flex-grow: 1;
-        }
-        textarea {
-            width: 100%;
-            height: 150px;
-            min-height: 100px; /* 최소 높이 보장 */
-            padding: 10px;
-            border: 1px solid #444;
-            border-radius: 5px;
-            background: #2a2a2a;
-            color: #ffffff;
-            resize: vertical; /* 세로 리사이즈만 허용 */
-        }
-        select {
-            width: 100%;
-            margin-top: 10px;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background: #333;
-            color: white;
-        }
-        p {
-            margin-top: 10px;
-            font-size: 1.2em;
-        }
-        footer {
-            margin-top: auto; /* 푸터를 하단에 고정 */
-            padding: 1rem 0;
-        }
-        footer a:hover {
-            opacity: 0.8;
-            transition: opacity 0.2s ease;
-        }
-        h2 {
-            margin-top: 0;
-            color: #ffffff;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #333;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Token Calculator | tool.cocy.io</title>
+<meta name="description" content="GPT-5, Claude 4, Gemini 3 등 최신 AI 모델의 토큰 수와 예상 비용을 계산하는 도구">
+<meta property="og:title" content="LLM Token Calculator | tool.cocy.io">
+<meta property="og:description" content="최신 AI 모델 토큰 계산기 — 가격·파라미터·특성 비교">
+<meta property="og:url" content="https://tool.cocy.io/llm/">
+<link rel="canonical" href="https://tool.cocy.io/llm/">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* 모바일 대응 미디어 쿼리 개선판 */
-        @media (max-width: 600px) {
-            body {
-                padding: 0 !important;  /* 좌우 패딩 완전 제거 */
-                min-height: 100vh;  /* 높이 재설정 */
-            }
-            .container {
-                width: 100%;
-                max-width: 100%;  /* 최대 너비 확장 */
-                border-radius: 0;
-                margin: 0;
-                padding: 15px 8px;  /* 좌우 패딩 축소 */
-                box-sizing: border-box; /* 패딩 포함 너비 계산 */
-            }
-            h2 {
-                font-size: 1.5em;
-                padding-bottom: 10px;
-            }
-            textarea {
-                width: calc(100% - 16px); /* 컨테이너 패딩 고려 */
-                margin: 8px 0;
-                box-sizing: border-box; /* 테두리 포함 너비 */
-            }
-            select {
-                width: calc(100% - 16px);
-                margin: 10px 0;
-            }
-            footer {
-                padding: 1rem;
-                font-size: 0.8rem;
-                border-top: none;
-            }
-            #cost {
-                font-size: 0.9em;
-                margin-top: 6px;
-            }
-        }
+  :root {
+    --bg: #0d0d1a;
+    --surface: #12121f;
+    --surface2: #1a1a2e;
+    --border: #24244a;
+    --accent: #7c6fff;
+    --accent2: #00d4aa;
+    --text: #e0e0f0;
+    --text2: #9090b0;
+    --text3: #5a5a7a;
+    --openai: #10a37f;
+    --anthropic: #d4580c;
+    --google: #4285f4;
+    --meta: #0064e0;
+  }
 
-        .language-switcher label {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-        }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
 
-        .language-switcher select {
-            font-size: 0.9rem;
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #444;
-            background: #2a2a2a;
-            color: #fff;
-        }
-    </style>
+  /* Layout */
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 32px 0 28px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .header h1 span { color: var(--accent); }
+  .header p {
+    margin-top: 8px;
+    color: var(--text2);
+    font-size: 14px;
+  }
+
+  /* Main grid */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 8px;
+  }
+  @media (max-width: 700px) { .main-grid { grid-template-columns: 1fr; } }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+  }
+  .card-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+
+  /* Textarea */
+  textarea {
+    width: 100%;
+    min-height: 180px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 14px;
+    padding: 12px;
+    resize: vertical;
+    outline: none;
+    font-family: inherit;
+    line-height: 1.6;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--text3); }
+
+  .text-stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .stat-chip {
+    font-size: 12px;
+    color: var(--text2);
+    background: var(--surface2);
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .stat-chip strong { color: var(--text); }
+
+  /* Model selector */
+  .model-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .model-tab {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: all 0.18s;
+    color: var(--text2);
+    background: var(--surface2);
+  }
+  .model-tab:hover { color: var(--text); border-color: var(--border); }
+  .model-tab.active { color: #fff; }
+  .model-tab.openai.active  { background: #0d2e22; border-color: var(--openai); color: #4cffa8; }
+  .model-tab.anthropic.active { background: #2e1208; border-color: var(--anthropic); color: #ffa060; }
+  .model-tab.google.active  { background: #0a1e3a; border-color: var(--google); color: #80b8ff; }
+  .model-tab.meta.active    { background: #001a40; border-color: var(--meta); color: #60a0ff; }
+
+  select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    padding: 10px 12px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a5a7a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  select:focus { border-color: var(--accent); }
+
+  /* Token result */
+  .token-result {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-top: 12px;
+    text-align: center;
+  }
+  .token-big {
+    font-size: 52px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .token-label {
+    font-size: 13px;
+    color: var(--text2);
+    margin-top: 4px;
+  }
+
+  /* Cost breakdown */
+  .cost-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .cost-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .cost-item label {
+    font-size: 11px;
+    color: var(--text3);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .cost-item input[type=number] {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--accent2);
+    font-size: 20px;
+    font-weight: 700;
+    outline: none;
+    font-family: inherit;
+  }
+  .cost-item input[type=number]::-webkit-outer-spin-button,
+  .cost-item input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .cost-total {
+    margin-top: 10px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #1a1a3a 0%, #1a2a3a 100%);
+    border: 1px solid #2a2a5a;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cost-total-label { font-size: 13px; color: var(--text2); }
+  .cost-total-value { font-size: 22px; font-weight: 800; color: var(--accent2); }
+
+  /* Output ratio slider */
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text2);
+  }
+  .slider-row input[type=range] {
+    flex: 1;
+    accent-color: var(--accent);
+    height: 4px;
+  }
+  .slider-row span { min-width: 28px; text-align: right; color: var(--accent); font-weight: 600; }
+
+  /* Model info card */
+  .model-info {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    margin-top: 16px;
+    grid-column: 1 / -1;
+  }
+  .model-info-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .model-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .badge-openai    { background: #0d3020; color: #4cffa8; border: 1px solid var(--openai); }
+  .badge-anthropic { background: #3a1808; color: #ffa060; border: 1px solid var(--anthropic); }
+  .badge-google    { background: #0a1a3a; color: #80b8ff; border: 1px solid var(--google); }
+  .badge-meta      { background: #001230; color: #60a0ff; border: 1px solid var(--meta); }
+
+  .model-name { font-size: 20px; font-weight: 700; }
+  .model-tagline { font-size: 13px; color: var(--text2); }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .info-cell {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .info-cell-label {
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .info-cell-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .info-cell-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  .model-strengths {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .strength-tag {
+    padding: 4px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+
+  /* All models table */
+  .models-section {
+    margin-top: 24px;
+    grid-column: 1 / -1;
+  }
+  .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .models-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .models-table th {
+    text-align: left;
+    padding: 8px 10px;
+    color: var(--text3);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .models-table td {
+    padding: 10px 10px;
+    border-bottom: 1px solid #1a1a2e;
+    vertical-align: middle;
+    cursor: pointer;
+  }
+  .models-table tr:hover td { background: var(--surface2); }
+  .models-table tr.selected td { background: #1a1a3a; }
+  .model-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .dot-openai    { background: var(--openai); }
+  .dot-anthropic { background: var(--anthropic); }
+  .dot-google    { background: var(--google); }
+  .dot-meta      { background: var(--meta); }
+
+  .price-in  { color: #4cffa8; }
+  .price-out { color: #ff9060; }
+  .ctx-badge {
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 700px) {
+    .cost-grid { grid-template-columns: 1fr; }
+    .models-table th:nth-child(n+5),
+    .models-table td:nth-child(n+5) { display: none; }
+    .token-big { font-size: 38px; }
+  }
+</style>
 </head>
 <body>
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <div class="container">
-        <h2 data-translate-key="llm_title">LLM Token Calculator</h2>
-        <textarea id="textInput" placeholder="Enter text..." data-translate-placeholder="true"></textarea>
-        <select id="modelSelect">
-            <option value="gpt4" data-translate-key="model_gpt4">GPT-4 / GPT-4o</option>
-            <option value="gpt3.5" data-translate-key="model_gpt35">GPT-3.5 Turbo</option>
-            <option value="claude4" data-translate-key="model_claude4">Claude 4</option>
-            <option value="claude2" data-translate-key="model_claude2">Claude 2</option>
-            <option value="gemini2" data-translate-key="model_gemini2">Gemini 2</option>
-            <option value="mistral" data-translate-key="model_mistral">Mistral 7B</option>
-            <option value="llama3" data-translate-key="model_llama3">Llama 3</option>
-            <option value="jais" data-translate-key="model_jais">Jais 30B</option>
-        </select>
-        <p id="result" data-translate-key="estimated_tokens">Estimated tokens: 0</p>
-        <p id="cost" style="color: #7fbfff; margin-top: 8px;" data-translate-key="estimated_cost">Estimated cost: $0.00</p>
+<div class="page">
+
+  <div class="header">
+    <h1>🤖 LLM <span>Token</span> Calculator</h1>
+    <p>최신 AI 모델 토큰 수 추정 · 비용 계산 · 모델 비교 (2025-2026 기준)</p>
+  </div>
+
+  <div class="main-grid">
+
+    <!-- Left: Input + token count -->
+    <div>
+      <div class="card">
+        <div class="card-title">텍스트 입력</div>
+        <textarea id="inputText" placeholder="토큰을 계산할 텍스트를 입력하세요...&#10;&#10;예) 프롬프트, 시스템 메시지, 문서 등"></textarea>
+        <div class="text-stats">
+          <div class="stat-chip">글자 <strong id="charCount">0</strong></div>
+          <div class="stat-chip">단어 <strong id="wordCount">0</strong></div>
+          <div class="stat-chip">줄 <strong id="lineCount">0</strong></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <div class="card-title">모델 선택</div>
+        <div class="model-tabs" id="providerTabs">
+          <div class="model-tab openai active" data-provider="openai">OpenAI</div>
+          <div class="model-tab anthropic" data-provider="anthropic">Anthropic</div>
+          <div class="model-tab google" data-provider="google">Google</div>
+          <div class="model-tab meta" data-provider="meta">Meta</div>
+        </div>
+        <select id="modelSelect"></select>
+
+        <div class="token-result">
+          <div class="token-big" id="tokenCount">0</div>
+          <div class="token-label">예상 토큰 수 (입력 기준)</div>
+        </div>
+      </div>
     </div>
-    
-    <footer style="
-        margin-top: 2rem;
-        padding: 1.5rem;
-        text-align: center;
-        color: rgba(255,255,255,0.7);
-        font-size: 0.9rem;
-        width: 100%;
-        max-width: 600px;
-        border-top: 1px solid #333;
-    ">
-        <p style="margin: 0;">
-            © 2025 LLM Token Calculator. 
-            <a href="https://cocy.io" 
-               style="color: #7fbfff; text-decoration: none;"
-               target="_blank">COCY.IO</a> 
-            All rights reserved.
-        </p>
-        <!-- Language switcher will be dynamically added here -->
-    </footer>
 
-    <script>
-    function estimateTokens(text, model) {
-        const wordCount = text.trim().split(/\s+/).length;
-        const tokenRates = {
-            'gpt4': 1.33,
-            'gpt3.5': 1.2,
-            'claude4': 1.4,
-            'claude2': 1.45,
-            'gemini2': 1.35,
-            'mistral': 1.25,
-            'llama3': 1.35,
-            'jais': 1.15
-        };
-        return text.trim().length > 0 ? Math.ceil(wordCount * (tokenRates[model] || 1.3)) : 0;
-    }
-    
-    const costRates = {
-        'gpt4': 30.00,
-        'gpt3.5': 1.50,
-        'claude4': 0.60,
-        'claude2': 0.80,
-        'gemini2': 7.00,
-        'mistral': 0.25,
-        'llama3': 0.40,
-        'jais': 0.10
-    };
+    <!-- Right: Cost + output -->
+    <div>
+      <div class="card">
+        <div class="card-title">비용 계산</div>
 
-    function updateTokenCount() {
-        const text = document.getElementById('textInput').value;
-        const model = document.getElementById('modelSelect').value;
-        const tokens = estimateTokens(text, model);
-        const cost = (tokens * costRates[model]) / 1000000;
-        
-        document.getElementById('result').innerText = `${translate('estimated_tokens')}: ${tokens}`;
-        document.getElementById('cost').innerText = `${translate('estimated_cost')}: $${cost.toFixed(4)}`;
-    }
-    
-    document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('textInput').addEventListener('input', updateTokenCount);
-        document.getElementById('modelSelect').addEventListener('change', updateTokenCount);
+        <div class="slider-row">
+          <span style="color:var(--text2);min-width:80px;">출력 배수</span>
+          <input type="range" id="outputRatio" min="0" max="5" step="0.5" value="1">
+          <span id="outputRatioLabel">×1</span>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">
+          입력 토큰 대비 예상 출력 길이 배수
+        </div>
 
-        // Initialize localization
-        initializeLocalization();
-    });
-    </script>
-    <script src="/lib/site-meta.js"></script>
-    <script>
-      SiteMeta.init({
-        title: 'LLM Tokenizer - tool.cocy.io',
-        description: 'LLM 모델별 토큰 수와 예상 비용을 계산하는 온라인 도구',
-        url: 'https://tool.cocy.io/llm/'
+        <div class="cost-grid" style="margin-top:16px;">
+          <div class="cost-item">
+            <label>입력 비용 (USD)</label>
+            <input type="number" id="costIn" value="0.0000" readonly>
+          </div>
+          <div class="cost-item">
+            <label>출력 비용 (USD)</label>
+            <input type="number" id="costOut" value="0.0000" readonly>
+          </div>
+        </div>
+
+        <div class="cost-total">
+          <span class="cost-total-label">총 예상 비용</span>
+          <span class="cost-total-value" id="costTotal">$0.0000</span>
+        </div>
+
+        <div style="margin-top:10px;font-size:11px;color:var(--text3);line-height:1.6;">
+          * 토큰 수는 추정값입니다 (실제 토크나이저 기준 ±10%). 영문 기준 ~4자/토큰, 한국어 ~2자/토큰.
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <div class="card-title">1M 토큰당 가격</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+          <span style="font-size:13px;color:var(--text2);">입력 (input)</span>
+          <span class="price-in" style="font-size:18px;font-weight:700;" id="priceInDisplay">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+          <span style="font-size:13px;color:var(--text2);">출력 (output)</span>
+          <span class="price-out" style="font-size:18px;font-weight:700;" id="priceOutDisplay">—</span>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text3);">
+          캐시 할인, 배치 API 할인 미적용 기본가
+        </div>
+      </div>
+    </div>
+
+    <!-- Model info card (full width) -->
+    <div class="model-info" id="modelInfoCard">
+      <div class="model-info-header">
+        <span class="model-badge" id="infoProviderBadge"></span>
+        <div>
+          <div class="model-name" id="infoModelName"></div>
+          <div class="model-tagline" id="infoTagline"></div>
+        </div>
+      </div>
+      <div class="info-grid" id="infoGrid"></div>
+      <div class="card-title" style="margin-bottom:8px;">특징 · 강점</div>
+      <div class="model-strengths" id="infoStrengths"></div>
+    </div>
+
+    <!-- Full model comparison table -->
+    <div class="models-section">
+      <div class="section-title">📊 전체 모델 비교표</div>
+      <div style="overflow-x:auto;">
+        <table class="models-table" id="modelsTable">
+          <thead>
+            <tr>
+              <th>모델</th>
+              <th>제공사</th>
+              <th>입력 ($/1M)</th>
+              <th>출력 ($/1M)</th>
+              <th>컨텍스트</th>
+              <th>최대 출력</th>
+              <th>특징</th>
+            </tr>
+          </thead>
+          <tbody id="modelsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /main-grid -->
+</div><!-- /page -->
+
+<script>
+// ─── Model Database ───────────────────────────────────────────────
+const MODELS = {
+  openai: [
+    {
+      id: 'gpt-4o',
+      name: 'GPT-4o',
+      tagline: '멀티모달 플래그십 — 텍스트·이미지·오디오 통합',
+      priceIn: 2.50, priceOut: 10.00,
+      context: '128K', contextN: 128000,
+      maxOut: '16K', maxOutN: 16384,
+      cutoff: '2024-04',
+      charsPerToken: 3.8,
+      strengths: ['멀티모달', '빠른 응답', '코딩', '분석', '비전'],
+      params: '~175B (est.)',
+      type: 'standard'
+    },
+    {
+      id: 'gpt-4o-mini',
+      name: 'GPT-4o mini',
+      tagline: '경량 플래그십 — 빠르고 저렴한 GPT-4 수준',
+      priceIn: 0.15, priceOut: 0.60,
+      context: '128K', contextN: 128000,
+      maxOut: '16K', maxOutN: 16384,
+      cutoff: '2024-04',
+      charsPerToken: 3.8,
+      strengths: ['저비용', '빠른 응답', '코딩', '요약', '분류'],
+      params: '~8B (est.)',
+      type: 'standard'
+    },
+    {
+      id: 'gpt-4.1',
+      name: 'GPT-4.1',
+      tagline: '향상된 코딩 · 지시 따르기 특화 모델',
+      priceIn: 2.00, priceOut: 8.00,
+      context: '1M', contextN: 1000000,
+      maxOut: '32K', maxOutN: 32768,
+      cutoff: '2025-01',
+      charsPerToken: 3.8,
+      strengths: ['긴 컨텍스트', '코딩', '지시 따르기', '에이전트'],
+      params: '—',
+      type: 'standard'
+    },
+    {
+      id: 'gpt-4.1-mini',
+      name: 'GPT-4.1 mini',
+      tagline: 'GPT-4.1 경량 버전 — 균형 잡힌 비용/성능',
+      priceIn: 0.40, priceOut: 1.60,
+      context: '1M', contextN: 1000000,
+      maxOut: '32K', maxOutN: 32768,
+      cutoff: '2025-01',
+      charsPerToken: 3.8,
+      strengths: ['저비용', '긴 컨텍스트', '코딩', '빠른 응답'],
+      params: '—',
+      type: 'standard'
+    },
+    {
+      id: 'o3',
+      name: 'o3',
+      tagline: '고급 추론 모델 — 수학·과학·코딩 최강',
+      priceIn: 10.00, priceOut: 40.00,
+      context: '200K', contextN: 200000,
+      maxOut: '100K', maxOutN: 100000,
+      cutoff: '2024-12',
+      charsPerToken: 3.8,
+      strengths: ['심층 추론', '수학', '과학', '코딩', '복잡한 문제'],
+      params: '—',
+      type: 'reasoning'
+    },
+    {
+      id: 'o4-mini',
+      name: 'o4-mini',
+      tagline: '경량 추론 모델 — o3 성능, 저렴한 가격',
+      priceIn: 1.10, priceOut: 4.40,
+      context: '200K', contextN: 200000,
+      maxOut: '100K', maxOutN: 100000,
+      cutoff: '2024-12',
+      charsPerToken: 3.8,
+      strengths: ['추론', '수학', '저비용', '코딩'],
+      params: '—',
+      type: 'reasoning'
+    },
+  ],
+  anthropic: [
+    {
+      id: 'claude-opus-4-6',
+      name: 'Claude Opus 4.6',
+      tagline: '최고 지능 — 에이전트·복잡한 코딩 최강',
+      priceIn: 5.00, priceOut: 25.00,
+      context: '200K (1M beta)', contextN: 200000,
+      maxOut: '128K', maxOutN: 131072,
+      cutoff: '2025-08',
+      charsPerToken: 3.5,
+      strengths: ['에이전트', '코딩', '추론', '긴 컨텍스트', '확장 사고'],
+      params: '~200B+ (est.)',
+      type: 'standard'
+    },
+    {
+      id: 'claude-sonnet-4-6',
+      name: 'Claude Sonnet 4.6',
+      tagline: '속도·지능 균형 — 가장 인기 있는 Claude',
+      priceIn: 3.00, priceOut: 15.00,
+      context: '200K (1M beta)', contextN: 200000,
+      maxOut: '64K', maxOutN: 65536,
+      cutoff: '2026-01',
+      charsPerToken: 3.5,
+      strengths: ['균형', '코딩', '분석', '빠른 응답', '확장 사고'],
+      params: '~70B (est.)',
+      type: 'standard'
+    },
+    {
+      id: 'claude-haiku-4-5',
+      name: 'Claude Haiku 4.5',
+      tagline: '초고속 경량 모델 — 저비용 대량 처리',
+      priceIn: 1.00, priceOut: 5.00,
+      context: '200K', contextN: 200000,
+      maxOut: '64K', maxOutN: 65536,
+      cutoff: '2025-07',
+      charsPerToken: 3.5,
+      strengths: ['최저 비용', '초고속', '분류', '요약', '확장 사고'],
+      params: '~20B (est.)',
+      type: 'standard'
+    },
+  ],
+  google: [
+    {
+      id: 'gemini-3-pro',
+      name: 'Gemini 3 Pro',
+      tagline: '구글 플래그십 — 멀티모달 고성능',
+      priceIn: 2.00, priceOut: 12.00,
+      context: '2M', contextN: 2000000,
+      maxOut: '8K', maxOutN: 8192,
+      cutoff: '2025-08',
+      charsPerToken: 3.5,
+      strengths: ['초장 컨텍스트', '멀티모달', '코딩', '추론', '영상'],
+      params: '—',
+      type: 'standard'
+    },
+    {
+      id: 'gemini-3-flash',
+      name: 'Gemini 3 Flash',
+      tagline: '경량 빠른 모델 — 저비용 대량 처리',
+      priceIn: 0.50, priceOut: 3.00,
+      context: '1M', contextN: 1000000,
+      maxOut: '8K', maxOutN: 8192,
+      cutoff: '2025-08',
+      charsPerToken: 3.5,
+      strengths: ['저비용', '빠른 응답', '긴 컨텍스트', '멀티모달'],
+      params: '—',
+      type: 'standard'
+    },
+    {
+      id: 'gemini-3-1-pro',
+      name: 'Gemini 3.1 Pro',
+      tagline: '최신 구글 모델 — 추론 강화',
+      priceIn: 2.00, priceOut: 12.00,
+      context: '2M', contextN: 2000000,
+      maxOut: '8K', maxOutN: 8192,
+      cutoff: '2025-10',
+      charsPerToken: 3.5,
+      strengths: ['추론', '초장 컨텍스트', '멀티모달', '코딩'],
+      params: '—',
+      type: 'standard'
+    },
+  ],
+  meta: [
+    {
+      id: 'llama-3.3-70b',
+      name: 'Llama 3.3 70B',
+      tagline: '오픈소스 최강 — Meta 공개 모델',
+      priceIn: 0.40, priceOut: 1.20,
+      context: '128K', contextN: 128000,
+      maxOut: '4K', maxOutN: 4096,
+      cutoff: '2024-12',
+      charsPerToken: 3.8,
+      strengths: ['오픈소스', '저비용', '코딩', '다국어', '자체 호스팅'],
+      params: '70B',
+      type: 'open'
+    },
+    {
+      id: 'llama-3.1-405b',
+      name: 'Llama 3.1 405B',
+      tagline: '초대형 오픈소스 — GPT-4 수준 성능',
+      priceIn: 2.70, priceOut: 2.70,
+      context: '128K', contextN: 128000,
+      maxOut: '4K', maxOutN: 4096,
+      cutoff: '2024-04',
+      charsPerToken: 3.8,
+      strengths: ['오픈소스', '최고 품질', '코딩', '추론', '자체 호스팅'],
+      params: '405B',
+      type: 'open'
+    },
+    {
+      id: 'llama-4-scout',
+      name: 'Llama 4 Scout',
+      tagline: 'Llama 4 경량 — MoE 아키텍처',
+      priceIn: 0.11, priceOut: 0.34,
+      context: '10M', contextN: 10000000,
+      maxOut: '4K', maxOutN: 4096,
+      cutoff: '2025-03',
+      charsPerToken: 3.8,
+      strengths: ['오픈소스', '초저비용', '초장 컨텍스트', 'MoE', '멀티모달'],
+      params: '17B active / 109B total',
+      type: 'open'
+    },
+  ]
+};
+
+// ─── State ───────────────────────────────────────────────────────
+let currentProvider = 'openai';
+let currentModelId = 'gpt-4o';
+let outputRatio = 1;
+
+function getModel(provider, id) {
+  const list = MODELS[provider] || [];
+  return list.find(m => m.id === id) || list[0];
+}
+
+// ─── Token estimation ────────────────────────────────────────────
+function estimateTokens(text, model) {
+  if (!text || !text.trim()) return 0;
+  const chars = text.length;
+  const cpt = model ? model.charsPerToken : 3.8;
+  // Korean/CJK characters count as ~2 chars/token (adjusting up)
+  const cjkCount = (text.match(/[\u3400-\u9fff\uac00-\ud7ff]/g) || []).length;
+  const latinCount = chars - cjkCount;
+  const cjkTokens = Math.ceil(cjkCount / 2);
+  const latinTokens = Math.ceil(latinCount / cpt);
+  return cjkTokens + latinTokens;
+}
+
+// ─── Format helpers ──────────────────────────────────────────────
+function fmtNum(n) {
+  if (n >= 1e9) return (n/1e9).toFixed(1)+'G';
+  if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
+  return n.toString();
+}
+function fmtPrice(p) {
+  if (p == null) return 'Free*';
+  return '$' + p.toFixed(2);
+}
+function fmtCost(tokens, pricePerM) {
+  const cost = (tokens * pricePerM) / 1e6;
+  if (cost < 0.0001) return '$0.0000';
+  if (cost < 0.01) return '$' + cost.toFixed(5);
+  return '$' + cost.toFixed(4);
+}
+
+// ─── UI update ───────────────────────────────────────────────────
+function buildModelSelect(provider) {
+  const select = document.getElementById('modelSelect');
+  select.innerHTML = '';
+  (MODELS[provider] || []).forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.id;
+    opt.textContent = m.name + (m.type === 'reasoning' ? ' ⚡추론' : m.type === 'open' ? ' 🔓오픈소스' : '');
+    select.appendChild(opt);
+  });
+}
+
+function updateAll() {
+  const text = document.getElementById('inputText').value;
+  const model = getModel(currentProvider, currentModelId);
+  if (!model) return;
+
+  // Text stats
+  const chars = text.length;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const lines = text.split('\n').length;
+  document.getElementById('charCount').textContent = chars.toLocaleString();
+  document.getElementById('wordCount').textContent = words.toLocaleString();
+  document.getElementById('lineCount').textContent = lines;
+
+  // Tokens
+  const tokens = estimateTokens(text, model);
+  document.getElementById('tokenCount').textContent = tokens.toLocaleString();
+
+  // Cost
+  const outTokens = Math.round(tokens * outputRatio);
+  const cIn = (tokens * model.priceIn) / 1e6;
+  const cOut = (outTokens * model.priceOut) / 1e6;
+  const cTotal = cIn + cOut;
+  document.getElementById('costIn').value = cIn.toFixed(5);
+  document.getElementById('costOut').value = cOut.toFixed(5);
+  document.getElementById('costTotal').textContent = '$' + cTotal.toFixed(5);
+
+  // Price display
+  document.getElementById('priceInDisplay').textContent = fmtPrice(model.priceIn) + '/1M';
+  document.getElementById('priceOutDisplay').textContent = fmtPrice(model.priceOut) + '/1M';
+
+  // Model info
+  updateModelInfo(model);
+}
+
+function updateModelInfo(model) {
+  const providerLabels = { openai: 'OpenAI', anthropic: 'Anthropic', google: 'Google', meta: 'Meta' };
+
+  const badge = document.getElementById('infoProviderBadge');
+  badge.textContent = providerLabels[currentProvider] || currentProvider;
+  badge.className = 'model-badge badge-' + currentProvider;
+
+  document.getElementById('infoModelName').textContent = model.name;
+  document.getElementById('infoTagline').textContent = model.tagline;
+
+  const grid = document.getElementById('infoGrid');
+  grid.innerHTML = `
+    <div class="info-cell">
+      <div class="info-cell-label">컨텍스트</div>
+      <div class="info-cell-value">${model.context}</div>
+      <div class="info-cell-sub">입력 최대 ${fmtNum(model.contextN)} 토큰</div>
+    </div>
+    <div class="info-cell">
+      <div class="info-cell-label">최대 출력</div>
+      <div class="info-cell-value">${model.maxOut}</div>
+      <div class="info-cell-sub">${fmtNum(model.maxOutN)} 토큰</div>
+    </div>
+    <div class="info-cell">
+      <div class="info-cell-label">입력 가격</div>
+      <div class="info-cell-value price-in">${fmtPrice(model.priceIn)}</div>
+      <div class="info-cell-sub">1M 토큰당</div>
+    </div>
+    <div class="info-cell">
+      <div class="info-cell-label">출력 가격</div>
+      <div class="info-cell-value price-out">${fmtPrice(model.priceOut)}</div>
+      <div class="info-cell-sub">1M 토큰당</div>
+    </div>
+    <div class="info-cell">
+      <div class="info-cell-label">파라미터</div>
+      <div class="info-cell-value" style="font-size:14px;">${model.params || '비공개'}</div>
+      <div class="info-cell-sub">${model.type === 'reasoning' ? '추론 모델' : model.type === 'open' ? '오픈소스' : '표준 모델'}</div>
+    </div>
+    <div class="info-cell">
+      <div class="info-cell-label">학습 데이터</div>
+      <div class="info-cell-value" style="font-size:14px;">${model.cutoff}</div>
+      <div class="info-cell-sub">지식 컷오프</div>
+    </div>
+  `;
+
+  const strengths = document.getElementById('infoStrengths');
+  strengths.innerHTML = model.strengths.map(s => `<span class="strength-tag">${s}</span>`).join('');
+}
+
+function buildTable() {
+  const tbody = document.getElementById('modelsTableBody');
+  tbody.innerHTML = '';
+  const providerColors = { openai: 'dot-openai', anthropic: 'dot-anthropic', google: 'dot-google', meta: 'dot-meta' };
+  const providerLabels = { openai: 'OpenAI', anthropic: 'Anthropic', google: 'Google', meta: 'Meta' };
+  for (const [provider, models] of Object.entries(MODELS)) {
+    for (const m of models) {
+      const tr = document.createElement('tr');
+      if (m.id === currentModelId && provider === currentProvider) tr.classList.add('selected');
+      tr.innerHTML = `
+        <td><strong>${m.name}</strong></td>
+        <td><span class="model-dot ${providerColors[provider]}"></span>${providerLabels[provider]}</td>
+        <td class="price-in">${fmtPrice(m.priceIn)}</td>
+        <td class="price-out">${fmtPrice(m.priceOut)}</td>
+        <td><span class="ctx-badge">${m.context}</span></td>
+        <td>${m.maxOut}</td>
+        <td style="color:var(--text2);font-size:12px;">${m.strengths.slice(0,3).join(', ')}</td>
+      `;
+      tr.addEventListener('click', () => {
+        currentProvider = provider;
+        currentModelId = m.id;
+        // Update tabs
+        document.querySelectorAll('.model-tab').forEach(t => {
+          t.classList.toggle('active', t.dataset.provider === provider);
+        });
+        buildModelSelect(provider);
+        document.getElementById('modelSelect').value = m.id;
+        document.querySelectorAll('#modelsTableBody tr').forEach(r => r.classList.remove('selected'));
+        tr.classList.add('selected');
+        updateAll();
       });
-    </script>
+      tbody.appendChild(tr);
+    }
+  }
+}
+
+// ─── Event listeners ─────────────────────────────────────────────
+document.getElementById('inputText').addEventListener('input', updateAll);
+
+document.querySelectorAll('.model-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const provider = tab.dataset.provider;
+    currentProvider = provider;
+    document.querySelectorAll('.model-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    buildModelSelect(provider);
+    currentModelId = MODELS[provider][0].id;
+    document.getElementById('modelSelect').value = currentModelId;
+    buildTable();
+    updateAll();
+  });
+});
+
+document.getElementById('modelSelect').addEventListener('change', (e) => {
+  currentModelId = e.target.value;
+  buildTable();
+  updateAll();
+});
+
+document.getElementById('outputRatio').addEventListener('input', (e) => {
+  outputRatio = parseFloat(e.target.value);
+  document.getElementById('outputRatioLabel').textContent = '×' + outputRatio;
+  updateAll();
+});
+
+// ─── Init ────────────────────────────────────────────────────────
+buildModelSelect(currentProvider);
+buildTable();
+updateAll();
+</script>
+
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+  SiteMeta.init({
+    title: 'LLM Token Calculator — tool.cocy.io',
+    description: 'GPT-5, Claude 4.6, Gemini 3 등 최신 AI 모델의 토큰 수와 비용을 계산하는 도구',
+    url: 'https://tool.cocy.io/llm/'
+  });
+</script>
 </body>
 </html>
