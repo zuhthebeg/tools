@@ -356,7 +356,6 @@ body::before {
 
 <script>
 const LLM_URL = 'https://llm.cocy.io/v2/chat/completions';
-const LLM_KEY = 'choon150622';
 
 // --- i18n ---
 const LANGS = ['ko','en','ja','zh-TW'];
@@ -1235,7 +1234,7 @@ ${originals.map((l,i) => `${i+1}. ${l}`).join('\n')}`;
   try {
     const res = await fetch(LLM_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + LLM_KEY },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ model: 'spark', messages: [{ role: 'user', content: prompt }] })
     });
     const data = await res.json();
