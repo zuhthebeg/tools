@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>느낌가사 — Feel the Lyrics</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎤</text></svg>">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Outfit:wght@400;600;800&display=swap');
+
+:root {
+  --bg: #0a0a14;
+  --card: rgba(255,255,255,0.04);
+  --card-border: rgba(255,255,255,0.08);
+  --neon-pink: #ff2d78;
+  --neon-cyan: #00e5ff;
+  --neon-amber: #ffc857;
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+  --radius: 16px;
+  --glow-pink: 0 0 20px rgba(255,45,120,0.3);
+  --glow-cyan: 0 0 20px rgba(0,229,255,0.3);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Noto Sans KR', 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Animated background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(255,45,120,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(0,229,255,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(255,200,87,0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; padding: 16px; padding-bottom: 100px; }
+
+/* Header */
+.header { text-align: center; padding: 24px 0 16px; }
+.header h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--neon-pink), var(--neon-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+.header p { color: var(--text-dim); font-size: 0.85rem; margin-top: 4px; }
+
+/* Navigation */
+.nav-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--neon-cyan); font-size: 0.9rem; cursor: pointer;
+  padding: 8px 0; margin-bottom: 8px; border: none; background: none;
+  font-family: inherit;
+}
+.nav-back:hover { text-decoration: underline; }
+
+/* Search */
+.search-bar {
+  display: flex; gap: 8px; margin-bottom: 20px;
+}
+.search-bar input {
+  flex: 1; padding: 12px 16px; border-radius: 12px;
+  background: var(--card); border: 1px solid var(--card-border);
+  color: var(--text); font-size: 1rem; font-family: inherit;
+  outline: none; transition: border-color 0.2s;
+}
+.search-bar input:focus { border-color: var(--neon-pink); }
+.search-bar input::placeholder { color: var(--text-dim); }
+
+/* Song Grid */
+.song-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.song-card {
+  background: var(--card); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 16px; cursor: pointer;
+  transition: all 0.25s ease; position: relative; overflow: hidden;
+}
+.song-card:hover {
+  border-color: var(--neon-pink);
+  box-shadow: var(--glow-pink);
+  transform: translateY(-2px);
+}
+.song-card .album-art {
+  width: 100%; aspect-ratio: 1; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.5rem; margin-bottom: 10px;
+}
+.song-card .title {
+  font-weight: 700; font-size: 0.9rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.song-card .artist {
+  color: var(--text-dim); font-size: 0.78rem; margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.song-card .badge {
+  position: absolute; top: 8px; right: 8px;
+  background: var(--neon-pink); color: #fff; font-size: 0.65rem;
+  padding: 2px 6px; border-radius: 6px; font-weight: 700;
+}
+
+/* Add Song Card */
+.song-card.add-card {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  border-style: dashed; min-height: 180px;
+}
+.song-card.add-card .plus { font-size: 2rem; color: var(--text-dim); }
+.song-card.add-card .label { color: var(--text-dim); font-size: 0.85rem; margin-top: 6px; }
+
+/* Song Detail */
+.song-info {
+  display: flex; gap: 16px; align-items: flex-start;
+  margin-bottom: 20px; padding: 16px;
+  background: var(--card); border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+}
+.song-info .art {
+  width: 80px; height: 80px; border-radius: 12px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.5rem;
+}
+.song-info .meta { flex: 1; min-width: 0; }
+.song-info .meta h2 { font-size: 1.2rem; font-weight: 800; }
+.song-info .meta .artist { color: var(--text-dim); font-size: 0.9rem; }
+.song-info .links { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.song-info .links a {
+  font-size: 0.75rem; padding: 3px 8px; border-radius: 8px;
+  text-decoration: none; color: var(--text); font-weight: 600;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+  transition: 0.2s;
+}
+.song-info .links a:hover { background: rgba(255,255,255,0.15); }
+
+/* Toolbar */
+.toolbar {
+  display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.toolbar button, .btn {
+  padding: 8px 14px; border-radius: 10px; border: 1px solid var(--card-border);
+  background: var(--card); color: var(--text); font-family: inherit;
+  font-size: 0.82rem; cursor: pointer; transition: 0.2s; font-weight: 600;
+}
+.toolbar button:hover, .btn:hover {
+  border-color: var(--neon-cyan); box-shadow: var(--glow-cyan);
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--neon-pink), #ff6b9d) !important;
+  border-color: var(--neon-pink) !important; color: #fff !important;
+}
+.btn-primary:hover { box-shadow: var(--glow-pink) !important; }
+.btn-sm { padding: 6px 10px; font-size: 0.75rem; }
+
+/* Line Editor */
+.lines-container { display: flex; flex-direction: column; gap: 2px; }
+
+.line-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  border-radius: 8px; overflow: hidden; background: rgba(255,255,255,0.02);
+  transition: 0.15s;
+}
+.line-row:hover { background: rgba(255,255,255,0.05); }
+.line-row .original, .line-row .korean {
+  padding: 10px 12px; font-size: 0.88rem; min-height: 42px;
+  border: none; background: transparent; color: var(--text);
+  font-family: inherit; outline: none; resize: none;
+  line-height: 1.5;
+}
+.line-row .original {
+  color: var(--text-dim); background: rgba(255,255,255,0.02);
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+.line-row .korean { color: var(--neon-amber); font-weight: 700; }
+.line-row .korean:focus { background: rgba(255,200,87,0.05); }
+.line-row .korean::placeholder { color: rgba(255,200,87,0.3); font-weight: 400; }
+
+.line-header {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  padding: 8px 12px; font-size: 0.75rem; color: var(--text-dim);
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+/* Sections */
+.section-label {
+  font-size: 0.75rem; color: var(--neon-pink); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  margin: 16px 0 8px; padding-left: 4px;
+}
+
+/* Karaoke Mode */
+.karaoke-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: #050510;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px; text-align: center;
+  cursor: pointer; user-select: none;
+}
+.karaoke-overlay.active { display: flex; }
+.karaoke-overlay .k-original {
+  font-size: 1.1rem; color: var(--text-dim); margin-bottom: 16px;
+  max-width: 90vw;
+}
+.karaoke-overlay .k-korean {
+  font-size: 2.8rem; font-weight: 900; line-height: 1.3;
+  color: var(--neon-amber);
+  text-shadow: 0 0 40px rgba(255,200,87,0.4);
+  max-width: 90vw;
+  transition: opacity 0.3s;
+}
+.karaoke-overlay .k-progress {
+  position: absolute; bottom: 40px;
+  color: var(--text-dim); font-size: 0.85rem;
+}
+.karaoke-overlay .k-hint {
+  position: absolute; bottom: 16px;
+  color: rgba(255,255,255,0.2); font-size: 0.75rem;
+}
+.karaoke-overlay .k-close {
+  position: absolute; top: 16px; right: 16px;
+  font-size: 1.5rem; color: var(--text-dim);
+  cursor: pointer; background: none; border: none;
+  font-family: inherit;
+}
+
+/* Add/Edit Song Form */
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block; font-size: 0.8rem; color: var(--text-dim);
+  margin-bottom: 4px; font-weight: 600;
+}
+.form-group input, .form-group textarea {
+  width: 100%; padding: 10px 14px; border-radius: 10px;
+  background: var(--card); border: 1px solid var(--card-border);
+  color: var(--text); font-family: inherit; font-size: 0.9rem;
+  outline: none; transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group textarea:focus { border-color: var(--neon-cyan); }
+.form-group textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
+
+/* Options row */
+.options-row {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;
+}
+.option-chip {
+  padding: 6px 12px; border-radius: 20px; font-size: 0.78rem;
+  border: 1px solid var(--card-border); background: var(--card);
+  color: var(--text-dim); cursor: pointer; transition: 0.2s;
+  font-family: inherit; font-weight: 600;
+}
+.option-chip.active {
+  border-color: var(--neon-cyan); color: var(--neon-cyan);
+  background: rgba(0,229,255,0.1); box-shadow: var(--glow-cyan);
+}
+
+/* Export modal */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,0.7); display: none;
+  align-items: center; justify-content: center;
+  padding: 24px;
+}
+.modal-overlay.active { display: flex; }
+.modal-box {
+  background: #15152a; border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 24px;
+  width: 100%; max-width: 500px; max-height: 80dvh;
+  overflow-y: auto;
+}
+.modal-box h3 { margin-bottom: 16px; font-size: 1.1rem; }
+.modal-box pre {
+  background: var(--card); padding: 16px; border-radius: 10px;
+  font-family: 'Noto Sans KR', monospace; font-size: 0.85rem;
+  line-height: 1.8; white-space: pre-wrap; word-break: break-all;
+  color: var(--neon-amber); max-height: 50dvh; overflow-y: auto;
+}
+.modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+
+/* AI Loading */
+.ai-loading {
+  text-align: center; padding: 32px;
+  color: var(--neon-cyan); font-size: 0.9rem;
+}
+.ai-loading .spinner {
+  width: 32px; height: 32px; border: 3px solid rgba(0,229,255,0.2);
+  border-top-color: var(--neon-cyan); border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--neon-cyan); color: #000; font-weight: 700;
+  padding: 10px 20px; border-radius: 10px; font-size: 0.85rem;
+  z-index: 2000; opacity: 0; transition: opacity 0.3s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+/* Responsive */
+@media (max-width: 400px) {
+  .song-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .song-card { padding: 12px; }
+  .song-card .album-art { font-size: 2rem; }
+  .karaoke-overlay .k-korean { font-size: 2rem; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+/* Fade transition */
+.view { animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<div class="app" id="app"></div>
+<div class="karaoke-overlay" id="karaoke"></div>
+<div class="modal-overlay" id="exportModal"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const LLM_URL = 'https://llm.cocy.io/v2/chat/completions';
+const LLM_KEY = 'choon150622';
+
+const SAMPLE_SONGS = [
+  {
+    id: 's1', title: 'Shape of You', artist: 'Ed Sheeran', emoji: '🟧',
+    gradient: 'linear-gradient(135deg,#ff6b35,#ff2d78)',
+    links: { youtube: 'https://www.youtube.com/watch?v=JGwWNGJdvx8', spotify: 'https://open.spotify.com/track/7qiZfU4dY1lWllzX7mPBI3' },
+    lines: [
+      { original: "The club isn't the best place to find a lover", korean: '더 클럽 이전 더 베스트 플레이스 투 파인다 러버' },
+      { original: "So the bar is where I go", korean: '쏘 더 바 이즈 웨어 아이 고' },
+      { original: "Me and my friends at the table doing shots", korean: '미 앤 마이 프렌즈 앳 더 테이블 두잉 샷츠' },
+      { original: "Drinking fast and then we talk slow", korean: '드링킹 패스트 앤 덴 위 톡 슬로우' },
+      { original: "I'm in love with the shape of you", korean: '아임 인 러브 윋 더 셰잎 오브 유' },
+      { original: "We push and pull like a magnet do", korean: '위 푸쉬 앤 풀 라이카 마그넷 두' },
+      { original: "Although my heart is falling too", korean: '올도 마이 하트 이즈 폴링 투' },
+      { original: "I'm in love with your body", korean: '아임 인 러브 윋 유어 바디' },
+    ]
+  },
+  {
+    id: 's2', title: 'Blinding Lights', artist: 'The Weeknd', emoji: '🌃',
+    gradient: 'linear-gradient(135deg,#e01f4f,#ff6b35)',
+    links: { youtube: 'https://www.youtube.com/watch?v=4NRXx6U8ABQ', spotify: 'https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b' },
+    lines: [
+      { original: "I've been tryna call", korean: '아이브 빈 트라이나 콜' },
+      { original: "I've been on my own for long enough", korean: '아이브 빈 온 마이 오운 포 롱 이너프' },
+      { original: "Maybe you can show me how to love, maybe", korean: '메이비 유 캔 쇼 미 하우 투 러브 메이비' },
+      { original: "I'm going through withdrawals", korean: '아임 고잉 쓰루 위드로얼즈' },
+      { original: "I said ooh, I'm blinding lights", korean: '아이 세드 우~ 아임 블라인딩 라이츠' },
+      { original: "No I can't sleep until I feel your touch", korean: '노 아이 캔 슬립 언틸 아이 필 유어 터치' },
+    ]
+  },
+  {
+    id: 's3', title: 'Someone Like You', artist: 'Adele', emoji: '💧',
+    gradient: 'linear-gradient(135deg,#4a90d9,#1a1a3e)',
+    links: { youtube: 'https://www.youtube.com/watch?v=hLQl3WQQoQ0', spotify: 'https://open.spotify.com/track/1zwMYTA5nlNjZxYrvBB2pV' },
+    lines: [
+      { original: "I heard that you're settled down", korean: '아이 허드 댓 유어 세틀드 다운' },
+      { original: "That you found a girl and you're married now", korean: '댓 유 파운다 걸 앤 유어 매리드 나우' },
+      { original: "Never mind, I'll find someone like you", korean: '네버마인드 아일 파인드 썸원 라이크 유~' },
+      { original: "I wish nothing but the best for you, too", korean: '아이 위쉬 낫띵 벗 더 베스트 포 유 투' },
+      { original: "Don't forget me, I beg", korean: '돈 포겟 미 아이 벡' },
+      { original: "I remember you said", korean: '아이 리멤버 유 세드' },
+      { original: "Sometimes it lasts in love but sometimes it hurts instead", korean: '썸타임즈 잇 래스츠 인 러브 벗 썸타임즈 잇 허츠 인스테드' },
+    ]
+  },
+  {
+    id: 's4', title: 'Bohemian Rhapsody', artist: 'Queen', emoji: '👑',
+    gradient: 'linear-gradient(135deg,#ffd700,#8b0000)',
+    links: { youtube: 'https://www.youtube.com/watch?v=fJ9rUzIMcZQ', spotify: 'https://open.spotify.com/track/7tFiyTwD0nx5a1eklYtX2J' },
+    lines: [
+      { original: "Is this the real life? Is this just fantasy?", korean: '이즈 디스 더 리얼 라이프? 이즈 디스 저스트 판타지?' },
+      { original: "Caught in a landslide, no escape from reality", korean: '콧 인 어 랜드슬라이드 노 이스케이프 프롬 리얼리티' },
+      { original: "Open your eyes, look up to the skies and see", korean: '오픈 유어 아이즈 룩 업 투 더 스카이즈 앤 씨' },
+      { original: "I'm just a poor boy, I need no sympathy", korean: '아임 저스트 어 푸어 보이 아이 니드 노 심퍼시' },
+      { original: "Easy come, easy go, little high, little low", korean: '이지 컴 이지 고 리틀 하이 리틀 로우' },
+      { original: "Mama, just killed a man", korean: '마마~ 저스트 킬드 어 맨' },
+      { original: "Put a gun against his head, pulled my trigger now he's dead", korean: '풋 어 건 어겐스트 히즈 헤드 풀드 마이 트리거 나우 히즈 데드' },
+    ]
+  },
+  {
+    id: 's5', title: 'Yesterday', artist: 'The Beatles', emoji: '🎸',
+    gradient: 'linear-gradient(135deg,#8b6914,#2d1810)',
+    links: { youtube: 'https://www.youtube.com/watch?v=NrgmdOz227I', spotify: 'https://open.spotify.com/track/3BQHpFgAp4l80e1XslIjNI' },
+    lines: [
+      { original: "Yesterday, all my troubles seemed so far away", korean: '예스터데이 올 마이 트러블스 심드 쏘 파 어웨이' },
+      { original: "Now it looks as though they're here to stay", korean: '나우 잇 룩스 애즈 도 데어 히어 투 스테이' },
+      { original: "Oh, I believe in yesterday", korean: '오~ 아이 빌리브 인 예스터데이' },
+      { original: "Suddenly, I'm not half the man I used to be", korean: '서든리 아임 낫 해프 더 맨 아이 유즈드 투 비' },
+      { original: "There's a shadow hanging over me", korean: '데어즈 어 섀도우 행잉 오버 미' },
+      { original: "Oh, yesterday came suddenly", korean: '오~ 예스터데이 케임 서든리' },
+    ]
+  },
+  {
+    id: 's6', title: 'Hotel California', artist: 'Eagles', emoji: '🏨',
+    gradient: 'linear-gradient(135deg,#ff8c42,#1a0a2e)',
+    links: { youtube: 'https://www.youtube.com/watch?v=09839DpTctU', spotify: 'https://open.spotify.com/track/40riOy7x9W7GXjyGp4pjAv' },
+    lines: [
+      { original: "On a dark desert highway, cool wind in my hair", korean: '온 어 다크 데저트 하이웨이 쿨 윈드 인 마이 헤어' },
+      { original: "Warm smell of colitas rising up through the air", korean: '웜 스멜 오브 콜리타스 라이징 업 쓰루 디 에어' },
+      { original: "Welcome to the Hotel California", korean: '웰컴 투 더 호텔 캘리포니아~' },
+      { original: "Such a lovely place, such a lovely face", korean: '서치 어 러블리 플레이스 서치 어 러블리 페이스' },
+      { original: "You can check out any time you like", korean: '유 캔 체크 아웃 애니 타임 유 라이크' },
+      { original: "But you can never leave", korean: '벗 유 캔 네버 리브~' },
+    ]
+  },
+  {
+    id: 's7', title: "Don't Stop Believin'", artist: 'Journey', emoji: '🚂',
+    gradient: 'linear-gradient(135deg,#4169e1,#ff6347)',
+    links: { youtube: 'https://www.youtube.com/watch?v=1k8craCGpgs', spotify: 'https://open.spotify.com/track/4bHsxqR3GMrXTxEPLuK5ue' },
+    lines: [
+      { original: "Just a small town girl, livin' in a lonely world", korean: '저스트 어 스몰 타운 걸 리빈 인 어 론리 월드' },
+      { original: "She took the midnight train goin' anywhere", korean: '쉬 툭 더 미드나잇 트레인 고잉 애니웨어' },
+      { original: "Just a city boy, born and raised in South Detroit", korean: '저스트 어 시티 보이 본 앤 레이즈드 인 사우스 디트로잇' },
+      { original: "Strangers waiting up and down the boulevard", korean: '스트레인저스 웨이팅 업 앤 다운 더 불러바드' },
+      { original: "Don't stop believin', hold on to that feelin'", korean: '돈 스탑 빌리빈~ 홀드 온 투 댓 필링~' },
+    ]
+  },
+  {
+    id: 's8', title: 'Rolling in the Deep', artist: 'Adele', emoji: '🔥',
+    gradient: 'linear-gradient(135deg,#c0392b,#2c3e50)',
+    links: { youtube: 'https://www.youtube.com/watch?v=rYEDA3JcQqw', spotify: 'https://open.spotify.com/track/1c8gk2PeTE04A1pIDH9YMk' },
+    lines: [
+      { original: "There's a fire starting in my heart", korean: '데어즈 어 파이어 스타팅 인 마이 하트' },
+      { original: "Reaching a fever pitch and it's bringing me out the dark", korean: '리칭 어 피버 피치 앤 잇츠 브링잉 미 아웃 더 다크' },
+      { original: "We could have had it all", korean: '위 쿠드 해브 해드 잇 올~' },
+      { original: "Rolling in the deep", korean: '롤링 인 더 딥~' },
+      { original: "You had my heart inside of your hands", korean: '유 해드 마이 하트 인사이드 오브 유어 핸즈' },
+      { original: "And you played it to the beat", korean: '앤 유 플레이드 잇 투 더 빗' },
+    ]
+  },
+  {
+    id: 's9', title: 'Uptown Funk', artist: 'Bruno Mars', emoji: '🕺',
+    gradient: 'linear-gradient(135deg,#ff1744,#ffc107)',
+    links: { youtube: 'https://www.youtube.com/watch?v=OPf0YbXqDm0', spotify: 'https://open.spotify.com/track/32OlwWuMpZ6b0aN2RZOeMS' },
+    lines: [
+      { original: "This hit, that ice cold, Michelle Pfeiffer, that white gold", korean: '디스 힛 댓 아이스 콜드 미셸 파이퍼 댓 화이트 골드' },
+      { original: "Don't believe me, just watch", korean: '돈 빌리브 미 저스트 워치!' },
+      { original: "Uptown funk you up, uptown funk you up", korean: '업타운 펑크 유 업! 업타운 펑크 유 업!' },
+      { original: "Saturday night and we in the spot", korean: '새터데이 나잇 앤 위 인 더 스팟' },
+      { original: "Girls hit your hallelujah", korean: '걸스 힛 유어 할렐루야~' },
+      { original: "Cause uptown funk gon' give it to you", korean: '커즈 업타운 펑크 곤 기빗 투 유' },
+    ]
+  },
+  {
+    id: 's10', title: 'Dynamite', artist: 'BTS', emoji: '🧨',
+    gradient: 'linear-gradient(135deg,#7b1fa2,#ff6f00)',
+    links: { youtube: 'https://www.youtube.com/watch?v=gdZLi9oWNZg', spotify: 'https://open.spotify.com/track/5QDLhrAOJJdNAmCTJ8xMyW' },
+    lines: [
+      { original: "Cause I, I, I'm in the stars tonight", korean: '커즈 아이 아이 아이 아임 인 더 스타즈 투나잇' },
+      { original: "So watch me bring the fire and set the night alight", korean: '쏘 워치 미 브링 더 파이어 앤 셋 더 나잇 얼라잇' },
+      { original: "Shining through the city with a little funk and soul", korean: '샤이닝 쓰루 더 시티 윋 어 리틀 펑크 앤 소울' },
+      { original: "So I'ma light it up like dynamite", korean: '쏘 아이마 라잇 잇 업 라이크 다이너마이트!' },
+      { original: "Dy-na-na-na-na-na-na-na-na-na, life is dynamite", korean: '다이 나나나나나나 나나나 라이프 이즈 다이너마이트!' },
+      { original: "Bring a friend, join the crowd, whoever wanna come along", korean: '브링 어 프렌드 조인 더 크라우드 후에버 워나 컴 얼롱' },
+    ]
+  },
+];
+
+// --- State ---
+let state = {
+  view: 'home', // home | editor | add
+  songs: [],
+  currentSongId: null,
+  search: '',
+  karaokeIndex: 0,
+  aiOptions: { stretch: false, stress: false, rhyme: false },
+};
+
+function loadState() {
+  const saved = localStorage.getItem('feellyrics_songs');
+  if (saved) {
+    state.songs = JSON.parse(saved);
+  } else {
+    state.songs = JSON.parse(JSON.stringify(SAMPLE_SONGS));
+    saveState();
+  }
+}
+
+function saveState() {
+  localStorage.setItem('feellyrics_songs', JSON.stringify(state.songs));
+}
+
+function getCurrentSong() {
+  return state.songs.find(s => s.id === state.currentSongId);
+}
+
+// --- Toast ---
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// --- Render ---
+function render() {
+  const app = document.getElementById('app');
+  switch(state.view) {
+    case 'home': app.innerHTML = renderHome(); break;
+    case 'editor': app.innerHTML = renderEditor(); break;
+    case 'add': app.innerHTML = renderAddForm(); break;
+  }
+  bindEvents();
+}
+
+function renderHome() {
+  const filtered = state.songs.filter(s =>
+    !state.search || s.title.toLowerCase().includes(state.search.toLowerCase()) ||
+    s.artist.toLowerCase().includes(state.search.toLowerCase())
+  );
+  return `
+    <div class="view">
+      <div class="header">
+        <h1>🎤 느낌가사</h1>
+        <p>외국 노래를 한글 발음으로 따라 부르자</p>
+      </div>
+      <div class="search-bar">
+        <input type="text" placeholder="곡 또는 아티스트 검색..." value="${escHtml(state.search)}" id="searchInput">
+      </div>
+      <div class="song-grid">
+        ${filtered.map(s => `
+          <div class="song-card" data-action="open" data-id="${s.id}">
+            <div class="album-art" style="background:${s.gradient}">${s.emoji}</div>
+            <div class="title">${escHtml(s.title)}</div>
+            <div class="artist">${escHtml(s.artist)}</div>
+            ${s.id.startsWith('s') ? '<span class="badge">SAMPLE</span>' : ''}
+          </div>
+        `).join('')}
+        <div class="song-card add-card" data-action="add">
+          <div class="plus">+</div>
+          <div class="label">새 곡 등록</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderEditor() {
+  const song = getCurrentSong();
+  if (!song) { state.view = 'home'; return renderHome(); }
+  const linkLabels = { youtube: '▶ YouTube', spotify: '🎵 Spotify', melon: '🍈 Melon' };
+  return `
+    <div class="view">
+      <button class="nav-back" data-action="back">← 목록으로</button>
+      <div class="song-info">
+        <div class="art" style="background:${song.gradient}">${song.emoji}</div>
+        <div class="meta">
+          <h2>${escHtml(song.title)}</h2>
+          <div class="artist">${escHtml(song.artist)}</div>
+          <div class="links">
+            ${Object.entries(song.links||{}).map(([k,v]) => v ? `<a href="${escHtml(v)}" target="_blank" rel="noopener">${linkLabels[k]||k}</a>` : '').join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">🤖 AI 느낌가사 생성</div>
+      <div class="options-row">
+        <button class="option-chip ${state.aiOptions.stretch?'active':''}" data-option="stretch">🎵 음절 늘리기</button>
+        <button class="option-chip ${state.aiOptions.stress?'active':''}" data-option="stress">💪 강세 강조</button>
+        <button class="option-chip ${state.aiOptions.rhyme?'active':''}" data-option="rhyme">🎶 라임 느낌</button>
+      </div>
+      <div class="toolbar">
+        <button class="btn btn-primary" data-action="aiGenerate">✨ AI 생성</button>
+        <button class="btn" data-action="karaoke">🎤 노래방</button>
+        <button class="btn" data-action="addLine">+ 줄 추가</button>
+        <button class="btn" data-action="export">📤 내보내기</button>
+        ${!song.id.startsWith('s') ? '<button class="btn" data-action="deleteSong" style="color:#ff4444">🗑</button>' : ''}
+      </div>
+
+      <div id="aiStatus"></div>
+
+      <div class="line-header"><span>원문 가사</span><span>한글 느낌가사</span></div>
+      <div class="lines-container" id="linesContainer">
+        ${song.lines.map((l, i) => `
+          <div class="line-row" data-idx="${i}">
+            <textarea class="original" rows="1" data-field="original" data-idx="${i}">${escHtml(l.original)}</textarea>
+            <textarea class="korean" rows="1" placeholder="한글 발음 입력..." data-field="korean" data-idx="${i}">${escHtml(l.korean)}</textarea>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderAddForm() {
+  return `
+    <div class="view">
+      <button class="nav-back" data-action="back">← 목록으로</button>
+      <div class="header" style="padding-bottom:8px"><h1>🎵 새 곡 등록</h1></div>
+      <div class="form-group">
+        <label>곡 제목 *</label>
+        <input id="addTitle" placeholder="Shape of You">
+      </div>
+      <div class="form-group">
+        <label>아티스트 *</label>
+        <input id="addArtist" placeholder="Ed Sheeran">
+      </div>
+      <div class="form-group">
+        <label>YouTube 링크</label>
+        <input id="addYoutube" placeholder="https://www.youtube.com/watch?v=...">
+      </div>
+      <div class="form-group">
+        <label>Spotify 링크</label>
+        <input id="addSpotify" placeholder="https://open.spotify.com/track/...">
+      </div>
+      <div class="form-group">
+        <label>가사 (한 줄에 하나씩)</label>
+        <textarea id="addLyrics" placeholder="Is this the real life?&#10;Is this just fantasy?&#10;Caught in a landslide..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-primary" data-action="saveSong" style="flex:1">등록하기</button>
+        <button class="btn" data-action="back">취소</button>
+      </div>
+    </div>
+  `;
+}
+
+// --- Events ---
+function bindEvents() {
+  const app = document.getElementById('app');
+
+  // Search
+  const si = document.getElementById('searchInput');
+  if (si) si.addEventListener('input', e => { state.search = e.target.value; render(); });
+
+  // Click delegation
+  app.addEventListener('click', handleClick);
+
+  // Textarea auto-resize + save
+  app.querySelectorAll('textarea[data-field]').forEach(ta => {
+    autoResize(ta);
+    ta.addEventListener('input', e => {
+      autoResize(e.target);
+      const song = getCurrentSong();
+      if (!song) return;
+      const idx = +e.target.dataset.idx;
+      const field = e.target.dataset.field;
+      song.lines[idx][field] = e.target.value;
+      saveState();
+    });
+  });
+
+  // Option chips
+  app.querySelectorAll('.option-chip').forEach(el => {
+    el.addEventListener('click', () => {
+      const opt = el.dataset.option;
+      state.aiOptions[opt] = !state.aiOptions[opt];
+      el.classList.toggle('active');
+    });
+  });
+}
+
+function handleClick(e) {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const action = btn.dataset.action;
+
+  switch(action) {
+    case 'open':
+      state.currentSongId = btn.dataset.id;
+      state.view = 'editor';
+      render();
+      break;
+    case 'back':
+      state.view = 'home';
+      render();
+      break;
+    case 'add':
+      state.view = 'add';
+      render();
+      break;
+    case 'karaoke':
+      openKaraoke();
+      break;
+    case 'aiGenerate':
+      aiGenerate();
+      break;
+    case 'addLine':
+      addLine();
+      break;
+    case 'export':
+      openExport();
+      break;
+    case 'saveSong':
+      saveSong();
+      break;
+    case 'deleteSong':
+      deleteSong();
+      break;
+  }
+}
+
+function autoResize(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = ta.scrollHeight + 'px';
+}
+
+// --- Actions ---
+function addLine() {
+  const song = getCurrentSong();
+  if (!song) return;
+  song.lines.push({ original: '', korean: '' });
+  saveState();
+  render();
+  // Focus last korean input
+  setTimeout(() => {
+    const all = document.querySelectorAll('.korean');
+    if (all.length) all[all.length-1].focus();
+  }, 50);
+}
+
+function saveSong() {
+  const title = document.getElementById('addTitle').value.trim();
+  const artist = document.getElementById('addArtist').value.trim();
+  if (!title || !artist) { toast('제목과 아티스트를 입력해주세요'); return; }
+  const lyrics = document.getElementById('addLyrics').value.trim();
+  const lines = lyrics ? lyrics.split('\n').filter(l => l.trim()).map(l => ({ original: l.trim(), korean: '' })) : [{ original: '', korean: '' }];
+  const emojis = ['🎵','🎶','🎹','🎷','🎺','🥁','🎻','🪗','🎙️','🎧'];
+  const gradients = [
+    'linear-gradient(135deg,#667eea,#764ba2)',
+    'linear-gradient(135deg,#f093fb,#f5576c)',
+    'linear-gradient(135deg,#4facfe,#00f2fe)',
+    'linear-gradient(135deg,#43e97b,#38f9d7)',
+    'linear-gradient(135deg,#fa709a,#fee140)',
+  ];
+  const song = {
+    id: 'u' + Date.now(),
+    title, artist,
+    emoji: emojis[Math.floor(Math.random()*emojis.length)],
+    gradient: gradients[Math.floor(Math.random()*gradients.length)],
+    links: {
+      youtube: document.getElementById('addYoutube').value.trim() || null,
+      spotify: document.getElementById('addSpotify').value.trim() || null,
+    },
+    lines
+  };
+  state.songs.unshift(song);
+  saveState();
+  state.currentSongId = song.id;
+  state.view = 'editor';
+  render();
+  toast('곡이 등록되었어요!');
+}
+
+function deleteSong() {
+  if (!confirm('이 곡을 삭제할까요?')) return;
+  state.songs = state.songs.filter(s => s.id !== state.currentSongId);
+  saveState();
+  state.view = 'home';
+  render();
+  toast('삭제 완료');
+}
+
+// --- AI Generation ---
+async function aiGenerate() {
+  const song = getCurrentSong();
+  if (!song) return;
+  const originals = song.lines.map(l => l.original).filter(l => l.trim());
+  if (!originals.length) { toast('원문 가사를 먼저 입력해주세요'); return; }
+
+  const statusEl = document.getElementById('aiStatus');
+  statusEl.innerHTML = '<div class="ai-loading"><div class="spinner"></div>AI가 한글 느낌가사를 만들고 있어요...</div>';
+
+  let optionText = '';
+  if (state.aiOptions.stretch) optionText += '\n- 음절을 약간 늘려서 더 부르기 쉽게 (예: "love" → "러~브")';
+  if (state.aiOptions.stress) optionText += '\n- 강세가 있는 음절은 굵게 또는 ~로 강조 표시';
+  if (state.aiOptions.rhyme) optionText += '\n- 한국어에서도 라임/운율이 느껴지도록 발음 조정';
+
+  const prompt = `다음 영어 가사를 한국어 발음(느낌가사)으로 변환해줘.
+규칙:
+- 영어 발음을 한글로 최대한 자연스럽게 표기
+- 노래 부를 때 리듬에 맞게 음절 수 조절
+- 원문의 느낌을 살려서 변환${optionText}
+
+형식: 반드시 아래처럼 JSON 배열로만 응답 (다른 텍스트 없이):
+[{"original":"원문","korean":"한글발음"},...]
+
+가사:
+${originals.map((l,i) => `${i+1}. ${l}`).join('\n')}`;
+
+  try {
+    const res = await fetch(LLM_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + LLM_KEY },
+      body: JSON.stringify({ model: 'spark', messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await res.json();
+    const text = data.choices?.[0]?.message?.content || '';
+
+    // Robust parse: strip think tags, find JSON
+    let cleaned = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+    const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) throw new Error('AI 응답 파싱 실패');
+    const result = JSON.parse(jsonMatch[0]);
+
+    // Apply results
+    result.forEach((r, i) => {
+      if (i < song.lines.length && r.korean) {
+        song.lines[i].korean = r.korean;
+      }
+    });
+    saveState();
+    statusEl.innerHTML = '';
+    render();
+    toast('✨ 느낌가사 생성 완료!');
+  } catch(err) {
+    statusEl.innerHTML = `<div style="color:#ff4444;text-align:center;padding:12px;font-size:0.85rem">생성 실패: ${escHtml(err.message)}<br><span style="color:var(--text-dim)">직접 입력하거나 다시 시도해주세요</span></div>`;
+  }
+}
+
+// --- Karaoke ---
+function openKaraoke() {
+  const song = getCurrentSong();
+  if (!song || !song.lines.length) return;
+  const nonEmpty = song.lines.filter(l => l.korean.trim());
+  if (!nonEmpty.length) { toast('한글 가사를 먼저 입력해주세요'); return; }
+  state.karaokeIndex = 0;
+  renderKaraoke(song, nonEmpty);
+}
+
+function renderKaraoke(song, lines) {
+  const overlay = document.getElementById('karaoke');
+  const i = state.karaokeIndex;
+  const line = lines[Math.min(i, lines.length - 1)];
+  const done = i >= lines.length;
+
+  overlay.innerHTML = `
+    <button class="k-close" id="kClose">✕</button>
+    ${done ? `
+      <div class="k-korean" style="font-size:1.8rem">🎤 끝! 잘했어요!</div>
+      <div class="k-progress">탭하여 돌아가기</div>
+    ` : `
+      <div class="k-original">${escHtml(line.original)}</div>
+      <div class="k-korean">${escHtml(line.korean)}</div>
+      <div class="k-progress">${i+1} / ${lines.length}</div>
+      <div class="k-hint">탭 또는 →키로 다음</div>
+    `}
+  `;
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+
+  const close = () => {
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    overlay.removeEventListener('click', advance);
+    document.removeEventListener('keydown', keyHandler);
+  };
+
+  const advance = (e) => {
+    if (e.target.id === 'kClose') { close(); return; }
+    if (done) { close(); return; }
+    state.karaokeIndex++;
+    renderKaraoke(song, lines);
+  };
+
+  const keyHandler = (e) => {
+    if (e.key === 'Escape') { close(); return; }
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); advance(e); }
+    if (e.key === 'ArrowLeft' && state.karaokeIndex > 0) {
+      e.preventDefault(); state.karaokeIndex--; renderKaraoke(song, lines);
+    }
+  };
+
+  // Re-attach (previous listeners removed by innerHTML replacement)
+  setTimeout(() => {
+    overlay.addEventListener('click', advance);
+    document.addEventListener('keydown', keyHandler);
+    document.getElementById('kClose').addEventListener('click', close);
+  }, 10);
+}
+
+// --- Export ---
+function openExport() {
+  const song = getCurrentSong();
+  if (!song) return;
+  const text = `${song.title} — ${song.artist}\n${'─'.repeat(30)}\n\n` +
+    song.lines.map(l => `${l.original}\n${l.korean || '(미입력)'}\n`).join('\n');
+
+  const modal = document.getElementById('exportModal');
+  modal.innerHTML = `
+    <div class="modal-box">
+      <h3>📤 내보내기</h3>
+      <pre id="exportText">${escHtml(text)}</pre>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="copyBtn">📋 텍스트 복사</button>
+        <button class="btn" id="closeExport">닫기</button>
+      </div>
+    </div>
+  `;
+  modal.classList.add('active');
+
+  document.getElementById('copyBtn').addEventListener('click', () => {
+    navigator.clipboard.writeText(text).then(() => toast('복사 완료!')).catch(() => {
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      toast('복사 완료!');
+    });
+  });
+  document.getElementById('closeExport').addEventListener('click', () => modal.classList.remove('active'));
+  modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('active'); });
+}
+
+// --- Util ---
+function escHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// --- Init ---
+loadState();
+render();
+</script>
+</body>
+</html>

@@ -1,5 +1,19 @@
 [
     {
+        "title": "느낌가사 Feel Lyrics",
+        "icon": "https://tool.cocy.io/feellyrics/icon.svg",
+        "url": "https://tool.cocy.io/feellyrics/",
+        "desc": "외국 노래를 한글 발음으로 따라 부르자! AI 느낌가사 생성 + 노래방 모드",
+        "badge": "NEW",
+        "platforms": [
+            "WEB"
+        ],
+        "languages": [
+            "🌍"
+        ],
+        "category": "tool"
+    },
+    {
         "title": "로또번호 생성기",
         "icon": "https://tool.cocy.io/lotto/icon.svg",
         "url": "https://tool.cocy.io/lotto/",
