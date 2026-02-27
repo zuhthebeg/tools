@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" id="htmlRoot">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -328,6 +328,20 @@ body::before {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
+/* Lang switcher */
+.lang-switcher {
+  display: flex; justify-content: center; gap: 4px; margin-bottom: 8px;
+}
+.lang-btn {
+  padding: 4px 10px; border-radius: 8px; border: 1px solid var(--card-border);
+  background: var(--card); color: var(--text-dim); font-size: 0.75rem;
+  cursor: pointer; font-family: inherit; font-weight: 600; transition: 0.2s;
+}
+.lang-btn.active {
+  border-color: var(--neon-cyan); color: var(--neon-cyan);
+  background: rgba(0,229,255,0.1);
+}
+
 /* Fade transition */
 .view { animation: fadeIn 0.2s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -343,6 +357,206 @@ body::before {
 <script>
 const LLM_URL = 'https://llm.cocy.io/v2/chat/completions';
 const LLM_KEY = 'choon150622';
+
+// --- i18n ---
+const LANGS = ['ko','en','ja','zh-TW'];
+const LANG_LABELS = { ko:'한국어', en:'English', ja:'日本語', 'zh-TW':'繁體中文' };
+const I18N = {
+  ko: {
+    title: '느낌가사',
+    subtitle: '외국 노래를 한글 발음으로 따라 부르자',
+    searchPlaceholder: '곡 또는 아티스트 검색...',
+    addSong: '새 곡 등록',
+    backToList: '← 목록으로',
+    aiSection: '🤖 AI 느낌가사 생성',
+    optStretch: '🎵 음절 늘리기',
+    optStress: '💪 강세 강조',
+    optRhyme: '🎶 라임 느낌',
+    btnAi: '✨ AI 생성',
+    btnKaraoke: '🎤 노래방',
+    btnAddLine: '+ 줄 추가',
+    btnExport: '📤 내보내기',
+    colOriginal: '원문 가사',
+    colKorean: '한글 느낌가사',
+    koreanPlaceholder: '한글 발음 입력...',
+    addTitle: '곡 제목',
+    addArtist: '아티스트',
+    addYoutube: 'YouTube 링크',
+    addSpotify: 'Spotify 링크',
+    addLyrics: '가사 (한 줄에 하나씩)',
+    btnRegister: '등록하기',
+    btnCancel: '취소',
+    newSongTitle: '🎵 새 곡 등록',
+    toastRegistered: '곡이 등록되었어요!',
+    toastDeleted: '삭제 완료',
+    toastCopied: '복사 완료!',
+    toastAiDone: '✨ 느낌가사 생성 완료!',
+    toastNoLyrics: '원문 가사를 먼저 입력해주세요',
+    toastNoKorean: '한글 가사를 먼저 입력해주세요',
+    toastRequired: '제목과 아티스트를 입력해주세요',
+    confirmDelete: '이 곡을 삭제할까요?',
+    aiLoading: 'AI가 한글 느낌가사를 만들고 있어요...',
+    aiFailed: '생성 실패',
+    aiRetry: '직접 입력하거나 다시 시도해주세요',
+    exportTitle: '📤 내보내기',
+    exportCopy: '📋 텍스트 복사',
+    exportClose: '닫기',
+    karaokeEnd: '🎤 끝! 잘했어요!',
+    karaokeTapBack: '탭하여 돌아가기',
+    karaokeHint: '탭 또는 →키로 다음',
+    notEntered: '(미입력)',
+  },
+  en: {
+    title: 'Feel Lyrics',
+    subtitle: 'Sing foreign songs with Korean phonetics',
+    searchPlaceholder: 'Search song or artist...',
+    addSong: 'Add Song',
+    backToList: '← Back',
+    aiSection: '🤖 AI Phonetic Generation',
+    optStretch: '🎵 Stretch Syllables',
+    optStress: '💪 Stress Marks',
+    optRhyme: '🎶 Rhyme Feel',
+    btnAi: '✨ AI Generate',
+    btnKaraoke: '🎤 Karaoke',
+    btnAddLine: '+ Add Line',
+    btnExport: '📤 Export',
+    colOriginal: 'Original Lyrics',
+    colKorean: 'Korean Phonetics',
+    koreanPlaceholder: 'Type Korean phonetics...',
+    addTitle: 'Song Title',
+    addArtist: 'Artist',
+    addYoutube: 'YouTube Link',
+    addSpotify: 'Spotify Link',
+    addLyrics: 'Lyrics (one line each)',
+    btnRegister: 'Register',
+    btnCancel: 'Cancel',
+    newSongTitle: '🎵 Add New Song',
+    toastRegistered: 'Song added!',
+    toastDeleted: 'Deleted',
+    toastCopied: 'Copied!',
+    toastAiDone: '✨ Phonetics generated!',
+    toastNoLyrics: 'Enter original lyrics first',
+    toastNoKorean: 'Enter Korean phonetics first',
+    toastRequired: 'Title and artist required',
+    confirmDelete: 'Delete this song?',
+    aiLoading: 'AI is generating Korean phonetics...',
+    aiFailed: 'Generation failed',
+    aiRetry: 'Try again or type manually',
+    exportTitle: '📤 Export',
+    exportCopy: '📋 Copy Text',
+    exportClose: 'Close',
+    karaokeEnd: '🎤 Great job!',
+    karaokeTapBack: 'Tap to go back',
+    karaokeHint: 'Tap or → for next',
+    notEntered: '(empty)',
+  },
+  ja: {
+    title: 'フィールリリックス',
+    subtitle: '外国の歌を韓国語の発音で歌おう',
+    searchPlaceholder: '曲またはアーティスト検索...',
+    addSong: '新曲追加',
+    backToList: '← 一覧へ',
+    aiSection: '🤖 AI 韓国語発音生成',
+    optStretch: '🎵 音節を伸ばす',
+    optStress: '💪 アクセント強調',
+    optRhyme: '🎶 ライム感',
+    btnAi: '✨ AI生成',
+    btnKaraoke: '🎤 カラオケ',
+    btnAddLine: '+ 行追加',
+    btnExport: '📤 エクスポート',
+    colOriginal: '原文歌詞',
+    colKorean: '韓国語発音',
+    koreanPlaceholder: '韓国語の発音を入力...',
+    addTitle: '曲名',
+    addArtist: 'アーティスト',
+    addYoutube: 'YouTubeリンク',
+    addSpotify: 'Spotifyリンク',
+    addLyrics: '歌詞（1行ずつ）',
+    btnRegister: '登録',
+    btnCancel: 'キャンセル',
+    newSongTitle: '🎵 新曲追加',
+    toastRegistered: '曲が追加されました！',
+    toastDeleted: '削除完了',
+    toastCopied: 'コピーしました！',
+    toastAiDone: '✨ 発音生成完了！',
+    toastNoLyrics: '先に原文歌詞を入力してください',
+    toastNoKorean: '先に韓国語発音を入力してください',
+    toastRequired: '曲名とアーティストを入力してください',
+    confirmDelete: 'この曲を削除しますか？',
+    aiLoading: 'AIが韓国語発音を生成中...',
+    aiFailed: '生成失敗',
+    aiRetry: '手動入力するか再試行してください',
+    exportTitle: '📤 エクスポート',
+    exportCopy: '📋 テキストコピー',
+    exportClose: '閉じる',
+    karaokeEnd: '🎤 お疲れ様！',
+    karaokeTapBack: 'タップで戻る',
+    karaokeHint: 'タップまたは→キーで次へ',
+    notEntered: '（未入力）',
+  },
+  'zh-TW': {
+    title: '感覺歌詞',
+    subtitle: '用韓文發音唱外國歌曲',
+    searchPlaceholder: '搜尋歌曲或歌手...',
+    addSong: '新增歌曲',
+    backToList: '← 返回列表',
+    aiSection: '🤖 AI 韓文發音生成',
+    optStretch: '🎵 延長音節',
+    optStress: '💪 重音標記',
+    optRhyme: '🎶 押韻感',
+    btnAi: '✨ AI 生成',
+    btnKaraoke: '🎤 KTV模式',
+    btnAddLine: '+ 新增行',
+    btnExport: '📤 匯出',
+    colOriginal: '原文歌詞',
+    colKorean: '韓文發音',
+    koreanPlaceholder: '輸入韓文發音...',
+    addTitle: '歌曲名稱',
+    addArtist: '歌手',
+    addYoutube: 'YouTube 連結',
+    addSpotify: 'Spotify 連結',
+    addLyrics: '歌詞（每行一句）',
+    btnRegister: '新增',
+    btnCancel: '取消',
+    newSongTitle: '🎵 新增歌曲',
+    toastRegistered: '歌曲已新增！',
+    toastDeleted: '已刪除',
+    toastCopied: '已複製！',
+    toastAiDone: '✨ 發音生成完成！',
+    toastNoLyrics: '請先輸入原文歌詞',
+    toastNoKorean: '請先輸入韓文發音',
+    toastRequired: '請輸入歌曲名稱和歌手',
+    confirmDelete: '要刪除這首歌嗎？',
+    aiLoading: 'AI 正在生成韓文發音...',
+    aiFailed: '生成失敗',
+    aiRetry: '請手動輸入或重試',
+    exportTitle: '📤 匯出',
+    exportCopy: '📋 複製文字',
+    exportClose: '關閉',
+    karaokeEnd: '🎤 太棒了！',
+    karaokeTapBack: '點擊返回',
+    karaokeHint: '點擊或→鍵下一行',
+    notEntered: '（未輸入）',
+  },
+};
+
+let currentLang = localStorage.getItem('feellyrics_lang') || (navigator.language.startsWith('ja') ? 'ja' : navigator.language.startsWith('zh') ? 'zh-TW' : navigator.language.startsWith('en') ? 'en' : 'ko');
+if (!I18N[currentLang]) currentLang = 'ko';
+
+function t(key) { return I18N[currentLang]?.[key] || I18N.ko[key] || key; }
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('feellyrics_lang', lang);
+  document.getElementById('htmlRoot').lang = lang === 'zh-TW' ? 'zh-Hant' : lang;
+  render();
+}
+
+function renderLangSwitcher() {
+  return `<div class="lang-switcher">${LANGS.map(l =>
+    `<button class="lang-btn ${l===currentLang?'active':''}" data-lang="${l}">${LANG_LABELS[l]}</button>`
+  ).join('')}</div>`;
+}
 
 const SAMPLE_SONGS = [
   {
@@ -584,12 +798,13 @@ function renderHome() {
   );
   return `
     <div class="view">
+      ${renderLangSwitcher()}
       <div class="header">
-        <h1>🎤 느낌가사</h1>
-        <p>외국 노래를 한글 발음으로 따라 부르자</p>
+        <h1>🎤 ${t('title')}</h1>
+        <p>${t('subtitle')}</p>
       </div>
       <div class="search-bar">
-        <input type="text" placeholder="곡 또는 아티스트 검색..." value="${escHtml(state.search)}" id="searchInput">
+        <input type="text" placeholder="${t('searchPlaceholder')}" value="${escHtml(state.search)}" id="searchInput">
       </div>
       <div class="song-grid">
         ${filtered.map(s => `
@@ -602,7 +817,7 @@ function renderHome() {
         `).join('')}
         <div class="song-card add-card" data-action="add">
           <div class="plus">+</div>
-          <div class="label">새 곡 등록</div>
+          <div class="label">${t('addSong')}</div>
         </div>
       </div>
     </div>
@@ -615,7 +830,7 @@ function renderEditor() {
   const linkLabels = { youtube: '▶ YouTube', spotify: '🎵 Spotify', melon: '🍈 Melon' };
   return `
     <div class="view">
-      <button class="nav-back" data-action="back">← 목록으로</button>
+      <button class="nav-back" data-action="back">${t('backToList')}</button>
       <div class="song-info">
         <div class="art" style="background:${song.gradient}">${song.emoji}</div>
         <div class="meta">
@@ -627,28 +842,28 @@ function renderEditor() {
         </div>
       </div>
 
-      <div class="section-label">🤖 AI 느낌가사 생성</div>
+      <div class="section-label">${t('aiSection')}</div>
       <div class="options-row">
-        <button class="option-chip ${state.aiOptions.stretch?'active':''}" data-option="stretch">🎵 음절 늘리기</button>
-        <button class="option-chip ${state.aiOptions.stress?'active':''}" data-option="stress">💪 강세 강조</button>
-        <button class="option-chip ${state.aiOptions.rhyme?'active':''}" data-option="rhyme">🎶 라임 느낌</button>
+        <button class="option-chip ${state.aiOptions.stretch?'active':''}" data-option="stretch">${t('optStretch')}</button>
+        <button class="option-chip ${state.aiOptions.stress?'active':''}" data-option="stress">${t('optStress')}</button>
+        <button class="option-chip ${state.aiOptions.rhyme?'active':''}" data-option="rhyme">${t('optRhyme')}</button>
       </div>
       <div class="toolbar">
-        <button class="btn btn-primary" data-action="aiGenerate">✨ AI 생성</button>
-        <button class="btn" data-action="karaoke">🎤 노래방</button>
-        <button class="btn" data-action="addLine">+ 줄 추가</button>
-        <button class="btn" data-action="export">📤 내보내기</button>
+        <button class="btn btn-primary" data-action="aiGenerate">${t('btnAi')}</button>
+        <button class="btn" data-action="karaoke">${t('btnKaraoke')}</button>
+        <button class="btn" data-action="addLine">${t('btnAddLine')}</button>
+        <button class="btn" data-action="export">${t('btnExport')}</button>
         ${!song.id.startsWith('s') ? '<button class="btn" data-action="deleteSong" style="color:#ff4444">🗑</button>' : ''}
       </div>
 
       <div id="aiStatus"></div>
 
-      <div class="line-header"><span>원문 가사</span><span>한글 느낌가사</span></div>
+      <div class="line-header"><span>${t('colOriginal')}</span><span>${t('colKorean')}</span></div>
       <div class="lines-container" id="linesContainer">
         ${song.lines.map((l, i) => `
           <div class="line-row" data-idx="${i}">
             <textarea class="original" rows="1" data-field="original" data-idx="${i}">${escHtml(l.original)}</textarea>
-            <textarea class="korean" rows="1" placeholder="한글 발음 입력..." data-field="korean" data-idx="${i}">${escHtml(l.korean)}</textarea>
+            <textarea class="korean" rows="1" placeholder="${t('koreanPlaceholder')}" data-field="korean" data-idx="${i}">${escHtml(l.korean)}</textarea>
           </div>
         `).join('')}
       </div>
@@ -659,31 +874,31 @@ function renderEditor() {
 function renderAddForm() {
   return `
     <div class="view">
-      <button class="nav-back" data-action="back">← 목록으로</button>
-      <div class="header" style="padding-bottom:8px"><h1>🎵 새 곡 등록</h1></div>
+      <button class="nav-back" data-action="back">${t('backToList')}</button>
+      <div class="header" style="padding-bottom:8px"><h1>${t('newSongTitle')}</h1></div>
       <div class="form-group">
-        <label>곡 제목 *</label>
+        <label>${t('addTitle')} *</label>
         <input id="addTitle" placeholder="Shape of You">
       </div>
       <div class="form-group">
-        <label>아티스트 *</label>
+        <label>${t('addArtist')} *</label>
         <input id="addArtist" placeholder="Ed Sheeran">
       </div>
       <div class="form-group">
-        <label>YouTube 링크</label>
+        <label>${t('addYoutube')}</label>
         <input id="addYoutube" placeholder="https://www.youtube.com/watch?v=...">
       </div>
       <div class="form-group">
-        <label>Spotify 링크</label>
+        <label>${t('addSpotify')}</label>
         <input id="addSpotify" placeholder="https://open.spotify.com/track/...">
       </div>
       <div class="form-group">
-        <label>가사 (한 줄에 하나씩)</label>
+        <label>${t('addLyrics')}</label>
         <textarea id="addLyrics" placeholder="Is this the real life?&#10;Is this just fantasy?&#10;Caught in a landslide..."></textarea>
       </div>
       <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="btn btn-primary" data-action="saveSong" style="flex:1">등록하기</button>
-        <button class="btn" data-action="back">취소</button>
+        <button class="btn btn-primary" data-action="saveSong" style="flex:1">${t('btnRegister')}</button>
+        <button class="btn" data-action="back">${t('btnCancel')}</button>
       </div>
     </div>
   `;
@@ -696,6 +911,11 @@ function bindEvents() {
   // Search
   const si = document.getElementById('searchInput');
   if (si) si.addEventListener('input', e => { state.search = e.target.value; render(); });
+
+  // Lang switcher
+  app.querySelectorAll('.lang-btn').forEach(el => {
+    el.addEventListener('click', () => setLang(el.dataset.lang));
+  });
 
   // Click delegation
   app.addEventListener('click', handleClick);
@@ -786,7 +1006,7 @@ function addLine() {
 function saveSong() {
   const title = document.getElementById('addTitle').value.trim();
   const artist = document.getElementById('addArtist').value.trim();
-  if (!title || !artist) { toast('제목과 아티스트를 입력해주세요'); return; }
+  if (!title || !artist) { toast(t('toastRequired')); return; }
   const lyrics = document.getElementById('addLyrics').value.trim();
   const lines = lyrics ? lyrics.split('\n').filter(l => l.trim()).map(l => ({ original: l.trim(), korean: '' })) : [{ original: '', korean: '' }];
   const emojis = ['🎵','🎶','🎹','🎷','🎺','🥁','🎻','🪗','🎙️','🎧'];
@@ -813,16 +1033,16 @@ function saveSong() {
   state.currentSongId = song.id;
   state.view = 'editor';
   render();
-  toast('곡이 등록되었어요!');
+  toast(t('toastRegistered'));
 }
 
 function deleteSong() {
-  if (!confirm('이 곡을 삭제할까요?')) return;
+  if (!confirm(t('confirmDelete'))) return;
   state.songs = state.songs.filter(s => s.id !== state.currentSongId);
   saveState();
   state.view = 'home';
   render();
-  toast('삭제 완료');
+  toast(t('toastDeleted'));
 }
 
 // --- AI Generation ---
@@ -830,10 +1050,10 @@ async function aiGenerate() {
   const song = getCurrentSong();
   if (!song) return;
   const originals = song.lines.map(l => l.original).filter(l => l.trim());
-  if (!originals.length) { toast('원문 가사를 먼저 입력해주세요'); return; }
+  if (!originals.length) { toast(t('toastNoLyrics')); return; }
 
   const statusEl = document.getElementById('aiStatus');
-  statusEl.innerHTML = '<div class="ai-loading"><div class="spinner"></div>AI가 한글 느낌가사를 만들고 있어요...</div>';
+  statusEl.innerHTML = `<div class="ai-loading"><div class="spinner"></div>${t('aiLoading')}</div>`;
 
   let optionText = '';
   if (state.aiOptions.stretch) optionText += '\n- 음절을 약간 늘려서 더 부르기 쉽게 (예: "love" → "러~브")';
@@ -876,9 +1096,9 @@ ${originals.map((l,i) => `${i+1}. ${l}`).join('\n')}`;
     saveState();
     statusEl.innerHTML = '';
     render();
-    toast('✨ 느낌가사 생성 완료!');
+    toast(t('toastAiDone'));
   } catch(err) {
-    statusEl.innerHTML = `<div style="color:#ff4444;text-align:center;padding:12px;font-size:0.85rem">생성 실패: ${escHtml(err.message)}<br><span style="color:var(--text-dim)">직접 입력하거나 다시 시도해주세요</span></div>`;
+    statusEl.innerHTML = `<div style="color:#ff4444;text-align:center;padding:12px;font-size:0.85rem">${t('aiFailed')}: ${escHtml(err.message)}<br><span style="color:var(--text-dim)">${t('aiRetry')}</span></div>`;
   }
 }
 
@@ -887,7 +1107,7 @@ function openKaraoke() {
   const song = getCurrentSong();
   if (!song || !song.lines.length) return;
   const nonEmpty = song.lines.filter(l => l.korean.trim());
-  if (!nonEmpty.length) { toast('한글 가사를 먼저 입력해주세요'); return; }
+  if (!nonEmpty.length) { toast(t('toastNoKorean')); return; }
   state.karaokeIndex = 0;
   renderKaraoke(song, nonEmpty);
 }
@@ -901,13 +1121,13 @@ function renderKaraoke(song, lines) {
   overlay.innerHTML = `
     <button class="k-close" id="kClose">✕</button>
     ${done ? `
-      <div class="k-korean" style="font-size:1.8rem">🎤 끝! 잘했어요!</div>
-      <div class="k-progress">탭하여 돌아가기</div>
+      <div class="k-korean" style="font-size:1.8rem">${t('karaokeEnd')}</div>
+      <div class="k-progress">${t('karaokeTapBack')}</div>
     ` : `
       <div class="k-original">${escHtml(line.original)}</div>
       <div class="k-korean">${escHtml(line.korean)}</div>
       <div class="k-progress">${i+1} / ${lines.length}</div>
-      <div class="k-hint">탭 또는 →키로 다음</div>
+      <div class="k-hint">${t('karaokeHint')}</div>
     `}
   `;
   overlay.classList.add('active');
@@ -948,28 +1168,27 @@ function openExport() {
   const song = getCurrentSong();
   if (!song) return;
   const text = `${song.title} — ${song.artist}\n${'─'.repeat(30)}\n\n` +
-    song.lines.map(l => `${l.original}\n${l.korean || '(미입력)'}\n`).join('\n');
+    song.lines.map(l => `${l.original}\n${l.korean || t('notEntered')}\n`).join('\n');
 
   const modal = document.getElementById('exportModal');
   modal.innerHTML = `
     <div class="modal-box">
-      <h3>📤 내보내기</h3>
+      <h3>${t('exportTitle')}</h3>
       <pre id="exportText">${escHtml(text)}</pre>
       <div class="modal-actions">
-        <button class="btn btn-primary" id="copyBtn">📋 텍스트 복사</button>
-        <button class="btn" id="closeExport">닫기</button>
+        <button class="btn btn-primary" id="copyBtn">${t('exportCopy')}</button>
+        <button class="btn" id="closeExport">${t('exportClose')}</button>
       </div>
     </div>
   `;
   modal.classList.add('active');
 
   document.getElementById('copyBtn').addEventListener('click', () => {
-    navigator.clipboard.writeText(text).then(() => toast('복사 완료!')).catch(() => {
-      // Fallback
+    navigator.clipboard.writeText(text).then(() => toast(t('toastCopied'))).catch(() => {
       const ta = document.createElement('textarea');
       ta.value = text; document.body.appendChild(ta); ta.select();
       document.execCommand('copy'); document.body.removeChild(ta);
-      toast('복사 완료!');
+      toast(t('toastCopied'));
     });
   });
   document.getElementById('closeExport').addEventListener('click', () => modal.classList.remove('active'));
