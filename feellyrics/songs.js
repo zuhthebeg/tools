@@ -663,4 +663,604 @@ const SAMPLE_SONGS = [
       { original: '日不落 日不落', korean: '르뿌뤄 르뿌뤄' },
     ]
   },
+  {
+    id: 's51', title: 'La Vie en Rose', artist: 'Edith Piaf', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#ff6b6b,#4ecdc4)',
+    links: { youtube: 'https://www.youtube.com/watch?v=qPU8mENUBXk', spotify: 'https://open.spotify.com/search/La%20Vie%20en%20Rose%20Edith%20Piaf' },
+    lines: [
+      { original: 'Quand il me prend dans ses bras', korean: '꽁 일 므 프헝 당 쎄 브라' },
+      { original: 'Je vois la vie en rose', korean: '쥬 브와 라 비 앙 호즈' },
+      { original: 'Il me dit des mots d\'amour', korean: '일 므 디 데 모 다무흐' },
+      { original: 'Des mots de tous les jours', korean: '데 모 드 투 레 주흐' },
+      { original: 'Et ça me fait quelque chose', korean: '에 싸 므 페 껠끄 쇼즈' },
+    ]
+  },
+  {
+    id: 's52', title: 'Alors on Danse', artist: 'Stromae', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)',
+    links: { youtube: 'https://www.youtube.com/watch?v=VHoT4N43jK8', spotify: 'https://open.spotify.com/search/Alors%20on%20Danse%20Stromae' },
+    lines: [
+      { original: 'Qui dit études dit travail', korean: '키 디 에튀드 디 트라바이' },
+      { original: 'Qui dit taf te dit les thunes', korean: '키 디 타프 트 디 레 튠' },
+      { original: 'Qui dit argent dit dépenses', korean: '키 디 아르정 디 데팡스' },
+      { original: 'Qui dit crédit dit créance', korean: '키 디 크레디 디 크레앙스' },
+      { original: 'Alors on danse', korean: '알로 옹 당스' },
+    ]
+  },
+  {
+    id: 's53', title: 'Papaoutai', artist: 'Stromae', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#f6d365,#fda085)',
+    links: { youtube: 'https://www.youtube.com/watch?v=oiKj0Z_Xnjc', spotify: 'https://open.spotify.com/search/Papaoutai%20Stromae' },
+    lines: [
+      { original: 'Dites-moi d\'où il vient', korean: '디트 무아 두 일 비앙' },
+      { original: 'Enfin je saurai où je vais', korean: '앙팽 쥬 소헤 우 쥬 베' },
+      { original: 'Maman dit que lorsqu\'on cherche bien', korean: '마망 디 크 르스콩 셰르슈 비앙' },
+      { original: 'On finit toujours par trouver', korean: '옹 피니 투주흐 파 트루베' },
+      { original: 'Papa où t\'es', korean: '파파 우 테' },
+    ]
+  },
+  {
+    id: 's54', title: 'Dernière Danse', artist: 'Indila', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#84fab0,#8fd3f4)',
+    links: { youtube: 'https://www.youtube.com/watch?v=K5KAc5CoCuk', spotify: 'https://open.spotify.com/search/Derni%C3%A8re%20Danse%20Indila' },
+    lines: [
+      { original: 'Oh ma douce souffrance', korean: '오 마 두스 수프헝스' },
+      { original: 'Pourquoi s\'acharner tu recommences', korean: '푸르쿠아 사샤르네 튀 흐코멍스' },
+      { original: 'Je suis qu\'un être sans importance', korean: '쥬 쉬 캉 네트흐 상 앵포르탕스' },
+      { original: 'Sans lui je suis un peu par terre', korean: '상 뤼 쥬 쉬 앙 푀 파 테흐' },
+      { original: 'Je remue le ciel le jour la nuit', korean: '쥬 흐뮈 르 씨엘 르 주흐 라 뉘' },
+    ]
+  },
+  {
+    id: 's55', title: 'Je Veux', artist: 'Zaz', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#fccb90,#d57eeb)',
+    links: { youtube: 'https://www.youtube.com/watch?v=0TFNGRYMz1U', spotify: 'https://open.spotify.com/search/Je%20Veux%20Zaz' },
+    lines: [
+      { original: 'Donnez-moi une suite au Ritz', korean: '도네 무아 윤 스위트 오 리츠' },
+      { original: 'Je n\'en veux pas', korean: '쥬 낭 브 파' },
+      { original: 'Des bijoux de chez Chanel', korean: '데 비주 드 쉐 샤넬' },
+      { original: 'Je n\'en veux pas', korean: '쥬 낭 브 파' },
+      { original: 'Moi je veux d\'l\'amour d\'la joie', korean: '무아 쥬 브 들라무흐 들라 주아' },
+    ]
+  },
+  {
+    id: 's56', title: 'Les Champs-Élysées', artist: 'Joe Dassin', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#30cfd0,#330867)',
+    links: { youtube: 'https://www.youtube.com/watch?v=bb-DKKRN4o8', spotify: 'https://open.spotify.com/search/Les%20Champs-%C3%89lys%C3%A9es%20Joe%20Dassin' },
+    lines: [
+      { original: 'Je m\'baladais sur l\'avenue', korean: '쥬 음발라데 쉬흐 라브뉘' },
+      { original: 'Le coeur ouvert à l\'inconnu', korean: '르 쾨흐 우베흐 알랭코뉴' },
+      { original: 'J\'avais envie de dire bonjour', korean: '자베 앙비 드 디흐 봉주흐' },
+      { original: 'Il m\'a dit viens aux Champs-Élysées', korean: '일 마 디 비앙조 샹젤리제' },
+      { original: 'Aux Champs-Élysées', korean: '오 샹젤리제' },
+    ]
+  },
+  {
+    id: 's57', title: 'La Bohème', artist: 'Charles Aznavour', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#f093fb,#f5576c)',
+    links: { youtube: 'https://www.youtube.com/watch?v=fVfnEyLOkrM', spotify: 'https://open.spotify.com/search/La%20Boh%C3%A8me%20Charles%20Aznavour' },
+    lines: [
+      { original: 'Je vous parle d\'un temps', korean: '쥬 부 파흘 당 땅' },
+      { original: 'Que les moins de vingt ans', korean: '크 레 무앙 드 방 탕' },
+      { original: 'Ne peuvent pas connaître', korean: '느 푀브 파 코네트흐' },
+      { original: 'La bohème la bohème', korean: '라 보엠 라 보엠' },
+      { original: 'Ça voulait dire on est heureux', korean: '싸 불레 디흐 옹 네 흐흐' },
+    ]
+  },
+  {
+    id: 's58', title: 'Djadja', artist: 'Aya Nakamura', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#5ee7df,#b490ca)',
+    links: { youtube: 'https://www.youtube.com/watch?v=iPGgnzc34tY', spotify: 'https://open.spotify.com/search/Djadja%20Aya%20Nakamura' },
+    lines: [
+      { original: 'Oh Djadja', korean: '오 자자' },
+      { original: 'Y a pas moyen Djadja', korean: '야 파 무아양 자자' },
+      { original: 'J\'suis pas ta catin Djadja', korean: '쥐 파 타 카탱 자자' },
+      { original: 'Genre en catchana baby tu dead ça', korean: '장흐 앙 카차나 베이비 튀 데 싸' },
+      { original: 'Pourquoi tu forces comme ça', korean: '푸르쿠아 튀 포흐스 꼼 싸' },
+    ]
+  },
+  {
+    id: 's59', title: 'Pour Que Tu M\'Aimes Encore', artist: 'Celine Dion', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#c3cfe2,#c3cfe2)',
+    links: { youtube: 'https://www.youtube.com/watch?v=AzaTyxMduH4', spotify: 'https://open.spotify.com/search/Pour%20Que%20Tu%20M%27Aimes%20Encore%20Celine%20Dion' },
+    lines: [
+      { original: 'J\'ai compris tous les mots', korean: '제 콩프리 투 레 모' },
+      { original: 'J\'ai bien compris merci', korean: '제 비앙 콩프리 메흑씨' },
+      { original: 'Raisonnable et nouveau', korean: '헤조나블 에 누보' },
+      { original: 'C\'est ainsi par ici', korean: '세 앙시 파 이씨' },
+      { original: 'Que les choses ont changé', korean: '크 레 쇼즈 옹 샹제' },
+    ]
+  },
+  {
+    id: 's60', title: 'Ella, elle l\'a', artist: 'France Gall', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#667eea,#764ba2)',
+    links: { youtube: 'https://www.youtube.com/watch?v=lgHGU8gqz9U', spotify: 'https://open.spotify.com/search/Ella%2C%20elle%20l%27a%20France%20Gall' },
+    lines: [
+      { original: 'C\'est comme une gaieté', korean: '세 꼼 윤 게이테' },
+      { original: 'Comme un sourire', korean: '꼼 앙 수히흐' },
+      { original: 'Quelque chose dans la voix', korean: '껠끄 쇼즈 당 라 부아' },
+      { original: 'Qui paraît nous dire', korean: '키 파헤 누 디흐' },
+      { original: 'Viens', korean: '비앙' },
+    ]
+  },
+  {
+    id: 's61', title: 'Garota de Ipanema', artist: 'Tom Jobim', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#ff6b6b,#4ecdc4)',
+    links: { youtube: 'https://www.youtube.com/watch?v=WuenyQ4NCQE', spotify: 'https://open.spotify.com/search/Garota%20de%20Ipanema%20Tom%20Jobim' },
+    lines: [
+      { original: 'Olha que coisa mais linda', korean: '올랴 키 코이자 마이스 린다' },
+      { original: 'Mais cheia de graça', korean: '마이스 쉐이아 지 그라사' },
+      { original: 'É ela menina', korean: '에 엘라 메니나' },
+      { original: 'Que vem e que passa', korean: '키 벵 이 키 파사' },
+      { original: 'Num doce balanço', korean: '눙 도시 발랑수' },
+    ]
+  },
+  {
+    id: 's62', title: 'Mas Que Nada', artist: 'Jorge Ben Jor', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)',
+    links: { youtube: 'https://www.youtube.com/watch?v=rd3LEsKIjNI', spotify: 'https://open.spotify.com/search/Mas%20Que%20Nada%20Jorge%20Ben%20Jor' },
+    lines: [
+      { original: 'Oariá raio obá obá obá', korean: '오아리아 하이우 오바 오바 오바' },
+      { original: 'Mas que nada', korean: '마스 키 나다' },
+      { original: 'Sai da minha frente', korean: '사이 다 미냐 프렌치' },
+      { original: 'Eu quero passar', korean: '에우 케루 파사' },
+      { original: 'Pois o samba está animado', korean: '포이즈 우 삼바 이스타 아니마두' },
+    ]
+  },
+  {
+    id: 's63', title: 'Ai Se Eu Te Pego', artist: 'Michel Teló', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#f6d365,#fda085)',
+    links: { youtube: 'https://www.youtube.com/watch?v=hcm55lU9knw', spotify: 'https://open.spotify.com/search/Ai%20Se%20Eu%20Te%20Pego%20Michel%20Tel%C3%B3' },
+    lines: [
+      { original: 'Nossa nossa', korean: '노싸 노싸' },
+      { original: 'Assim você me mata', korean: '아씽 보세 미 마타' },
+      { original: 'Ai se eu te pego', korean: '아이 씨 에우 치 페구' },
+      { original: 'Delícia delícia', korean: '델리시아 델리시아' },
+      { original: 'Ai se eu te pego', korean: '아이 씨 에우 치 페구' },
+    ]
+  },
+  {
+    id: 's64', title: 'Magalenha', artist: 'Sergio Mendes', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#84fab0,#8fd3f4)',
+    links: { youtube: 'https://www.youtube.com/watch?v=ijnujobdJ4c', spotify: 'https://open.spotify.com/search/Magalenha%20Sergio%20Mendes' },
+    lines: [
+      { original: 'Vem Magalenha rogar', korean: '벵 마갈레냐 호가르' },
+      { original: 'Traga a lenha pro fogão', korean: '트라가 아 렌야 프로 포강' },
+      { original: 'Vem fazer armação', korean: '벵 파제르 아르마상' },
+      { original: 'Hoje é um dia de sol', korean: '오제 에 웅 지아 지 솔' },
+      { original: 'Alegria de coqueiro', korean: '알레그리아 지 코케이루' },
+    ]
+  },
+  {
+    id: 's65', title: 'Evidências', artist: 'Chitãozinho & Xororó', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#fccb90,#d57eeb)',
+    links: { youtube: 'https://www.youtube.com/watch?v=ePjtnSPFWK8', spotify: 'https://open.spotify.com/search/Evid%C3%AAncias%20Chit%C3%A3ozinho%20%26%20Xoror%C3%B3' },
+    lines: [
+      { original: 'Quando eu digo que deixei de te amar', korean: '꽌두 에우 지구 키 데이셰이 지 치 아마르' },
+      { original: 'É porque eu te amo', korean: '에 포르키 에우 치 아무' },
+      { original: 'Quando eu digo que não quero mais você', korean: '꽌두 에우 지구 키 낭 케루 마이스 보세' },
+      { original: 'É porque eu te quero', korean: '에 포르키 에우 치 케루' },
+      { original: 'Eu tenho medo de te dar meu coração', korean: '에우 테뉴 메두 지 치 다르 메우 코라상' },
+    ]
+  },
+  {
+    id: 's66', title: 'Ainda Lembro', artist: 'Marisa Monte', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#30cfd0,#330867)',
+    links: { youtube: 'https://www.youtube.com/watch?v=9LOBuHsqgCA', spotify: 'https://open.spotify.com/search/Ainda%20Lembro%20Marisa%20Monte' },
+    lines: [
+      { original: 'Ainda lembro o que passou', korean: '아인다 렝브루 우 키 파소우' },
+      { original: 'Eu você em qualquer lugar', korean: '에우 보세 엥 깔케르 루가르' },
+      { original: 'Dizendo que o tempo não ia passar', korean: '지젠두 키 우 템푸 낭 이아 파사르' },
+      { original: 'Foi tudo tão rápido', korean: '포이 투두 탕 하피두' },
+      { original: 'Eu ainda lembro', korean: '에우 아인다 렝브루' },
+    ]
+  },
+  {
+    id: 's67', title: 'Exagerado', artist: 'Cazuza', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#f093fb,#f5576c)',
+    links: { youtube: 'https://www.youtube.com/watch?v=47ZKNyqn2RU', spotify: 'https://open.spotify.com/search/Exagerado%20Cazuza' },
+    lines: [
+      { original: 'Amor da minha vida', korean: '아모르 다 미냐 비다' },
+      { original: 'Daqui até a eternidade', korean: '다키 아테 아 에테르니다지' },
+      { original: 'Nossos destinos foram traçados', korean: '노수스 데스치누스 포람 트라사두스' },
+      { original: 'Na maternidade', korean: '나 마테르니다지' },
+      { original: 'Paixão cruel desenfreada', korean: '파이상 크루엘 데젠프레아다' },
+    ]
+  },
+  {
+    id: 's68', title: 'Tempo Perdido', artist: 'Legião Urbana', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#5ee7df,#b490ca)',
+    links: { youtube: 'https://www.youtube.com/watch?v=qHJ8CIM4jCw', spotify: 'https://open.spotify.com/search/Tempo%20Perdido%20Legi%C3%A3o%20Urbana' },
+    lines: [
+      { original: 'Todos os dias quando acordo', korean: '토두즈 오스 지아스 꽌두 아코르두' },
+      { original: 'Não tenho mais', korean: '낭 테뉴 마이스' },
+      { original: 'O tempo que passou', korean: '우 템푸 키 파소우' },
+      { original: 'Mas tenho muito tempo', korean: '마스 테뉴 무이투 템푸' },
+      { original: 'Temos todo o tempo do mundo', korean: '테무스 토두 우 템푸 두 문두' },
+    ]
+  },
+  {
+    id: 's69', title: 'Aquarela', artist: 'Toquinho', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#c3cfe2,#c3cfe2)',
+    links: { youtube: 'https://www.youtube.com/watch?v=xT8HIiFQ8Y0', spotify: 'https://open.spotify.com/search/Aquarela%20Toquinho' },
+    lines: [
+      { original: 'Numa folha qualquer', korean: '누마 폴랴 깔케르' },
+      { original: 'Eu desenho um sol amarelo', korean: '에우 데세뉴 웅 솔 아마렐루' },
+      { original: 'E com cinco ou seis retas', korean: '이 콩 씬쿠 우 세이스 헤타스' },
+      { original: 'É fácil fazer um castelo', korean: '에 파씨우 파제르 웅 카스텔루' },
+      { original: 'E o menino caminha', korean: '이 우 메니누 카미냐' },
+    ]
+  },
+  {
+    id: 's70', title: 'País Tropical', artist: 'Jorge Ben Jor', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#667eea,#764ba2)',
+    links: { youtube: 'https://www.youtube.com/watch?v=JzByVhWju88', spotify: 'https://open.spotify.com/search/Pa%C3%ADs%20Tropical%20Jorge%20Ben%20Jor' },
+    lines: [
+      { original: 'Moro num país tropical', korean: '모루 눔 파이스 트로피칼' },
+      { original: 'Abençoado por Deus', korean: '아벤소아두 포르 데우스' },
+      { original: 'E bonito por natureza', korean: '이 보니투 포르 나투레자' },
+      { original: 'Mas que beleza', korean: '마스 키 벨레자' },
+      { original: 'Em fevereiro tem carnaval', korean: '엥 페베레이루 텡 카르나바우' },
+    ]
+  },
+  {
+    id: 's71', title: '99 Luftballons', artist: 'Nena', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#ff6b6b,#4ecdc4)',
+    links: { youtube: 'https://www.youtube.com/watch?v=Fpu5a0Bl8eY', spotify: 'https://open.spotify.com/search/99%20Luftballons%20Nena' },
+    lines: [
+      { original: 'Hast du etwas Zeit für mich', korean: '하스트 두 에트바스 차이트 퓌어 미히' },
+      { original: 'Dann singe ich ein Lied für dich', korean: '단 징에 이히 아인 리트 퓌어 디히' },
+      { original: 'Von neunundneunzig Luftballons', korean: '폰 노인운트노인치히 루프트발론스' },
+      { original: 'Auf ihrem Weg zum Horizont', korean: '아우프 이럼 벡 춤 호리촌트' },
+      { original: 'Hielt man für UFOs aus dem All', korean: '힐트 만 퓌어 우포스 아우스 뎀 알' },
+    ]
+  },
+  {
+    id: 's72', title: 'Du Hast', artist: 'Rammstein', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)',
+    links: { youtube: 'https://www.youtube.com/watch?v=W3q8Od5qJio', spotify: 'https://open.spotify.com/search/Du%20Hast%20Rammstein' },
+    lines: [
+      { original: 'Du', korean: '두' },
+      { original: 'Du hast', korean: '두 하스트' },
+      { original: 'Du hast mich', korean: '두 하스트 미히' },
+      { original: 'Du hast mich gefragt', korean: '두 하스트 미히 게프락트' },
+      { original: 'Und ich hab nichts gesagt', korean: '운트 이히 합 니흐츠 게작트' },
+    ]
+  },
+  {
+    id: 's73', title: 'Rock Me Amadeus', artist: 'Falco', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#f6d365,#fda085)',
+    links: { youtube: 'https://www.youtube.com/watch?v=cVikZ8Oe_XA', spotify: 'https://open.spotify.com/search/Rock%20Me%20Amadeus%20Falco' },
+    lines: [
+      { original: 'Er war ein Punker', korean: '에어 바어 아인 푼커' },
+      { original: 'Und er lebte in der großen Stadt', korean: '운트 에어 렙테 인 데어 그로센 슈타트' },
+      { original: 'Es war in Wien', korean: '에스 바어 인 빈' },
+      { original: 'War Vienna', korean: '바어 비엔나' },
+      { original: 'Rock me Amadeus', korean: '록 미 아마데우스' },
+    ]
+  },
+  {
+    id: 's74', title: 'Haus am See', artist: 'Peter Fox', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#84fab0,#8fd3f4)',
+    links: { youtube: 'https://www.youtube.com/watch?v=kJen73982SE', spotify: 'https://open.spotify.com/search/Haus%20am%20See%20Peter%20Fox' },
+    lines: [
+      { original: 'Hier bin ich geboren', korean: '히어 빈 이히 게보렌' },
+      { original: 'Und laufe durch die Straßen', korean: '운트 라우페 두르히 디 슈트라센' },
+      { original: 'Kenn die Gesichter', korean: '켄 디 게지히터' },
+      { original: 'Jedes Haus und jeden Laden', korean: '예데스 하우스 운트 예덴 라덴' },
+      { original: 'Ich kenn die Bäume', korean: '이히 켄 디 보이메' },
+    ]
+  },
+  {
+    id: 's75', title: 'Das Model', artist: 'Kraftwerk', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#fccb90,#d57eeb)',
+    links: { youtube: 'https://www.youtube.com/watch?v=GEnx9xS79Lc', spotify: 'https://open.spotify.com/search/Das%20Model%20Kraftwerk' },
+    lines: [
+      { original: 'Sie ist ein Model', korean: '지 이스트 아인 모델' },
+      { original: 'Und sie sieht gut aus', korean: '운트 지 지트 굿 아우스' },
+      { original: 'Ich nehm sie heut gerne mit zu mir nach Haus', korean: '이히 넴 지 호이트 게른 미트 추 미어 나흐 하우스' },
+      { original: 'Sie wirkt so kühl', korean: '지 비어크트 조 퀼' },
+      { original: 'An sie kommt niemand ran', korean: '안 지 콤트 니만트 란' },
+    ]
+  },
+  {
+    id: 's76', title: 'Major Tom', artist: 'Peter Schilling', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#30cfd0,#330867)',
+    links: { youtube: 'https://www.youtube.com/watch?v=wO0A0XcWy88', spotify: 'https://open.spotify.com/search/Major%20Tom%20Peter%20Schilling' },
+    lines: [
+      { original: 'Gründlich durchgecheckt', korean: '그륀틀리히 두르히게첵트' },
+      { original: 'Steht sie da', korean: '슈테이트 지 다' },
+      { original: 'Und wartet auf den Start', korean: '운트 바르텟 아우프 덴 슈타르트' },
+      { original: 'Alles klar', korean: '알레스 클라' },
+      { original: 'Major Tom', korean: '메이저 톰' },
+    ]
+  },
+  {
+    id: 's77', title: 'Ohne Dich', artist: 'Rammstein', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#f093fb,#f5576c)',
+    links: { youtube: 'https://www.youtube.com/watch?v=LIPc1cfS-oQ', spotify: 'https://open.spotify.com/search/Ohne%20Dich%20Rammstein' },
+    lines: [
+      { original: 'Ohne dich kann ich nicht sein', korean: '오네 디히 칸 이히 니히트 자인' },
+      { original: 'Ohne dich', korean: '오네 디히' },
+      { original: 'Mit dir bin ich auch allein', korean: '미트 디어 빈 이히 아우흐 알라인' },
+      { original: 'Ohne dich', korean: '오네 디히' },
+      { original: 'Ohne dich zähl ich die Stunden', korean: '오네 디히 첼 이히 디 슈툰덴' },
+    ]
+  },
+  {
+    id: 's78', title: 'Atemlos durch die Nacht', artist: 'Helene Fischer', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#5ee7df,#b490ca)',
+    links: { youtube: 'https://www.youtube.com/watch?v=haECT-SerHk', spotify: 'https://open.spotify.com/search/Atemlos%20durch%20die%20Nacht%20Helene%20Fischer' },
+    lines: [
+      { original: 'Atemlos durch die Nacht', korean: '아템로스 두르히 디 나흐트' },
+      { original: 'Spür was Liebe mit uns macht', korean: '슈퓨어 바스 리베 미트 운스 마흐트' },
+      { original: 'Atemlos schwindelfrei', korean: '아템로스 슈빈델프라이' },
+      { original: 'Großes Kino für uns zwei', korean: '그로세스 키노 퓌어 운스 츠바이' },
+      { original: 'Wir sind heute ewig', korean: '비어 진트 호이테 에비히' },
+    ]
+  },
+  {
+    id: 's79', title: 'Männer', artist: 'Herbert Grönemeyer', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#c3cfe2,#c3cfe2)',
+    links: { youtube: 'https://www.youtube.com/watch?v=UEJNMkEr1Ls', spotify: 'https://open.spotify.com/search/M%C3%A4nner%20Herbert%20Gr%C3%B6nemeyer' },
+    lines: [
+      { original: 'Männer nehmen in den Arm', korean: '멘너 네멘 인 덴 암' },
+      { original: 'Männer geben Geborgenheit', korean: '멘너 게벤 게보르겐하이트' },
+      { original: 'Männer weinen heimlich', korean: '멘너 바이넨 하임리히' },
+      { original: 'Männer brauchen viel Zärtlichkeit', korean: '멘너 브라우헨 필 체어틀리히카이트' },
+      { original: 'Oh Männer sind so verletzlich', korean: '오 멘너 진트 조 페를레츨리히' },
+    ]
+  },
+  {
+    id: 's80', title: 'Irgendwie Irgendwo Irgendwann', artist: 'Nena', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#667eea,#764ba2)',
+    links: { youtube: 'https://www.youtube.com/watch?v=oMHLkcc9I9c', spotify: 'https://open.spotify.com/search/Irgendwie%20Irgendwo%20Irgendwann%20Nena' },
+    lines: [
+      { original: 'Irgendwie irgendwo irgendwann', korean: '이르겐트비 이르겐트보 이르겐트반' },
+      { original: 'Fängt die Zukunft an', korean: '펭트 디 추쿤프트 안' },
+      { original: 'Ich warte nicht mehr lang', korean: '이히 바르테 니히트 메어 랑' },
+      { original: 'Liebe wird aus Mut gemacht', korean: '리베 비어트 아우스 무트 게마흐트' },
+      { original: 'Denk nicht lange nach', korean: '덴크 니히트 랑에 나흐' },
+    ]
+  },
+  {
+    id: 's81', title: 'Tum Hi Ho', artist: 'Arijit Singh', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#ff6b6b,#4ecdc4)',
+    links: { youtube: 'https://www.youtube.com/watch?v=BjL7AuPsmEk', spotify: 'https://open.spotify.com/search/Tum%20Hi%20Ho%20Arijit%20Singh' },
+    lines: [
+      { original: 'Hum tere bin ab reh nahi sakte', korean: '험 테레 빈 압 레 나히 삭테' },
+      { original: 'Tere bina kya wajood mera', korean: '테레 비나 끼야 와주드 메라' },
+      { original: 'Tujhse juda gar ho jaayenge', korean: '투즈세 주다 가르 호 자옌게' },
+      { original: 'To khud se hi ho jaayenge juda', korean: '토 쿠드 세 히 호 자옌게 주다' },
+      { original: 'Kyunki tum hi ho', korean: '큔키 툼 히 호' },
+    ]
+  },
+  {
+    id: 's82', title: 'Kal Ho Naa Ho', artist: 'Sonu Nigam', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)',
+    links: { youtube: 'https://www.youtube.com/watch?v=g0eO74UmRBs', spotify: 'https://open.spotify.com/search/Kal%20Ho%20Naa%20Ho%20Sonu%20Nigam' },
+    lines: [
+      { original: 'Har ghadi badal rahi hai roop zindagi', korean: '하르 가디 바달 라히 하이 루프 진다가' },
+      { original: 'Chhaon hai kabhi kabhi hai dhoop zindagi', korean: '차온 하이 카비 카비 하이 두프 진다가' },
+      { original: 'Har pal yahan jee bhar jiyo', korean: '하르 팔 야한 지 바르 지요' },
+      { original: 'Jo hai sama kal ho naa ho', korean: '조 하이 사마 칼 호 나 호' },
+      { original: 'Kal ho naa ho', korean: '칼 호 나 호' },
+    ]
+  },
+  {
+    id: 's83', title: 'Chaiyya Chaiyya', artist: 'Sukhwinder Singh', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#f6d365,#fda085)',
+    links: { youtube: 'https://www.youtube.com/watch?v=9yT4F8hzykY', spotify: 'https://open.spotify.com/search/Chaiyya%20Chaiyya%20Sukhwinder%20Singh' },
+    lines: [
+      { original: 'Jinke sar ho ishq ki chaaon', korean: '진케 사르 호 이쉬크 키 차온' },
+      { original: 'Paaon ke neeche jannat hogi', korean: '파온 케 니체 잔낫 호기' },
+      { original: 'Chal chaiyya chaiyya', korean: '찰 차이야 차이야' },
+      { original: 'Chaiyya chaiyya chaiyya chaiyya', korean: '차이야 차이야 차이야 차이야' },
+      { original: 'Jinke sar ho ishq ki chaaon', korean: '진케 사르 호 이쉬크 키 차온' },
+    ]
+  },
+  {
+    id: 's84', title: 'Jai Ho', artist: 'A.R. Rahman', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#84fab0,#8fd3f4)',
+    links: { youtube: 'https://www.youtube.com/watch?v=Yc5OyXmHD0w', spotify: 'https://open.spotify.com/search/Jai%20Ho%20A.R.%20Rahman' },
+    lines: [
+      { original: 'Jai ho', korean: '자이 호' },
+      { original: 'Aaja aaja jind shamiyane ke tale', korean: '아자 아자 진드 샤미야네 케 탈레' },
+      { original: 'Aaja zariwale nile aasman ke tale', korean: '아자 자리왈레 닐레 아스만 케 탈레' },
+      { original: 'Ratti ratti sachi maine jaan gavayi hai', korean: '라띠 라띠 사치 마이네 잔 가바이 하이' },
+      { original: 'Jai ho', korean: '자이 호' },
+    ]
+  },
+  {
+    id: 's85', title: 'Tujhe Dekha To', artist: 'Lata Mangeshkar, Kumar Sanu', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#fccb90,#d57eeb)',
+    links: { youtube: 'https://www.youtube.com/watch?v=cNV5hLSa9H8', spotify: 'https://open.spotify.com/search/Tujhe%20Dekha%20To%20Lata%20Mangeshkar%20Kumar%20Sanu' },
+    lines: [
+      { original: 'Tujhe dekha to yeh jaana sanam', korean: '투제 데카 토 예 자나 사남' },
+      { original: 'Pyar hota hai deewana sanam', korean: '피야르 호타 하이 디와나 사남' },
+      { original: 'Ab yahan se kahan jaayein hum', korean: '압 야한 세 카한 자옌 훔' },
+      { original: 'Teri baahon mein mar jaayein hum', korean: '테리 바혼 메인 마르 자옌 훔' },
+      { original: 'Tujhe dekha to', korean: '투제 데카 토' },
+    ]
+  },
+  {
+    id: 's86', title: 'Teri Meri', artist: 'Rahat Fateh Ali Khan, Shreya Ghoshal', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#30cfd0,#330867)',
+    links: { youtube: 'https://www.youtube.com/watch?v=wVakhLyFvPc', spotify: 'https://open.spotify.com/search/Teri%20Meri%20Rahat%20Fateh%20Ali%20Khan%20Shreya%20Ghoshal' },
+    lines: [
+      { original: 'Teri meri meri teri prem kahani hai mushkil', korean: '테리 메리 메리 테리 프렘 카하니 하이 무쉬킬' },
+      { original: 'Do lafzon mein yeh bayaan na ho paaye', korean: '도 라프존 메인 예 바얀 나 호 파예' },
+      { original: 'Ik ladka ik ladki ki yeh kahani hai nayi', korean: '익 라드카 익 라드키 키 예 카하니 하이 나이' },
+      { original: 'Do roohon ke milne ki yeh nishani hai nayi', korean: '도 루혼 케 밀네 키 예 니샤니 하이 나이' },
+      { original: 'Teri meri meri teri', korean: '테리 메리 메리 테리' },
+    ]
+  },
+  {
+    id: 's87', title: 'Dil Dhadakne Do', artist: 'Priyanka Chopra, Farhan Akhtar', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#f093fb,#f5576c)',
+    links: { youtube: 'https://www.youtube.com/watch?v=56ZzM4mz4yY', spotify: 'https://open.spotify.com/search/Dil%20Dhadakne%20Do%20Priyanka%20Chopra%20Farhan%20Akhtar' },
+    lines: [
+      { original: 'Hey hey chalo na', korean: '헤이 헤이 찰로 나' },
+      { original: 'Dhoondhe shehar naya', korean: '둔데 셰하르 나야' },
+      { original: 'Jahaan muskurahat ho har jagah', korean: '자한 무스쿠라핫 호 하르 자가' },
+      { original: 'Dil dhadakne do', korean: '딜 다닥네 도' },
+      { original: 'Dil dhadakne do', korean: '딜 다닥네 도' },
+    ]
+  },
+  {
+    id: 's88', title: 'Kun Faya Kun', artist: 'A.R. Rahman, Javed Ali, Mohit Chauhan', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#5ee7df,#b490ca)',
+    links: { youtube: 'https://www.youtube.com/watch?v=T94PHkuydcw', spotify: 'https://open.spotify.com/search/Kun%20Faya%20Kun%20A.R.%20Rahman' },
+    lines: [
+      { original: 'Kun faya kun', korean: '쿤 파야 쿤' },
+      { original: 'Kun faya kun', korean: '쿤 파야 쿤' },
+      { original: 'Faya kun faya kun', korean: '파야 쿤 파야 쿤' },
+      { original: 'Jab kahin pe kuch nahi bhi nahi tha', korean: '잡 카힌 페 쿠치 나히 비 나히 타' },
+      { original: 'Wahi tha wahi tha wahi tha', korean: '와히 타 와히 타 와히 타' },
+    ]
+  },
+  {
+    id: 's89', title: 'Senorita', artist: 'Farhan Akhtar, Hrithik Roshan, Abhay Deol', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#c3cfe2,#c3cfe2)',
+    links: { youtube: 'https://www.youtube.com/watch?v=2Z0Put0teCM', spotify: 'https://open.spotify.com/search/Senorita%20Zindagi%20Na%20Milegi%20Dobara' },
+    lines: [
+      { original: 'Quien eres tu', korean: '키엔 에레스 투' },
+      { original: 'Donde has estado', korean: '돈데 아스 에스타도' },
+      { original: 'He removido cielo y tierra y no te encontre', korean: '에 레모비도 씨엘로 이 띠에라 이 노 테 엔콘트레' },
+      { original: 'Senorita', korean: '세뇨리타' },
+      { original: 'Mujhse ab nazar na phero', korean: '무즈세 압 나자르 나 페로' },
+    ]
+  },
+  {
+    id: 's90', title: 'Latika\'s Theme', artist: 'A.R. Rahman', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#667eea,#764ba2)',
+    links: { youtube: 'https://www.youtube.com/watch?v=EfdVdNPz_ok', spotify: 'https://open.spotify.com/search/Latika%27s%20Theme%20A.R.%20Rahman' },
+    lines: [
+      { original: 'Aaj ki raat', korean: '아즈 키 라트' },
+      { original: 'Na jaane kaun sa nasha hai', korean: '나 자네 카운 사 나샤 하이' },
+      { original: 'Raat ka shola', korean: '라트 카 숄라' },
+      { original: 'Dil mein ujala', korean: '딜 메인 우잘라' },
+      { original: 'Latika', korean: '라티카' },
+    ]
+  },
+  {
+    id: 's91', title: 'ลืม', artist: 'Scrubb', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#ff6b6b,#4ecdc4)',
+    links: { youtube: 'https://www.youtube.com/watch?v=9YBWypt2o5g', spotify: 'https://open.spotify.com/search/%E0%B8%A5%E0%B8%B7%E0%B8%A1%20Scrubb' },
+    lines: [
+      { original: 'ลืมไปแล้วหรือยัง', korean: '름 빠이 래오 르양' },
+      { original: 'ภาพวันนั้นยังชัดเจน', korean: '팝 완난 양 찻젠' },
+      { original: 'เธออยู่ตรงนี้ในใจ', korean: '터 유 뜽니 나이 짜이' },
+      { original: 'แม้เวลาจะผ่านไป', korean: '매 웨라 짜 판 빠이' },
+      { original: 'ฉันยังลืมไม่ลง', korean: '찬 양 름 마이 롱' },
+    ]
+  },
+  {
+    id: 's92', title: 'คิดถึง', artist: 'Bodyslam', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)',
+    links: { youtube: 'https://www.youtube.com/watch?v=jDe3UUFawqs', spotify: 'https://open.spotify.com/search/%E0%B8%84%E0%B8%B4%E0%B8%94%E0%B8%96%E0%B8%B6%E0%B8%87%20Bodyslam' },
+    lines: [
+      { original: 'คิดถึงเธอทุกที', korean: '킷틍 터 툭티' },
+      { original: 'ในคืนที่ฟ้าเงียบงัน', korean: '나이 큰 티 파 응이엡안' },
+      { original: 'ยังมีเรื่องราวของเรา', korean: '양 미 르앙 라오 콩 라오' },
+      { original: 'เดินวนอยู่ในความฝัน', korean: '든 원 유 나이 콰암판' },
+      { original: 'คิดถึงเหลือเกิน', korean: '킷틍 르아 끈' },
+    ]
+  },
+  {
+    id: 's93', title: 'ขอเวลาลืม', artist: 'Aun Feeble Heart', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#f6d365,#fda085)',
+    links: { youtube: 'https://www.youtube.com/watch?v=wTynfy69U1U', spotify: 'https://open.spotify.com/search/%E0%B8%82%E0%B8%AD%E0%B9%80%E0%B8%A7%E0%B8%A5%E0%B8%B2%E0%B8%A5%E0%B8%B7%E0%B8%A1%20Aun%20Feeble%20Heart' },
+    lines: [
+      { original: 'ขอเวลาลืมเธอสักหน่อย', korean: '커 웨라 름 터 삭너이' },
+      { original: 'ขอเวลาคืนใจที่พัง', korean: '커 웨라 큰 짜이 티 팡' },
+      { original: 'อย่าเพิ่งถามว่าไหวไหม', korean: '야 펑 탐 와 와이 마이' },
+      { original: 'แค่ยังหายใจไปวันวัน', korean: '캐 양 하이짜이 빠이 완완' },
+      { original: 'ขอเวลาลืมจริงจริง', korean: '커 웨라 름 찡찡' },
+    ]
+  },
+  {
+    id: 's94', title: 'กอด', artist: 'Clash', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#84fab0,#8fd3f4)',
+    links: { youtube: 'https://www.youtube.com/watch?v=4GmR6c4hiqQ', spotify: 'https://open.spotify.com/search/%E0%B8%81%E0%B8%AD%E0%B8%94%20Clash' },
+    lines: [
+      { original: 'กอดฉันไว้ให้นานนาน', korean: '껏 찬 와이 하이 난난' },
+      { original: 'คืนนี้ฉันไม่อยากเดียวดาย', korean: '큰니 찬 마이 약 디아오다이' },
+      { original: 'ถ้าพรุ่งนี้เธอต้องไป', korean: '타 프룽니 터 똥 빠이' },
+      { original: 'อย่างน้อยมีฉันในใจ', korean: '양 너이 미 찬 나이 짜이' },
+      { original: 'กอดฉันอีกครั้ง', korean: '껏 찬 익 크랑' },
+    ]
+  },
+  {
+    id: 's95', title: 'ลมหายใจ', artist: 'Big Ass', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#fccb90,#d57eeb)',
+    links: { youtube: 'https://www.youtube.com/watch?v=5H4Lg-rl58U', spotify: 'https://open.spotify.com/search/%E0%B8%A5%E0%B8%A1%E0%B8%AB%E0%B8%B2%E0%B8%A2%E0%B9%83%E0%B8%88%20Big%20Ass' },
+    lines: [
+      { original: 'ทุกลมหายใจยังเป็นเธอ', korean: '툭 롬하이짜이 양 벤 터' },
+      { original: 'ทุกความทรงจำยังชัดเจน', korean: '툭 콰암송짬 양 찻젠' },
+      { original: 'อยู่ไกลแค่ไหนก็ยังรัก', korean: '유 글라이 캐 나이 꺼 양 락' },
+      { original: 'ไม่ว่าโลกจะหมุนเร็ว', korean: '마이 와 록 짜 문 레오' },
+      { original: 'เธอคือเหตุผลของหัวใจ', korean: '터 큐 헤툰 콩 후어짜이' },
+    ]
+  },
+  {
+    id: 's96', title: 'ผิดทั้งหมดทั้งตัว', artist: 'Slot Machine', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#30cfd0,#330867)',
+    links: { youtube: 'https://www.youtube.com/watch?v=UZxDLz-li_c', spotify: 'https://open.spotify.com/search/%E0%B8%9C%E0%B8%B4%E0%B8%94%E0%B8%97%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B8%AB%E0%B8%A1%E0%B8%94%E0%B8%97%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B8%95%E0%B8%B1%E0%B8%A7%20Slot%20Machine' },
+    lines: [
+      { original: 'ผิดทั้งหมดทั้งตัวและหัวใจ', korean: '핏 탕못 탕투아 래 후어짜이' },
+      { original: 'ที่ฉันยังรักเธอหมดใจ', korean: '티 찬 양 락 터 못짜이' },
+      { original: 'ยอมรับความจริงไม่ไหว', korean: '염랍 콰암찡 마이 와이' },
+      { original: 'ปล่อยฉันจมอยู่ในคืนยาว', korean: '쁠로이 찬 좀 유 나이 큰 야오' },
+      { original: 'ผิดที่รักเธอเกินไป', korean: '핏 티 락 터 끈 빠이' },
+    ]
+  },
+  {
+    id: 's97', title: 'ฤดูที่ฉันเหงา', artist: 'Stamp', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#f093fb,#f5576c)',
+    links: { youtube: 'https://www.youtube.com/watch?v=h2ga9eGdzs0', spotify: 'https://open.spotify.com/search/%E0%B8%A4%E0%B8%94%E0%B8%B9%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%89%E0%B8%B1%E0%B8%99%E0%B9%80%E0%B8%AB%E0%B8%87%E0%B8%B2%20Stamp' },
+    lines: [
+      { original: 'ในฤดูที่ฉันเหงา', korean: '나이 르두 티 찬 응아오' },
+      { original: 'มีเพียงเงาของเรา', korean: '미 피앙 응아 콩 라오' },
+      { original: 'ฝนตกเบาเบาในหัวใจ', korean: '폰 똑 바오바오 나이 후어짜이' },
+      { original: 'ถนนเดิมยังพาไป', korean: '타논 드엄 양 파 빠이' },
+      { original: 'หาคนที่ไม่กลับมา', korean: '하 콘 티 마이 글랍 마' },
+    ]
+  },
+  {
+    id: 's98', title: 'รักแท้มีจริงหรือเปล่า', artist: 'Potato', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#5ee7df,#b490ca)',
+    links: { youtube: 'https://www.youtube.com/watch?v=79qwUtFnpJs', spotify: 'https://open.spotify.com/search/%E0%B8%A3%E0%B8%B1%E0%B8%81%E0%B9%81%E0%B8%97%E0%B9%89%E0%B8%A1%E0%B8%B5%E0%B8%88%E0%B8%A3%E0%B8%B4%E0%B8%87%E0%B8%AB%E0%B8%A3%E0%B8%B7%E0%B8%AD%E0%B9%80%E0%B8%9B%E0%B8%A5%E0%B9%88%E0%B8%B2%20Potato' },
+    lines: [
+      { original: 'รักแท้มีจริงหรือเปล่า', korean: '락 태 미 찡 르 프라오' },
+      { original: 'หรือเป็นแค่คำสวยงาม', korean: '르 벤 캐 캄 수아이응암' },
+      { original: 'ฉันรออยู่ทุกคืนดาว', korean: '찬 러 유 툭 큰 다오' },
+      { original: 'หวังว่ามันจะเป็นความจริง', korean: '왕 와 만 짜 벤 콰암찡' },
+      { original: 'ตอบฉันทีได้ไหม', korean: '똡 찬 티 다이 마이' },
+    ]
+  },
+  {
+    id: 's99', title: 'ยิ่งรู้จัก ยิ่งรักเธอ', artist: 'Getsunova', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#c3cfe2,#c3cfe2)',
+    links: { youtube: 'https://www.youtube.com/watch?v=v5wvIGxvdLI', spotify: 'https://open.spotify.com/search/%E0%B8%A2%E0%B8%B4%E0%B9%88%E0%B8%87%E0%B8%A3%E0%B8%B9%E0%B9%89%E0%B8%88%E0%B8%B1%E0%B8%81%20%E0%B8%A2%E0%B8%B4%E0%B9%88%E0%B8%87%E0%B8%A3%E0%B8%B1%E0%B8%81%E0%B9%80%E0%B8%98%E0%B8%AD%20Getsunova' },
+    lines: [
+      { original: 'ยิ่งรู้จักยิ่งรักเธอ', korean: '잉 루짝 잉 락 터' },
+      { original: 'ยิ่งเจอยิ่งคิดถึง', korean: '잉 저 잉 킷틍' },
+      { original: 'ทุกนาทีที่มีเธอ', korean: '툭 나티 티 미 터' },
+      { original: 'ทำให้ใจฉันเต้นแรง', korean: '탐 하이 짜이 찬 뗀 랭' },
+      { original: 'รักเธอมากขึ้นทุกวัน', korean: '락 터 막 큰 툭 완' },
+    ]
+  },
+  {
+    id: 's100', title: 'Dhoom Dhoom', artist: 'Tata Young', emoji: '🎵',
+    gradient: 'linear-gradient(135deg,#667eea,#764ba2)',
+    links: { youtube: 'https://www.youtube.com/watch?v=CGn0Ww_WvME', spotify: 'https://open.spotify.com/search/Dhoom%20Dhoom%20Tata%20Young' },
+    lines: [
+      { original: 'Dhoom dhoom come and light my fire', korean: '둠 둠 컴 앤 라이트 마이 파이어' },
+      { original: 'Dhoom dhoom let me take you higher', korean: '둠 둠 렛 미 테이크 유 하이어' },
+      { original: 'Dhoom dhoom I wanna feel that burn', korean: '둠 둠 아이 워너 필 댓 번' },
+      { original: 'Dhoom dhoom baby make me turn', korean: '둠 둠 베이비 메이크 미 턴' },
+      { original: 'Dhoom dhoom all night long', korean: '둠 둠 올 나이트 롱' },
+    ]
+  },
 ];
