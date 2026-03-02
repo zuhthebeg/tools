@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <!-- GTM -->
+async function deleteAnalysis(id) {
+  if (!confirm("정말 삭제하시겠습니까?")) return;
+  try {
+    const r = await fetch(API + "/" + id, { method: "DELETE", headers: { "Authorization": "Bearer " + authToken } });
+    if (r.ok) { alert("삭제됨"); loadGallery(); } else { const d = await r.json(); alert(d.error || "삭제 실패"); }
+  } catch(e) { alert("삭제 실패"); }
+}
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f)})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
 <meta name="description" content="AI 헤어스타일 분석기 - 사진으로 헤어스타일, 관리법, 비용을 분석해드립니다">
 <meta name="keywords" content="헤어스타일,머리스타일,헤어분석,AI,관리법,미용실,꾸안꾸">
@@ -16,6 +23,13 @@
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="https://tool.cocy.io/hair/">
 <link rel="icon" href="icon.svg">
+async function deleteAnalysis(id) {
+  if (!confirm("정말 삭제하시겠습니까?")) return;
+  try {
+    const r = await fetch(API + "/" + id, { method: "DELETE", headers: { "Authorization": "Bearer " + authToken } });
+    if (r.ok) { alert("삭제됨"); loadGallery(); } else { const d = await r.json(); alert(d.error || "삭제 실패"); }
+  } catch(e) { alert("삭제 실패"); }
+}
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"AI 헤어 분석기","url":"https://tool.cocy.io/hair/","applicationCategory":"UtilityApplication","operatingSystem":"All","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}</script>
 <!-- AdSense: managed via GTM auto-ads (ca-pub-6634731722045607) -->
 <title>💇 AI 헤어 분석기</title>
@@ -103,8 +117,12 @@ header p{color:#9ca3af;font-size:14px;margin-top:4px}
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="container">
   <header>
-    <h1>💇 AI 헤어 분석기</h1>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h1>💇 AI 헤어 분석기</h1>
+      <div id="authBtn"></div>
+    </div>
     <p>사진 한 장으로 스타일 · 관리법 · 비용 · 꾸안꾸지수</p>
+    <div id="uploadNote" style="color:#fbbf24;font-size:12px;margin-top:4px"></div>
   </header>
 
   <div class="tab-bar">
@@ -144,9 +162,78 @@ header p{color:#9ca3af;font-size:14px;margin-top:4px}
 </div>
 
 <!-- face-api.js -->
+async function deleteAnalysis(id) {
+  if (!confirm("정말 삭제하시겠습니까?")) return;
+  try {
+    const r = await fetch(API + "/" + id, { method: "DELETE", headers: { "Authorization": "Bearer " + authToken } });
+    if (r.ok) { alert("삭제됨"); loadGallery(); } else { const d = await r.json(); alert(d.error || "삭제 실패"); }
+  } catch(e) { alert("삭제 실패"); }
+}
 <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script>
 const API = 'https://relay.cocy.io/api/hair';
+const AUTH_API = 'https://relay.cocy.io/api/auth';
+let authToken = localStorage.getItem('hair_auth_token');
+let currentUser = null;
+
+// Auth
+async function checkAuth() {
+  if (!authToken) { updateAuthUI(); return; }
+  try {
+    const r = await fetch(AUTH_API + '/me', { headers: { 'Authorization': 'Bearer ' + authToken } });
+    if (r.ok) { currentUser = await r.json(); } else { authToken = null; localStorage.removeItem('hair_auth_token'); }
+  } catch { }
+  updateAuthUI();
+}
+function updateAuthUI() {
+  const btn = document.getElementById('authBtn');
+  if (currentUser) {
+    btn.innerHTML = '<span style="font-size:13px">' + (currentUser.nickname || currentUser.email.split('@')[0]) + '</span> <button onclick="logout()" style="background:none;border:1px solid #374151;color:#9ca3af;padding:2px 8px;border-radius:6px;font-size:11px;cursor:pointer">로그아웃</button>';
+    document.getElementById('uploadNote').textContent = '';
+  } else {
+    btn.innerHTML = '<button onclick="login()" style="background:#4285f4;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Google 로그인</button>';
+    document.getElementById('uploadNote').textContent = '분석하려면 로그인이 필요합니다';
+  }
+}
+function login() {
+  // Load GSI if not loaded
+  if (!window.google?.accounts) {
+    const s = document.createElement('script');
+    s.src = 'https://accounts.google.com/gsi/client';
+    s.onload = () => initGSI();
+    document.head.appendChild(s);
+  } else { initGSI(); }
+}
+function initGSI() {
+  google.accounts.id.initialize({
+    client_id: '315180918727-3d9rfmpa36r365qna9smdsvrod441jhd.apps.googleusercontent.com',
+    callback: handleGoogleCredential
+  });
+  google.accounts.id.prompt();
+}
+async function handleGoogleCredential(response) {
+  try {
+    const r = await fetch('https://relay.cocy.io/api/auth/google/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential: response.credential })
+    });
+    const data = await r.json();
+    if (data.token) {
+      authToken = data.token;
+      localStorage.setItem('hair_auth_token', data.token);
+      currentUser = data.user;
+      updateAuthUI();
+    } else { alert(data.error || '로그인 실패'); }
+  } catch(e) { alert('로그인 실패: ' + e.message); }
+}
+function logout() {
+  authToken = null; currentUser = null;
+  localStorage.removeItem('hair_auth_token');
+  updateAuthUI();
+}
+
+checkAuth();
 let originalB64 = null, mosaicB64 = null, faceDetected = false, faceModel = false;
 
 // Load face detection model
@@ -254,16 +341,16 @@ async function detectAndMosaic(canvas, ctx, w, h) {
     }
 
     mosaicB64 = mosaicC.toDataURL('image/jpeg', 0.6);
-    btn.textContent = '✨ 분석하기';
-    btn.disabled = false;
-    btn.onclick = analyze;
+    btn.textContent = currentUser ? '✨ 분석하기' : '🔒 로그인 후 분석';
+    btn.disabled = !currentUser;
+    btn.onclick = currentUser ? analyze : login;
   } catch(e) {
     console.error('face detection error:', e);
     mosaicB64 = originalB64; // fallback: use original
     document.getElementById('faceWarning').style.display = 'block';
-    btn.textContent = '✨ 분석하기';
-    btn.disabled = false;
-    btn.onclick = analyze;
+    btn.textContent = currentUser ? '✨ 분석하기' : '🔒 로그인 후 분석';
+    btn.disabled = !currentUser;
+    btn.onclick = currentUser ? analyze : login;
   }
 }
 
@@ -276,7 +363,7 @@ async function analyze() {
   try {
     const res = await fetch(API + '/analyze', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(authToken ? {'Authorization': 'Bearer ' + authToken} : {}) },
       body: JSON.stringify({ image: mosaicB64, imageOriginal: originalB64 })
     });
     const data = await res.json();
@@ -380,7 +467,8 @@ async function loadGallery() {
       html += '<div class="gallery-group"><h3>' + style + ' <span style="color:#6b7280;font-size:13px;font-weight:400">(' + items.length + ')</span></h3><div class="gallery-grid">';
       for (const item of items) {
         const imgUrl = API + '/image/' + item.id;
-        html += '<div class="gallery-item" onclick="viewDetail(\'' + item.id + '\')"><img src="' + imgUrl + '" alt="' + style + '" loading="lazy"><div class="badge" style="color:' + (item.gguan_ggyu_score>=60?'#22c55e':'#fbbf24') + '">' + (item.gguan_ggyu_score||'?') + '</div></div>';
+        const isOwn = currentUser && item.user_id === currentUser.id;
+        html += '<div class="gallery-item" onclick="viewDetail(\'' + item.id + '\')"><img src="' + imgUrl + '" alt="' + style + '" loading="lazy"><div class="badge" style="color:' + (item.gguan_ggyu_score>=60?'#22c55e':'#fbbf24') + '">' + (item.gguan_ggyu_score||'?') + '</div>' + (isOwn ? '<div onclick="event.stopPropagation();deleteAnalysis(\'' + item.id + '\')" style="position:absolute;top:4px;right:4px;background:rgba(239,68,68,.8);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer">✕</div>' : '') + '</div>';
       }
       html += '</div></div>';
     }
@@ -403,6 +491,13 @@ async function viewDetail(id) {
     renderResult({ id, analysis });
   } catch(e) { alert('상세 조회 실패'); }
   document.getElementById('loading').style.display = 'none';
+}
+async function deleteAnalysis(id) {
+  if (!confirm("정말 삭제하시겠습니까?")) return;
+  try {
+    const r = await fetch(API + "/" + id, { method: "DELETE", headers: { "Authorization": "Bearer " + authToken } });
+    if (r.ok) { alert("삭제됨"); loadGallery(); } else { const d = await r.json(); alert(d.error || "삭제 실패"); }
+  } catch(e) { alert("삭제 실패"); }
 }
 </script>
 </body>
