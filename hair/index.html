@@ -308,6 +308,7 @@ function renderResult(data) {
         <span class="tag color-tag">${a.color||''}</span>
         <span class="tag">난이도 ${'⭐'.repeat(a.difficulty||3)}</span>
       </div>
+      ${a.trend_note ? '<div style="background:#1e293b;border-radius:8px;padding:8px 12px;margin:10px 0;font-size:13px;color:#a78bfa">📈 ' + a.trend_note + '</div>' : ''}
       ${(a.face_types||[]).length ? '<div style="font-size:13px;color:#9ca3af;margin-top:4px">어울리는 얼굴형: ' + a.face_types.join(', ') + '</div>' : ''}
     </div>
 
