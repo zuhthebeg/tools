@@ -367,7 +367,10 @@ async function analyze() {
       body: JSON.stringify({ image: mosaicB64, imageOriginal: originalB64 })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Analysis failed');
+    if (!res.ok) {
+      if (data.error === 'rejected') throw new Error('⚠️ ' + (data.reason || '분석할 수 없는 사진입니다'));
+      throw new Error(data.error || 'Analysis failed');
+    }
     renderResult(data);
   } catch(e) {
     alert('분석 실패: ' + e.message);
