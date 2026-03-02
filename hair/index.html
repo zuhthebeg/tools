@@ -183,12 +183,12 @@ async function handleFile(file) {
   reader.onload = e => {
     img.onload = async () => {
       // Resize to max 800px
-      const max = 800;
+      const max = 600;
       let w = img.width, h = img.height;
       if (w > max || h > max) { const s = max / Math.max(w,h); w *= s; h *= s; }
       const c = document.createElement('canvas'); c.width = w; c.height = h;
       const ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
-      originalB64 = c.toDataURL('image/jpeg', 0.85);
+      originalB64 = c.toDataURL('image/jpeg', 0.7);
 
       // Show preview
       document.getElementById('previewImg').src = originalB64;
@@ -253,7 +253,7 @@ async function detectAndMosaic(canvas, ctx, w, h) {
       document.getElementById('faceWarning').style.display = 'block';
     }
 
-    mosaicB64 = mosaicC.toDataURL('image/jpeg', 0.75);
+    mosaicB64 = mosaicC.toDataURL('image/jpeg', 0.6);
     btn.textContent = '✨ 분석하기';
     btn.disabled = false;
     btn.onclick = analyze;
