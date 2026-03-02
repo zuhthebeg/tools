@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- GTM -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f)})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
+<meta name="description" content="AI 헤어스타일 분석기 - 사진으로 헤어스타일, 관리법, 비용을 분석해드립니다">
+<meta name="keywords" content="헤어스타일,머리스타일,헤어분석,AI,관리법,미용실,꾸안꾸">
+<meta property="og:title" content="💇 AI 헤어 분석기">
+<meta property="og:description" content="사진 한 장으로 헤어스타일 분석 + 관리법 + 비용 + 꾸안꾸지수">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tool.cocy.io/hair/">
+<meta property="og:image" content="https://tool.cocy.io/hair/icon.svg">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://tool.cocy.io/hair/">
+<link rel="icon" href="icon.svg">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"AI 헤어 분석기","url":"https://tool.cocy.io/hair/","applicationCategory":"UtilityApplication","operatingSystem":"All","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}</script>
+<!-- AdSense: managed via GTM auto-ads (ca-pub-6634731722045607) -->
+<title>💇 AI 헤어 분석기</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#0f1419;color:#e7e9ea;min-height:100vh}
+.container{max-width:520px;margin:0 auto;padding:16px}
+header{text-align:center;padding:20px 0}
+header h1{font-size:28px;font-weight:900;background:linear-gradient(135deg,#a78bfa,#f472b6,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+header p{color:#9ca3af;font-size:14px;margin-top:4px}
+
+.upload-zone{border:2px dashed #374151;border-radius:16px;padding:40px 20px;text-align:center;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.upload-zone:hover,.upload-zone.dragover{border-color:#a78bfa;background:rgba(167,139,250,.05)}
+.upload-zone .icon{font-size:48px;margin-bottom:12px}
+.upload-zone p{color:#9ca3af;font-size:15px}
+.upload-zone small{color:#6b7280;font-size:12px;display:block;margin-top:8px}
+#fileInput{display:none}
+
+.preview-wrap{position:relative;border-radius:12px;overflow:hidden;margin:16px 0;display:none}
+.preview-wrap img{width:100%;display:block}
+.preview-wrap canvas{position:absolute;top:0;left:0;width:100%;height:100%}
+
+.face-warning{background:#fbbf2420;border:1px solid #fbbf24;border-radius:10px;padding:10px 14px;font-size:13px;color:#fbbf24;margin:8px 0;display:none}
+
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:12px;font-size:17px;font-weight:800;cursor:pointer;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,#a78bfa,#f472b6);color:#fff}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(167,139,250,.3)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-secondary{background:#1f2937;color:#9ca3af;margin-top:8px}
+
+.loading{text-align:center;padding:40px;display:none}
+.loading .spinner{width:48px;height:48px;border:4px solid #374151;border-top-color:#a78bfa;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Result card */
+.result{display:none;animation:fadeIn .5s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.result-card{background:#1a1f2e;border-radius:16px;padding:20px;margin:16px 0}
+.result-card h2{font-size:22px;font-weight:900;margin-bottom:4px}
+.result-card .en{color:#9ca3af;font-size:13px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.tag{background:#374151;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.tag.length{background:#1e3a5f;color:#60a5fa}
+.tag.texture{background:#3b1f4e;color:#c084fc}
+.tag.color-tag{background:#3b2f1f;color:#fbbf24}
+
+.gguan-card{background:linear-gradient(135deg,#1a1f2e,#1f1a2e);border-radius:16px;padding:20px;margin:16px 0;text-align:center}
+.gguan-score{font-size:56px;font-weight:900;background:linear-gradient(135deg,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.gguan-label{font-size:13px;color:#9ca3af;margin-top:2px}
+.gguan-meter{width:100%;height:8px;background:#374151;border-radius:4px;margin:12px 0;overflow:hidden}
+.gguan-meter .fill{height:100%;border-radius:4px;transition:width 1s ease}
+.gguan-reason{color:#d1d5db;font-size:14px;line-height:1.6;margin-top:8px;text-align:left}
+
+.section{background:#1a1f2e;border-radius:16px;padding:16px;margin:12px 0}
+.section h3{font-size:16px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.section ul{list-style:none;padding:0}
+.section li{padding:6px 0;font-size:14px;color:#d1d5db;border-bottom:1px solid #ffffff08}
+.section li:last-child{border:none}
+.section li strong{color:#e7e9ea}
+
+.cost-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cost-item{background:#111827;border-radius:10px;padding:12px;text-align:center}
+.cost-item .label{font-size:12px;color:#9ca3af}
+.cost-item .price{font-size:18px;font-weight:800;color:#fbbf24;margin-top:4px}
+.cost-item .range{font-size:11px;color:#6b7280;margin-top:2px}
+
+.salon-tip{background:linear-gradient(135deg,#1a2e1a,#1f2e1a);border:1px solid #22c55e30;border-radius:12px;padding:14px;margin:12px 0;font-size:14px;line-height:1.6;color:#86efac}
+
+.tab-bar{display:flex;gap:8px;margin:16px 0}
+.tab{flex:1;padding:10px;background:#1f2937;border:none;border-radius:10px;color:#9ca3af;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.tab.active{background:#a78bfa;color:#fff}
+
+.gallery{display:none}
+.gallery-group{margin:16px 0}
+.gallery-group h3{font-size:16px;font-weight:800;margin-bottom:8px}
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gallery-item{border-radius:10px;overflow:hidden;cursor:pointer;position:relative;aspect-ratio:1}
+.gallery-item img{width:100%;height:100%;object-fit:cover}
+.gallery-item .badge{position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,.7);padding:2px 6px;border-radius:6px;font-size:11px;font-weight:700}
+</style>
+</head>
+<body>
+<!-- GTM noscript -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="container">
+  <header>
+    <h1>💇 AI 헤어 분석기</h1>
+    <p>사진 한 장으로 스타일 · 관리법 · 비용 · 꾸안꾸지수</p>
+  </header>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="showTab('analyze')">✨ 분석하기</button>
+    <button class="tab" onclick="showTab('gallery')">🖼️ 갤러리</button>
+  </div>
+
+  <!-- Analyze tab -->
+  <div id="analyzeTab">
+    <div class="upload-zone" id="dropZone">
+      <div class="icon">📸</div>
+      <p>사진을 올려주세요</p>
+      <small>탭해서 선택 또는 드래그</small>
+    </div>
+    <input type="file" id="fileInput" accept="image/*">
+
+    <div class="preview-wrap" id="previewWrap">
+      <img id="previewImg">
+      <canvas id="mosaicCanvas"></canvas>
+    </div>
+    <div class="face-warning" id="faceWarning">⚠️ 얼굴이 감지되지 않았습니다. 그대로 업로드됩니다.</div>
+
+    <button class="btn btn-primary" id="analyzeBtn" style="display:none" disabled>✨ 분석하기</button>
+    <button class="btn btn-secondary" id="resetBtn" style="display:none" onclick="resetAll()">다른 사진</button>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>AI가 헤어스타일을 분석 중...</p>
+      <small style="color:#6b7280;margin-top:8px">약 10~15초 소요</small>
+    </div>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <!-- Gallery tab -->
+  <div class="gallery" id="galleryTab"></div>
+</div>
+
+<!-- face-api.js -->
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+const API = 'https://relay.cocy.io/api/hair';
+let originalB64 = null, mosaicB64 = null, faceDetected = false, faceModel = false;
+
+// Load face detection model
+async function loadFaceModel() {
+  try {
+    await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights');
+    faceModel = true;
+  } catch(e) { console.warn('face model load failed:', e); }
+}
+loadFaceModel();
+
+// Tab
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (tab==='analyze'?0:1)===i));
+  document.getElementById('analyzeTab').style.display = tab==='analyze' ? '' : 'none';
+  document.getElementById('galleryTab').style.display = tab==='gallery' ? '' : 'none';
+  if (tab==='gallery') loadGallery();
+}
+
+// Upload zone
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', e => { if(e.target.files[0]) handleFile(e.target.files[0]); });
+
+async function handleFile(file) {
+  if (!file.type.startsWith('image/')) return alert('이미지 파일만 가능합니다');
+
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = e => {
+    img.onload = async () => {
+      // Resize to max 800px
+      const max = 800;
+      let w = img.width, h = img.height;
+      if (w > max || h > max) { const s = max / Math.max(w,h); w *= s; h *= s; }
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
+      originalB64 = c.toDataURL('image/jpeg', 0.85);
+
+      // Show preview
+      document.getElementById('previewImg').src = originalB64;
+      document.getElementById('previewWrap').style.display = 'block';
+      dropZone.style.display = 'none';
+      document.getElementById('analyzeBtn').style.display = '';
+      document.getElementById('resetBtn').style.display = '';
+
+      // Face detection + mosaic
+      await detectAndMosaic(c, ctx, w, h);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function detectAndMosaic(canvas, ctx, w, h) {
+  const btn = document.getElementById('analyzeBtn');
+  btn.textContent = '얼굴 감지 중...';
+
+  if (!faceModel) { await loadFaceModel(); }
+
+  try {
+    const img = document.getElementById('previewImg');
+    const detections = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.3 }));
+
+    const mosaicC = document.createElement('canvas'); mosaicC.width = w; mosaicC.height = h;
+    const mctx = mosaicC.getContext('2d');
+    mctx.drawImage(canvas, 0, 0);
+
+    if (detections.length > 0) {
+      faceDetected = true;
+      document.getElementById('faceWarning').style.display = 'none';
+
+      for (const det of detections) {
+        const box = det.box;
+        // Expand box a bit
+        const pad = Math.max(box.width, box.height) * 0.15;
+        const x = Math.max(0, box.x - pad), y = Math.max(0, box.y - pad);
+        const bw = Math.min(w - x, box.width + pad*2), bh = Math.min(h - y, box.height + pad*2);
+
+        // Pixelate
+        const ps = 12; // pixel size
+        const tmp = document.createElement('canvas'); tmp.width = Math.ceil(bw/ps); tmp.height = Math.ceil(bh/ps);
+        const tctx = tmp.getContext('2d');
+        tctx.drawImage(mosaicC, x, y, bw, bh, 0, 0, tmp.width, tmp.height);
+        mctx.imageSmoothingEnabled = false;
+        mctx.drawImage(tmp, 0, 0, tmp.width, tmp.height, x, y, bw, bh);
+        mctx.imageSmoothingEnabled = true;
+      }
+
+      // Show mosaic overlay
+      const overlayC = document.getElementById('mosaicCanvas');
+      overlayC.width = w; overlayC.height = h;
+      const octx = overlayC.getContext('2d');
+      octx.drawImage(mosaicC, 0, 0);
+    } else {
+      faceDetected = false;
+      document.getElementById('faceWarning').style.display = 'block';
+    }
+
+    mosaicB64 = mosaicC.toDataURL('image/jpeg', 0.75);
+    btn.textContent = '✨ 분석하기';
+    btn.disabled = false;
+    btn.onclick = analyze;
+  } catch(e) {
+    console.error('face detection error:', e);
+    mosaicB64 = originalB64; // fallback: use original
+    document.getElementById('faceWarning').style.display = 'block';
+    btn.textContent = '✨ 분석하기';
+    btn.disabled = false;
+    btn.onclick = analyze;
+  }
+}
+
+async function analyze() {
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('result').style.display = 'none';
+
+  try {
+    const res = await fetch(API + '/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: mosaicB64, imageOriginal: originalB64 })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Analysis failed');
+    renderResult(data);
+  } catch(e) {
+    alert('분석 실패: ' + e.message);
+    btn.disabled = false;
+  }
+  document.getElementById('loading').style.display = 'none';
+}
+
+function renderResult(data) {
+  const a = data.analysis;
+  const score = a.gguan_ggyu_score || 50;
+  const scoreColor = score >= 70 ? '#22c55e' : score >= 40 ? '#fbbf24' : '#ef4444';
+  const scoreLabel = score >= 80 ? '꾸안꾸 마스터 ✨' : score >= 60 ? '자연스러운 편 🌿' : score >= 40 ? '적당히 꾸민 💅' : '화려한 꾸밈 💎';
+
+  const careTips = a.care_tips || {};
+  const el = document.getElementById('result');
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div class="result-card">
+      <h2>${a.style_name_ko || '분석 완료'}</h2>
+      <div class="en">${a.style_name_en || ''}</div>
+      <div class="tags">
+        <span class="tag length">${{short:'숏',medium:'미디엄',long:'롱'}[a.length]||a.length}</span>
+        <span class="tag texture">${{straight:'스트레이트',wavy:'웨이브',curly:'컬리',coily:'코일리'}[a.texture]||a.texture}</span>
+        <span class="tag color-tag">${a.color||''}</span>
+        <span class="tag">난이도 ${'⭐'.repeat(a.difficulty||3)}</span>
+      </div>
+      ${(a.face_types||[]).length ? '<div style="font-size:13px;color:#9ca3af;margin-top:4px">어울리는 얼굴형: ' + a.face_types.join(', ') + '</div>' : ''}
+    </div>
+
+    <div class="gguan-card">
+      <div style="font-size:13px;color:#9ca3af">꾸안꾸지수</div>
+      <div class="gguan-score">${score}</div>
+      <div class="gguan-label">${scoreLabel}</div>
+      <div class="gguan-meter"><div class="fill" style="width:${score}%;background:${scoreColor}"></div></div>
+      <div class="gguan-reason">${a.gguan_ggyu_reason || ''}</div>
+    </div>
+
+    <div class="section">
+      <h3>💰 예상 비용</h3>
+      <div class="cost-grid">
+        <div class="cost-item"><div class="label">✂️ 컷</div><div class="price">${fmt(avg(a.cost_cut_min,a.cost_cut_max))}</div><div class="range">${fmt(a.cost_cut_min)}~${fmt(a.cost_cut_max)}</div></div>
+        <div class="cost-item"><div class="label">🌀 펌</div><div class="price">${fmt(avg(a.cost_perm_min,a.cost_perm_max))}</div><div class="range">${fmt(a.cost_perm_min)}~${fmt(a.cost_perm_max)}</div></div>
+        <div class="cost-item"><div class="label">🎨 염색</div><div class="price">${fmt(avg(a.cost_color_min,a.cost_color_max))}</div><div class="range">${fmt(a.cost_color_min)}~${fmt(a.cost_color_max)}</div></div>
+        <div class="cost-item"><div class="label">📅 월 관리</div><div class="price">${fmt(a.monthly_care)}</div><div class="range">제품+관리비</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>🪮 관리법</h3>
+      <ul>
+        ${careTips.daily ? '<li><strong>매일</strong> ' + careTips.daily + '</li>' : ''}
+        ${careTips.weekly ? '<li><strong>주간</strong> ' + careTips.weekly + '</li>' : ''}
+        ${careTips.drying ? '<li><strong>드라이</strong> ' + careTips.drying + '</li>' : ''}
+        ${careTips.styling ? '<li><strong>스타일링</strong> ' + careTips.styling + '</li>' : ''}
+        ${(careTips.products||[]).length ? '<li><strong>추천 제품</strong> ' + careTips.products.join(', ') + '</li>' : ''}
+      </ul>
+    </div>
+
+    ${a.salon_keywords ? '<div class="salon-tip">💬 ' + a.salon_keywords + '</div>' : ''}
+
+    <button class="btn btn-primary" onclick="resetAll()" style="margin-top:16px">📸 다른 사진 분석하기</button>
+  `;
+  el.scrollIntoView({ behavior: 'smooth' });
+}
+
+function fmt(n) { return n ? (n >= 10000 ? Math.round(n/10000) + '만' : n.toLocaleString()) + '원' : '-'; }
+function avg(a,b) { return a && b ? Math.round((a+b)/2) : a || b || 0; }
+
+function resetAll() {
+  originalB64 = null; mosaicB64 = null; faceDetected = false;
+  document.getElementById('previewWrap').style.display = 'none';
+  document.getElementById('faceWarning').style.display = 'none';
+  document.getElementById('analyzeBtn').style.display = 'none';
+  document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('loading').style.display = 'none';
+  dropZone.style.display = '';
+  fileInput.value = '';
+  const oc = document.getElementById('mosaicCanvas'); oc.getContext('2d').clearRect(0,0,oc.width,oc.height);
+}
+
+// Gallery
+async function loadGallery() {
+  const tab = document.getElementById('galleryTab');
+  tab.innerHTML = '<div class="loading" style="display:block"><div class="spinner"></div><p>갤러리 로딩 중...</p></div>';
+  try {
+    const res = await fetch(API + '/gallery');
+    const data = await res.json();
+    if (!data.groups || Object.keys(data.groups).length === 0) {
+      tab.innerHTML = '<div style="text-align:center;padding:40px;color:#6b7280"><p style="font-size:48px;margin-bottom:12px">🪞</p><p>아직 분석된 헤어가 없어요</p><p style="font-size:13px;margin-top:4px">첫 번째로 분석해보세요!</p></div>';
+      return;
+    }
+    let html = '';
+    for (const [style, items] of Object.entries(data.groups)) {
+      html += '<div class="gallery-group"><h3>' + style + ' <span style="color:#6b7280;font-size:13px;font-weight:400">(' + items.length + ')</span></h3><div class="gallery-grid">';
+      for (const item of items) {
+        const imgUrl = API + '/image/' + item.id;
+        html += '<div class="gallery-item" onclick="viewDetail(\'' + item.id + '\')"><img src="' + imgUrl + '" alt="' + style + '" loading="lazy"><div class="badge" style="color:' + (item.gguan_ggyu_score>=60?'#22c55e':'#fbbf24') + '">' + (item.gguan_ggyu_score||'?') + '</div></div>';
+      }
+      html += '</div></div>';
+    }
+    tab.innerHTML = html;
+  } catch(e) {
+    tab.innerHTML = '<div style="text-align:center;padding:40px;color:#ef4444">로딩 실패</div>';
+  }
+}
+
+async function viewDetail(id) {
+  showTab('analyze');
+  document.getElementById('loading').style.display = 'block';
+  try {
+    const res = await fetch(API + '/' + id);
+    const row = await res.json();
+    const analysis = JSON.parse(row.full_analysis || '{}');
+    document.getElementById('previewImg').src = API + '/image/' + id;
+    document.getElementById('previewWrap').style.display = 'block';
+    dropZone.style.display = 'none';
+    renderResult({ id, analysis });
+  } catch(e) { alert('상세 조회 실패'); }
+  document.getElementById('loading').style.display = 'none';
+}
+</script>
+</body>
+</html>

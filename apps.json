@@ -1,301 +1,315 @@
 [
-    {
-        "title": "느낌가사 Feel Lyrics",
-        "icon": "https://tool.cocy.io/feellyrics/icon.svg",
-        "url": "https://tool.cocy.io/feellyrics/",
-        "desc": "외국 노래를 한글 발음으로 따라 부르자! AI 느낌가사 생성 + 노래방 모드",
-        "badge": "NEW",
-        "platforms": [
-            "WEB"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "로또번호 생성기",
-        "icon": "https://tool.cocy.io/lotto/icon.svg",
-        "url": "https://tool.cocy.io/lotto/",
-        "desc": "행운의 로또 번호 생성 + 동행복권 링크",
-        "badge": "NEW",
-        "platforms": [
-            "WEB"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "계산기",
-        "icon": "https://tool.cocy.io/calc/icon.svg",
-        "url": "https://tool.cocy.io/calc/",
-        "desc": "쉼표 지원 및 붙여넣기 가능한 계산기",
-        "badge": "NEW",
-        "platforms": [
-            "WEB"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "색상 코드",
-        "icon": "https://tool.cocy.io/color/icon.svg",
-        "url": "https://tool.cocy.io/color/",
-        "desc": "색상 코드 변환기",
-        "badge": "NEW",
-        "platforms": [
-            "WEB"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "CIDR 서브넷",
-        "icon": "https://tool.cocy.io/cidr/icon.svg",
-        "url": "https://tool.cocy.io/cidr/",
-        "desc": "CIDR 서브넷 계산기",
-        "badge": "NEW",
-        "platforms": [
-            "WEB"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "색상 팔레트",
-        "icon": "https://tool.cocy.io/color/icon.svg",
-        "url": "https://tool.cocy.io/color/",
-        "desc": "색상 조합 생성 도구",
-        "badge": "NEW",
-        "platforms": [
-            "WEB"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "Base64 인코더",
-        "icon": "https://tool.cocy.io/base64/icon.svg",
-        "url": "https://tool.cocy.io/base64/",
-        "desc": "텍스트 인코딩/디코딩 도구",
-        "badge": "TOOL",
-        "platforms": [
-            "WEB"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "JSON 포맷터",
-        "icon": "https://tool.cocy.io/json/icon.svg",
-        "url": "https://tool.cocy.io/json/",
-        "desc": "JSON 정렬 및 검증 도구",
-        "badge": "TOOL",
-        "platforms": [
-            "WEB"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "LLM 토크나이저",
-        "icon": "https://tool.cocy.io/llm/icon.svg",
-        "url": "https://tool.cocy.io/llm/",
-        "desc": "AI 모델 토큰 계산기",
-        "badge": "TOOL",
-        "platforms": [
-            "WEB"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "QR 코드 생성기",
-        "icon": "https://tool.cocy.io/qr/icon.svg",
-        "url": "https://tool.cocy.io/qr/",
-        "desc": "QR 코드 생성 및 스캐너",
-        "badge": "TOOL",
-        "platforms": [
-            "WEB"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "URL 인코더",
-        "icon": "https://tool.cocy.io/url/icon.svg",
-        "url": "https://tool.cocy.io/url/",
-        "desc": "URL 인코딩/디코딩 도구",
-        "badge": "TOOL",
-        "platforms": [
-            "WEB"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "IP/DNS Lookup",
-        "icon": "https://tool.cocy.io/net/icon.svg",
-        "url": "https://tool.cocy.io/net/",
-        "desc": "IP/DNS Lookup",
-        "badge": "TOOL",
-        "platforms": [
-            "WEB"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "궁금증 츄크",
-        "icon": "https://tool.cocy.io/chu/icon.png",
-        "url": "https://tool.cocy.io/chu/",
-        "desc": "츄 궁금증 체크",
-        "badge": "TOOL",
-        "platforms": [
-            "WEB"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "D-Day Counter",
-        "icon": "https://tool.cocy.io/dday/icon.svg",
-        "url": "https://tool.cocy.io/dday/",
-        "desc": "D-Day Counter",
-        "badge": "TOOL",
-        "platforms": [
-            "PWA"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "Neon Sign",
-        "icon": "https://tool.cocy.io/neon/icon.svg",
-        "url": "https://tool.cocy.io/neon/",
-        "desc": "Web Neon Sign",
-        "badge": "TOOL",
-        "platforms": [
-            "PWA"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "Word Counter",
-        "icon": "https://tool.cocy.io/count/icon.svg",
-        "url": "https://tool.cocy.io/count/",
-        "desc": "Word Counter",
-        "badge": "TOOL",
-        "platforms": [
-            "PWA"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "타일 슬라이더",
-        "icon": "https://game.cocy.io/tileslider/icons/icon.svg",
-        "url": "https://game.cocy.io/tileslider/",
-        "desc": "슬라이딩 숫자/이미지 퍼즐",
-        "badge": "HOT",
-        "platforms": [
-            "PWA",
-            "TWA"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "game"
-    },
-    {
-        "title": "블럭 퍼즐",
-        "icon": "https://game.cocy.io/blockpuzzle/icons/icon.svg",
-        "url": "https://game.cocy.io/blockpuzzle/",
-        "desc": "블럭 조합 퍼즐",
-        "badge": "NEW",
-        "platforms": [
-            "PWA"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "game"
-    },
-    {
-        "title": "피크민 트래커",
-        "icon": "https://game.cocy.io/pikmin/favicon.svg",
-        "url": "https://game.cocy.io/pikmin/",
-        "desc": "피크민 수집 관리",
-        "badge": "HOT",
-        "platforms": [
-            "PWA"
-        ],
-        "languages": [
-            "한국어",
-            "日本語",
-            "中文(简体)",
-            "中文(繁體)",
-            "English"
-        ],
-        "category": "game"
-    },
-    {
-        "title": "캘린더",
-        "icon": "https://tool.cocy.io/calendar/icon.svg",
-        "url": "https://tool.cocy.io/calendar/",
-        "desc": "간단한 월간 캘린더",
-        "badge": "NEW",
-        "platforms": [
-            "WEB"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    },
-    {
-        "title": "JWT 디코더",
-        "icon": "https://tool.cocy.io/jwt/icon.svg",
-        "url": "https://tool.cocy.io/jwt/",
-        "desc": "JWT 토큰 디코드/만료확인/HS256 검증",
-        "badge": "NEW",
-        "platforms": [
-            "WEB"
-        ],
-        "languages": [
-            "🌍"
-        ],
-        "category": "tool"
-    }
+  {
+    "title": "느낌가사 Feel Lyrics",
+    "icon": "https://tool.cocy.io/feellyrics/icon.svg",
+    "url": "https://tool.cocy.io/feellyrics/",
+    "desc": "외국 노래를 한글 발음으로 따라 부르자! AI 느낌가사 생성 + 노래방 모드",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "로또번호 생성기",
+    "icon": "https://tool.cocy.io/lotto/icon.svg",
+    "url": "https://tool.cocy.io/lotto/",
+    "desc": "행운의 로또 번호 생성 + 동행복권 링크",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "계산기",
+    "icon": "https://tool.cocy.io/calc/icon.svg",
+    "url": "https://tool.cocy.io/calc/",
+    "desc": "쉼표 지원 및 붙여넣기 가능한 계산기",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "색상 코드",
+    "icon": "https://tool.cocy.io/color/icon.svg",
+    "url": "https://tool.cocy.io/color/",
+    "desc": "색상 코드 변환기",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "CIDR 서브넷",
+    "icon": "https://tool.cocy.io/cidr/icon.svg",
+    "url": "https://tool.cocy.io/cidr/",
+    "desc": "CIDR 서브넷 계산기",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "색상 팔레트",
+    "icon": "https://tool.cocy.io/color/icon.svg",
+    "url": "https://tool.cocy.io/color/",
+    "desc": "색상 조합 생성 도구",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "Base64 인코더",
+    "icon": "https://tool.cocy.io/base64/icon.svg",
+    "url": "https://tool.cocy.io/base64/",
+    "desc": "텍스트 인코딩/디코딩 도구",
+    "badge": "TOOL",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "JSON 포맷터",
+    "icon": "https://tool.cocy.io/json/icon.svg",
+    "url": "https://tool.cocy.io/json/",
+    "desc": "JSON 정렬 및 검증 도구",
+    "badge": "TOOL",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "LLM 토크나이저",
+    "icon": "https://tool.cocy.io/llm/icon.svg",
+    "url": "https://tool.cocy.io/llm/",
+    "desc": "AI 모델 토큰 계산기",
+    "badge": "TOOL",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "QR 코드 생성기",
+    "icon": "https://tool.cocy.io/qr/icon.svg",
+    "url": "https://tool.cocy.io/qr/",
+    "desc": "QR 코드 생성 및 스캐너",
+    "badge": "TOOL",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "URL 인코더",
+    "icon": "https://tool.cocy.io/url/icon.svg",
+    "url": "https://tool.cocy.io/url/",
+    "desc": "URL 인코딩/디코딩 도구",
+    "badge": "TOOL",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "IP/DNS Lookup",
+    "icon": "https://tool.cocy.io/net/icon.svg",
+    "url": "https://tool.cocy.io/net/",
+    "desc": "IP/DNS Lookup",
+    "badge": "TOOL",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "궁금증 츄크",
+    "icon": "https://tool.cocy.io/chu/icon.png",
+    "url": "https://tool.cocy.io/chu/",
+    "desc": "츄 궁금증 체크",
+    "badge": "TOOL",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "D-Day Counter",
+    "icon": "https://tool.cocy.io/dday/icon.svg",
+    "url": "https://tool.cocy.io/dday/",
+    "desc": "D-Day Counter",
+    "badge": "TOOL",
+    "platforms": [
+      "PWA"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "Neon Sign",
+    "icon": "https://tool.cocy.io/neon/icon.svg",
+    "url": "https://tool.cocy.io/neon/",
+    "desc": "Web Neon Sign",
+    "badge": "TOOL",
+    "platforms": [
+      "PWA"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "Word Counter",
+    "icon": "https://tool.cocy.io/count/icon.svg",
+    "url": "https://tool.cocy.io/count/",
+    "desc": "Word Counter",
+    "badge": "TOOL",
+    "platforms": [
+      "PWA"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "타일 슬라이더",
+    "icon": "https://game.cocy.io/tileslider/icons/icon.svg",
+    "url": "https://game.cocy.io/tileslider/",
+    "desc": "슬라이딩 숫자/이미지 퍼즐",
+    "badge": "HOT",
+    "platforms": [
+      "PWA",
+      "TWA"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "game"
+  },
+  {
+    "title": "블럭 퍼즐",
+    "icon": "https://game.cocy.io/blockpuzzle/icons/icon.svg",
+    "url": "https://game.cocy.io/blockpuzzle/",
+    "desc": "블럭 조합 퍼즐",
+    "badge": "NEW",
+    "platforms": [
+      "PWA"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "game"
+  },
+  {
+    "title": "피크민 트래커",
+    "icon": "https://game.cocy.io/pikmin/favicon.svg",
+    "url": "https://game.cocy.io/pikmin/",
+    "desc": "피크민 수집 관리",
+    "badge": "HOT",
+    "platforms": [
+      "PWA"
+    ],
+    "languages": [
+      "한국어",
+      "日本語",
+      "中文(简体)",
+      "中文(繁體)",
+      "English"
+    ],
+    "category": "game"
+  },
+  {
+    "title": "캘린더",
+    "icon": "https://tool.cocy.io/calendar/icon.svg",
+    "url": "https://tool.cocy.io/calendar/",
+    "desc": "간단한 월간 캘린더",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "JWT 디코더",
+    "icon": "https://tool.cocy.io/jwt/icon.svg",
+    "url": "https://tool.cocy.io/jwt/",
+    "desc": "JWT 토큰 디코드/만료확인/HS256 검증",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
+    "title": "💇 AI 헤어 분석기",
+    "icon": "https://tool.cocy.io/hair/icon.svg",
+    "url": "https://tool.cocy.io/hair/",
+    "desc": "사진으로 헤어스타일 분석 + 관리법 + 비용 + 꾸안꾸지수",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🇰🇷"
+    ],
+    "category": "tool"
+  }
 ]
