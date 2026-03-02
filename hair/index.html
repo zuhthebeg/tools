@@ -4,13 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <!-- GTM -->
-async function deleteAnalysis(id) {
-  if (!confirm("정말 삭제하시겠습니까?")) return;
-  try {
-    const r = await fetch(API + "/" + id, { method: "DELETE", headers: { "Authorization": "Bearer " + authToken } });
-    if (r.ok) { alert("삭제됨"); loadGallery(); } else { const d = await r.json(); alert(d.error || "삭제 실패"); }
-  } catch(e) { alert("삭제 실패"); }
-}
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f)})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
 <meta name="description" content="AI 헤어스타일 분석기 - 사진으로 헤어스타일, 관리법, 비용을 분석해드립니다">
 <meta name="keywords" content="헤어스타일,머리스타일,헤어분석,AI,관리법,미용실,꾸안꾸">
@@ -23,13 +16,6 @@ async function deleteAnalysis(id) {
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="https://tool.cocy.io/hair/">
 <link rel="icon" href="icon.svg">
-async function deleteAnalysis(id) {
-  if (!confirm("정말 삭제하시겠습니까?")) return;
-  try {
-    const r = await fetch(API + "/" + id, { method: "DELETE", headers: { "Authorization": "Bearer " + authToken } });
-    if (r.ok) { alert("삭제됨"); loadGallery(); } else { const d = await r.json(); alert(d.error || "삭제 실패"); }
-  } catch(e) { alert("삭제 실패"); }
-}
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"AI 헤어 분석기","url":"https://tool.cocy.io/hair/","applicationCategory":"UtilityApplication","operatingSystem":"All","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}</script>
 <!-- AdSense: managed via GTM auto-ads (ca-pub-6634731722045607) -->
 <title>💇 AI 헤어 분석기</title>
@@ -162,13 +148,7 @@ header p{color:#9ca3af;font-size:14px;margin-top:4px}
 </div>
 
 <!-- face-api.js -->
-async function deleteAnalysis(id) {
-  if (!confirm("정말 삭제하시겠습니까?")) return;
-  try {
-    const r = await fetch(API + "/" + id, { method: "DELETE", headers: { "Authorization": "Bearer " + authToken } });
-    if (r.ok) { alert("삭제됨"); loadGallery(); } else { const d = await r.json(); alert(d.error || "삭제 실패"); }
-  } catch(e) { alert("삭제 실패"); }
-}
+
 <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <script>
 const API = 'https://relay.cocy.io/api/hair';
@@ -495,12 +475,13 @@ async function viewDetail(id) {
   } catch(e) { alert('상세 조회 실패'); }
   document.getElementById('loading').style.display = 'none';
 }
+
 async function deleteAnalysis(id) {
-  if (!confirm("정말 삭제하시겠습니까?")) return;
+  if (!confirm('정말 삭제하시겠습니까?')) return;
   try {
-    const r = await fetch(API + "/" + id, { method: "DELETE", headers: { "Authorization": "Bearer " + authToken } });
-    if (r.ok) { alert("삭제됨"); loadGallery(); } else { const d = await r.json(); alert(d.error || "삭제 실패"); }
-  } catch(e) { alert("삭제 실패"); }
+    const r = await fetch(API + '/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + authToken } });
+    if (r.ok) { alert('삭제됨'); loadGallery(); } else { const d = await r.json(); alert(d.error || '삭제 실패'); }
+  } catch(e) { alert('삭제 실패'); }
 }
 </script>
 </body>
