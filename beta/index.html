@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>베타 테스터 허브 — cocy.io</title>
+  <meta name="description" content="cocy.io 앱 베타 테스터 모집 허브. 게임과 툴 앱을 출시 전 먼저 경험하세요.">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #080612; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+    a { text-decoration: none; color: inherit; }
+    .header { padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .header a { color: #94a3b8; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; transition: color 0.2s; }
+    .header a:hover { color: #e2e8f0; }
+    .hero { text-align: center; padding: 64px 24px 52px; flex: 1; }
+    .hero-logo { font-size: 2rem; margin-bottom: 16px; }
+    h1 { font-size: clamp(1.6rem, 5vw, 2.4rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 14px; background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero p { color: #64748b; font-size: 0.9rem; margin-bottom: 52px; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; max-width: 600px; margin: 0 auto; padding: 0 4px; }
+    .card { border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 28px 24px; transition: border-color 0.2s, transform 0.2s; cursor: pointer; }
+    .card:hover { border-color: rgba(99,102,241,0.4); transform: translateY(-3px); }
+    .card.game { background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.04)); }
+    .card.tool { background: linear-gradient(135deg, rgba(20,184,166,0.07), rgba(6,182,212,0.03)); }
+    .card-icon { font-size: 2rem; margin-bottom: 14px; }
+    .card h2 { font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; }
+    .card.game h2 { color: #a5b4fc; }
+    .card.tool h2 { color: #5eead4; }
+    .card p { font-size: 0.8rem; color: #64748b; line-height: 1.6; margin-bottom: 18px; }
+    .card-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700; }
+    .card.game .card-link { color: #818cf8; }
+    .card.tool .card-link { color: #2dd4bf; }
+    footer { text-align: center; padding: 20px; color: #334155; font-size: 0.78rem; border-top: 1px solid rgba(255,255,255,0.04); }
+    footer a { color: #6366f1; }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <a href="https://tool.cocy.io">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    tool.cocy.io
+  </a>
+</header>
+
+<section class="hero">
+  <div class="hero-logo">🧪</div>
+  <h1>베타 테스터 허브</h1>
+  <p>출시 전 앱을 먼저 경험하고 함께 만들어요</p>
+
+  <div class="cards">
+    <a class="card game" href="./game/">
+      <div class="card-icon">🎮</div>
+      <h2>게임 앱</h2>
+      <p>Android 게임 앱 테스터 모집. Google Play 내부 테스트 참여.</p>
+      <span class="card-link">참여하기 →</span>
+    </a>
+    <a class="card tool" href="./tool/">
+      <div class="card-icon">🔧</div>
+      <h2>툴 앱</h2>
+      <p>웹 기반 도구 및 서비스 베타. 피드백으로 개선에 참여.</p>
+      <span class="card-link">준비 중 →</span>
+    </a>
+  </div>
+</section>
+
+<footer>
+  © 2025 <a href="https://cocy.io">COCY.IO</a>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>게임 앱 베타 테스터 모집 — cocy.io</title>
+  <meta name="description" content="cocy.io 게임 앱 베타 테스터 모집. 출시 전 먼저 플레이하고 피드백으로 게임을 함께 만들어요.">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #080612; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+    a { text-decoration: none; color: inherit; }
+    .header { padding: 20px 24px; display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .header a { display: flex; align-items: center; gap: 8px; color: #94a3b8; font-size: 0.85rem; transition: color 0.2s; }
+    .header a:hover { color: #e2e8f0; }
+    .hero { text-align: center; padding: 60px 24px 40px; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); color: #a5b4fc; font-size: 0.8rem; font-weight: 600; padding: 4px 14px; border-radius: 20px; margin-bottom: 20px; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: #6366f1; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 16px; background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero p { color: #94a3b8; font-size: 1rem; line-height: 1.7; max-width: 440px; margin: 0 auto 8px; }
+    .hero .sub { font-size: 0.82rem; color: #475569; }
+    .steps { display: flex; justify-content: center; gap: 4px; padding: 36px 24px; max-width: 580px; margin: 0 auto; flex-wrap: wrap; }
+    .step { flex: 1; min-width: 110px; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 8px; position: relative; }
+    .step:not(:last-child)::after { content: '→'; position: absolute; right: -2px; top: 14px; color: #1e293b; font-size: 0.9rem; }
+    .step-num { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .step h4 { font-size: 0.78rem; font-weight: 700; color: #e2e8f0; margin-bottom: 2px; }
+    .step p { font-size: 0.72rem; color: #64748b; line-height: 1.4; }
+    .section-title { text-align: center; font-size: 1rem; font-weight: 700; color: #94a3b8; margin-bottom: 20px; padding: 0 24px; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; }
+    .apps { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; padding: 0 24px 80px; max-width: 860px; margin: 0 auto; }
+    .card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 22px; transition: border-color 0.2s, transform 0.2s; }
+    .card:hover { border-color: rgba(99,102,241,0.35); transform: translateY(-2px); }
+    .card-head { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .icon { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; background: #1e293b; flex-shrink: 0; }
+    .app-name { font-size: 1rem; font-weight: 700; color: #f1f5f9; margin-bottom: 4px; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; font-size: 0.68rem; color: #4ade80; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+    .desc { font-size: 0.83rem; color: #94a3b8; line-height: 1.6; margin-bottom: 16px; }
+    .progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .pbar-wrap { flex: 1; height: 5px; background: rgba(255,255,255,0.06); border-radius: 9999px; overflow: hidden; }
+    .pbar { height: 100%; background: linear-gradient(90deg, #6366f1, #a78bfa); border-radius: 9999px; }
+    .pcount { font-size: 0.78rem; color: #a5b4fc; font-weight: 700; white-space: nowrap; }
+    .btn { display: block; width: 100%; padding: 12px; border-radius: 10px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; font-size: 0.88rem; font-weight: 700; text-align: center; cursor: pointer; border: none; transition: opacity 0.2s, transform 0.15s; }
+    .btn:hover { opacity: 0.88; transform: scale(1.015); }
+    .reqs { margin-top: 14px; padding: 11px 13px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+    .reqs strong { font-size: 0.72rem; color: #64748b; font-weight: 700; display: block; margin-bottom: 5px; }
+    .reqs li { font-size: 0.72rem; color: #94a3b8; padding: 1px 0; list-style: none; }
+    .reqs li::before { content: '· '; color: #6366f1; }
+    .placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 200px; border-style: dashed !important; opacity: 0.45; }
+    footer { text-align: center; padding: 20px; color: #334155; font-size: 0.78rem; border-top: 1px solid rgba(255,255,255,0.04); }
+    footer a { color: #6366f1; }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <a href="../">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    베타 허브
+  </a>
+</header>
+
+<section class="hero">
+  <div class="badge"><span class="dot"></span>모집 중</div>
+  <h1>게임 앱 베타 테스터<br>모집합니다</h1>
+  <p>출시 전 먼저 플레이하고, 피드백으로 게임을 함께 만들어요.</p>
+  <p class="sub">Android + Google 계정 필요</p>
+</section>
+
+<div class="steps">
+  <div class="step"><div class="step-num">1</div><h4>링크 클릭</h4><p>아래 참여 버튼 클릭</p></div>
+  <div class="step"><div class="step-num">2</div><h4>Play에서 수락</h4><p>테스터 등록 완료</p></div>
+  <div class="step"><div class="step-num">3</div><h4>설치 & 플레이</h4><p>앱 설치 후 플레이</p></div>
+</div>
+
+<p class="section-title">참여 가능한 앱</p>
+
+<div class="apps">
+
+  <div class="card">
+    <div class="card-head">
+      <img class="icon" src="https://game.cocy.io/linerush/icon-192.png" alt="Line Rush" onerror="this.style.display='none'">
+      <div>
+        <div class="app-name">Line Rush</div>
+        <span class="tag">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M17.523 15.341l-4.013-2.315a.824.824 0 010-1.426l4.013-2.315a.824.824 0 011.236.713v4.63a.824.824 0 01-1.236.713zM5.477 8.695l4.013 2.315a.824.824 0 010 1.426L5.477 14.75a.824.824 0 01-1.236-.713v-4.63a.824.824 0 011.236-.712z"/></svg>
+          Android
+        </span>
+      </div>
+    </div>
+    <p class="desc">라인을 그어 영역을 확보하고 배경을 해방하는 터치 아케이드. 15개 스테이지, 보스 포획 시스템.</p>
+    <div class="progress-row">
+      <div class="pbar-wrap"><div class="pbar" style="width:33%"></div></div>
+      <span class="pcount">4 / 12명</span>
+    </div>
+    <a class="btn" href="https://play.google.com/apps/internaltest/4700890027362322864" target="_blank" rel="noopener">테스터 참여하기</a>
+    <div class="reqs">
+      <strong>참여 조건</strong>
+      <ul>
+        <li>Android 5.0 이상</li>
+        <li>Google 계정 필요</li>
+        <li>Play에서 opt-in 후 설치</li>
+        <li>간단한 피드백 환영</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card placeholder">
+    <div style="font-size:1.6rem;color:#1e293b;margin-bottom:10px">＋</div>
+    <div style="font-size:0.88rem;font-weight:700;color:#334155;margin-bottom:4px">다음 앱 준비 중</div>
+    <div style="font-size:0.75rem;color:#1e293b">새 게임이 추가되면 여기에 나타나요</div>
+  </div>
+
+</div>
+
+<footer>
+  © 2025 <a href="https://cocy.io">COCY.IO</a> &nbsp;·&nbsp; <a href="https://game.cocy.io">Games</a> &nbsp;·&nbsp; <a href="https://tool.cocy.io">Tools</a>
+</footer>
+
+</body>
+</html>
