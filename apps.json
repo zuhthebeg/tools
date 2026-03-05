@@ -1,5 +1,19 @@
 [
   {
+    "title": "LLM 토크나이저",
+    "icon": "https://tool.cocy.io/tokenizer/icon.svg",
+    "url": "https://tool.cocy.io/tokenizer/",
+    "desc": "GPT-5, o3, o4-mini, Codex 등 최신 LLM 모델별 토큰 수 실시간 계산. 컨텍스트 사용률·비용 추정·토큰 시각화",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
     "title": "느낌가사 Feel Lyrics",
     "icon": "https://tool.cocy.io/feellyrics/icon.svg",
     "url": "https://tool.cocy.io/feellyrics/",
