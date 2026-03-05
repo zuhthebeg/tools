@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="20" fill="#0f1117"/>
+  <text x="10" y="46" font-family="monospace" font-size="16" fill="#6c63ff">\u</text>
+  <text x="36" y="46" font-family="monospace" font-size="16" fill="#ffd166">AC00</text>
+  <text x="14" y="68" font-family="monospace" font-size="22" font-weight="bold" fill="#00d4aa">가</text>
+  <line x1="12" y1="52" x2="88" y2="52" stroke="#2e3250" stroke-width="2"/>
+  <text x="58" y="68" font-family="monospace" font-size="22" font-weight="bold" fill="#00d4aa">나</text>
+</svg>

@@ -1,5 +1,19 @@
 [
   {
+    "title": "유니코드 디코더",
+    "icon": "https://tool.cocy.io/unicodedec/icon.svg",
+    "url": "https://tool.cocy.io/unicodedec/",
+    "desc": "\\uXXXX 유니코드 이스케이프, URL 인코딩(%XX), HTML 엔티티, Base64 실시간 디코딩/인코딩",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
     "title": "LLM 토크나이저",
     "icon": "https://tool.cocy.io/tokenizer/icon.svg",
     "url": "https://tool.cocy.io/tokenizer/",

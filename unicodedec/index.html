@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>유니코드 디코더 — cocy tools</title>
+<meta name="description" content="\uB824처럼 섞인 유니코드 이스케이프를 한글로 디코딩. URL인코딩, HTML엔티티, Base64도 지원.">
+<meta name="keywords" content="유니코드 디코더, unicode decode, \uXXXX 한글 변환, URL decode, base64">
+<meta property="og:title" content="유니코드 디코더">
+<meta property="og:description" content="유니코드 이스케이프(\uXXXX)를 포함한 문자열을 한글로 디코딩">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tool.cocy.io/unicodedec/">
+<meta property="og:image" content="https://tool.cocy.io/unicodedec/icon.svg">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://tool.cocy.io/unicodedec/">
+<link rel="icon" href="icon.svg">
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
+<!-- AdSense: managed via GTM auto-ads (ca-pub-6634731722045607) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"유니코드 디코더","url":"https://tool.cocy.io/unicodedec/","applicationCategory":"UtilityApplication","offers":{"@type":"Offer","price":"0"}}</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--bg2:#1a1d27;--bg3:#22263a;--border:#2e3250;
+  --text:#e8eaf6;--muted:#7b82b4;--accent:#6c63ff;--accent2:#00d4aa;
+  --success:#06d6a0;--warn:#ffd166;--danger:#ff6b6b;--radius:12px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:24px 16px 60px}
+.container{max-width:760px;margin:0 auto}
+header{text-align:center;margin-bottom:28px}
+header h1{font-size:1.8rem;font-weight:700}
+header h1 span{color:var(--accent)}
+header p{color:var(--muted);margin-top:6px;font-size:.88rem}
+
+/* 모드 탭 */
+.mode-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.tab{background:var(--bg2);border:2px solid var(--border);border-radius:8px;padding:6px 14px;
+  font-size:.78rem;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s}
+.tab:hover{border-color:var(--accent);color:var(--text)}
+.tab.active{border-color:var(--accent);background:rgba(108,99,255,.15);color:var(--text)}
+
+/* 에디터 */
+.box{background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;transition:border-color .15s}
+.box:focus-within{border-color:var(--accent)}
+.box-header{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--bg3);border-bottom:1px solid var(--border);font-size:.75rem;color:var(--muted)}
+.box-header .label{font-weight:600}
+.box-header .hint{margin-left:4px;opacity:.6}
+.btn-sm{margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--muted);
+  border-radius:6px;padding:3px 10px;font-size:.72rem;cursor:pointer;transition:all .15s}
+.btn-sm:hover{border-color:var(--accent2);color:var(--accent2)}
+textarea{width:100%;min-height:130px;resize:vertical;background:transparent;border:none;outline:none;
+  padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:.83rem;color:var(--text);line-height:1.6}
+
+/* 버튼 */
+.btn-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.btn{padding:10px 20px;border-radius:8px;border:none;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#5b52e0}
+.btn-secondary{background:var(--bg2);border:1px solid var(--border);color:var(--muted)}
+.btn-secondary:hover{border-color:var(--accent2);color:var(--accent2)}
+
+/* 결과 */
+.result-box{background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+.result-header{display:flex;align-items:center;padding:9px 14px;background:var(--bg3);border-bottom:1px solid var(--border);font-size:.75rem;gap:8px}
+.result-header .label{font-weight:600;color:var(--accent2)}
+.badge-changed{display:inline-block;background:rgba(6,214,160,.15);color:var(--success);
+  border:1px solid rgba(6,214,160,.3);border-radius:4px;padding:1px 7px;font-size:.68rem;font-weight:600}
+.badge-none{display:inline-block;background:rgba(123,130,180,.1);color:var(--muted);
+  border:1px solid var(--border);border-radius:4px;padding:1px 7px;font-size:.68rem}
+.result-content{padding:14px;font-family:'JetBrains Mono',monospace;font-size:.85rem;
+  line-height:1.7;word-break:break-all;white-space:pre-wrap;min-height:60px}
+
+/* 하이라이트 diff */
+.hl{background:rgba(108,99,255,.3);border-radius:3px;padding:0 1px}
+
+/* 통계 */
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;font-size:.78rem;color:var(--muted)}
+.stats span b{color:var(--accent2)}
+
+/* 예시 */
+.examples{margin-top:20px}
+.examples h3{font-size:.78rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.example-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;
+  font-size:.72rem;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--muted);
+  transition:all .15s;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip:hover{border-color:var(--accent);color:var(--text)}
+
+@media(max-width:500px){header h1{font-size:1.3rem}.btn{padding:8px 14px;font-size:.8rem}}
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<div class="container">
+  <header>
+    <h1>유니코드 <span>디코더</span></h1>
+    <p>\uB824 같은 이스케이프가 섞인 문자열을 통째로 붙여넣으면 디코딩해줍니다</p>
+  </header>
+
+  <!-- 모드 탭 -->
+  <div class="mode-tabs">
+    <button class="tab active" data-mode="unicode">\\uXXXX (유니코드)</button>
+    <button class="tab" data-mode="url">URL 인코딩 (%XX)</button>
+    <button class="tab" data-mode="html">HTML 엔티티 (&amp;amp;)</button>
+    <button class="tab" data-mode="base64">Base64</button>
+    <button class="tab" data-mode="auto">자동 감지</button>
+  </div>
+
+  <div class="box">
+    <div class="box-header">
+      <span class="label">입력</span>
+      <span class="hint" id="mode-hint">\\uXXXX 이스케이프가 포함된 문자열</span>
+      <button class="btn-sm" onclick="clearAll()">지우기</button>
+    </div>
+    <textarea id="input" placeholder='\uC548\uB155\uD558\uC138\uC694 \uBC18\uAC00\uC6CC\uC694!' spellcheck="false"></textarea>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="decode()">디코딩 ▶</button>
+    <button class="btn btn-secondary" onclick="encode()">인코딩 ◀</button>
+    <button class="btn btn-secondary" onclick="copyResult()">복사</button>
+  </div>
+
+  <div class="result-box" id="result-box">
+    <div class="result-header">
+      <span class="label">결과</span>
+      <span id="result-badge" class="badge-none">대기중</span>
+      <button class="btn-sm" style="margin-left:auto" onclick="swapIO()">↕ 입출력 교체</button>
+    </div>
+    <div class="result-content" id="result-content">결과가 여기에 표시됩니다.</div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="examples">
+    <h3>예시 클릭해보기</h3>
+    <div class="example-chips" id="chips"></div>
+  </div>
+</div>
+
+<script>
+const EXAMPLES = {
+  unicode: [
+    { label:'한글 문장', val:'\\uC548\\uB155\\uD558\\uC138\\uC694! \\uBC18\\uAC00\\uC6CC\\uC694.' },
+    { label:'JSON 혼합', val:'{"name":"\\uAE40\\uCCA0\\uC218","msg":"\\uD559\\uAD50\\uAC00\\uC138\\uC694"}' },
+    { label:'이모지', val:'\\uD83D\\uDE00 \\uD83D\\uDC4D \\uD83C\\uDF89' },
+    { label:'JS 문자열', val:'"\\uC774\\uAC83\\uC740 \\uD14C\\uC2A4\\uD2B8 \\uBB38\\uC790\\uC5F4\\uC785\\uB2C8\\uB2E4"' },
+    { label:'혼합 (한+영)', val:'Hello \\uC138\\uACC4! Nice to meet you \\uBC18\\uAC00\\uC6CC\\uC694' },
+  ],
+  url: [
+    { label:'한글 URL', val:'%EC%95%88%EB%85%95%ED%95%98%EC%84%B8%EC%9A%94' },
+    { label:'파라미터', val:'name=%EA%B9%80%EC%B2%A0%EC%88%98&city=%EC%84%9C%EC%9A%B8' },
+    { label:'+공백', val:'hello+world+%ED%85%8C%EC%8A%A4%ED%8A%B8' },
+  ],
+  html: [
+    { label:'기본 엔티티', val:'&lt;div&gt;안녕&lt;/div&gt; &amp; &quot;테스트&quot;' },
+    { label:'숫자 엔티티', val:'&#44032;&#45208;&#45796; &#54620;&#44΅Υ&#50612;' },
+    { label:'혼합', val:'&lt;p&gt;&#50504;&#45397;&lt;/p&gt;' },
+  ],
+  base64: [
+    { label:'한글 Base64', val:'7JWI64WV7ZWY7IS47JqU' },
+    { label:'영문', val:'SGVsbG8gV29ybGQ=' },
+    { label:'JSON', val:'eyJuYW1lIjoi7ZWc7J206rWtIiwibXNnIjoi7ZWY64KYIn0=' },
+  ],
+};
+
+let currentMode = 'unicode';
+let lastResult = '';
+
+// 탭
+document.querySelectorAll('.tab').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    currentMode = t.dataset.mode;
+    updateHint();
+    renderChips();
+    if (document.getElementById('input').value) decode();
+  };
+});
+
+function updateHint() {
+  const hints = {
+    unicode: '\\\\uXXXX 이스케이프가 포함된 문자열',
+    url: '%XX URL 인코딩 문자열',
+    html: 'HTML 엔티티(&amp;amp; &amp;lt; &#XXXX;)',
+    base64: 'Base64 인코딩 문자열',
+    auto: '형식 자동 감지 후 디코딩',
+  };
+  document.getElementById('mode-hint').textContent = hints[currentMode] || '';
+}
+
+// 디코딩 함수들
+function decodeUnicode(s) {
+  // \uXXXX 및 \UXXXXXXXX (서로게이트 페어 포함)
+  return s.replace(/\\u([0-9a-fA-F]{4})/g, (_, c) => String.fromCharCode(parseInt(c, 16)))
+          .replace(/\\U([0-9a-fA-F]{8})/g, (_, c) => {
+            const cp = parseInt(c, 16);
+            return cp > 0xFFFF ? String.fromCodePoint(cp) : String.fromCharCode(cp);
+          });
+}
+
+function decodeURL(s) {
+  try { return decodeURIComponent(s.replace(/\+/g, ' ')); }
+  catch { return s.replace(/\+/g, ' ').replace(/%([0-9a-fA-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16))); }
+}
+
+function decodeHTML(s) {
+  const txt = document.createElement('textarea');
+  txt.innerHTML = s;
+  return txt.value;
+}
+
+function decodeBase64(s) {
+  try {
+    const bin = atob(s.trim());
+    const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+    return new TextDecoder('utf-8').decode(bytes);
+  } catch { return '[Base64 디코딩 실패: 유효하지 않은 입력]'; }
+}
+
+function autoDetect(s) {
+  if (/\\u[0-9a-fA-F]{4}/.test(s)) return { mode: 'unicode', result: decodeUnicode(s) };
+  if (/%[0-9a-fA-F]{2}/.test(s)) return { mode: 'url', result: decodeURL(s) };
+  if (/&(?:#\d+|#x[0-9a-fA-F]+|[a-z]+);/i.test(s)) return { mode: 'html', result: decodeHTML(s) };
+  if (/^[A-Za-z0-9+/]+=*$/.test(s.trim()) && s.trim().length % 4 === 0) return { mode: 'base64', result: decodeBase64(s) };
+  return { mode: '변환 없음', result: s };
+}
+
+// 인코딩 함수들
+function encodeUnicode(s) {
+  return s.split('').map(c => {
+    const code = c.codePointAt(0);
+    if (code > 127) return '\\u' + code.toString(16).toUpperCase().padStart(4, '0');
+    return c;
+  }).join('');
+}
+function encodeURL(s) { return encodeURIComponent(s); }
+function encodeHTML(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function encodeBase64(s) {
+  const bytes = new TextEncoder().encode(s);
+  return btoa(String.fromCharCode(...bytes));
+}
+
+function decode() {
+  const input = document.getElementById('input').value;
+  if (!input.trim()) return;
+
+  let result, detectedMode;
+  if (currentMode === 'auto') {
+    const r = autoDetect(input);
+    result = r.result;
+    detectedMode = r.mode;
+  } else if (currentMode === 'unicode') result = decodeUnicode(input);
+  else if (currentMode === 'url') result = decodeURL(input);
+  else if (currentMode === 'html') result = decodeHTML(input);
+  else if (currentMode === 'base64') result = decodeBase64(input);
+
+  showResult(result, input, detectedMode);
+}
+
+function encode() {
+  const input = document.getElementById('input').value;
+  if (!input.trim()) return;
+  let result;
+  const mode = currentMode === 'auto' ? 'unicode' : currentMode;
+  if (mode === 'unicode') result = encodeUnicode(input);
+  else if (mode === 'url') result = encodeURL(input);
+  else if (mode === 'html') result = encodeHTML(input);
+  else if (mode === 'base64') result = encodeBase64(input);
+  showResult(result, input, null, true);
+}
+
+function showResult(result, original, detectedMode, isEncode = false) {
+  lastResult = result;
+  const changed = result !== original;
+  const badge = document.getElementById('result-badge');
+  badge.textContent = detectedMode ? `${detectedMode} 감지` : (changed ? (isEncode ? '인코딩됨' : '디코딩됨') : '변환 없음');
+  badge.className = changed ? 'badge-changed' : 'badge-none';
+
+  // 변경된 부분 하이라이트 (유니코드 모드만)
+  let html;
+  if (!isEncode && currentMode === 'unicode' && changed) {
+    // 원본의 \uXXXX 패턴을 하이라이트
+    html = result.replace(/./gu, (ch, i) => {
+      const safe = ch.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      return safe;
+    });
+  }
+
+  const el = document.getElementById('result-content');
+  el.textContent = result;
+
+  // 통계
+  const changed_count = (original.match(/\\u[0-9a-fA-F]{4}/g) || []).length;
+  const doc = document.getElementById('stats');
+  doc.innerHTML = changed
+    ? `<span>입력 <b>${original.length}</b>자</span><span>출력 <b>${result.length}</b>자</span>${changed_count ? `<span>변환 <b>${changed_count}</b>개</span>` : ''}`
+    : `<span>변환된 내용 없음</span>`;
+}
+
+function copyResult() {
+  if (!lastResult) return;
+  navigator.clipboard.writeText(lastResult).then(() => {
+    const btn = [...document.querySelectorAll('.btn-secondary')].find(b => b.textContent.includes('복사'));
+    const orig = btn.textContent;
+    btn.textContent = '✓ 복사됨';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+function swapIO() {
+  if (!lastResult) return;
+  document.getElementById('input').value = lastResult;
+  lastResult = '';
+  document.getElementById('result-content').textContent = '결과가 여기에 표시됩니다.';
+  document.getElementById('result-badge').textContent = '대기중';
+  document.getElementById('result-badge').className = 'badge-none';
+}
+
+function clearAll() {
+  document.getElementById('input').value = '';
+  lastResult = '';
+  document.getElementById('result-content').textContent = '결과가 여기에 표시됩니다.';
+  document.getElementById('result-badge').textContent = '대기중';
+  document.getElementById('result-badge').className = 'badge-none';
+  document.getElementById('stats').innerHTML = '';
+}
+
+// 예시 칩
+function renderChips() {
+  const chips = document.getElementById('chips');
+  const examples = EXAMPLES[currentMode] || EXAMPLES.unicode;
+  chips.innerHTML = '';
+  examples.forEach(ex => {
+    const c = document.createElement('button');
+    c.className = 'chip';
+    c.title = ex.val;
+    c.textContent = ex.label + ': ' + ex.val.substring(0, 40) + (ex.val.length > 40 ? '…' : '');
+    c.onclick = () => {
+      document.getElementById('input').value = ex.val;
+      decode();
+    };
+    chips.appendChild(c);
+  });
+}
+
+// 실시간 디코딩 (입력하면 바로)
+document.getElementById('input').addEventListener('input', () => {
+  const v = document.getElementById('input').value;
+  if (v.length > 5) decode();
+});
+
+renderChips();
+</script>
+</body>
+</html>
