@@ -1,5 +1,19 @@
 [
   {
+    "title": "NVIDIA GTC 2026 세션 가이드",
+    "icon": "https://tool.cocy.io/gtc2026/icon.svg",
+    "url": "https://tool.cocy.io/gtc2026/",
+    "desc": "GTC 2026 (3/16-19, San Jose) 주요 트랙·세션·일정 정리. Agentic AI, 로보틱스, 추론, CUDA, 양자컴퓨팅 등 900+ 세션.",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
     "title": "유니코드 디코더",
     "icon": "https://tool.cocy.io/unicodedec/icon.svg",
     "url": "https://tool.cocy.io/unicodedec/",
