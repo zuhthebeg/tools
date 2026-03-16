@@ -162,6 +162,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     ℹ️ 아래 세션 정보는 공개된 GTC 2026 공식 트랙 및 발표자 정보 기반 정리입니다. 전체 세션은 <a href="https://www.nvidia.com/gtc/session-catalog/" target="_blank" style="color:var(--warn)">공식 카탈로그</a>에서 확인하세요.
   </div>
 
+  <!-- 날짜 탭 (상단 고정) -->
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px" id="day-tabs-top">
+    <button class="day-tab-btn" data-day="mar15">Mar 15 워크숍</button>
+    <button class="day-tab-btn" data-day="mar16">Mar 16 키노트</button>
+    <button class="day-tab-btn active" data-day="mar17">📌 Mar 17 세션</button>
+    <button class="day-tab-btn" data-day="mar18">Mar 18 세션</button>
+    <button class="day-tab-btn" data-day="mar19">Mar 19 세션</button>
+    <button class="day-tab-btn" data-day="all" style="margin-left:auto">전체보기</button>
+  </div>
+
+  <!-- 날짜별 콘텐츠 래퍼 -->
+  <div id="day-view-wrapper">
+    <!-- day-content 섹션들이 여기서 렌더됨 (JS가 이동) -->
+  </div>
 
   <!-- 개인화 추천 -->
   <div class="section-title">🎯 추천 세션 — 금융사 LLM 서빙 & AI 코딩툴 담당자</div>
@@ -708,14 +722,47 @@ const RECOMMENDED = [
 ];
 
 // ===== 날짜 탭 =====
-document.querySelectorAll('.day-tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.day-tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.day-content').forEach(c => c.style.display = 'none');
-    btn.classList.add('active');
-    document.getElementById('day-' + btn.dataset.day).style.display = 'block';
-  });
+const dayWrapper = document.getElementById('day-view-wrapper');
+// 기존 day-content 요소들을 wrapper로 이동
+document.querySelectorAll('.day-content').forEach(el => dayWrapper.appendChild(el));
+
+const oldDayTabsSection = document.getElementById('day-tabs');
+if (oldDayTabsSection) oldDayTabsSection.closest('div.section-title') && null;
+// 하단 날짜별 일정 섹션 제목 숨기기
+document.querySelectorAll('.section-title').forEach(el => {
+  if (el.textContent.includes('날짜별 일정')) el.style.display = 'none';
 });
+if (oldDayTabsSection) oldDayTabsSection.style.display = 'none';
+
+const mainSections = document.querySelectorAll('.container > *:not(#day-view-wrapper):not(.day-content)');
+
+function switchDay(day) {
+  document.querySelectorAll('.day-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('[data-day="' + day + '"]').forEach(b => b.classList.add('active'));
+
+  if (day === 'all') {
+    dayWrapper.style.display = 'none';
+    mainSections.forEach(el => el.style.display = '');
+  } else {
+    // 메인 섹션 숨기고 day-view만 표시
+    mainSections.forEach(el => {
+      if (!el.classList.contains('notice') && !el.id?.includes('day-tabs-top')) {
+        el.style.display = 'none';
+      }
+    });
+    dayWrapper.style.display = 'block';
+    document.querySelectorAll('.day-content').forEach(c => c.style.display = 'none');
+    const target = document.getElementById('day-' + day);
+    if (target) target.style.display = 'block';
+  }
+}
+
+document.querySelectorAll('.day-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchDay(btn.dataset.day));
+});
+
+// 기본: Mar 17 탭 활성
+switchDay('mar17');
 
 const recList = document.getElementById('rec-list');
 RECOMMENDED.forEach(r => {
