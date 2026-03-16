@@ -125,6 +125,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .notice{background:rgba(255,209,102,.07);border:1px solid rgba(255,209,102,.25);
   border-radius:8px;padding:10px 14px;font-size:.76rem;color:var(--warn);margin-bottom:20px;line-height:1.6}
 
+/* 날짜 탭 */
+.day-tab-btn{background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;
+  padding:7px 14px;font-size:.76rem;font-weight:700;cursor:pointer;color:var(--muted);transition:all .15s;white-space:nowrap}
+.day-tab-btn:hover{border-color:var(--green);color:var(--green);background:rgba(118,185,0,.06)}
+.day-tab-btn.active{border-color:var(--green);color:#000;background:var(--green)}
+
 @media(max-width:600px){
   .hero h1{font-size:1.5rem}
   .tracks{grid-template-columns:1fr 1fr}
@@ -212,29 +218,235 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   <div class="filter-row" id="filter-row"></div>
   <div class="sessions" id="sessions-list"></div>
 
-  <!-- 일정 타임라인 -->
-  <div class="section-title">📅 주요 일정</div>
-  <div class="timeline">
-    <div class="tl-day">
-      <div class="tl-day-header">Mar 15 (일) — 워크숍 데이</div>
+  <!-- 날짜별 탭 일정 -->
+  <div class="section-title">📅 날짜별 일정</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px" id="day-tabs">
+    <button class="day-tab-btn" data-day="mar15">Mar 15 워크숍</button>
+    <button class="day-tab-btn" data-day="mar16">Mar 16 키노트</button>
+    <button class="day-tab-btn active" data-day="mar17">Mar 17 ★ 세션데이1</button>
+    <button class="day-tab-btn" data-day="mar18">Mar 18 세션데이2</button>
+    <button class="day-tab-btn" data-day="mar19">Mar 19 세션데이3</button>
+  </div>
+
+  <!-- Mar 15 -->
+  <div class="day-content" id="day-mar15" style="display:none">
+    <div class="timeline">
       <div class="tl-items">
         <div class="tl-item"><div class="tl-time">종일</div><div class="tl-content"><div class="tl-title">Instructor-led 핸즈온 워크숍</div><div class="tl-sub">CUDA, TensorRT, NIM, Robotics, Quantum 등 심화 실습</div></div></div>
         <div class="tl-item"><div class="tl-time">종일</div><div class="tl-content"><div class="tl-title">NVIDIA 기술 인증 시험</div><div class="tl-sub">AI, 데이터사이언스, 가속컴퓨팅 공인 자격증</div></div></div>
       </div>
     </div>
-    <div class="tl-day">
-      <div class="tl-day-header">Mar 16 (월) — 키노트 데이</div>
+  </div>
+
+  <!-- Mar 16 -->
+  <div class="day-content" id="day-mar16" style="display:none">
+    <div class="notice" style="border-color:rgba(118,185,0,.4);background:rgba(118,185,0,.07);color:var(--green2)">✅ 오늘(3/16) 키노트 완료 — Jensen Huang, SAP Center</div>
+    <div class="timeline">
       <div class="tl-items">
-        <div class="tl-item"><div class="tl-time">09:00</div><div class="tl-content"><div class="tl-title">GTC Live 2026 프리쇼</div><div class="tl-sub">AI 리더들과 최신 기술 토론</div></div></div>
-        <div class="tl-item"><div class="tl-time">13:00</div><div class="tl-content"><div class="tl-title">Jensen Huang 기조연설 🎤</div><div class="tl-sub">SAP Center · 신규 하드웨어/소프트웨어/파트너십 발표</div></div></div>
-        <div class="tl-item"><div class="tl-time">저녁</div><div class="tl-content"><div class="tl-title">Connect with Experts / 네트워킹 이벤트</div><div class="tl-sub">스타트업 쇼케이스, 해커톤 킥오프</div></div></div>
+        <div class="tl-item"><div class="tl-time">09:00</div><div class="tl-content"><div class="tl-title">GTC Live 2026 프리쇼</div><div class="tl-sub">AI 리더들과 가속컴퓨팅 최신 현황 토론</div></div></div>
+        <div class="tl-item"><div class="tl-time">13:00</div><div class="tl-content"><div class="tl-title">🎤 Jensen Huang 기조연설</div><div class="tl-sub">SAP Center · Blackwell 차세대 · AI Factory · Physical AI 발표</div></div></div>
+        <div class="tl-item"><div class="tl-time">15:00~</div><div class="tl-content"><div class="tl-title">키노트 이후 기술 세션 (일부)</div><div class="tl-sub">주요 파트너 발표, CUDA 업데이트 등</div></div></div>
+        <div class="tl-item"><div class="tl-time">18:00~</div><div class="tl-content"><div class="tl-title">Connect with Experts · 스타트업 쇼케이스</div><div class="tl-sub">Rising Startups 부스, 해커톤 킥오프, 네트워킹</div></div></div>
       </div>
     </div>
-    <div class="tl-day">
-      <div class="tl-day-header">Mar 17–19 (화~목) — 세션 메인</div>
+  </div>
+
+  <!-- Mar 17 ★ -->
+  <div class="day-content" id="day-mar17">
+    <div class="notice" style="border-color:rgba(108,99,255,.4);background:rgba(108,99,255,.07);color:#a29bfe">⭐ 내일(3/17) — 본격 기술 세션 첫날. 900+ 세션 병렬 진행. 아래는 확정 주요 세션 모음.</div>
+
+    <!-- 시간대별 하이라이트 -->
+    <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px">⏰ 시간대별 주요 세션</div>
+    <div class="timeline">
       <div class="tl-items">
-        <div class="tl-item"><div class="tl-time">09:00~</div><div class="tl-content"><div class="tl-title">병렬 트랙 세션 (900+ 개)</div><div class="tl-sub">Agentic AI · 로보틱스 · 추론 · CUDA · 과학 AI · 양자 등</div></div></div>
-        <div class="tl-item"><div class="tl-time">상시</div><div class="tl-content"><div class="tl-title">해커톤 · 밋업 · 스타트업 엑스포</div><div class="tl-sub">Rising Startups 부스, 오픈소스 밋업, 추론 최적화 챌린지</div></div></div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">08:30</div>
+          <div class="tl-content">
+            <div class="tl-title">🚀 TensorRT-LLM으로 LLM 추론 10배 가속 <span style="font-size:.65rem;background:rgba(255,107,107,.15);color:#ff6b6b;padding:1px 6px;border-radius:4px;margin-left:6px">⭐ 추천</span></div>
+            <div class="tl-sub">NVIDIA TensorRT팀 · San Jose Convention Center · 고급 · Talk</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">09:00</div>
+          <div class="tl-content">
+            <div class="tl-title">🤖 Agentic AI 에이전트 구축: 계획·실행·피드백 루프 <span style="font-size:.65rem;background:rgba(255,107,107,.15);color:#ff6b6b;padding:1px 6px;border-radius:4px;margin-left:6px">⭐ 추천</span></div>
+            <div class="tl-sub">NVIDIA Research + LangChain · 중급 · Talk</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">09:30</div>
+          <div class="tl-content">
+            <div class="tl-title">🦾 NVIDIA Cosmos: 물리 AI 월드 파운데이션 모델</div>
+            <div class="tl-sub">NVIDIA Cosmos팀 · 중급 · Talk</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">10:00</div>
+          <div class="tl-content">
+            <div class="tl-title">⚡ FP8·INT4 양자화 실전: 정확도 손실 없이 속도 향상 <span style="font-size:.65rem;background:rgba(255,107,107,.15);color:#ff6b6b;padding:1px 6px;border-radius:4px;margin-left:6px">⭐ 추천</span></div>
+            <div class="tl-sub">NVIDIA Research · 고급 · Talk</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">10:30</div>
+          <div class="tl-content">
+            <div class="tl-title">🧬 BioNeMo: 신약 발굴 가속화 최신 사례</div>
+            <div class="tl-sub">NVIDIA BioNeMo팀 · 중급 · Talk</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">11:00</div>
+          <div class="tl-content">
+            <div class="tl-title">🦾 로보틱스 세션 — <b>Pras Velagapudi</b> (CTO, Agility Robotics)</div>
+            <div class="tl-sub">휴머노이드 로봇 AI 제어 최신 현황 · Civic Center</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">11:00</div>
+          <div class="tl-content">
+            <div class="tl-title">🧪 핸즈온 랩: NIM 마이크로서비스로 AI 에이전트 API 구축 <span style="font-size:.65rem;background:rgba(0,212,170,.15);color:#00d4aa;padding:1px 6px;border-radius:4px;margin-left:6px">Lab</span></div>
+            <div class="tl-sub">NVIDIA DevTech · 중급 · 사전등록 필요</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">12:00</div>
+          <div class="tl-content">
+            <div class="tl-title">🍽 점심 / Connect with Experts</div>
+            <div class="tl-sub">전문가 1:1 상담 부스, 스타트업 전시</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">13:00</div>
+          <div class="tl-content">
+            <div class="tl-title">🌐 오픈소스 멀티모달 모델 최신 동향</div>
+            <div class="tl-sub">Hugging Face + NVIDIA · 중급 · Panel</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">13:30</div>
+          <div class="tl-content">
+            <div class="tl-title">🚀 vLLM + PagedAttention 최신 개발 현황 <span style="font-size:.65rem;background:rgba(255,107,107,.15);color:#ff6b6b;padding:1px 6px;border-radius:4px;margin-left:6px">⭐ 추천</span></div>
+            <div class="tl-sub">UC Berkeley + NVIDIA · 중급 · Talk</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">14:00</div>
+          <div class="tl-content">
+            <div class="tl-title">🌱 Physical AI 세션 — <b>Chelsea Finn</b> (Stanford / Physical Intelligence)</div>
+            <div class="tl-sub">로봇 학습·정책 합성·시뮬레이션-리얼 갭 극복 · 고급</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">14:30</div>
+          <div class="tl-content">
+            <div class="tl-title">🏭 GB200 NVL72 슈퍼클러스터 설계 및 운용</div>
+            <div class="tl-sub">NVIDIA 인프라팀 · 고급 · Talk</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">15:00</div>
+          <div class="tl-content">
+            <div class="tl-title">🧬 AI for Science — <b>Jeff Dean</b> (Chief Scientist, Google DeepMind)</div>
+            <div class="tl-sub">AI 기반 과학적 발견: 생물학·기후·소재 · Civic Center</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">15:30</div>
+          <div class="tl-content">
+            <div class="tl-title">⚡ CUDA 13 새 기능 딥다이브</div>
+            <div class="tl-sub">NVIDIA CUDA팀 · 고급 · Talk</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">16:00</div>
+          <div class="tl-content">
+            <div class="tl-title">🤖 멀티에이전트 시스템과 도구 호출 최적화 <span style="font-size:.65rem;background:rgba(255,107,107,.15);color:#ff6b6b;padding:1px 6px;border-radius:4px;margin-left:6px">⭐ 추천</span></div>
+            <div class="tl-sub">NVIDIA + LangChain · 고급 · Talk</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">16:30</div>
+          <div class="tl-content">
+            <div class="tl-title">🧪 핸즈온 랩: Llama 4 파인튜닝 (NeMo 프레임워크) <span style="font-size:.65rem;background:rgba(0,212,170,.15);color:#00d4aa;padding:1px 6px;border-radius:4px;margin-left:6px">Lab</span></div>
+            <div class="tl-sub">NVIDIA NeMo팀 · 중급 · 사전등록 필요</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">17:00</div>
+          <div class="tl-content">
+            <div class="tl-title">⚛️ CUDA-Q: 양자-고전 하이브리드 프로그래밍</div>
+            <div class="tl-sub">NVIDIA Quantum팀 · 초급 · Lab</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#74b9ff">18:00~</div>
+          <div class="tl-content">
+            <div class="tl-title">🍻 추론 최적화 해커톤 · 오픈소스 밋업</div>
+            <div class="tl-sub">GTC Park · NVIDIA DGX Spark 체험존 운영</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 확정 연사 카드 -->
+    <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:20px 0 10px">🎤 확정 연사 (3/17)</div>
+    <div class="highlight-grid" style="margin-bottom:0">
+      <div class="highlight-card">
+        <div class="h-type">🦾 Robotics</div>
+        <div class="h-title">차세대 휴머노이드 로봇 AI</div>
+        <div class="h-who"><b>Pras Velagapudi</b><br>CTO, Agility Robotics</div>
+      </div>
+      <div class="highlight-card">
+        <div class="h-type">🌱 Physical AI</div>
+        <div class="h-title">로봇 학습과 Sim-to-Real</div>
+        <div class="h-who"><b>Chelsea Finn</b><br>Stanford Univ. · Co-Founder, Physical Intelligence</div>
+      </div>
+      <div class="highlight-card">
+        <div class="h-type">🧬 AI for Science</div>
+        <div class="h-title">AI 기반 과학적 발견</div>
+        <div class="h-who"><b>Jeff Dean</b><br>Chief Scientist, Google DeepMind</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mar 18 -->
+  <div class="day-content" id="day-mar18" style="display:none">
+    <div class="notice" style="border-color:rgba(255,209,102,.3);background:rgba(255,209,102,.07);color:var(--warn)">⭐ 3/18 하이라이트: Jensen Huang 패널 모더레이터 (12:30 Civic Center)</div>
+    <div class="timeline">
+      <div class="tl-items">
+        <div class="tl-item"><div class="tl-time">09:00~</div><div class="tl-content"><div class="tl-title">병렬 기술 세션 — 2일차</div><div class="tl-sub">Agentic AI · Inference · CUDA · Science AI</div></div></div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">12:30</div>
+          <div class="tl-content">
+            <div class="tl-title">🌐 Special Panel: 오픈 프론티어 모델의 미래 <span style="font-size:.65rem;background:rgba(255,209,102,.2);color:#ffd166;padding:1px 6px;border-radius:4px;margin-left:6px">Jensen 모더레이터</span></div>
+            <div class="tl-sub">Ai2, Cursor, Langchain, Mistral 리더들 · Civic Center · 12:30–14:00</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">14:00~</div>
+          <div class="tl-content">
+            <div class="tl-title">🏛 Dario Gil 세션 (Under Secretary for Science, US DOE)</div>
+            <div class="tl-sub">AI와 에너지·국가 과학 인프라 · 고급</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time" style="color:#ffd166">15:00~</div>
+          <div class="tl-content">
+            <div class="tl-title">🤖 Mira Murati 세션 (Founder & CEO, Thinking Machines Lab)</div>
+            <div class="tl-sub">차세대 AI 아키텍처와 추론 모델</div>
+          </div>
+        </div>
+        <div class="tl-item"><div class="tl-time">18:00~</div><div class="tl-content"><div class="tl-title">해커톤 결선 · GTC 파티</div><div class="tl-sub"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mar 19 -->
+  <div class="day-content" id="day-mar19" style="display:none">
+    <div class="timeline">
+      <div class="tl-items">
+        <div class="tl-item"><div class="tl-time">09:00~</div><div class="tl-content"><div class="tl-title">병렬 기술 세션 — 3일차 (마지막)</div><div class="tl-sub">Quantum · HPC · Enterprise AI · 파트너 세션</div></div></div>
+        <div class="tl-item"><div class="tl-time">14:00~</div><div class="tl-content"><div class="tl-title">클로징 세션 · 해커톤 시상식</div><div class="tl-sub">GTC 2026 마무리</div></div></div>
       </div>
     </div>
   </div>
@@ -494,6 +706,16 @@ const RECOMMENDED = [
     isLab: true,
   },
 ];
+
+// ===== 날짜 탭 =====
+document.querySelectorAll('.day-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.day-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.day-content').forEach(c => c.style.display = 'none');
+    btn.classList.add('active');
+    document.getElementById('day-' + btn.dataset.day).style.display = 'block';
+  });
+});
 
 const recList = document.getElementById('rec-list');
 RECOMMENDED.forEach(r => {
