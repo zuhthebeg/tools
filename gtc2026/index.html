@@ -162,6 +162,273 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
     ℹ️ 아래 세션 정보는 공개된 GTC 2026 공식 트랙 및 발표자 정보 기반 정리입니다. 전체 세션은 <a href="https://www.nvidia.com/gtc/session-catalog/" target="_blank" style="color:var(--warn)">공식 카탈로그</a>에서 확인하세요.
   </div>
 
+  <!-- ===== 실제 발표 내용 ===== -->
+  <div class="section-title">📢 키노트 & 주요 발표 (Day 1 확정)</div>
+  <div class="notice" style="border-color:rgba(118,185,0,.4);background:rgba(118,185,0,.07);color:var(--green2)">
+    ✅ 3/16 키노트 완료 — 아래는 실제 발표된 내용과 공식 링크입니다. (2026-03-17 업데이트)
+  </div>
+
+  <!-- 키노트 요약 카드 -->
+  <div style="background:var(--bg2);border:1.5px solid var(--green);border-radius:var(--radius);padding:20px;margin-bottom:16px;border-left:4px solid var(--green)">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <span style="font-size:1.2rem">🎤</span>
+      <span style="font-size:1rem;font-weight:800">Jensen Huang 기조연설</span>
+      <span style="font-size:.65rem;background:rgba(118,185,0,.15);color:var(--green2);padding:2px 8px;border-radius:4px">COMPLETED</span>
+    </div>
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:12px">📅 Mar 16, 2026 · 1:00 PM PT · SAP Center, San Jose · 약 2시간+</div>
+    <div style="font-size:.82rem;line-height:1.7;margin-bottom:14px">
+      <b style="color:var(--green2)">💰 $1조 주문 전망</b> — Blackwell + Vera Rubin 2027년까지 누적 구매 주문 $1T (작년 $500B에서 2배 상향)<br>
+      <b style="color:var(--green2)">🖥️ Vera Rubin</b> — 1.3M 부품, Grace Blackwell 대비 와트당 성능 10배. 올해 하반기 출하<br>
+      <b style="color:var(--green2)">⚡ Groq 3 LPU</b> — $20B 인수 Groq 첫 칩. 256 LPU 랙, 토큰/와트 35배 향상. Q3 출하<br>
+      <b style="color:var(--green2)">🔮 Kyber</b> — 차세대 랙: 144 GPU 수직 배치 → Vera Rubin Ultra (2027)<br>
+      <b style="color:var(--green2)">🤖 NemoClaw</b> — OpenClaw 엔터프라이즈 레퍼런스 스택 (원커맨드 배포)<br>
+      <b style="color:var(--green2)">🚗 Uber 자율주행</b> — Drive AV 기반, 2028년 4대륙 28개 도시<br>
+      <b style="color:var(--green2)">🎮 DLSS 5</b> — 실시간 뉴럴 렌더링, 올가을 출시
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a href="https://www.cnbc.com/2026/03/16/nvidia-gtc-2026-ceo-jensen-huang-keynote-blackwell-vera-rubin.html" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📰 CNBC 기사</a>
+      <a href="https://www.nvidia.com/gtc/" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">🎬 키노트 다시보기 (공식)</a>
+    </div>
+  </div>
+
+  <!-- 공식 발표 리스트 -->
+  <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:32px" id="announcements">
+
+    <!-- Dynamo 1.0 -->
+    <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;border-left:4px solid #ff6b6b">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="background:rgba(255,107,107,.15);color:#ff6b6b;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px">🚀 LLM 플랫폼 필수</span>
+        <span style="font-size:.65rem;color:var(--muted)">Press Release + Tech Blog</span>
+      </div>
+      <div style="font-size:.9rem;font-weight:700;margin-bottom:4px">NVIDIA Dynamo 1.0 — 추론 인프라 OS</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:8px">
+        AI 팩토리의 "추론 운영체제". GPU 클러스터 요청 라우팅·KV 캐시 스마트 오케스트레이션 자동화.<br>
+        • Blackwell GPU 추론 성능 <b style="color:var(--text)">7배</b> 향상 (오픈소스)<br>
+        • vLLM, SGLang, LangChain 네이티브 통합<br>
+        • 도입: <b style="color:var(--text)">Cursor, Perplexity, PayPal, Coupang, ByteDance, Pinterest</b><br>
+        • 클라우드: AWS, Azure, GCP, OCI + CoreWeave, Nebius, Together AI
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="https://nvidianews.nvidia.com/news/dynamo-1-0" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📄 보도자료</a>
+        <a href="https://developer.nvidia.com/blog/how-nvidia-dynamo-1-0-powers-multi-node-inference-at-production-scale/" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📝 Tech Blog (14분)</a>
+      </div>
+    </div>
+
+    <!-- Agent Toolkit + OpenShell -->
+    <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;border-left:4px solid #ff6b6b">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="background:rgba(255,107,107,.15);color:#ff6b6b;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px">🚀 LLM 플랫폼 필수</span>
+        <span style="font-size:.65rem;color:var(--muted)">Press Release + Tech Blog</span>
+      </div>
+      <div style="font-size:.9rem;font-weight:700;margin-bottom:4px">NVIDIA Agent Toolkit + OpenShell — 에이전트 보안 런타임</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:8px">
+        에이전트 밖에서 보안 강제하는 런타임 (out-of-process enforcement).<br>
+        • <b style="color:var(--text)">OpenShell</b>: 브라우저 탭 격리 모델 적용, 정책 기반 네트워크/파일/프라이버시 제어<br>
+        • <code style="font-size:.7rem;background:var(--bg3);padding:1px 4px;border-radius:3px">openshell sandbox create --from openclaw</code> 한 줄로 격리 실행<br>
+        • Claude Code, OpenClaw, Codex 코드 변경 없이 실행 가능<br>
+        • <b style="color:var(--text)">AI-Q Blueprint</b>: 프론티어 + 오픈모델 하이브리드로 쿼리 비용 50%+ 절감<br>
+        • 파트너: Adobe, Atlassian, Box, Cisco, CrowdStrike, SAP, Salesforce, ServiceNow
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="https://nvidianews.nvidia.com/news/ai-agents" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📄 보도자료</a>
+        <a href="https://developer.nvidia.com/blog/run-autonomous-self-evolving-agents-more-safely-with-nvidia-openshell/" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📝 OpenShell Blog (6분)</a>
+        <a href="https://build.nvidia.com/openshell" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">🔧 OpenShell 빌드</a>
+      </div>
+    </div>
+
+    <!-- Nemotron 3 -->
+    <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;border-left:4px solid #ffd166">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="background:rgba(255,209,102,.15);color:#ffd166;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px">🌐 오픈 모델</span>
+      </div>
+      <div style="font-size:.9rem;font-weight:700;margin-bottom:4px">Nemotron 3 — 옴니 이해 모델 패밀리 확장</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:8px">
+        • <b style="color:var(--text)">Nemotron 3 Ultra</b>: 프론티어급 지능, Blackwell NVFP4로 5배 처리량<br>
+        • <b style="color:var(--text)">Nemotron 3 Omni</b>: 오디오+비전+언어 통합 이해<br>
+        • <b style="color:var(--text)">Nemotron 3 VoiceChat</b>: 실시간 대화 (ASR+LLM+TTS 통합)<br>
+        • 도입: CodeRabbit, CrowdStrike, Cursor, Factory, Perplexity, ServiceNow
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="https://nvidianews.nvidia.com/news/nvidia-expands-open-model-families-to-power-the-next-wave-of-agentic-physical-and-healthcare-ai" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📄 보도자료</a>
+        <a href="https://www.nvidia.com/en-us/ai-data-science/foundation-models/nemotron/" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">🔧 Nemotron 페이지</a>
+      </div>
+    </div>
+
+    <!-- Groq 3 LPX -->
+    <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;border-left:4px solid #6c63ff">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="background:rgba(108,99,255,.15);color:#6c63ff;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px">⚡ 하드웨어</span>
+        <span style="font-size:.65rem;color:var(--muted)">Tech Blog (19분)</span>
+      </div>
+      <div style="font-size:.9rem;font-weight:700;margin-bottom:4px">Groq 3 LPX — 저지연 추론 가속기</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:8px">
+        Vera Rubin 플랫폼용 랙스케일 추론 가속기. GPU의 고처리량 + LPU의 저지연 통합.<br>
+        • 256 LPU 랙, Rubin GPU 대비 토큰/와트 35배<br>
+        • 대규모 컨텍스트 윈도우 + 에이전틱 AI 워크로드 특화<br>
+        • Q3 2026 출하 예정
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="https://developer.nvidia.com/blog/inside-nvidia-groq-3-lpx-the-low-latency-inference-accelerator-for-the-nvidia-vera-rubin-platform/" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📝 Tech Blog (19분)</a>
+      </div>
+    </div>
+
+    <!-- Vera Rubin POD -->
+    <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;border-left:4px solid #6c63ff">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="background:rgba(108,99,255,.15);color:#6c63ff;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px">⚡ 하드웨어</span>
+        <span style="font-size:.65rem;color:var(--muted)">Tech Blog (19분)</span>
+      </div>
+      <div style="font-size:.9rem;font-weight:700;margin-bottom:4px">Vera Rubin POD — 7칩, 5 랙스케일 시스템, 1 AI 슈퍼컴퓨터</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:8px">
+        1.3M 부품, Grace Blackwell 대비 와트당 성능 10배. 올해 하반기 출하.
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="https://developer.nvidia.com/blog/nvidia-vera-rubin-pod-seven-chips-five-rack-scale-systems-one-ai-supercomputer/" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📝 Tech Blog (19분)</a>
+      </div>
+    </div>
+
+    <!-- BlueField-4 CMX -->
+    <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;border-left:4px solid #74b9ff">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="background:rgba(116,185,255,.15);color:#74b9ff;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px">🏭 인프라</span>
+        <span style="font-size:.65rem;color:var(--muted)">Tech Blog (12분)</span>
+      </div>
+      <div style="font-size:.9rem;font-weight:700;margin-bottom:4px">BlueField-4 CMX — 컨텍스트 메모리 스토리지 플랫폼</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:8px">
+        에이전틱 AI 워크플로의 수백만 토큰 컨텍스트 윈도우 + 모델 스케일링 도전 해결.
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="https://developer.nvidia.com/blog/introducing-nvidia-bluefield-4-powered-cmx-context-memory-storage-platform-for-the-next-frontier-of-ai/" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📝 Tech Blog (12분)</a>
+      </div>
+    </div>
+
+    <!-- 자율주행 -->
+    <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;border-left:4px solid #00d4aa">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="background:rgba(0,212,170,.15);color:#00d4aa;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px">🚗 자율주행</span>
+      </div>
+      <div style="font-size:.9rem;font-weight:700;margin-bottom:4px">DRIVE Hyperion L4 — BYD, Geely, Isuzu, Nissan, 현대/기아</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:8px">
+        • 현대·기아: DRIVE Hyperion 기반 차세대 자율주행 확대 파트너십<br>
+        • BYD, Geely, Isuzu, Nissan: Level 4 차량 채택<br>
+        • Uber: 2028년 4대륙 28개 도시 자율주행 플릿
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="https://nvidianews.nvidia.com/news/drive-hyperion-level-4" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📄 L4 보도자료</a>
+        <a href="https://nvidianews.nvidia.com/news/hyundai-motor-kia-autonomous-driving" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📄 현대/기아</a>
+      </div>
+    </div>
+
+    <!-- 로보틱스 -->
+    <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;border-left:4px solid #74b9ff">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="background:rgba(116,185,255,.15);color:#74b9ff;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px">🦾 로보틱스</span>
+      </div>
+      <div style="font-size:.9rem;font-weight:700;margin-bottom:4px">Physical AI — 글로벌 로보틱스 생태계</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:8px">
+        Isaac 시뮬레이션 프레임워크 + 프로덕션 스케일 Physical AI + 데이터 팩토리 블루프린트.
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="https://nvidianews.nvidia.com/news/nvidia-and-global-robotics-leaders-take-physical-ai-to-the-real-world" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📄 보도자료</a>
+        <a href="https://nvidianews.nvidia.com/news/nvidia-announces-open-physical-ai-data-factory-blueprint-to-accelerate-robotics-vision-ai-agents-and-autonomous-vehicle-development" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📄 Data Factory</a>
+      </div>
+    </div>
+
+    <!-- Adobe -->
+    <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;border-left:4px solid #fd79a8">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="background:rgba(253,121,168,.15);color:#fd79a8;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px">🤝 파트너십</span>
+      </div>
+      <div style="font-size:.9rem;font-weight:700;margin-bottom:4px">Adobe 전략 파트너십 — Firefly + 에이전틱 워크플로</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:8px">
+        차세대 Firefly 모델 + 크리에이티브·마케팅 에이전틱 워크플로 가속.
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="https://nvidianews.nvidia.com/news/adobe-and-nvidia-partnership-creative-marketing-agentic-workflows" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📄 보도자료</a>
+      </div>
+    </div>
+
+    <!-- 산업 소프트웨어 -->
+    <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;border-left:4px solid #fd79a8">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="background:rgba(253,121,168,.15);color:#fd79a8;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px">🤝 파트너십</span>
+      </div>
+      <div style="font-size:.9rem;font-weight:700;margin-bottom:4px">글로벌 산업 소프트웨어 — AI 시대 설계·엔지니어링·제조</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:8px">
+        Cadence, Dassault, PTC, Siemens, Synopsys와 CUDA-X, Omniverse 통합. FANUC, HD Hyundai 등.
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="https://nvidianews.nvidia.com/news/nvidia-and-global-industrial-software-giants-bring-design-engineering-and-manufacturing-into-the-ai-era" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📄 보도자료</a>
+      </div>
+    </div>
+
+    <!-- Roche -->
+    <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;border-left:4px solid #06d6a0">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="background:rgba(6,214,160,.15);color:#06d6a0;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px">🧬 헬스케어</span>
+      </div>
+      <div style="font-size:.9rem;font-weight:700;margin-bottom:4px">Roche AI Factory — 글로벌 3,500+ Blackwell GPU 배포</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:8px">
+        신약 발굴, 진단 솔루션, 제조 효율화 전 밸류체인에 AI 팩토리 확대.
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="https://blogs.nvidia.com/blog/roche-ai-factories-omniverse/" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📝 Blog</a>
+      </div>
+    </div>
+
+    <!-- T-Mobile -->
+    <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;border-left:4px solid #a29bfe">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="background:rgba(162,155,254,.15);color:#a29bfe;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px">📡 통신</span>
+      </div>
+      <div style="font-size:.9rem;font-weight:700;margin-bottom:4px">T-Mobile + NVIDIA — AI-RAN 엣지 인프라</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:8px">
+        Nokia와 함께 분산 엣지 AI 네트워크 위에 Physical AI 앱 통합.
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="https://nvidianews.nvidia.com/news/nvidia-t-mobile-and-partners-integrate-physical-ai-applications-on-ai-ran-ready-infrastructure" target="_blank" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.72rem;color:var(--accent2);text-decoration:none">📄 보도자료</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 테크 블로그 모음 -->
+  <div class="section-title">📚 GTC 2026 테크 블로그 (전체)</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:32px">
+    <a href="https://developer.nvidia.com/blog/nvidia-vera-rubin-pod-seven-chips-five-rack-scale-systems-one-ai-supercomputer/" target="_blank" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;text-decoration:none;transition:border-color .15s">
+      <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:4px">Vera Rubin POD</div>
+      <div style="font-size:.7rem;color:var(--muted)">7칩, 5 랙스케일 시스템 · 19분</div>
+    </a>
+    <a href="https://developer.nvidia.com/blog/inside-nvidia-groq-3-lpx-the-low-latency-inference-accelerator-for-the-nvidia-vera-rubin-platform/" target="_blank" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;text-decoration:none;transition:border-color .15s">
+      <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:4px">Groq 3 LPX Deep Dive</div>
+      <div style="font-size:.7rem;color:var(--muted)">저지연 추론 가속기 · 19분</div>
+    </a>
+    <a href="https://developer.nvidia.com/blog/how-nvidia-dynamo-1-0-powers-multi-node-inference-at-production-scale/" target="_blank" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;text-decoration:none;transition:border-color .15s">
+      <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:4px">Dynamo 1.0 멀티노드 추론</div>
+      <div style="font-size:.7rem;color:var(--muted)">프로덕션 스케일 추론 · 14분</div>
+    </a>
+    <a href="https://developer.nvidia.com/blog/run-autonomous-self-evolving-agents-more-safely-with-nvidia-openshell/" target="_blank" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;text-decoration:none;transition:border-color .15s">
+      <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:4px">OpenShell 에이전트 런타임</div>
+      <div style="font-size:.7rem;color:var(--muted)">자율 에이전트 안전 실행 · 6분</div>
+    </a>
+    <a href="https://developer.nvidia.com/blog/introducing-nvidia-bluefield-4-powered-cmx-context-memory-storage-platform-for-the-next-frontier-of-ai/" target="_blank" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;text-decoration:none;transition:border-color .15s">
+      <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:4px">BlueField-4 CMX 컨텍스트 메모리</div>
+      <div style="font-size:.7rem;color:var(--muted)">에이전틱 AI 스토리지 · 12분</div>
+    </a>
+    <a href="https://developer.nvidia.com/blog/nvidia-vera-cpu-delivers-high-performance-bandwidth-and-efficiency-for-ai-factories/" target="_blank" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;text-decoration:none;transition:border-color .15s">
+      <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:4px">Vera CPU</div>
+      <div style="font-size:.7rem;color:var(--muted)">AI 팩토리용 고성능 CPU · 9분</div>
+    </a>
+    <a href="https://developer.nvidia.com/blog/design-simulate-and-scale-ai-factory-infrastructure-with-nvidia-dsx-air/" target="_blank" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;text-decoration:none;transition:border-color .15s">
+      <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:4px">DSX Air 인프라 시뮬레이션</div>
+      <div style="font-size:.7rem;color:var(--muted)">AI 팩토리 설계 · 5분</div>
+    </a>
+    <a href="https://developer.nvidia.com/blog/using-simulation-to-build-robotic-systems-for-hospital-automation/" target="_blank" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;text-decoration:none;transition:border-color .15s">
+      <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:4px">병원 자동화 로보틱스</div>
+      <div style="font-size:.7rem;color:var(--muted)">시뮬레이션 기반 로봇 시스템 · 9분</div>
+    </a>
+  </div>
+
   <!-- 날짜 탭 (상단 고정) -->
   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px" id="day-tabs-top">
     <button class="day-tab-btn" data-day="mar15">Mar 15 워크숍</button>
