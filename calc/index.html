@@ -76,6 +76,30 @@
         .history-result { color: var(--result); font-weight: 600; font-family: 'SF Mono', monospace; }
 
         /* 빠른 버튼 */
+        /* 숫자패드 */
+        .numpad {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem; margin-bottom: 0.75rem;
+        }
+        .num-btn {
+            background: var(--surface); border: 1px solid var(--border);
+            color: var(--text); padding: 0.9rem; border-radius: 12px;
+            font-size: 1.2rem; font-weight: 600; cursor: pointer;
+            transition: all 0.12s; text-align: center;
+            font-family: 'SF Mono', 'Consolas', monospace;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .num-btn:hover { background: var(--surface-2); }
+        .num-btn:active { transform: scale(0.94); background: var(--surface-2); }
+        .num-btn.op { background: var(--surface-2); color: var(--accent); }
+        .num-btn.op:hover { background: var(--accent); color: #fff; }
+        .num-btn.op:active { background: var(--accent); color: #fff; }
+        .num-btn.eq { background: var(--result); color: #000; font-weight: 800; }
+        .num-btn.eq:hover { background: #3ab; }
+        .num-btn.clear { background: #c0392b; color: #fff; }
+        .num-btn.clear:hover { background: #e74c3c; }
+        .num-btn.wide { grid-column: span 2; }
+
         .quick-ops {
             display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.75rem;
         }
@@ -118,15 +142,35 @@
             <button class="copy-btn" id="copyBtn" onclick="copyResult()">복사</button>
         </div>
 
+        <div class="numpad">
+            <button class="num-btn clear" onclick="clearExpr()">C</button>
+            <button class="num-btn op" onclick="insertOp('(')">(</button>
+            <button class="num-btn op" onclick="insertOp(')')">)</button>
+            <button class="num-btn op" onclick="insertOp('/')">÷</button>
+
+            <button class="num-btn" onclick="insertNum('7')">7</button>
+            <button class="num-btn" onclick="insertNum('8')">8</button>
+            <button class="num-btn" onclick="insertNum('9')">9</button>
+            <button class="num-btn op" onclick="insertOp('*')">×</button>
+
+            <button class="num-btn" onclick="insertNum('4')">4</button>
+            <button class="num-btn" onclick="insertNum('5')">5</button>
+            <button class="num-btn" onclick="insertNum('6')">6</button>
+            <button class="num-btn op" onclick="insertOp('-')">−</button>
+
+            <button class="num-btn" onclick="insertNum('1')">1</button>
+            <button class="num-btn" onclick="insertNum('2')">2</button>
+            <button class="num-btn" onclick="insertNum('3')">3</button>
+            <button class="num-btn op" onclick="insertOp('+')">+</button>
+
+            <button class="num-btn" onclick="insertNum('0')">0</button>
+            <button class="num-btn" onclick="insertNum('.')">.</button>
+            <button class="num-btn op" onclick="backspace()">⌫</button>
+            <button class="num-btn eq" onclick="saveHistory()">=</button>
+        </div>
+
         <div class="quick-ops">
-            <button class="quick-btn" onclick="insertOp('+')">+</button>
-            <button class="quick-btn" onclick="insertOp('-')">−</button>
-            <button class="quick-btn" onclick="insertOp('*')">×</button>
-            <button class="quick-btn" onclick="insertOp('/')">÷</button>
-            <button class="quick-btn" onclick="insertOp('(')">(</button>
-            <button class="quick-btn" onclick="insertOp(')')">)</button>
             <button class="quick-btn" onclick="insertOp('%')">%</button>
-            <button class="quick-btn" onclick="clearExpr()">C</button>
         </div>
 
         <div class="history" id="history"></div>
@@ -268,7 +312,30 @@
             exprEl.focus();
         }
 
-        // 빠른 연산자
+        // 숫자 버튼
+        function insertNum(n) {
+            const start = exprEl.selectionStart;
+            const end = exprEl.selectionEnd;
+            const val = exprEl.value;
+            exprEl.value = val.slice(0, start) + n + val.slice(end);
+            exprEl.selectionStart = exprEl.selectionEnd = start + 1;
+            autoResize();
+            evaluate();
+        }
+
+        // 백스페이스
+        function backspace() {
+            const start = exprEl.selectionStart;
+            const val = exprEl.value;
+            if (start > 0) {
+                exprEl.value = val.slice(0, start - 1) + val.slice(start);
+                exprEl.selectionStart = exprEl.selectionEnd = start - 1;
+            }
+            autoResize();
+            evaluate();
+        }
+
+        // 연산자
         function insertOp(op) {
             const start = exprEl.selectionStart;
             const end = exprEl.selectionEnd;
