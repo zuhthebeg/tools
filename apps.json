@@ -1,5 +1,19 @@
 [
   {
+    "title": "IME 입력기 관리자",
+    "icon": "https://tool.cocy.io/ime/icon.svg",
+    "url": "https://tool.cocy.io/ime",
+    "desc": "입력기(IME) 설정 관리 도구",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
     "title": "NVIDIA GTC 2026 세션 가이드",
     "icon": "https://tool.cocy.io/gtc2026/icon.svg",
     "url": "https://tool.cocy.io/gtc2026/",
