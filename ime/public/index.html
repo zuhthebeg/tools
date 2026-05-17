@@ -6,26 +6,32 @@
     <title>IME Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .active-project { @apply bg-blue-100 border-blue-500; }
+        .active-project { @apply bg-blue-50 border-blue-500 font-bold; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
     </style>
 </head>
-<body class="bg-gray-50 h-screen flex flex-col">
+<body class="bg-slate-50 h-screen flex flex-col text-slate-900">
     <!-- Header -->
-    <header class="bg-white border-b px-6 py-4 flex justify-between items-center">
-        <h1 class="text-xl font-bold text-gray-800">Webtoon Translation IME</h1>
+    <header class="bg-white border-b px-6 py-3 flex justify-between items-center shadow-sm">
+        <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold">I</div>
+            <h1 class="text-lg font-bold tracking-tight">Webtoon IME <span class="text-blue-600">Workflow</span></h1>
+        </div>
         <div class="space-x-2">
-            <button onclick="importBulk()" class="border px-4 py-2 rounded hover:bg-gray-100">Import</button>
-            <button onclick="exportIME()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">IME Export</button>
-            <button class="border px-4 py-2 rounded hover:bg-gray-100">Backup</button>
+            <button onclick="importBulk()" class="px-4 py-2 text-sm border rounded hover:bg-gray-50 transition-colors">Bulk Import</button>
+            <button onclick="exportIME()" class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 shadow-sm transition-colors">IME Export</button>
         </div>
     </header>
 
     <div class="flex flex-1 overflow-hidden">
         <!-- Left Sidebar: Projects -->
         <aside class="w-64 bg-white border-r flex flex-col">
-            <div class="p-4 border-b flex justify-between items-center">
-                <h2 class="font-semibold">작품 목록</h2>
-                <button onclick="addProject()" class="text-blue-600 text-sm hover:underline">+ 추가</button>
+            <div class="p-4 border-b flex justify-between items-center bg-slate-50/50">
+                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider">작품 프로젝트</h2>
+                <button onclick="addProject()" class="w-6 h-6 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">+</button>
             </div>
             <ul id="project-list" class="flex-1 overflow-y-auto p-2 space-y-1">
                 <!-- Project items here -->
@@ -34,51 +40,104 @@
 
         <!-- Center: IME Entries -->
         <main class="flex-1 flex flex-col bg-white">
-            <div class="p-4 border-b flex justify-between items-center bg-gray-50">
-                <h2 class="font-semibold">IME 사전 (활성화된 작품)</h2>
-                <div class="space-x-2">
-                    <input type="text" id="ime-search" placeholder="검색..." class="border rounded px-2 py-1 text-sm">
-                    <button onclick="addIMEEntry()" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">+ 단어 등록</button>
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-slate-50/30">
+                <h2 id="current-project-name" class="font-bold text-slate-700 underline decoration-blue-500 decoration-2 underline-offset-4">IME 사전 항목</h2>
+                <div class="flex space-x-2">
+                    <div class="relative">
+                        <input type="text" id="ime-search" placeholder="항목 검색..." class="pl-8 pr-3 py-1.5 border rounded-full text-sm focus:ring-2 focus:ring-blue-500 outline-none w-48">
+                        <span class="absolute left-2.5 top-2 text-slate-400">🔍</span>
+                    </div>
+                    <button onclick="addIMEEntry()" class="bg-slate-900 text-white px-4 py-1.5 rounded-full text-sm hover:bg-slate-800 transition-colors shadow-sm">+ 신규 등록</button>
                 </div>
             </div>
-            <div class="flex-1 overflow-y-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-gray-100 sticky top-0">
-                        <tr>
-                            <th class="p-3 border-b text-sm font-medium">원본 (중국어)</th>
-                            <th class="p-3 border-b text-sm font-medium">주음부호 (Bopomofo)</th>
-                            <th class="p-3 border-b text-sm font-medium">약칭</th>
-                            <th class="p-3 border-b text-sm font-medium">관리</th>
+            <div class="flex-1 overflow-y-auto px-6">
+                <table class="w-full text-left">
+                    <thead class="bg-white sticky top-0 z-10">
+                        <tr class="text-slate-400 text-[11px] uppercase tracking-widest font-bold">
+                            <th class="py-4 border-b w-1/3">원본 (중국어)</th>
+                            <th class="py-4 border-b w-1/3 text-blue-500">주음부호 (Bopomofo)</th>
+                            <th class="py-4 border-b w-1/6">약칭</th>
+                            <th class="py-4 border-b w-1/6 text-right">관리</th>
                         </tr>
                     </thead>
-                    <tbody id="ime-list">
-                        <!-- IME entries here -->
+                    <tbody id="ime-list" class="text-sm">
+                        <!-- Entries will be loaded here -->
                     </tbody>
                 </table>
             </div>
         </main>
 
         <!-- Right: KB Search Panel -->
-        <aside class="w-80 bg-gray-50 border-l flex flex-col">
+        <aside class="w-80 bg-slate-50 border-l flex flex-col">
             <div class="p-4 border-b bg-white">
-                <h2 class="font-semibold mb-2">번역 지식베이스</h2>
-                <input type="text" id="kb-search" oninput="searchKB()" placeholder="한국어/중국어/태그 검색..." class="w-full border rounded px-3 py-2 text-sm">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider">번역 지식베이스</h2>
+                    <button onclick="addKBEntry()" class="text-blue-600 text-[11px] font-bold hover:underline">NEW</button>
+                </div>
+                <div class="relative">
+                    <input type="text" id="kb-search" oninput="searchKB()" placeholder="한국어/중국어/태그 검색..." class="w-full pl-8 pr-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50">
+                    <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs">🔍</span>
+                </div>
             </div>
             <div id="kb-list" class="flex-1 overflow-y-auto p-4 space-y-4">
                 <!-- KB entries here -->
             </div>
-            <div class="p-4 border-t bg-white">
-                <button onclick="addKBEntry()" class="w-full bg-gray-800 text-white py-2 rounded text-sm hover:bg-gray-900">새 지식 등록</button>
-            </div>
         </aside>
     </div>
 
+    <!-- Modal Container -->
+    <div id="modal-overlay" class="fixed inset-0 bg-slate-900/60 hidden z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-100">
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-slate-50">
+                <h3 id="modal-title" class="font-bold text-slate-800 tracking-tight">Title</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors">&times;</button>
+            </div>
+            <div id="modal-content" class="p-6">
+                <!-- Content -->
+            </div>
+            <div class="px-6 py-4 border-t bg-slate-50 flex justify-end space-x-2">
+                <button onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">취소</button>
+                <button id="modal-submit" class="px-4 py-2 text-sm font-bold bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md transition-all active:scale-95">저장</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // API Base (Relative for production)
         const API_BASE = '/api';
+        const overlay = document.getElementById('modal-overlay');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const modalSubmit = document.getElementById('modal-submit');
+
+        function openModal(title, contentHTML, onSubmit) {
+            modalTitle.innerText = title;
+            modalContent.innerHTML = contentHTML;
+            overlay.classList.remove('hidden');
+            modalSubmit.onclick = async () => {
+                const isValid = modalContent.querySelector('form')?.reportValidity() ?? true;
+                if (!isValid) return;
+
+                modalSubmit.disabled = true;
+                modalSubmit.innerText = '처리 중...';
+                try {
+                    await onSubmit();
+                    closeModal();
+                } catch (e) {
+                    alert('오류가 발생했습니다: ' + e.message);
+                } finally {
+                    modalSubmit.disabled = false;
+                    modalSubmit.innerText = '저장';
+                }
+            };
+            const firstInput = modalContent.querySelector('input, textarea');
+            if (firstInput) setTimeout(() => firstInput.focus(), 100);
+        }
+
+        function closeModal() { overlay.classList.add('hidden'); }
 
         async function fetchJSON(url, options = {}) {
             const res = await fetch(url, options);
+            if (!res.ok) throw new Error('API Error');
             return res.json();
         }
 
@@ -86,11 +145,16 @@
             const projects = await fetchJSON(`${API_BASE}/projects`);
             const list = document.getElementById('project-list');
             list.innerHTML = projects.map(p => `
-                <li class="flex items-center justify-between p-2 rounded hover:bg-gray-100 cursor-pointer ${p.is_active ? 'bg-blue-50 border-l-4 border-blue-500' : ''}">
+                <li onclick="toggleProject(${p.id}, ${!p.is_active})" class="group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all border ${p.is_active ? 'bg-blue-50 border-blue-100 text-blue-700 font-bold' : 'border-transparent text-slate-500 hover:bg-slate-50'}">
                     <span class="truncate">${p.name}</span>
-                    <input type="checkbox" ${p.is_active ? 'checked' : ''} onclick="toggleProject(${p.id}, this.checked)">
+                    <div class="flex items-center">
+                        ${p.is_active ? '<span class="w-2 h-2 bg-blue-500 rounded-full"></span>' : '<span class="w-2 h-2 bg-slate-200 rounded-full group-hover:bg-slate-300"></span>'}
+                    </div>
                 </li>
             `).join('');
+            
+            const active = projects.find(p => p.is_active);
+            document.getElementById('current-project-name').innerText = active ? `IME 사전 - ${active.name}` : '작품을 선택해주세요';
             loadIMEEntries();
         }
 
@@ -107,12 +171,12 @@
             const entries = await fetchJSON(`${API_BASE}/ime`);
             const list = document.getElementById('ime-list');
             list.innerHTML = entries.map(e => `
-                <tr class="hover:bg-gray-50">
-                    <td class="p-3 border-b">${e.original}</td>
-                    <td class="p-3 border-b font-mono text-xs">${e.bopomofo || '-'}</td>
-                    <td class="p-3 border-b text-gray-600">${e.short_form || '-'}</td>
-                    <td class="p-3 border-b text-sm">
-                        <button class="text-red-500 hover:underline">삭제</button>
+                <tr class="hover:bg-slate-50/80 transition-colors group">
+                    <td class="py-4 border-b font-medium text-slate-900">${e.original}</td>
+                    <td class="py-4 border-b font-mono text-xs text-blue-600">${e.bopomofo || '<span class="text-slate-300">-</span>'}</td>
+                    <td class="py-4 border-b"><span class="px-2 py-0.5 bg-slate-100 rounded text-slate-500 font-mono text-[10px]">${e.short_form || '-'}</span></td>
+                    <td class="py-4 border-b text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="deleteIME(${e.id})" class="text-slate-300 hover:text-red-500 text-xs font-bold">삭제</button>
                     </td>
                 </tr>
             `).join('');
@@ -123,80 +187,166 @@
             const entries = await fetchJSON(`${API_BASE}/kb?q=${encodeURIComponent(q)}`);
             const list = document.getElementById('kb-list');
             list.innerHTML = entries.map(e => `
-                <div class="bg-white p-3 rounded border shadow-sm">
-                    <div class="flex justify-between items-start mb-1">
-                        <span class="text-xs font-bold text-blue-600 uppercase">${e.category || '기본'}</span>
-                        <span class="text-xs text-gray-400">#${e.tags || ''}</span>
+                <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="px-2 py-0.5 bg-slate-900 text-white text-[9px] font-black rounded uppercase">${e.category || '기본'}</span>
+                        <div class="flex gap-1">
+                            ${(e.tags || '').split(',').filter(t => t).map(t => `<span class="text-[10px] text-blue-500 font-medium">#${t.trim()}</span>`).join('')}
+                        </div>
                     </div>
-                    <div class="font-bold text-gray-800">${e.ko}</div>
-                    <div class="text-green-700 mt-1">→ ${e.zh_tw}</div>
-                    ${e.note ? `<p class="text-xs text-gray-500 mt-2 border-t pt-1">${e.note}</p>` : ''}
+                    <div class="font-bold text-slate-800 mb-1 leading-tight">${e.ko}</div>
+                    <div class="text-blue-600 font-bold text-sm">→ ${e.zh_tw}</div>
+                    ${e.note ? `<p class="text-[11px] text-slate-500 mt-3 pt-2 border-t border-slate-50 leading-relaxed italic">${e.note}</p>` : ''}
                 </div>
             `).join('');
         }
 
-        async function addProject() {
-            const name = prompt('작품명을 입력하세요:');
-            if (!name) return;
-            await fetch(`${API_BASE}/projects`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name })
+        function addProject() {
+            openModal('새 프로젝트 추가', `
+                <form id="form-p" class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">작품명</label>
+                        <input type="text" id="f-p-name" required class="w-full border-slate-200 border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50" placeholder="예: 무림지존 (번체)">
+                    </div>
+                </form>
+            `, async () => {
+                const name = document.getElementById('f-p-name').value;
+                await fetch(`${API_BASE}/projects`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                loadProjects();
             });
-            loadProjects();
         }
 
-        async function addIMEEntry() {
-            const activeProject = document.querySelector('#project-list li.bg-blue-50');
-            if (!activeProject) {
-                alert('활성화된 작품이 없습니다. 작품을 먼저 활성화해주세요.');
-                return;
-            }
+        function addIMEEntry() {
+            const activeId = document.querySelector('#project-list li.bg-blue-50');
+            if (!activeId) return alert('작품을 먼저 선택해주세요.');
             
-            const original = prompt('원본 단어(중국어)를 입력하세요:');
-            if (!original) return;
-            const bopomofo = prompt('주음부호를 입력하세요 (예: ㄌㄧㄡˇ ㄒㄩ ㄏㄢˊ):');
-            
-            // Auto-generate short form (last 2 chars)
-            let short_form = original.length > 2 ? original.slice(-2) : original;
-            const customShort = prompt(`약칭을 입력하세요 (기본값: ${short_form}):`, short_form);
-            if (customShort !== null) short_form = customShort;
+            openModal('사전 단어 등록', `
+                <form id="form-i" class="space-y-5">
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">중국어 원본</label>
+                        <input type="text" id="f-i-original" required oninput="suggestShort(this.value)" class="w-full border-slate-200 border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">주음부호 (Bopomofo)</label>
+                        <input type="text" id="f-i-bopomofo" class="w-full border-slate-200 border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50 font-mono" placeholder="ㄌㄧㄡˇ ㄒㄩ ㄏㄢˊ">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">입력 약칭</label>
+                        <input type="text" id="f-i-short" class="w-full border-slate-200 border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50 font-mono">
+                    </div>
+                </form>
+            `, async () => {
+                const original = document.getElementById('f-i-original').value;
+                const bopomofo = document.getElementById('f-i-bopomofo').value;
+                const short_form = document.getElementById('f-i-short').value;
 
-            // Get active project ID
-            const projects = await fetchJSON(`${API_BASE}/projects`);
-            const activeId = projects.find(p => p.is_active)?.id;
+                const projects = await fetchJSON(`${API_BASE}/projects`);
+                const activeId = projects.find(p => p.is_active)?.id;
 
-            await fetch(`${API_BASE}/ime`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ project_id: activeId, original, bopomofo, short_form })
+                await fetch(`${API_BASE}/ime`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ project_id: activeId, original, bopomofo, short_form })
+                });
+                loadIMEEntries();
             });
-            loadIMEEntries();
         }
 
-        async function addKBEntry() {
-            const ko = prompt('한국어 표현:');
-            if (!ko) return;
-            const zh_tw = prompt('번체중국어 번역:');
-            const category = prompt('카테고리 (예: 무협, 게임, 밈):');
-            const tags = prompt('태그 (쉼표 구분):');
-            const note = prompt('메모:');
+        function suggestShort(val) {
+            const fShort = document.getElementById('f-i-short');
+            if (val.length >= 2) fShort.value = val.slice(-2);
+            else fShort.value = val;
+        }
 
-            await fetch(`${API_BASE}/kb`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ko, zh_tw, category, tags, note })
+        function addKBEntry() {
+            openModal('지식베이스 추가', `
+                <form id="form-k" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">한국어</label>
+                            <input type="text" id="f-k-ko" required class="w-full border-slate-200 border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">번체중국어</label>
+                            <input type="text" id="f-k-zh" required class="w-full border-slate-200 border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">카테고리</label>
+                            <input type="text" id="f-k-cat" placeholder="무협, 밈 등" class="w-full border-slate-200 border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">태그</label>
+                            <input type="text" id="f-k-tags" placeholder="쉼표 구분" class="w-full border-slate-200 border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">메모</label>
+                        <textarea id="f-k-note" class="w-full border-slate-200 border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50 h-20 resize-none"></textarea>
+                    </div>
+                </form>
+            `, async () => {
+                const ko = document.getElementById('f-k-ko').value;
+                const zh_tw = document.getElementById('f-k-zh').value;
+                const category = document.getElementById('f-k-cat').value;
+                const tags = document.getElementById('f-k-tags').value;
+                const note = document.getElementById('f-k-note').value;
+
+                await fetch(`${API_BASE}/kb`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ko, zh_tw, category, tags, note })
+                });
+                searchKB();
             });
-            searchKB();
         }
 
-        function exportIME() {
-            window.location.href = `${API_BASE}/export`;
+        function importBulk() {
+            openModal('대량 데이터 가져오기', `
+                <div class="space-y-3">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">형식: 원본 [TAB] 주음부호 (한 줄에 하나씩)</p>
+                    <textarea id="f-import-text" class="w-full border-slate-200 border rounded-xl px-4 py-3 text-xs font-mono outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50/50 h-48 resize-none" placeholder="육서한\tㄌㄧㄡˇ ㄒㄩ ㄏㄢˊ\n목완청\tㄇㄨˋ ㄨㄢˊ ㄑㄧㄥˊ"></textarea>
+                </div>
+            `, async () => {
+                const text = document.getElementById('f-import-text').value;
+                if (!text.trim()) return;
+
+                const lines = text.split('\n').filter(l => l.trim());
+                const projects = await fetchJSON(`${API_BASE}/projects`);
+                const activeId = projects.find(p => p.is_active)?.id;
+
+                for (const line of lines) {
+                    const parts = line.split('\t');
+                    const original = parts[0].trim();
+                    const bopomofo = parts[1] ? parts[1].trim() : '';
+                    const short_form = original.length >= 2 ? original.slice(-2) : original;
+
+                    await fetch(`${API_BASE}/ime`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ project_id: activeId, original, bopomofo, short_form })
+                    });
+                }
+                loadIMEEntries();
+            });
         }
 
-        // Initialization
+        async function deleteIME(id) {
+            if (!confirm('정말 삭제하시겠습니까?')) return;
+            alert('삭제 API 연동 대기 중');
+        }
+
+        function exportIME() { window.location.href = `${API_BASE}/export`; }
+
+        // Init
         loadProjects();
         searchKB();
+        window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
     </script>
 </body>
 </html>

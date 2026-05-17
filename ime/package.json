@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
+    "build": "wrangler deploy src/index.ts --dry-run --outdir dist",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "cf-typegen": "wrangler types"

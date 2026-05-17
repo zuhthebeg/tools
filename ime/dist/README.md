@@ -1,1 +1,1 @@
-This folder contains the built output assets for the worker "ime-manager" generated at 2026-05-17T12:50:40.296Z.
+This folder contains the built output assets for the worker "ime-manager" generated at 2026-05-17T13:12:02.544Z.
