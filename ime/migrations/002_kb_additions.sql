@@ -1,6 +1,0 @@
--- These columns already exist in the live DB (added previously).
--- Kept here for schema documentation only.
---
--- ALTER TABLE kb_entries ADD COLUMN zh_cn TEXT;
--- ALTER TABLE kb_entries ADD COLUMN ja TEXT;
--- ALTER TABLE kb_entries ADD COLUMN image_url TEXT;
