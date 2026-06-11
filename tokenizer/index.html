@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LLM 토크나이저 — cocy tools</title>
-<meta name="description" content="GPT-5, GPT-4o, o3, o4-mini, Claude, Gemini 등 최신 LLM 모델별 토큰 수 계산기. 무료 온라인 토크나이저.">
-<meta name="keywords" content="토크나이저, tokenizer, GPT-5, GPT-4o, o3, o4-mini, Claude, 토큰 계산, tiktoken">
+<meta name="description" content="Claude Fable 5·Opus 4.8·Sonnet 4.6·Haiku 4.5, GPT-5.5·5.4 등 최신 LLM 토큰 수·API 비용 계산기. 토큰↔비용 양방향 역산 지원. 무료 온라인 토크나이저.">
+<meta name="keywords" content="토크나이저, tokenizer, Claude, Fable 5, Opus 4.8, Sonnet 4.6, GPT-5.5, GPT-5.4, 토큰 계산, API 비용 계산, LLM 가격">
 <meta property="og:title" content="LLM 토크나이저">
 <meta property="og:description" content="최신 LLM 모델별 토큰 수 실시간 계산기">
 <meta property="og:type" content="website">
@@ -211,6 +211,23 @@ header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
 .cost-table td { padding: 5px 8px; border-top: 1px solid var(--border); }
 .cost-table tr.highlight td { color: var(--accent2); font-weight: 600; }
 
+/* 양방향 계산기 */
+.calc-grid { display: grid; gap: 8px; }
+.calc-row { display: grid; grid-template-columns: 90px 1fr 24px 1fr; align-items: center; gap: 8px; }
+.calc-row label { font-size: 0.75rem; color: var(--muted); }
+.calc-row input {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 10px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+  outline: none; transition: border-color 0.15s;
+}
+.calc-row input:focus { border-color: var(--accent); }
+.calc-arrow { text-align: center; color: var(--muted); font-size: 0.8rem; }
+.calc-total { display: flex; align-items: center; gap: 10px; margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 0.8rem; }
+.calc-total span { color: var(--muted); }
+.calc-total b { color: var(--success); font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.calc-total .btn-clear { margin-left: auto; }
+@media (max-width: 600px) { .calc-row { grid-template-columns: 70px 1fr 18px 1fr; } }
+
 /* 토큰 시각화 */
 .token-viz {
   background: var(--bg2);
@@ -259,7 +276,7 @@ header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
 <div class="container">
   <header>
     <h1>LLM <span>토크나이저</span></h1>
-    <p>최신 GPT · o시리즈 · Codex 모델 토큰 실시간 계산</p>
+    <p>Claude · GPT 최신 모델 토큰 수 + API 비용 실시간 계산 (토큰↔비용 역산)</p>
   </header>
 
   <div class="model-grid" id="model-grid"></div>
@@ -302,11 +319,31 @@ header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
   </div>
 
   <div class="cost-section">
-    <h3>💰 예상 비용 (입력 기준, 1M 토큰당)</h3>
+    <h3>🔁 토큰 ↔ 비용 계산기 <span style="color:var(--muted);font-weight:400">(선택한 모델 기준 · 어느 칸이든 입력하면 반대쪽이 역산됩니다)</span></h3>
+    <div class="calc-grid">
+      <div class="calc-row">
+        <label>입력(프롬프트)</label>
+        <input type="text" inputmode="decimal" id="calc-in-tok" placeholder="토큰 수">
+        <span class="calc-arrow">⇄</span>
+        <input type="text" inputmode="decimal" id="calc-in-cost" placeholder="비용 $">
+      </div>
+      <div class="calc-row">
+        <label>출력(응답)</label>
+        <input type="text" inputmode="decimal" id="calc-out-tok" placeholder="토큰 수">
+        <span class="calc-arrow">⇄</span>
+        <input type="text" inputmode="decimal" id="calc-out-cost" placeholder="비용 $">
+      </div>
+      <div class="calc-total"><span>합계</span><b id="calc-total">$0</b><button class="btn-clear" id="calc-from-text" title="위 텍스트의 토큰 수를 입력 토큰에 넣기">↑ 텍스트에서 가져오기</button></div>
+    </div>
+  </div>
+
+  <div class="cost-section">
+    <h3>💰 모델별 단가 비교 ($/1M tok · 이 텍스트 = 입력 기준)</h3>
     <table class="cost-table">
-      <thead><tr><th>모델</th><th>$/1M tok</th><th>이 텍스트</th></tr></thead>
+      <thead><tr><th>모델</th><th>입력</th><th>출력</th><th>이 텍스트</th></tr></thead>
       <tbody id="cost-tbody"></tbody>
     </table>
+    <p style="font-size:0.7rem;color:var(--muted);margin-top:8px">※ Claude·최신 GPT의 실제 토크나이저는 비공개라 o200k 근사치로 계산합니다(통상 ±수%). 정확한 측정은 각 사 공식 count_tokens API 기준.</p>
   </div>
 
   <div class="token-viz">
@@ -319,28 +356,28 @@ header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
 <script type="module">
 import { encode, decode, isWithinTokenLimit, encodingForModel } from 'https://esm.sh/gpt-tokenizer@2.8.0';
 
-// ===== 모델 정의 =====
+// ===== 모델 정의 (가격 $/1M tok, 2026-06 기준 공식 단가) =====
 const MODELS = [
-  // OpenAI 최신
-  { id: 'gpt-5',        name: 'GPT-5',         enc: 'o200k_base', ctx: 1000000, input: 15,    group: 'OpenAI' },
-  { id: 'gpt-4.1',      name: 'GPT-4.1',        enc: 'o200k_base', ctx: 1000000, input: 2,     group: 'OpenAI' },
-  { id: 'gpt-4o',       name: 'GPT-4o',         enc: 'o200k_base', ctx: 128000,  input: 2.5,   group: 'OpenAI' },
-  { id: 'gpt-4o-mini',  name: 'GPT-4o mini',    enc: 'o200k_base', ctx: 128000,  input: 0.15,  group: 'OpenAI' },
-  // 추론 시리즈
-  { id: 'o3',           name: 'o3',             enc: 'o200k_base', ctx: 200000,  input: 10,    group: 'Reasoning' },
-  { id: 'o4-mini',      name: 'o4-mini',        enc: 'o200k_base', ctx: 200000,  input: 1.1,   group: 'Reasoning' },
-  { id: 'o3-mini',      name: 'o3-mini',        enc: 'o200k_base', ctx: 200000,  input: 1.1,   group: 'Reasoning' },
-  { id: 'o1',           name: 'o1',             enc: 'o200k_base', ctx: 200000,  input: 15,    group: 'Reasoning' },
-  // Codex
-  { id: 'gpt-5.3-codex',name:'GPT-5.3 Codex',  enc: 'o200k_base', ctx: 200000,  input: null,  group: 'Codex' },
-  { id: 'gpt-4.1-mini', name: 'GPT-4.1 mini',   enc: 'o200k_base', ctx: 1000000, input: 0.4,   group: 'Codex' },
-  // 레거시
-  { id: 'gpt-4',        name: 'GPT-4',          enc: 'cl100k_base',ctx: 8192,    input: 30,    group: 'Legacy' },
-  { id: 'gpt-3.5-turbo',name:'GPT-3.5 Turbo',  enc: 'cl100k_base',ctx: 16385,   input: 0.5,   group: 'Legacy' },
+  // Anthropic Claude
+  { id: 'claude-fable-5',   name: 'Claude Fable 5',   enc: 'approx', ctx: 1000000, input: 10,   output: 50,  group: 'Anthropic' },
+  { id: 'claude-opus-4-8',  name: 'Claude Opus 4.8',  enc: 'approx', ctx: 1000000, input: 5,    output: 25,  group: 'Anthropic' },
+  { id: 'claude-opus-4-7',  name: 'Claude Opus 4.7',  enc: 'approx', ctx: 1000000, input: 5,    output: 25,  group: 'Anthropic' },
+  { id: 'claude-opus-4-6',  name: 'Claude Opus 4.6',  enc: 'approx', ctx: 1000000, input: 5,    output: 25,  group: 'Anthropic' },
+  { id: 'claude-opus-4-5',  name: 'Claude Opus 4.5',  enc: 'approx', ctx: 200000,  input: 5,    output: 25,  group: 'Anthropic' },
+  { id: 'claude-sonnet-4-6',name: 'Claude Sonnet 4.6',enc: 'approx', ctx: 1000000, input: 3,    output: 15,  group: 'Anthropic' },
+  { id: 'claude-sonnet-4-5',name: 'Claude Sonnet 4.5',enc: 'approx', ctx: 200000,  input: 3,    output: 15,  group: 'Anthropic' },
+  { id: 'claude-haiku-4-5', name: 'Claude Haiku 4.5', enc: 'approx', ctx: 200000,  input: 1,    output: 5,   group: 'Anthropic' },
+  // OpenAI
+  { id: 'gpt-5.5',          name: 'GPT-5.5',          enc: 'o200k_base', ctx: 400000, input: 5,    output: 30,  group: 'OpenAI' },
+  { id: 'gpt-5.5-pro',      name: 'GPT-5.5 Pro',      enc: 'o200k_base', ctx: 400000, input: 30,   output: 180, group: 'OpenAI' },
+  { id: 'gpt-5.4',          name: 'GPT-5.4',          enc: 'o200k_base', ctx: 400000, input: 2.5,  output: 15,  group: 'OpenAI' },
+  { id: 'gpt-5.4-mini',     name: 'GPT-5.4 mini',     enc: 'o200k_base', ctx: 400000, input: 0.75, output: 4.5, group: 'OpenAI' },
+  { id: 'gpt-5.4-nano',     name: 'GPT-5.4 nano',     enc: 'o200k_base', ctx: 400000, input: 0.2,  output: 1.25,group: 'OpenAI' },
+  { id: 'gpt-5.3-codex',    name: 'GPT-5.3 Codex',    enc: 'o200k_base', ctx: 400000, input: null, output: null,group: 'OpenAI' },
 ];
 
-const ENC_LABEL = { 'o200k_base': 'o200k', 'cl100k_base': 'cl100k', 'p50k_base': 'p50k' };
-const ENC_CLASS = { 'o200k_base': 'enc-o200k', 'cl100k_base': 'enc-cl100k', 'p50k_base': 'enc-p50k' };
+const ENC_LABEL = { 'o200k_base': 'o200k', 'cl100k_base': 'cl100k', 'p50k_base': 'p50k', 'approx': 'o200k≈' };
+const ENC_CLASS = { 'o200k_base': 'enc-o200k', 'cl100k_base': 'enc-cl100k', 'p50k_base': 'enc-p50k', 'approx': 'enc-p50k' };
 const COLORS = ['#6c63ff33','#00d4aa33','#ff6b6b33','#ffd16633','#a29bfe33','#74b9ff33','#fd79a833'];
 
 let selectedModel = MODELS[0];
@@ -419,9 +456,12 @@ function updateStats() {
     const cost = (tokenCount / 1000000 * m.input).toFixed(6);
     const tr = document.createElement('tr');
     if (m.id === selectedModel.id) tr.className = 'highlight';
-    tr.innerHTML = `<td>${m.name}</td><td>$${m.input}</td><td>$${cost}</td>`;
+    tr.innerHTML = `<td>${m.name}</td><td>$${m.input}</td><td>$${m.output}</td><td>$${cost}</td>`;
     tbody.appendChild(tr);
   });
+
+  // 계산기도 모델 기준 갱신
+  recalcCalc(lastCalcEdited);
 
   // 토큰 시각화
   renderTokenViz(text, tokenCache);
@@ -452,6 +492,52 @@ function clearText() {
   document.getElementById('input-text').value = '';
   updateStats();
 }
+
+// ===== 양방향 토큰↔비용 계산기 =====
+const $c = id => document.getElementById(id);
+const num = el => { const v = parseFloat(String(el.value).replace(/[,\s$]/g, '')); return isFinite(v) && v >= 0 ? v : null; };
+let lastCalcEdited = { in: 'tok', out: 'tok' };  // 행별로 마지막 수정된 쪽 기억(모델 바꿔도 그 값 기준 재계산)
+
+function recalcCalc(edited) {
+  const m = selectedModel;
+  const noPrice = m.input == null;
+  ['calc-in-tok','calc-in-cost','calc-out-tok','calc-out-cost'].forEach(id => $c(id).disabled = noPrice);
+  if (noPrice) { $c('calc-total').textContent = '단가 미공개 모델'; return; }
+
+  // 행: [tokEl, costEl, $/MTok, key]
+  const rows = [
+    [$c('calc-in-tok'),  $c('calc-in-cost'),  m.input,  'in'],
+    [$c('calc-out-tok'), $c('calc-out-cost'), m.output, 'out'],
+  ];
+  let total = 0;
+  for (const [tokEl, costEl, price, key] of rows) {
+    const src = edited[key];                       // 'tok' | 'cost'
+    if (src === 'tok') {
+      const t = num(tokEl);
+      if (t == null) { costEl.value = ''; continue; }
+      const c = t / 1e6 * price;
+      costEl.value = c < 0.01 ? c.toFixed(6) : c.toFixed(4);
+      total += c;
+    } else {
+      const c = num(costEl);
+      if (c == null) { tokEl.value = ''; continue; }
+      tokEl.value = Math.round(c / price * 1e6).toLocaleString('en-US');
+      total += c;
+    }
+  }
+  $c('calc-total').textContent = '$' + (total < 0.01 && total > 0 ? total.toFixed(6) : total.toFixed(4));
+}
+
+[['calc-in-tok','in','tok'],['calc-in-cost','in','cost'],['calc-out-tok','out','tok'],['calc-out-cost','out','cost']]
+  .forEach(([id, key, side]) => {
+    $c(id).addEventListener('input', () => { lastCalcEdited[key] = side; recalcCalc(lastCalcEdited); });
+  });
+
+$c('calc-from-text').addEventListener('click', () => {
+  $c('calc-in-tok').value = tokenCache.length.toLocaleString('en-US');
+  lastCalcEdited.in = 'tok';
+  recalcCalc(lastCalcEdited);
+});
 
 // 입력 이벤트
 let debounceTimer;
