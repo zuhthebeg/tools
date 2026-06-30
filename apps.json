@@ -1,5 +1,19 @@
 [
   {
+    "title": "온디바이스 AI 비전",
+    "icon": "https://tool.cocy.io/vtest/icon.svg",
+    "url": "https://tool.cocy.io/vtest/",
+    "desc": "서버 없이 브라우저에서 100% 실행되는 AI 비전. 사진 속 물건·텍스트를 WebGPU로 즉시 인식 (SmolVLM). 이미지가 외부로 안 나감.",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
     "title": "NVIDIA GTC 2026 세션 가이드",
     "icon": "https://tool.cocy.io/gtc2026/icon.svg",
     "url": "https://tool.cocy.io/gtc2026/",
