@@ -1,0 +1,27 @@
+# tool.cocy.io
+
+> 설치·로그인 없이 브라우저에서 바로 쓰는 무료 웹 도구 모음. 개발자 유틸리티(인코딩·토크나이저·네트워크)부터 생활 도구(로또·D-Day·QR)까지 전부 클라이언트 사이드로 동작해 데이터가 서버로 전송되지 않는다.
+
+## tool
+- [온디바이스 AI 비전](https://tool.cocy.io/vtest/): 서버 없이 브라우저에서 100% 실행되는 AI 비전. 사진 속 물건·텍스트를 WebGPU로 즉시 인식 (SmolVLM). 이미지가 외부로 안 나감.
+- [NVIDIA GTC 2026 세션 가이드](https://tool.cocy.io/gtc2026/): GTC 2026 (3/16-19, San Jose) 주요 트랙·세션·일정 정리. Agentic AI, 로보틱스, 추론, CUDA, 양자컴퓨팅 등 900+ 세션.
+- [유니코드 디코더](https://tool.cocy.io/unicodedec/): \uXXXX 유니코드 이스케이프, URL 인코딩(%XX), HTML 엔티티, Base64 실시간 디코딩/인코딩
+- [LLM 토크나이저](https://tool.cocy.io/tokenizer/): GPT-5, o3, o4-mini, Codex 등 최신 LLM 모델별 토큰 수 실시간 계산. 컨텍스트 사용률·비용 추정·토큰 시각화
+- [느낌가사 Feel Lyrics](https://tool.cocy.io/feellyrics/): 외국 노래를 한글 발음으로 따라 부르자! AI 느낌가사 생성 + 노래방 모드
+- [로또번호 생성기](https://tool.cocy.io/lotto/): 행운의 로또 번호 생성 + 동행복권 링크
+- [계산기](https://tool.cocy.io/calc/): 쉼표 지원 및 붙여넣기 가능한 계산기
+- [색상 코드](https://tool.cocy.io/color/): 색상 코드 변환기
+- [CIDR 서브넷](https://tool.cocy.io/cidr/): CIDR 서브넷 계산기
+- [Base64 인코더](https://tool.cocy.io/base64/): 텍스트 인코딩/디코딩 도구
+- [JSON 포맷터](https://tool.cocy.io/json/): JSON 정렬 및 검증 도구
+- [LLM 토크나이저](https://tool.cocy.io/llm/): AI 모델 토큰 계산기
+- [QR 코드 생성기](https://tool.cocy.io/qr/): QR 코드 생성 및 스캐너
+- [URL 인코더](https://tool.cocy.io/url/): URL 인코딩/디코딩 도구
+- [IP/DNS Lookup](https://tool.cocy.io/net/): IP/DNS Lookup
+- [궁금증 츄크](https://tool.cocy.io/chu/): 츄 궁금증 체크
+- [D-Day Counter](https://tool.cocy.io/dday/): D-Day Counter
+- [Neon Sign](https://tool.cocy.io/neon/): Web Neon Sign
+- [Word Counter](https://tool.cocy.io/count/): Word Counter
+- [캘린더](https://tool.cocy.io/calendar/): 간단한 월간 캘린더
+- [JWT 디코더](https://tool.cocy.io/jwt/): JWT 토큰 디코드/만료확인/HS256 검증
+- [💇 AI 헤어 분석기](https://tool.cocy.io/hair/): 사진으로 헤어스타일 분석 + 관리법 + 비용 + 꾸안꾸지수
