@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LLM 토크나이저 — cocy tools</title>
-<meta name="description" content="Claude Fable 5·Opus 4.8·Sonnet 4.6·Haiku 4.5, GPT-5.5·5.4 등 최신 LLM 토큰 수·API 비용 계산기. 토큰↔비용 양방향 역산 지원. 무료 온라인 토크나이저.">
-<meta name="keywords" content="토크나이저, tokenizer, Claude, Fable 5, Opus 4.8, Sonnet 4.6, GPT-5.5, GPT-5.4, 토큰 계산, API 비용 계산, LLM 가격">
-<meta property="og:title" content="LLM 토크나이저">
-<meta property="og:description" content="최신 LLM 모델별 토큰 수 실시간 계산기">
+<title>LLM 토크나이저 · API 비용 계산기 — cocy tools</title>
+<meta name="description" content="GPT-6 Astra·GPT-5.6·Claude Fable 5.1·Opus 5·Sonnet 5·Gemini 3.5 최신 LLM 토큰 수와 API 비용 계산기. 프롬프트 캐시 쓰기/읽기, 272K 초과 장문 할증, 배치 50% 할인까지 반영. 토큰↔비용 양방향 역산.">
+<meta name="keywords" content="토크나이저, tokenizer, 토큰 계산기, API 비용 계산, 프롬프트 캐시, 캐시 읽기, 캐시 쓰기, 272K 할증, long context, GPT-6 Astra, GPT-5.6, Claude Opus 5, Gemini 3.5">
+<meta property="og:title" content="LLM 토크나이저 · API 비용 계산기">
+<meta property="og:description" content="최신 LLM 토큰 수 + 캐시 쓰기/읽기 · 장문 할증 · 배치 할인까지 반영한 API 비용 계산기">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://tool.cocy.io/tokenizer/">
 <meta property="og:image" content="https://tool.cocy.io/tokenizer/icon.svg">
@@ -48,9 +48,9 @@ body {
   padding: 24px 16px 48px;
 }
 
-.container { max-width: 860px; margin: 0 auto; }
+.container { max-width: 940px; margin: 0 auto; }
 
-header { text-align: center; margin-bottom: 32px; }
+header { text-align: center; margin-bottom: 28px; }
 header h1 { font-size: 1.9rem; font-weight: 700; letter-spacing: -0.5px; }
 header h1 span { color: var(--accent); }
 header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
@@ -58,7 +58,7 @@ header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
 /* 모델 선택 */
 .model-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   gap: 8px;
   margin-bottom: 20px;
 }
@@ -71,25 +71,27 @@ header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
   cursor: pointer;
   transition: all 0.15s;
   text-align: left;
+  color: inherit;
+  font-family: inherit;
 }
 .model-btn:hover { border-color: var(--accent); background: var(--bg3); }
 .model-btn.active { border-color: var(--accent); background: rgba(108,99,255,0.12); }
 .model-btn .model-name { font-size: 0.82rem; font-weight: 600; color: var(--text); }
-.model-btn .model-enc { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
-.model-btn .model-ctx { font-size: 0.68rem; color: var(--accent2); margin-top: 1px; }
+.model-btn .model-ctx { font-size: 0.68rem; color: var(--accent2); margin-top: 2px; }
+.model-btn .model-price { font-size: 0.68rem; color: var(--muted); margin-top: 1px; font-variant-numeric: tabular-nums; }
 
-/* 인코딩 뱃지 */
-.enc-badge {
-  display: inline-block;
-  font-size: 0.65rem;
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-weight: 600;
-  margin-top: 4px;
+.group-head {
+  grid-column: 1/-1; font-size: 0.7rem; color: var(--muted); font-weight: 600;
+  padding: 6px 2px 0; text-transform: uppercase; letter-spacing: 1px;
 }
-.enc-o200k { background: rgba(108,99,255,0.25); color: #a29bfe; }
-.enc-cl100k { background: rgba(0,212,170,0.2); color: #00d4aa; }
-.enc-p50k { background: rgba(255,209,102,0.2); color: #ffd166; }
+
+.tag {
+  display: inline-block; font-size: 0.62rem; padding: 1px 6px; border-radius: 4px;
+  font-weight: 600; margin-top: 4px; margin-right: 4px;
+}
+.tag-long { background: rgba(255,209,102,0.2); color: var(--warn); }
+.tag-tok { background: rgba(108,99,255,0.25); color: #a29bfe; }
+.tag-cache { background: rgba(0,212,170,0.2); color: var(--accent2); }
 
 /* 텍스트 영역 */
 .editor-wrap {
@@ -112,7 +114,6 @@ header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
 }
 .editor-toolbar span { font-size: 0.78rem; color: var(--muted); }
 .btn-clear {
-  margin-left: auto;
   background: transparent;
   border: 1px solid var(--border);
   color: var(--muted);
@@ -120,13 +121,15 @@ header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
   padding: 3px 10px;
   font-size: 0.75rem;
   cursor: pointer;
+  font-family: inherit;
   transition: all 0.15s;
 }
-.btn-clear:hover { border-color: var(--danger); color: var(--danger); }
+.btn-clear:hover { border-color: var(--accent); color: var(--text); }
+.editor-toolbar .btn-clear { margin-left: auto; }
 
 #input-text {
   width: 100%;
-  min-height: 200px;
+  min-height: 180px;
   max-height: 500px;
   resize: vertical;
   background: transparent;
@@ -165,7 +168,6 @@ header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
 .val-tokens { color: var(--accent); }
 .val-chars { color: var(--accent2); }
 .val-words { color: var(--warn); }
-.val-cost { color: var(--success); }
 .val-ctx { color: var(--text); }
 
 /* 컨텍스트 바 */
@@ -182,61 +184,92 @@ header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
   align-items: center;
   margin-bottom: 8px;
   font-size: 0.8rem;
+  gap: 8px;
 }
 .ctx-bar-header span:first-child { color: var(--muted); }
-.ctx-bar-header span:last-child { font-weight: 600; }
+.ctx-bar-header span:last-child { font-weight: 600; font-variant-numeric: tabular-nums; }
 .ctx-bar-bg {
   background: var(--bg3);
   border-radius: 99px;
   height: 8px;
   overflow: hidden;
+  position: relative;
 }
 .ctx-bar-fill {
   height: 100%;
   border-radius: 99px;
   transition: width 0.3s, background 0.3s;
 }
+.ctx-marker {
+  position: absolute; top: -3px; width: 2px; height: 14px; background: var(--warn); opacity: 0.85;
+}
 
-/* 비용 계산 */
-.cost-section {
+/* 섹션 */
+.card {
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 14px 16px;
   margin-bottom: 20px;
 }
-.cost-section h3 { font-size: 0.8rem; color: var(--muted); margin-bottom: 10px; }
-.cost-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-.cost-table th { text-align: left; color: var(--muted); font-weight: 500; padding: 4px 8px 8px; }
-.cost-table td { padding: 5px 8px; border-top: 1px solid var(--border); }
-.cost-table tr.highlight td { color: var(--accent2); font-weight: 600; }
+.card h3 { font-size: 0.82rem; color: var(--muted); margin-bottom: 10px; font-weight: 600; }
+.card h3 small { font-weight: 400; color: var(--muted); }
+
+/* 옵션 바 */
+.opt-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+.seg { display: inline-flex; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.seg button {
+  background: transparent; border: none; color: var(--muted); font-family: inherit;
+  font-size: 0.75rem; padding: 6px 12px; cursor: pointer; transition: all 0.15s;
+}
+.seg button.active { background: rgba(108,99,255,0.2); color: var(--text); font-weight: 600; }
+.seg button:disabled { opacity: 0.35; cursor: not-allowed; }
+.opt-label { font-size: 0.72rem; color: var(--muted); }
+.opt-bar input.req {
+  width: 80px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+  padding: 6px 8px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; outline: none;
+}
 
 /* 양방향 계산기 */
 .calc-grid { display: grid; gap: 8px; }
-.calc-row { display: grid; grid-template-columns: 90px 1fr 24px 1fr; align-items: center; gap: 8px; }
-.calc-row label { font-size: 0.75rem; color: var(--muted); }
+.calc-row { display: grid; grid-template-columns: 150px 1fr 22px 1fr; align-items: center; gap: 8px; }
+.calc-row .rl { font-size: 0.75rem; color: var(--text); }
+.calc-row .rl em { display: block; font-style: normal; font-size: 0.66rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .calc-row input {
   width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
   padding: 8px 10px; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
   outline: none; transition: border-color 0.15s;
 }
 .calc-row input:focus { border-color: var(--accent); }
+.calc-row input:disabled { opacity: 0.4; }
 .calc-arrow { text-align: center; color: var(--muted); font-size: 0.8rem; }
-.calc-total { display: flex; align-items: center; gap: 10px; margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 0.8rem; }
+.calc-total {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 6px; padding-top: 10px;
+  border-top: 1px solid var(--border); font-size: 0.8rem;
+}
 .calc-total span { color: var(--muted); }
-.calc-total b { color: var(--success); font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.calc-total b { color: var(--success); font-size: 1.15rem; font-variant-numeric: tabular-nums; }
 .calc-total .btn-clear { margin-left: auto; }
-@media (max-width: 600px) { .calc-row { grid-template-columns: 70px 1fr 18px 1fr; } }
+.hint { font-size: 0.72rem; color: var(--muted); margin-top: 8px; line-height: 1.6; }
+.hint b { color: var(--text); font-weight: 600; }
+
+.notice {
+  display: none; margin-top: 10px; padding: 8px 10px; border-radius: 8px;
+  font-size: 0.74rem; line-height: 1.5;
+  background: rgba(255,209,102,0.12); border: 1px solid rgba(255,209,102,0.35); color: var(--warn);
+}
+.notice.show { display: block; }
+.notice.ok { background: rgba(6,214,160,0.1); border-color: rgba(6,214,160,0.3); color: var(--success); }
+
+/* 표 */
+.cost-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.cost-table th { text-align: right; color: var(--muted); font-weight: 500; padding: 4px 6px 8px; white-space: nowrap; }
+.cost-table th:first-child, .cost-table td:first-child { text-align: left; }
+.cost-table td { padding: 5px 6px; border-top: 1px solid var(--border); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cost-table tr.highlight td { color: var(--accent2); font-weight: 600; }
+.table-scroll { overflow-x: auto; }
 
 /* 토큰 시각화 */
-.token-viz {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  margin-bottom: 20px;
-}
-.token-viz h3 { font-size: 0.8rem; color: var(--muted); margin-bottom: 10px; }
 #token-display {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.8rem;
@@ -245,28 +278,16 @@ header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
   max-height: 160px;
   overflow-y: auto;
 }
-.tok {
-  display: inline;
-  padding: 1px 0;
-  border-radius: 3px;
-  margin: 1px;
-}
 
-.tok-colors { /* 7가지 색상 순환 */
-  --t0: rgba(108,99,255,0.25);
-  --t1: rgba(0,212,170,0.2);
-  --t2: rgba(255,107,107,0.2);
-  --t3: rgba(255,209,102,0.2);
-  --t4: rgba(162,155,254,0.2);
-  --t5: rgba(116,185,255,0.2);
-  --t6: rgba(253,121,168,0.2);
-}
+footer { font-size: 0.72rem; color: var(--muted); line-height: 1.7; text-align: center; }
+footer a { color: var(--muted); }
 
 /* 반응형 */
 @media (max-width: 600px) {
   header h1 { font-size: 1.4rem; }
   .model-grid { grid-template-columns: repeat(2, 1fr); }
   .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .calc-row { grid-template-columns: 104px 1fr 16px 1fr; gap: 6px; }
 }
 </style>
 </head>
@@ -276,7 +297,7 @@ header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
 <div class="container">
   <header>
     <h1>LLM <span>토크나이저</span></h1>
-    <p>Claude · GPT 최신 모델 토큰 수 + API 비용 실시간 계산 (토큰↔비용 역산)</p>
+    <p>토큰 수 + API 비용 계산 · 프롬프트 캐시(쓰기/읽기) · 272K 초과 장문 할증 · 배치 할인 반영</p>
   </header>
 
   <div class="model-grid" id="model-grid"></div>
@@ -284,7 +305,7 @@ header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
   <div class="editor-wrap">
     <div class="editor-toolbar">
       <span>입력 텍스트</span>
-      <button class="btn-clear" onclick="clearText()">지우기</button>
+      <button class="btn-clear" id="btn-clear-text">지우기</button>
     </div>
     <textarea id="input-text" placeholder="여기에 텍스트를 입력하세요...&#10;&#10;한국어, 영어, 코드 모두 가능합니다." spellcheck="false"></textarea>
   </div>
@@ -292,7 +313,7 @@ header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
   <div class="stats-row">
     <div class="stat-card">
       <div class="val val-tokens" id="stat-tokens">0</div>
-      <div class="lbl">토큰</div>
+      <div class="lbl" id="stat-tokens-lbl">토큰</div>
     </div>
     <div class="stat-card">
       <div class="val val-chars" id="stat-chars">0</div>
@@ -315,239 +336,484 @@ header p { color: var(--muted); margin-top: 6px; font-size: 0.9rem; }
     </div>
     <div class="ctx-bar-bg">
       <div class="ctx-bar-fill" id="ctx-bar" style="width:0%"></div>
+      <div class="ctx-marker" id="ctx-marker" style="display:none"></div>
     </div>
   </div>
 
-  <div class="cost-section">
-    <h3>🔁 토큰 ↔ 비용 계산기 <span style="color:var(--muted);font-weight:400">(선택한 모델 기준 · 어느 칸이든 입력하면 반대쪽이 역산됩니다)</span></h3>
+  <div class="card">
+    <h3>🧮 사용량 → 비용 계산 <small>(선택 모델 기준 · 토큰/비용 어느 칸이든 입력하면 반대쪽이 역산됩니다)</small></h3>
+
+    <div class="opt-bar">
+      <span class="opt-label">요금제</span>
+      <div class="seg" id="seg-tier">
+        <button data-tier="standard" class="active">표준</button>
+        <button data-tier="batch">배치 −50%</button>
+      </div>
+      <span class="opt-label" id="ttl-label">캐시 TTL</span>
+      <div class="seg" id="seg-ttl">
+        <button data-ttl="5m" class="active">5분</button>
+        <button data-ttl="1h">1시간</button>
+      </div>
+      <span class="opt-label">요청 수</span>
+      <input class="req" type="text" inputmode="numeric" id="calc-requests" value="1">
+    </div>
+
     <div class="calc-grid">
       <div class="calc-row">
-        <label>입력(프롬프트)</label>
+        <div class="rl">입력 (캐시 미적용)<em id="rate-in">–</em></div>
         <input type="text" inputmode="decimal" id="calc-in-tok" placeholder="토큰 수">
         <span class="calc-arrow">⇄</span>
         <input type="text" inputmode="decimal" id="calc-in-cost" placeholder="비용 $">
       </div>
       <div class="calc-row">
-        <label>출력(응답)</label>
+        <div class="rl">캐시 쓰기 (write)<em id="rate-cw">–</em></div>
+        <input type="text" inputmode="decimal" id="calc-cw-tok" placeholder="토큰 수">
+        <span class="calc-arrow">⇄</span>
+        <input type="text" inputmode="decimal" id="calc-cw-cost" placeholder="비용 $">
+      </div>
+      <div class="calc-row">
+        <div class="rl">캐시 읽기 (hit)<em id="rate-cr">–</em></div>
+        <input type="text" inputmode="decimal" id="calc-cr-tok" placeholder="토큰 수">
+        <span class="calc-arrow">⇄</span>
+        <input type="text" inputmode="decimal" id="calc-cr-cost" placeholder="비용 $">
+      </div>
+      <div class="calc-row">
+        <div class="rl">출력 (응답+사고)<em id="rate-out">–</em></div>
         <input type="text" inputmode="decimal" id="calc-out-tok" placeholder="토큰 수">
         <span class="calc-arrow">⇄</span>
         <input type="text" inputmode="decimal" id="calc-out-cost" placeholder="비용 $">
       </div>
-      <div class="calc-total"><span>합계</span><b id="calc-total">$0</b><button class="btn-clear" id="calc-from-text" title="위 텍스트의 토큰 수를 입력 토큰에 넣기">↑ 텍스트에서 가져오기</button></div>
+      <div class="calc-row" id="row-storage" style="display:none">
+        <div class="rl">캐시 저장 (tok·시간)<em id="rate-st">–</em></div>
+        <input type="text" inputmode="decimal" id="calc-st-tok" placeholder="토큰 × 시간">
+        <span class="calc-arrow">⇄</span>
+        <input type="text" inputmode="decimal" id="calc-st-cost" placeholder="비용 $">
+      </div>
+
+      <div class="calc-total">
+        <span>합계</span><b id="calc-total">$0</b>
+        <span id="calc-per-req"></span>
+        <button class="btn-clear" id="calc-from-text" title="위 텍스트의 토큰 수를 입력 토큰에 넣기">↑ 텍스트에서 가져오기</button>
+        <button class="btn-clear" id="calc-reset">초기화</button>
+      </div>
     </div>
+
+    <div class="notice" id="notice-long"></div>
+    <div class="notice ok" id="notice-save"></div>
+    <p class="hint" id="hint-model"></p>
   </div>
 
-  <div class="cost-section">
-    <h3>💰 모델별 단가 비교 ($/1M tok · 이 텍스트 = 입력 기준)</h3>
-    <table class="cost-table">
-      <thead><tr><th>모델</th><th>입력</th><th>출력</th><th>이 텍스트</th></tr></thead>
-      <tbody id="cost-tbody"></tbody>
-    </table>
-    <p style="font-size:0.7rem;color:var(--muted);margin-top:8px">※ Claude·최신 GPT의 실제 토크나이저는 비공개라 o200k 근사치로 계산합니다(통상 ±수%). 정확한 측정은 각 사 공식 count_tokens API 기준.</p>
+  <div class="card">
+    <h3>💰 모델별 비용 비교 <small>($/1M tok · 위에 입력한 사용량을 각 모델 단가로 환산)</small></h3>
+    <div class="table-scroll">
+      <table class="cost-table">
+        <thead><tr><th>모델</th><th>입력</th><th>캐시쓰기</th><th>캐시읽기</th><th>출력</th><th>이 사용량</th></tr></thead>
+        <tbody id="cost-tbody"></tbody>
+      </table>
+    </div>
+    <p class="hint">굵은 색은 선택한 모델. 장문 할증 구간(입력 토큰이 기준 초과)에 들어가면 자동으로 할증 단가가 적용되고 <span style="color:var(--warn)">할증</span>으로 표시됩니다.</p>
   </div>
 
-  <div class="token-viz">
-    <h3>🎨 토큰 시각화 <span style="color:var(--muted);font-weight:400">(색상 = 토큰 경계)</span></h3>
-    <div id="token-display" class="tok-colors">텍스트를 입력하면 토큰 단위로 색상이 표시됩니다.</div>
+  <div class="card">
+    <h3>🎨 토큰 시각화 <small>(색상 = 토큰 경계)</small></h3>
+    <div id="token-display">텍스트를 입력하면 토큰 단위로 색상이 표시됩니다.</div>
   </div>
+
+  <footer>
+    단가 기준일 2026-09-16 ·
+    <a href="https://platform.claude.com/docs/en/about-claude/pricing" target="_blank" rel="noopener">Anthropic</a> ·
+    <a href="https://developers.openai.com/api/docs/pricing" target="_blank" rel="noopener">OpenAI</a> ·
+    <a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener">Google</a><br>
+    토큰 수는 o200k 토크나이저 기준이며 Claude·Gemini는 근사치입니다(공개 토크나이저 없음). 정확한 과금 토큰은 각 사 count_tokens API 기준.
+  </footer>
 </div>
 
 <!-- gpt-tokenizer: pure JS, no WASM -->
 <script type="module">
-import { encode, decode, isWithinTokenLimit, encodingForModel } from 'https://esm.sh/gpt-tokenizer@2.8.0';
+import { encode, decode } from 'https://esm.sh/gpt-tokenizer@2.8.0';
 
-// ===== 모델 정의 (가격 $/1M tok, 2026-06 기준 공식 단가) =====
+/* =========================================================================
+ * 모델 정의 — $/1M tokens, 2026-09-16 공식 단가
+ *   price.in : 캐시 미적용 입력
+ *   price.cw : 캐시 쓰기 (null이면 별도 요금 없이 입력 단가로 과금)
+ *   price.cw1h : 1시간 TTL 캐시 쓰기 (Anthropic)
+ *   price.cr : 캐시 읽기(hit)
+ *   price.out: 출력(사고 토큰 포함)
+ *   long     : 장문 할증 { threshold, price }  — 입력 토큰 합계가 threshold 초과 시 적용
+ *   storage  : 캐시 저장 요금 ($/1M tok·시간)
+ *   tokMult  : o200k 대비 토큰 수 보정 계수
+ * ========================================================================= */
 const MODELS = [
-  // Anthropic Claude
-  { id: 'claude-fable-5',   name: 'Claude Fable 5',   enc: 'approx', ctx: 1000000, input: 10,   output: 50,  group: 'Anthropic' },
-  { id: 'claude-opus-4-8',  name: 'Claude Opus 4.8',  enc: 'approx', ctx: 1000000, input: 5,    output: 25,  group: 'Anthropic' },
-  { id: 'claude-opus-4-7',  name: 'Claude Opus 4.7',  enc: 'approx', ctx: 1000000, input: 5,    output: 25,  group: 'Anthropic' },
-  { id: 'claude-opus-4-6',  name: 'Claude Opus 4.6',  enc: 'approx', ctx: 1000000, input: 5,    output: 25,  group: 'Anthropic' },
-  { id: 'claude-opus-4-5',  name: 'Claude Opus 4.5',  enc: 'approx', ctx: 200000,  input: 5,    output: 25,  group: 'Anthropic' },
-  { id: 'claude-sonnet-4-6',name: 'Claude Sonnet 4.6',enc: 'approx', ctx: 1000000, input: 3,    output: 15,  group: 'Anthropic' },
-  { id: 'claude-sonnet-4-5',name: 'Claude Sonnet 4.5',enc: 'approx', ctx: 200000,  input: 3,    output: 15,  group: 'Anthropic' },
-  { id: 'claude-haiku-4-5', name: 'Claude Haiku 4.5', enc: 'approx', ctx: 200000,  input: 1,    output: 5,   group: 'Anthropic' },
-  // OpenAI
-  { id: 'gpt-5.5',          name: 'GPT-5.5',          enc: 'o200k_base', ctx: 400000, input: 5,    output: 30,  group: 'OpenAI' },
-  { id: 'gpt-5.5-pro',      name: 'GPT-5.5 Pro',      enc: 'o200k_base', ctx: 400000, input: 30,   output: 180, group: 'OpenAI' },
-  { id: 'gpt-5.4',          name: 'GPT-5.4',          enc: 'o200k_base', ctx: 400000, input: 2.5,  output: 15,  group: 'OpenAI' },
-  { id: 'gpt-5.4-mini',     name: 'GPT-5.4 mini',     enc: 'o200k_base', ctx: 400000, input: 0.75, output: 4.5, group: 'OpenAI' },
-  { id: 'gpt-5.4-nano',     name: 'GPT-5.4 nano',     enc: 'o200k_base', ctx: 400000, input: 0.2,  output: 1.25,group: 'OpenAI' },
-  { id: 'gpt-5.3-codex',    name: 'GPT-5.3 Codex',    enc: 'o200k_base', ctx: 400000, input: null, output: null,group: 'OpenAI' },
+  // ---- Anthropic : 4.6 세대부터 1M 컨텍스트 전 구간 표준 단가(장문 할증 없음)
+  { id:'claude-fable-5-1', name:'Claude Fable 5.1', group:'Anthropic', ctx:1000000, maxOut:128000, tokMult:1.30,
+    price:{ in:10, cw:12.5, cw1h:20, cr:0.25, out:50 }, long:null, batch:0.5,
+    note:'캐시 읽기 0.025×(타 모델은 0.1×) · 신형 토크나이저(같은 글에 토큰 약 30%↑)' },
+  { id:'claude-opus-5', name:'Claude Opus 5', group:'Anthropic', ctx:1000000, maxOut:128000, tokMult:1.30,
+    price:{ in:5, cw:6.25, cw1h:10, cr:0.5, out:25 }, long:null, batch:0.5,
+    note:'1M 컨텍스트 전 구간 표준 단가 · 신형 토크나이저(토큰 약 30%↑)' },
+  { id:'claude-opus-4-8', name:'Claude Opus 4.8', group:'Anthropic', ctx:1000000, maxOut:128000, tokMult:1.30,
+    price:{ in:5, cw:6.25, cw1h:10, cr:0.5, out:25 }, long:null, batch:0.5,
+    note:'1M 컨텍스트 전 구간 표준 단가 · 신형 토크나이저(토큰 약 30%↑)' },
+  { id:'claude-sonnet-5', name:'Claude Sonnet 5', group:'Anthropic', ctx:1000000, maxOut:128000, tokMult:1.30,
+    price:{ in:2, cw:2.5, cw1h:4, cr:0.2, out:10 }, long:null, batch:0.5,
+    note:'$2/$10 가격이 정식 단가로 확정 · 신형 토크나이저(토큰 약 30%↑)' },
+  { id:'claude-sonnet-4-6', name:'Claude Sonnet 4.6', group:'Anthropic', ctx:1000000, maxOut:128000, tokMult:1.00,
+    price:{ in:3, cw:3.75, cw1h:6, cr:0.3, out:15 }, long:null, batch:0.5,
+    note:'구형 토크나이저 · 1M 컨텍스트 전 구간 표준 단가' },
+  { id:'claude-haiku-4-5', name:'Claude Haiku 4.5', group:'Anthropic', ctx:200000, maxOut:64000, tokMult:1.00,
+    price:{ in:1, cw:1.25, cw1h:2, cr:0.1, out:5 }, long:null, batch:0.5,
+    note:'구형 토크나이저 · 컨텍스트 200K' },
+
+  // ---- OpenAI : 입력 272K 초과 시 장문 단가(입력·캐시 2×, 출력 1.5×)
+  { id:'gpt-6-astra', name:'GPT-6 Astra', group:'OpenAI', ctx:1050000, maxOut:128000, tokMult:1.00,
+    price:{ in:10, cw:12.5, cr:1, out:50 },
+    long:{ threshold:272000, price:{ in:20, cw:25, cr:2, out:75 } }, batch:0.5,
+    note:'캐시 쓰기 = 입력 1.25×, 캐시 읽기 = 입력 0.1× · Codex에서는 272K 초과 할증 없음' },
+  { id:'gpt-5.6-sol', name:'GPT-5.6 Sol', group:'OpenAI', ctx:1050000, maxOut:128000, tokMult:1.00,
+    price:{ in:4, cw:5, cr:0.4, out:20 },
+    long:{ threshold:272000, price:{ in:8, cw:10, cr:0.8, out:30 } }, batch:0.5,
+    note:'프로모션 단가(2026-11-21까지) · 정상가는 입력 $5 / 출력 $30' },
+  { id:'gpt-5.6-terra', name:'GPT-5.6 Terra', group:'OpenAI', ctx:1050000, maxOut:128000, tokMult:1.00,
+    price:{ in:2, cw:2.5, cr:0.2, out:12 },
+    long:{ threshold:272000, price:{ in:4, cw:5, cr:0.4, out:18 } }, batch:0.5, note:'' },
+  { id:'gpt-5.6-luna', name:'GPT-5.6 Luna', group:'OpenAI', ctx:1050000, maxOut:128000, tokMult:1.00,
+    price:{ in:0.2, cw:0.25, cr:0.02, out:1.2 },
+    long:{ threshold:272000, price:{ in:0.4, cw:0.5, cr:0.04, out:1.8 } }, batch:0.5, note:'' },
+  { id:'gpt-5.5', name:'GPT-5.5', group:'OpenAI', ctx:1050000, maxOut:128000, tokMult:1.00,
+    price:{ in:5, cw:null, cr:0.5, out:30 },
+    long:{ threshold:272000, price:{ in:10, cw:null, cr:1, out:45 } }, batch:0.5,
+    note:'캐시 쓰기 별도 요금 없음(입력 단가로 과금)' },
+  { id:'gpt-5.4', name:'GPT-5.4', group:'OpenAI', ctx:1050000, maxOut:128000, tokMult:1.00,
+    price:{ in:2.5, cw:null, cr:0.25, out:15 },
+    long:{ threshold:272000, price:{ in:5, cw:null, cr:0.5, out:22.5 } }, batch:0.5,
+    note:'캐시 쓰기 별도 요금 없음(입력 단가로 과금)' },
+  { id:'gpt-5.4-mini', name:'GPT-5.4 mini', group:'OpenAI', ctx:400000, maxOut:128000, tokMult:1.00,
+    price:{ in:0.75, cw:null, cr:0.075, out:4.5 }, long:null, batch:0.5, note:'' },
+  { id:'gpt-5.4-nano', name:'GPT-5.4 nano', group:'OpenAI', ctx:400000, maxOut:128000, tokMult:1.00,
+    price:{ in:0.2, cw:null, cr:0.02, out:1.25 }, long:null, batch:0.5, note:'' },
+
+  // ---- Google : Pro는 200K 초과 할증, Flash 계열은 단일 단가
+  { id:'gemini-3-1-pro', name:'Gemini 3.1 Pro', group:'Google', ctx:1048576, maxOut:65536, tokMult:1.00,
+    price:{ in:2, cw:null, cr:0.2, out:12 },
+    long:{ threshold:200000, price:{ in:4, cw:null, cr:0.4, out:18 } }, batch:0.5, storage:4.5,
+    note:'프롬프트 200K 초과 시 입력·캐시 2×, 출력 1.5× · 캐시 저장 $4.5/1M tok·시간' },
+  { id:'gemini-3-5-flash', name:'Gemini 3.5 Flash', group:'Google', ctx:1048576, maxOut:65536, tokMult:1.00,
+    price:{ in:1.5, cw:null, cr:0.15, out:9 }, long:null, batch:0.5, storage:1,
+    note:'출력 단가에 사고(thinking) 토큰 포함 · 캐시 저장 $1/1M tok·시간' },
+  { id:'gemini-3-8-flash', name:'Gemini 3.8 Flash', group:'Google', ctx:1048576, maxOut:65536, tokMult:1.00,
+    price:{ in:0.75, cw:null, cr:0.075, out:3.75 }, long:null, batch:0.5, storage:0.5,
+    note:'도입 단가(2026-12-31까지) · 2027-01-01부터 $1.5/$7.5로 인상' },
+  { id:'gemini-3-1-flash-lite', name:'Gemini 3.1 Flash-Lite', group:'Google', ctx:1048576, maxOut:65536, tokMult:1.00,
+    price:{ in:0.25, cw:null, cr:0.025, out:1.5 }, long:null, batch:0.5, storage:1,
+    note:'텍스트/이미지/비디오 기준(오디오 입력은 $0.5)' },
 ];
 
-const ENC_LABEL = { 'o200k_base': 'o200k', 'cl100k_base': 'cl100k', 'p50k_base': 'p50k', 'approx': 'o200k≈' };
-const ENC_CLASS = { 'o200k_base': 'enc-o200k', 'cl100k_base': 'enc-cl100k', 'p50k_base': 'enc-p50k', 'approx': 'enc-p50k' };
 const COLORS = ['#6c63ff33','#00d4aa33','#ff6b6b33','#ffd16633','#a29bfe33','#74b9ff33','#fd79a833'];
+const ROWS = ['in', 'cw', 'cr', 'out', 'st'];
 
-let selectedModel = MODELS[0];
-let tokenCache = [];
+let selectedModel = MODELS.find(m => m.id === 'gpt-6-astra');
+let tier = 'standard';
+let ttl = '5m';
+let baseTokens = [];          // o200k 토큰 배열
+let edited = { in:'tok', cw:'tok', cr:'tok', out:'tok', st:'tok' };
 
-// ===== 모델 버튼 렌더 =====
-const grid = document.getElementById('model-grid');
+const $ = id => document.getElementById(id);
+const num = el => { const v = parseFloat(String(el.value).replace(/[,\s$]/g, '')); return isFinite(v) && v >= 0 ? v : null; };
+const ctxLabel = n => n >= 1000000 ? (Math.round(n / 10000) / 100) + 'M' : Math.round(n / 1000) + 'K';
+
+function fmtUSD(v) {
+  if (!isFinite(v) || v === 0) return '$0';
+  const abs = Math.abs(v);
+  const d = abs < 0.001 ? 6 : abs < 1 ? 4 : 2;
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+function fmtRate(v) {
+  if (v == null) return '입력 단가와 동일';
+  return '$' + (v < 1 ? v.toFixed(3).replace(/0+$/, '').replace(/\.$/, '') : v.toString()) + ' /1M';
+}
+
+/* ===== 모델 버튼 ===== */
+const grid = $('model-grid');
 let lastGroup = '';
 MODELS.forEach((m, i) => {
   if (m.group !== lastGroup) {
     const sep = document.createElement('div');
-    sep.style.cssText = 'grid-column:1/-1; font-size:0.7rem; color:var(--muted); font-weight:600; padding:4px 2px 0; text-transform:uppercase; letter-spacing:1px;';
+    sep.className = 'group-head';
     sep.textContent = m.group;
     grid.appendChild(sep);
     lastGroup = m.group;
   }
   const btn = document.createElement('button');
-  btn.className = 'model-btn' + (i === 0 ? ' active' : '');
-  btn.dataset.idx = i;
-  const encLabel = ENC_LABEL[m.enc] || m.enc;
-  const encClass = ENC_CLASS[m.enc] || '';
-  const ctxStr = m.ctx >= 1000000 ? (m.ctx/1000000)+'M' : (m.ctx/1000)+'K';
+  btn.className = 'model-btn' + (m.id === selectedModel.id ? ' active' : '');
+  btn.dataset.id = m.id;
+  const tags = [
+    m.long ? `<span class="tag tag-long">>${ctxLabel(m.long.threshold)} 할증</span>` : '',
+    m.tokMult !== 1 ? `<span class="tag tag-tok">토큰 ×${m.tokMult}</span>` : '',
+    m.price.cw != null ? `<span class="tag tag-cache">캐시쓰기 유료</span>` : '',
+  ].join('');
   btn.innerHTML = `<div class="model-name">${m.name}</div>
-    <div class="model-ctx">ctx: ${ctxStr}</div>
-    <span class="enc-badge ${encClass}">${encLabel}</span>`;
-  btn.onclick = () => selectModel(i);
+    <div class="model-ctx">ctx ${ctxLabel(m.ctx)} · out ${ctxLabel(m.maxOut)}</div>
+    <div class="model-price">in $${m.price.in} / out $${m.price.out}</div>${tags}`;
+  btn.addEventListener('click', () => {
+    selectedModel = m;
+    document.querySelectorAll('.model-btn').forEach(b => b.classList.toggle('active', b.dataset.id === m.id));
+    update();
+  });
   grid.appendChild(btn);
 });
 
-function selectModel(idx) {
-  document.querySelectorAll('.model-btn').forEach(b => b.classList.toggle('active', +b.dataset.idx === idx));
-  selectedModel = MODELS[idx];
-  updateStats();
-}
-
-// ===== 토크나이즈 =====
+/* ===== 토크나이즈 ===== */
 function tokenize(text) {
   if (!text) return [];
-  try {
-    // gpt-tokenizer는 cl100k (GPT-4 계열) 기본 지원
-    // o200k는 근사치로 cl100k 사용 (실제 차이 ~2~5%)
-    return encode(text);
-  } catch(e) {
-    // 폴백: 단순 근사
-    return text.split(/\s+/).filter(Boolean);
-  }
+  try { return encode(text); }
+  catch (e) { return text.split(/\s+/).filter(Boolean); }
+}
+const modelTokens = () => Math.round(baseTokens.length * selectedModel.tokMult);
+
+/* ===== 요금 계산 ===== */
+// 사용량(토큰)으로 적용 단가 테이블을 구한다. 장문 할증은 "입력 계열 토큰 합계" 기준.
+function ratesFor(model, usage) {
+  const inputTokens = (usage.in || 0) + (usage.cw || 0) + (usage.cr || 0);
+  const isLong = !!(model.long && inputTokens > model.long.threshold);
+  const p = isLong ? model.long.price : model.price;
+  const mult = tier === 'batch' ? model.batch : 1;
+  const cw = model.price.cw == null ? p.in : (ttl === '1h' && model.price.cw1h != null
+    ? (isLong ? p.cw1h ?? model.price.cw1h : model.price.cw1h)
+    : p.cw);
+  return {
+    isLong,
+    in: p.in * mult,
+    cw: cw * mult,
+    cr: p.cr * mult,
+    out: p.out * mult,
+    st: model.storage != null ? model.storage : null,
+  };
 }
 
-// ===== 업데이트 =====
-function updateStats() {
-  const text = document.getElementById('input-text').value;
-  tokenCache = tokenize(text);
-  const tokenCount = tokenCache.length;
+function costOf(model, usage) {
+  const r = ratesFor(model, usage);
+  const c = {
+    in: (usage.in || 0) / 1e6 * r.in,
+    cw: (usage.cw || 0) / 1e6 * r.cw,
+    cr: (usage.cr || 0) / 1e6 * r.cr,
+    out: (usage.out || 0) / 1e6 * r.out,
+    st: r.st != null ? (usage.st || 0) / 1e6 * r.st : 0,
+  };
+  c.total = c.in + c.cw + c.cr + c.out + c.st;
+  // 캐시를 전혀 쓰지 않았다면: 캐시 쓰기/읽기 토큰을 모두 일반 입력으로 과금
+  const plain = { in: (usage.in || 0) + (usage.cw || 0) + (usage.cr || 0), cw: 0, cr: 0, out: usage.out || 0 };
+  const rp = ratesFor(model, plain);
+  c.noCache = plain.in / 1e6 * rp.in + plain.out / 1e6 * rp.out;
+  return { rates: r, ...c };
+}
+
+/* ===== 계산기 ===== */
+function readUsage() {
+  // 1차: 토큰이 직접 입력된 행만 확정 → 임시 단가로 비용 입력 행의 토큰을 역산
+  const provisional = {};
+  ROWS.forEach(k => { provisional[k] = edited[k] === 'tok' ? (num($(`calc-${k}-tok`)) || 0) : 0; });
+  const r0 = ratesFor(selectedModel, provisional);
+  const usage = {};
+  ROWS.forEach(k => {
+    if (edited[k] === 'tok') { usage[k] = num($(`calc-${k}-tok`)) || 0; }
+    else {
+      const c = num($(`calc-${k}-cost`));
+      const rate = r0[k];
+      usage[k] = (c == null || !rate) ? 0 : c / rate * 1e6;
+    }
+  });
+  return usage;
+}
+
+function recalc() {
+  const m = selectedModel;
+  const usage = readUsage();
+  const reqs = Math.max(1, Math.round(num($('calc-requests')) || 1));
+  const res = costOf(m, usage);
+  const r = res.rates;
+
+  // 단가 라벨
+  $('rate-in').textContent = fmtRate(r.in);
+  $('rate-cw').textContent = m.price.cw == null ? `${fmtRate(r.cw)} (별도 요금 없음)` : fmtRate(r.cw);
+  $('rate-cr').textContent = fmtRate(r.cr);
+  $('rate-out').textContent = fmtRate(r.out);
+  $('row-storage').style.display = m.storage != null ? '' : 'none';
+  if (m.storage != null) $('rate-st').textContent = `$${m.storage} /1M tok·시간`;
+
+  // 각 칸 채우기 (사용자가 편집 중인 쪽은 건드리지 않음)
+  ROWS.forEach(k => {
+    const tokEl = $(`calc-${k}-tok`), costEl = $(`calc-${k}-cost`);
+    const rate = r[k];
+    if (k === 'st' && m.storage == null) { tokEl.value = ''; costEl.value = ''; return; }
+    if (edited[k] === 'tok') {
+      const t = num(tokEl);
+      costEl.value = (t == null || !rate) ? '' : fmtUSD(t / 1e6 * rate).slice(1);
+    } else {
+      const c = num(costEl);
+      tokEl.value = (c == null || !rate) ? '' : Math.round(c / rate * 1e6).toLocaleString('en-US');
+    }
+  });
+
+  const total = res.total * reqs;
+  $('calc-total').textContent = fmtUSD(total);
+  $('calc-per-req').textContent = reqs > 1 ? `(요청당 ${fmtUSD(res.total)} × ${reqs})` : '';
+
+  // 장문 할증 안내
+  const inputTokens = usage.in + usage.cw + usage.cr;
+  const nl = $('notice-long');
+  if (m.long) {
+    if (r.isLong) {
+      nl.className = 'notice show';
+      nl.style.opacity = '1';
+      nl.innerHTML = `⚠️ 장문 할증 적용 중 — 입력 토큰 ${Math.round(inputTokens).toLocaleString()}개가 기준 ${m.long.threshold.toLocaleString()}개를 초과했습니다.
+        입력 $${m.price.in} → $${m.long.price.in}, 출력 $${m.price.out} → $${m.long.price.out} (/1M). 할증은 요청 전체 토큰에 적용됩니다(초과분만이 아님).`;
+    } else {
+      const left = m.long.threshold - inputTokens;
+      nl.className = 'notice show';
+      nl.style.opacity = '0.8';
+      nl.innerHTML = `입력 토큰이 ${m.long.threshold.toLocaleString()}개를 넘으면 장문 할증 단가로 전환됩니다. 남은 여유 ${Math.max(0, Math.round(left)).toLocaleString()} tok.`;
+    }
+  } else {
+    nl.className = 'notice';
+  }
+
+  // 캐시 절감 안내
+  const ns = $('notice-save');
+  const cacheTokens = usage.cw + usage.cr;
+  if (cacheTokens > 0) {
+    const saved = (res.noCache - res.total) * reqs;
+    ns.className = 'notice ok show';
+    ns.innerHTML = saved >= 0
+      ? `💰 캐시 미사용(모두 일반 입력) 대비 <b>${fmtUSD(saved)}</b> 절감 — ${fmtUSD(res.noCache * reqs)} → ${fmtUSD(total)}`
+      : `⚠️ 캐시 쓰기 비중이 커서 캐시 미사용(${fmtUSD(res.noCache * reqs)})보다 <b>${fmtUSD(-saved)}</b> 비쌉니다. 쓴 프리픽스를 여러 번 재사용해야 이득입니다.`;
+  } else {
+    ns.className = 'notice ok';
+  }
+
+  $('hint-model').innerHTML = [
+    `<b>${m.name}</b> · 컨텍스트 ${ctxLabel(m.ctx)} · 최대 출력 ${ctxLabel(m.maxOut)}`,
+    m.note,
+    tier === 'batch' ? '배치 API 단가(표준가 50%) 적용 중' : '',
+  ].filter(Boolean).join(' — ');
+
+  renderCompare(usage, reqs);
+}
+
+function renderCompare(usage, reqs) {
+  const tbody = $('cost-tbody');
+  tbody.innerHTML = '';
+  MODELS.forEach(m => {
+    const res = costOf(m, usage);
+    const r = res.rates;
+    const tr = document.createElement('tr');
+    if (m.id === selectedModel.id) tr.className = 'highlight';
+    const longTag = r.isLong ? ' <span style="color:var(--warn);font-size:0.68rem">할증</span>' : '';
+    tr.innerHTML = `<td>${m.name}${longTag}</td>
+      <td>$${r.in}</td>
+      <td>${m.price.cw == null ? '—' : '$' + r.cw}</td>
+      <td>$${r.cr}</td>
+      <td>$${r.out}</td>
+      <td>${fmtUSD(res.total * reqs)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ===== 텍스트 통계 ===== */
+function update() {
+  const text = $('input-text').value;
+  baseTokens = tokenize(text);
+  const tokenCount = modelTokens();
   const charCount = text.length;
   const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
-  const ctxPct = selectedModel.ctx ? Math.min(100, (tokenCount / selectedModel.ctx * 100)) : 0;
+  const ctxPct = selectedModel.ctx ? Math.min(100, tokenCount / selectedModel.ctx * 100) : 0;
 
-  document.getElementById('stat-tokens').textContent = tokenCount.toLocaleString();
-  document.getElementById('stat-chars').textContent = charCount.toLocaleString();
-  document.getElementById('stat-words').textContent = wordCount.toLocaleString();
-  document.getElementById('stat-ctx-pct').textContent = ctxPct.toFixed(1) + '%';
+  $('stat-tokens').textContent = tokenCount.toLocaleString();
+  $('stat-tokens-lbl').textContent = selectedModel.tokMult === 1 ? '토큰' : `토큰 (×${selectedModel.tokMult} 보정)`;
+  $('stat-chars').textContent = charCount.toLocaleString();
+  $('stat-words').textContent = wordCount.toLocaleString();
+  $('stat-ctx-pct').textContent = ctxPct.toFixed(1) + '%';
 
-  // 컨텍스트 바
-  const ctxStr = selectedModel.ctx >= 1000000 ? (selectedModel.ctx/1000000)+'M' : (selectedModel.ctx/1000)+'K';
-  document.getElementById('ctx-model-name').textContent = selectedModel.name;
-  document.getElementById('ctx-info').textContent = `${tokenCount.toLocaleString()} / ${selectedModel.ctx.toLocaleString()} tokens`;
-  const bar = document.getElementById('ctx-bar');
+  $('ctx-model-name').textContent = selectedModel.name;
+  $('ctx-info').textContent = `${tokenCount.toLocaleString()} / ${selectedModel.ctx.toLocaleString()} tokens`;
+  const bar = $('ctx-bar');
   bar.style.width = ctxPct + '%';
   bar.style.background = ctxPct > 90 ? 'var(--danger)' : ctxPct > 70 ? 'var(--warn)' : 'var(--accent)';
 
-  // 비용 테이블
-  const tbody = document.getElementById('cost-tbody');
-  tbody.innerHTML = '';
-  const priced = MODELS.filter(m => m.input != null);
-  priced.forEach(m => {
-    const cost = (tokenCount / 1000000 * m.input).toFixed(6);
-    const tr = document.createElement('tr');
-    if (m.id === selectedModel.id) tr.className = 'highlight';
-    tr.innerHTML = `<td>${m.name}</td><td>$${m.input}</td><td>$${m.output}</td><td>$${cost}</td>`;
-    tbody.appendChild(tr);
-  });
+  const marker = $('ctx-marker');
+  if (selectedModel.long) {
+    marker.style.display = '';
+    marker.style.left = (selectedModel.long.threshold / selectedModel.ctx * 100) + '%';
+    marker.title = `장문 할증 기준 ${selectedModel.long.threshold.toLocaleString()} tok`;
+  } else {
+    marker.style.display = 'none';
+  }
 
-  // 계산기도 모델 기준 갱신
-  recalcCalc(lastCalcEdited);
+  // TTL 선택은 Anthropic(캐시 TTL 별도 단가)만 유효
+  const hasTtl = selectedModel.price.cw1h != null;
+  $('seg-ttl').querySelectorAll('button').forEach(b => b.disabled = !hasTtl);
+  $('ttl-label').style.opacity = hasTtl ? '1' : '0.4';
 
-  // 토큰 시각화
-  renderTokenViz(text, tokenCache);
+  recalc();
+  renderTokenViz(text, baseTokens);
 }
 
 function renderTokenViz(text, tokens) {
-  const el = document.getElementById('token-display');
+  const el = $('token-display');
   if (!text) { el.textContent = '텍스트를 입력하면 토큰 단위로 색상이 표시됩니다.'; return; }
   if (tokens.length > 2000) { el.textContent = `토큰이 너무 많습니다 (${tokens.length.toLocaleString()}개). 2000개 이하만 시각화합니다.`; return; }
-
   try {
     let html = '';
-    let pos = 0;
-    const fullText = text;
     tokens.forEach((tok, i) => {
       const decoded = new TextDecoder().decode(new Uint8Array(decode([tok])));
       const color = COLORS[i % COLORS.length];
-      const safe = decoded.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'↵\n');
-      html += `<span style="background:${color};border-radius:3px;padding:1px 0" title="토큰 #${i+1}: ${tok}">${safe}</span>`;
+      const safe = decoded.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '↵\n');
+      html += `<span style="background:${color};border-radius:3px;padding:1px 0" title="토큰 #${i + 1}: ${tok}">${safe}</span>`;
     });
     el.innerHTML = html;
-  } catch(e) {
+  } catch (e) {
     el.textContent = `${tokens.length.toLocaleString()}개 토큰 (시각화 오류)`;
   }
 }
 
-function clearText() {
-  document.getElementById('input-text').value = '';
-  updateStats();
-}
+/* ===== 이벤트 ===== */
+ROWS.forEach(k => {
+  $(`calc-${k}-tok`).addEventListener('input', () => { edited[k] = 'tok'; recalc(); });
+  $(`calc-${k}-cost`).addEventListener('input', () => { edited[k] = 'cost'; recalc(); });
+});
+$('calc-requests').addEventListener('input', recalc);
 
-// ===== 양방향 토큰↔비용 계산기 =====
-const $c = id => document.getElementById(id);
-const num = el => { const v = parseFloat(String(el.value).replace(/[,\s$]/g, '')); return isFinite(v) && v >= 0 ? v : null; };
-let lastCalcEdited = { in: 'tok', out: 'tok' };  // 행별로 마지막 수정된 쪽 기억(모델 바꿔도 그 값 기준 재계산)
-
-function recalcCalc(edited) {
-  const m = selectedModel;
-  const noPrice = m.input == null;
-  ['calc-in-tok','calc-in-cost','calc-out-tok','calc-out-cost'].forEach(id => $c(id).disabled = noPrice);
-  if (noPrice) { $c('calc-total').textContent = '단가 미공개 모델'; return; }
-
-  // 행: [tokEl, costEl, $/MTok, key]
-  const rows = [
-    [$c('calc-in-tok'),  $c('calc-in-cost'),  m.input,  'in'],
-    [$c('calc-out-tok'), $c('calc-out-cost'), m.output, 'out'],
-  ];
-  let total = 0;
-  for (const [tokEl, costEl, price, key] of rows) {
-    const src = edited[key];                       // 'tok' | 'cost'
-    if (src === 'tok') {
-      const t = num(tokEl);
-      if (t == null) { costEl.value = ''; continue; }
-      const c = t / 1e6 * price;
-      costEl.value = c < 0.01 ? c.toFixed(6) : c.toFixed(4);
-      total += c;
-    } else {
-      const c = num(costEl);
-      if (c == null) { tokEl.value = ''; continue; }
-      tokEl.value = Math.round(c / price * 1e6).toLocaleString('en-US');
-      total += c;
-    }
-  }
-  $c('calc-total').textContent = '$' + (total < 0.01 && total > 0 ? total.toFixed(6) : total.toFixed(4));
-}
-
-[['calc-in-tok','in','tok'],['calc-in-cost','in','cost'],['calc-out-tok','out','tok'],['calc-out-cost','out','cost']]
-  .forEach(([id, key, side]) => {
-    $c(id).addEventListener('input', () => { lastCalcEdited[key] = side; recalcCalc(lastCalcEdited); });
-  });
-
-$c('calc-from-text').addEventListener('click', () => {
-  $c('calc-in-tok').value = tokenCache.length.toLocaleString('en-US');
-  lastCalcEdited.in = 'tok';
-  recalcCalc(lastCalcEdited);
+$('seg-tier').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  tier = b.dataset.tier;
+  $('seg-tier').querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
+  recalc();
+});
+$('seg-ttl').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || b.disabled) return;
+  ttl = b.dataset.ttl;
+  $('seg-ttl').querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
+  recalc();
 });
 
-// 입력 이벤트
+$('calc-from-text').addEventListener('click', () => {
+  $('calc-in-tok').value = modelTokens().toLocaleString('en-US');
+  edited.in = 'tok';
+  recalc();
+});
+$('calc-reset').addEventListener('click', () => {
+  ROWS.forEach(k => { $(`calc-${k}-tok`).value = ''; $(`calc-${k}-cost`).value = ''; edited[k] = 'tok'; });
+  $('calc-requests').value = '1';
+  recalc();
+});
+$('btn-clear-text').addEventListener('click', () => { $('input-text').value = ''; update(); });
+
 let debounceTimer;
-document.getElementById('input-text').addEventListener('input', () => {
+$('input-text').addEventListener('input', () => {
   clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(updateStats, 150);
+  debounceTimer = setTimeout(update, 150);
 });
 
-// 초기화
-updateStats();
+update();
 </script>
 </body>
 </html>
