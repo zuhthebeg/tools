@@ -1,5 +1,19 @@
 [
   {
+    "title": "브라우저 LLM 툴 콜링",
+    "icon": "https://tool.cocy.io/browserllm/icon.svg",
+    "url": "https://tool.cocy.io/browserllm/",
+    "desc": "브라우저 안에서 도는 LLM(WebGPU/Qwen3.5·Chrome 내장 Gemini Nano)이 위키 검색·날씨·계산 툴을 직접 호출. 서버 없이 100% 온디바이스.",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool"
+  },
+  {
     "title": "온디바이스 AI 비전",
     "icon": "https://tool.cocy.io/vtest/icon.svg",
     "url": "https://tool.cocy.io/vtest/",
