@@ -1,206 +1,156 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f)})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>글자수 카운터 | tool.cocy.io</title>
-<meta name="description" content="텍스트의 글자 수, 단어 수, 문장 수, 단락 수, 읽기 시간을 즉시 계산하는 온라인 카운터">
+<title>글자수 세기 · 자소서 글자수 계산기 — tool.cocy.io</title>
+<meta name="description" content="공백 포함/제외 글자수, 바이트(UTF-8·한글 2바이트), 단어·문장·읽기시간, 자소서·SNS 글자수 제한 체크. 자동 저장">
 <link rel="canonical" href="https://tool.cocy.io/count/">
-<meta property="og:title" content="글자수 카운터 | tool.cocy.io">
-<meta property="og:description" content="글자·단어·문장·단락·읽기시간 실시간 계산">
-<meta property="og:url" content="https://tool.cocy.io/count/">
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f)})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
+<link rel="icon" href="/count/icon.svg">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/lib/ui.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: #0d0d1a;
-    color: #e0e0f0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px 16px 60px;
-  }
-  h1 {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 6px;
-    color: #c8cfff;
-  }
-  .subtitle { font-size: 13px; color: #5a5a7a; margin-bottom: 20px; }
-  .wrap { width: 100%; max-width: 680px; }
-  textarea {
-    width: 100%;
-    min-height: 200px;
-    background: #12121f;
-    border: 1px solid #24244a;
-    border-radius: 12px;
-    color: #e0e0f0;
-    font-size: 15px;
-    padding: 14px;
-    resize: vertical;
-    outline: none;
-    font-family: inherit;
-    line-height: 1.6;
-    transition: border-color 0.2s;
-  }
-  textarea:focus { border-color: #7c6fff; }
-  textarea::placeholder { color: #3a3a5a; }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-top: 14px;
-  }
-  @media (max-width: 500px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-
-  .stat-card {
-    background: #12121f;
-    border: 1px solid #1e1e3a;
-    border-radius: 12px;
-    padding: 14px 12px;
-    text-align: center;
-    transition: border-color 0.2s;
-  }
-  .stat-card:hover { border-color: #3a3a6a; }
-  .stat-num {
-    font-size: 28px;
-    font-weight: 800;
-    color: #7c6fff;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-  }
-  .stat-label {
-    font-size: 11px;
-    color: #5a5a7a;
-    margin-top: 4px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-  .stat-card.highlight .stat-num { color: #00d4aa; }
-  .stat-card.reading .stat-num { color: #ffb060; }
-
-  .extra-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-    flex-wrap: wrap;
-  }
-  .extra-chip {
-    background: #12121f;
-    border: 1px solid #1e1e3a;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 13px;
-    color: #9090b0;
-    flex: 1;
-    min-width: 120px;
-    text-align: center;
-  }
-  .extra-chip strong { color: #c8cfff; }
-
-  .clear-btn {
-    margin-top: 12px;
-    background: none;
-    border: 1px solid #24244a;
-    border-radius: 8px;
-    color: #5a5a7a;
-    padding: 8px 18px;
-    cursor: pointer;
-    font-size: 13px;
-    transition: all 0.18s;
-  }
-  .clear-btn:hover { border-color: #7c6fff; color: #c8cfff; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+@media (max-width: 520px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+.stat { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; }
+.stat:hover { border-color: #475569; }
+.stat b { display: block; font-size: 26px; font-weight: 800; color: #93c5fd; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.stat.hi b { color: var(--accent); }
+.stat span { font-size: 12px; color: var(--muted); }
+.goal { margin-top: 14px; }
+.bar { height: 10px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .15s; }
+.bar i.over { background: var(--bad); }
+textarea#txt { min-height: 240px; font-size: 16px; }
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Word Counter", "description": "Word Counter", "url": "https://tool.cocy.io/count/", "applicationCategory": "UtilityApplication", "operatingSystem": "Any", "browserRequirements": "Requires JavaScript", "inLanguage": "ko", "author": {"@type": "Person", "name": "cocy", "url": "https://cocy.io"}, "publisher": {"@type": "Organization", "name": "cocy.io", "url": "https://cocy.io"}, "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}, "image": "https://tool.cocy.io/count/icon.svg"}</script>
 </head>
 <body>
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-
 <div class="wrap">
-  <h1>📝 글자수 카운터</h1>
-  <p class="subtitle">실시간 글자·단어·문장·단락·읽기시간 계산</p>
-
-  <textarea id="txt" placeholder="여기에 텍스트를 붙여넣으세요..."></textarea>
-
-  <div class="stats-grid">
-    <div class="stat-card highlight">
-      <div class="stat-num" id="chars">0</div>
-      <div class="stat-label">글자 수 (공백 포함)</div>
+  <div class="hero">
+    <h1>📝 글자수 세기</h1>
+    <p>자소서·SNS 글자수 제한 체크 · 공백/바이트 계산 · 입력 내용은 이 브라우저에만 자동 저장</p>
+  </div>
+  <div class="card">
+    <textarea id="txt" placeholder="여기에 텍스트를 입력하거나 붙여넣으세요..."></textarea>
+    <div class="goal">
+      <div class="row">
+        <label class="lbl" for="goalSel" style="margin:0">제한</label>
+        <select id="goalSel" style="width:auto;flex:1 1 180px">
+          <option value="0">없음</option>
+          <option value="500">자소서 500자</option>
+          <option value="700">자소서 700자</option>
+          <option value="1000" selected>자소서 1,000자</option>
+          <option value="1500">자소서 1,500자</option>
+          <option value="2000">자소서 2,000자</option>
+          <option value="280">X(트위터) 280자</option>
+          <option value="2200">인스타그램 캡션 2,200자</option>
+          <option value="90">문자(SMS) 90바이트</option>
+          <option value="custom">직접 입력</option>
+        </select>
+        <input type="number" id="goalCustom" min="1" placeholder="글자수" style="width:110px" hidden>
+        <div class="seg" id="basisSeg"><button data-b="with" class="on">공백 포함</button><button data-b="without">공백 제외</button><button data-b="byte">바이트</button></div>
+      </div>
+      <div class="bar"><i id="bar"></i></div>
+      <div class="muted" id="goalTxt" style="margin-top:6px"></div>
     </div>
-    <div class="stat-card">
-      <div class="stat-num" id="charsNoSpace">0</div>
-      <div class="stat-label">글자 수 (공백 제외)</div>
+    <div class="stats">
+      <div class="stat hi" title="클릭하면 복사"><b id="chars">0</b><span>글자 (공백 포함)</span></div>
+      <div class="stat"><b id="noSpace">0</b><span>글자 (공백 제외)</span></div>
+      <div class="stat"><b id="bytesKr">0</b><span>바이트 (한글 2·영문 1)</span></div>
+      <div class="stat"><b id="bytes">0</b><span>바이트 (UTF-8)</span></div>
+      <div class="stat"><b id="words">0</b><span>단어</span></div>
+      <div class="stat"><b id="sentences">0</b><span>문장</span></div>
+      <div class="stat"><b id="paragraphs">0</b><span>단락</span></div>
+      <div class="stat"><b id="lines">0</b><span>줄</span></div>
+      <div class="stat"><b id="readTime">0초</b><span>읽기 시간</span></div>
     </div>
-    <div class="stat-card">
-      <div class="stat-num" id="words">0</div>
-      <div class="stat-label">단어 수</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" id="sentences">0</div>
-      <div class="stat-label">문장 수</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" id="paragraphs">0</div>
-      <div class="stat-label">단락 수</div>
-    </div>
-    <div class="stat-card reading">
-      <div class="stat-num" id="readTime">0초</div>
-      <div class="stat-label">읽기 시간 (200wpm)</div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn primary" id="copyBtn">텍스트 복사</button>
+      <button class="btn" id="trimBtn" title="연속 공백·줄바꿈 정리">공백 정리</button>
+      <button class="btn danger" id="clearBtn">지우기</button>
     </div>
   </div>
-
-  <div class="extra-row">
-    <div class="extra-chip">줄 수: <strong id="lines">0</strong></div>
-    <div class="extra-chip">바이트: <strong id="bytes">0</strong></div>
-    <div class="extra-chip">한국어 음절: <strong id="korean">0</strong></div>
-  </div>
-
-  <button class="clear-btn" onclick="document.getElementById('txt').value='';update()">지우기</button>
+  <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/">모든 도구</a></footer>
 </div>
-
+<script src="/lib/ui.js"></script>
 <script>
-function update() {
-  const t = document.getElementById('txt').value;
-  const words = t.trim() ? t.trim().split(/\s+/).length : 0;
-  const sentences = t.trim() ? (t.match(/[.!?。！？]+/g) || []).length || 1 : 0;
-  const paragraphs = t.trim() ? t.split(/\n\s*\n/).filter(p => p.trim()).length || 1 : 0;
-  const lines = t.length ? t.split('\n').length : 0;
-  const bytes = new Blob([t]).size;
-  const korean = (t.match(/[\uac00-\ud7a3]/g) || []).length;
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const txt = $('txt');
+  const KEY = 'count_tool_v2';
+  let basis = 'with';
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || '{}');
+    if (typeof s.text === 'string') txt.value = s.text;
+    if (s.goal) $('goalSel').value = s.goal;
+    if (s.custom) $('goalCustom').value = s.custom;
+    if (s.basis) basis = s.basis;
+  } catch (e) {}
 
-  const mins = words / 200;
-  let readTime;
-  if (mins < 1/60) readTime = '0초';
-  else if (mins < 1) readTime = Math.round(mins * 60) + '초';
-  else if (mins < 60) readTime = Math.round(mins) + '분';
-  else readTime = Math.floor(mins/60) + '시간 ' + Math.round(mins%60) + '분';
+  const seg = window.Intl && Intl.Segmenter ? new Intl.Segmenter('ko', { granularity: 'grapheme' }) : null;
+  const len = (t) => { if (!seg) return [...t].length; let n = 0; for (const _ of seg.segment(t)) n++; return n; };
+  const krBytes = (t) => { let n = 0; for (const ch of t) { const c = ch.codePointAt(0); n += c === 10 ? 1 : c < 128 ? 1 : 2; } return n; };
 
-  document.getElementById('chars').textContent = t.length.toLocaleString();
-  document.getElementById('charsNoSpace').textContent = t.replace(/\s/g,'').length.toLocaleString();
-  document.getElementById('words').textContent = words.toLocaleString();
-  document.getElementById('sentences').textContent = sentences.toLocaleString();
-  document.getElementById('paragraphs').textContent = paragraphs.toLocaleString();
-  document.getElementById('readTime').textContent = readTime;
-  document.getElementById('lines').textContent = lines.toLocaleString();
-  document.getElementById('bytes').textContent = bytes.toLocaleString();
-  document.getElementById('korean').textContent = korean.toLocaleString();
-}
-document.getElementById('txt').addEventListener('input', update);
+  function update() {
+    const t = txt.value;
+    const trimmed = t.trim();
+    const v = {
+      chars: len(t),
+      noSpace: len(t.replace(/\s/g, '')),
+      bytesKr: krBytes(t),
+      bytes: new TextEncoder().encode(t).length,
+      words: trimmed ? trimmed.split(/\s+/).length : 0,
+      sentences: trimmed ? (trimmed.match(/[^.!?。！？\n]+([.!?。！？]+|$)/gm) || []).filter((s) => s.trim()).length : 0,
+      paragraphs: trimmed ? t.split(/\n\s*\n/).filter((p) => p.trim()).length : 0,
+      lines: t ? t.split('\n').length : 0,
+    };
+    const secs = Math.round((v.noSpace / 500) * 60);
+    v.readTime = secs < 60 ? `${secs}초` : `${Math.floor(secs / 60)}분 ${secs % 60}초`;
+    for (const k in v) $(k).textContent = typeof v[k] === 'number' ? v[k].toLocaleString() : v[k];
+
+    const g = $('goalSel').value;
+    $('goalCustom').hidden = g !== 'custom';
+    let goal = g === 'custom' ? +$('goalCustom').value || 0 : +g;
+    let b = basis;
+    if (g === '90') b = 'byte';
+    const cur = b === 'byte' ? v.bytesKr : b === 'without' ? v.noSpace : v.chars;
+    const unit = b === 'byte' ? '바이트' : '자';
+    if (goal > 0) {
+      const pct = Math.min(100, (cur / goal) * 100);
+      $('bar').style.width = pct + '%';
+      $('bar').classList.toggle('over', cur > goal);
+      $('goalTxt').innerHTML = cur > goal
+        ? `<span class="err">${(cur - goal).toLocaleString()}${unit} 초과</span> · ${cur.toLocaleString()} / ${goal.toLocaleString()}${unit}`
+        : `${cur.toLocaleString()} / ${goal.toLocaleString()}${unit} · ${(goal - cur).toLocaleString()}${unit} 남음 (${pct.toFixed(0)}%)`;
+    } else {
+      $('bar').style.width = '0'; $('goalTxt').textContent = '';
+    }
+    $('basisSeg').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x.dataset.b === b));
+    try { localStorage.setItem(KEY, JSON.stringify({ text: t.slice(0, 100000), goal: g, custom: $('goalCustom').value, basis })); } catch (e) {}
+  }
+
+  txt.addEventListener('input', update);
+  $('goalSel').addEventListener('change', update);
+  $('goalCustom').addEventListener('input', update);
+  $('basisSeg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { basis = b.dataset.b; update(); } });
+  document.querySelectorAll('.stat').forEach((el) => el.addEventListener('click', () => UI.copy(el.querySelector('b').textContent, `${el.querySelector('span').textContent}: ${el.querySelector('b').textContent} 복사`)));
+  $('copyBtn').addEventListener('click', () => txt.value && UI.copy(txt.value));
+  $('trimBtn').addEventListener('click', () => { txt.value = txt.value.replace(/[ \t]+/g, ' ').replace(/ *\n */g, '\n').replace(/\n{3,}/g, '\n\n').trim(); update(); });
+  $('clearBtn').addEventListener('click', () => { if (!txt.value || confirm('입력한 내용을 지울까요?')) { txt.value = ''; update(); txt.focus(); } });
+  update();
+})();
 </script>
-
 <script src="/lib/tool-nav.js"></script>
 <script src="/lib/site-meta.js"></script>
 <script>
-  SiteMeta.init({
-    title: '글자수 카운터 — tool.cocy.io',
-    description: '글자·단어·문장·단락·읽기시간 실시간 계산',
-    url: 'https://tool.cocy.io/count/'
-  });
+SiteMeta.init({
+  title: '글자수 세기 · 자소서 글자수 계산기 — tool.cocy.io',
+  description: '공백 포함/제외 글자수, 바이트(UTF-8·한글 2바이트), 단어·문장·읽기시간, 자소서·SNS 글자수 제한 체크. 자동 저장',
+  url: 'https://tool.cocy.io/count/'
+});
 </script>
 </body>
 </html>

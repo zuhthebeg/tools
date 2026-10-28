@@ -1,4 +1,6 @@
 // localization.js
+const LOCALIZATION_SCRIPT_SRC = (document.currentScript && document.currentScript.src) || '';
+let localizationInitPromise = null;
 let translations = {};
 let currentLanguage = '';
 let supportedLanguages = ['en', 'ko']; // 기본 지원 언어, 초기화 시 재정의 가능
@@ -219,16 +221,16 @@ function createLanguageSwitcher() {
  * @param {object} [options={}] - 초기화 옵션.
  * @param {string} [options.translationsPath] - 번역 JSON 파일 경로. 기본값은 스크립트와 동일한 경로의 'locales.json'.
  */
-async function initializeLocalization(options = {}) {
-    let scriptPath;
-    try {
-        // Fallback for `document.currentScript` if it's null
-        const scripts = document.getElementsByTagName('script');
-        scriptPath = scripts[scripts.length - 1].src; // Get the last loaded script
-    } catch (error) {
-        console.error("스크립트 경로를 가져오는 중 오류 발생:", error);
-        return;
+function initializeLocalization(options = {}) {
+    if (!localizationInitPromise) localizationInitPromise = doInitializeLocalization(options);
+    return localizationInitPromise;
+}
+
+async function doInitializeLocalization(options = {}) {
+    if (document.readyState === 'loading') {
+        await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, { once: true }));
     }
+    const scriptPath = LOCALIZATION_SCRIPT_SRC || new URL('/localization.js', location.href).href;
 
     const scriptDir = scriptPath.substring(0, scriptPath.lastIndexOf('/'));
     const translationsPath = options.translationsPath || `${scriptDir}/locales.json`;

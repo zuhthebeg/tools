@@ -1,115 +1,175 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CIDR 서브넷 계산기</title>
-    <link rel="stylesheet" href="style.css">
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIDR 서브넷 계산기 · 서브넷 나누기 — tool.cocy.io</title>
+<meta name="description" content="IPv4 CIDR 실시간 계산: 네트워크/브로드캐스트 주소, 호스트 범위, 서브넷 마스크 2진 표기, 서브넷 분할, IP 포함 여부 확인">
 <link rel="canonical" href="https://tool.cocy.io/cidr/">
-<meta name="description" content="CIDR 서브넷 계산기">
-<meta property="og:url" content="https://tool.cocy.io/cidr/">
-<meta property="og:title" content="CIDR 서브넷">
-<meta property="og:description" content="CIDR 서브넷 계산기">
+<link rel="icon" href="/cidr/icon.svg">
+
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+.kv { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; cursor: pointer; }
+.kv:hover { border-color: #475569; }
+.kv span { display: block; font-size: 12px; color: var(--muted); }
+.kv b { font-family: var(--mono); font-size: 15px; word-break: break-all; }
+.bin { font-family: var(--mono); font-size: 13px; line-height: 1.8; overflow-x: auto; white-space: nowrap; }
+.bin .n { color: #60a5fa; } .bin .h { color: #f59e0b; }
+.prefixes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.prefixes button { border: 1px solid var(--line); background: var(--panel-2); color: var(--muted); border-radius: 999px; padding: 4px 10px; font-family: var(--mono); font-size: 12px; cursor: pointer; }
+.prefixes button:hover { color: var(--text); }
+.tblwrap { max-height: 360px; overflow: auto; margin-top: 10px; }
+.tbl td { font-family: var(--mono); font-size: 13px; }
+</style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "CIDR 서브넷", "description": "CIDR 서브넷 계산기", "url": "https://tool.cocy.io/cidr/", "applicationCategory": "UtilityApplication", "operatingSystem": "Any", "browserRequirements": "Requires JavaScript", "inLanguage": "ko", "author": {"@type": "Person", "name": "cocy", "url": "https://cocy.io"}, "publisher": {"@type": "Organization", "name": "cocy.io", "url": "https://cocy.io"}, "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}, "image": "https://tool.cocy.io/cidr/icon.svg"}</script>
 </head>
 <body>
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <div class="container">
-        <h1>🌐 CIDR 서브넷 계산기</h1>
-        <p class="subtitle">IPv4 CIDR 표기법을 분석하고 서브넷 정보를 계산합니다</p>
-
-        <div class="input-section">
-            <label for="cidr-input">CIDR 주소 입력</label>
-            <input
-                type="text"
-                id="cidr-input"
-                placeholder="예: 192.168.1.0/24"
-                autocomplete="off"
-            >
-            <button id="calculate-btn">계산</button>
-        </div>
-
-        <div id="result" class="result hidden">
-            <h2>계산 결과</h2>
-
-            <div class="info-group">
-                <h3>기본 정보</h3>
-                <div class="info-row">
-                    <span class="label">IP 주소:</span>
-                    <span class="value" id="ip-address"></span>
-                </div>
-                <div class="info-row">
-                    <span class="label">서브넷 마스크:</span>
-                    <span class="value" id="subnet-mask"></span>
-                </div>
-                <div class="info-row">
-                    <span class="label">와일드카드 마스크:</span>
-                    <span class="value" id="wildcard-mask"></span>
-                </div>
-            </div>
-
-            <div class="info-group">
-                <h3>네트워크 정보</h3>
-                <div class="info-row">
-                    <span class="label">네트워크 주소:</span>
-                    <span class="value" id="network-address"></span>
-                </div>
-                <div class="info-row">
-                    <span class="label">브로드캐스트 주소:</span>
-                    <span class="value" id="broadcast-address"></span>
-                </div>
-                <div class="info-row">
-                    <span class="label">사용 가능한 첫 IP:</span>
-                    <span class="value" id="first-ip"></span>
-                </div>
-                <div class="info-row">
-                    <span class="label">사용 가능한 마지막 IP:</span>
-                    <span class="value" id="last-ip"></span>
-                </div>
-            </div>
-
-            <div class="info-group">
-                <h3>주소 범위</h3>
-                <div class="info-row">
-                    <span class="label">전체 호스트 수:</span>
-                    <span class="value" id="total-hosts"></span>
-                </div>
-                <div class="info-row">
-                    <span class="label">사용 가능한 호스트 수:</span>
-                    <span class="value" id="usable-hosts"></span>
-                </div>
-                <div class="info-row">
-                    <span class="label">IP 클래스:</span>
-                    <span class="value" id="ip-class"></span>
-                </div>
-            </div>
-
-            <div class="info-group">
-                <h3>이진 표기</h3>
-                <div class="info-row binary">
-                    <span class="label">IP 주소 (2진):</span>
-                    <span class="value" id="ip-binary"></span>
-                </div>
-                <div class="info-row binary">
-                    <span class="label">서브넷 마스크 (2진):</span>
-                    <span class="value" id="mask-binary"></span>
-                </div>
-            </div>
-        </div>
-
-        <div id="error" class="error hidden"></div>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>🌐 CIDR 서브넷 계산기</h1>
+    <p>입력하는 즉시 계산 · 값 클릭하면 복사 · 서브넷 분할과 IP 포함 여부 확인</p>
+  </div>
+  <div class="card">
+    <label class="lbl" for="cidr">CIDR 또는 IP/마스크</label>
+    <input type="text" id="cidr" class="mono" placeholder="192.168.1.0/24  또는  10.0.0.5 255.255.0.0" autocomplete="off" spellcheck="false">
+    <div id="err" class="err" style="margin-top:6px;min-height:1.2em;font-size:13px"></div>
+    <div class="prefixes" id="examples"></div>
+  </div>
+  <div id="out" hidden>
+    <div class="card"><h2>결과 <span class="muted" id="kind"></span></h2><div class="grid" id="grid"></div></div>
+    <div class="card"><h2>2진 표기 <span class="muted"><span style="color:#60a5fa">■</span> 네트워크 <span style="color:#f59e0b">■</span> 호스트</span></h2><div class="bin" id="bin"></div></div>
+    <div class="card">
+      <h2>서브넷 나누기</h2>
+      <div class="row"><label class="lbl" for="split" style="margin:0">나눌 크기</label><select id="split" style="width:auto;flex:1 1 200px"></select></div>
+      <div class="muted" id="splitInfo" style="margin-top:8px"></div>
+      <div class="tblwrap"><table class="tbl"><thead><tr><th>#</th><th>서브넷</th><th>사용 가능 범위</th><th>브로드캐스트</th></tr></thead><tbody id="splitBody"></tbody></table></div>
     </div>
+    <div class="card">
+      <h2>IP 포함 여부</h2>
+      <input type="text" id="probe" class="mono" placeholder="확인할 IP (예: 192.168.1.77)" autocomplete="off">
+      <div id="probeOut" style="margin-top:8px;font-size:14px"></div>
+    </div>
+  </div>
+  <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const toInt = (ip) => {
+    const p = ip.split('.');
+    if (p.length !== 4 || !p.every((o) => /^\d{1,3}$/.test(o) && +o <= 255)) return null;
+    return p.reduce((a, o) => a * 256 + +o, 0);
+  };
+  const toIp = (n) => [n >>> 24, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join('.');
+  const maskOf = (p) => (p === 0 ? 0 : (0xffffffff << (32 - p)) >>> 0);
+  const prefixOfMask = (m) => { const b = m.toString(2).padStart(32, '0'); return /^1*0*$/.test(b) ? b.indexOf('0') === -1 ? 32 : b.indexOf('0') : null; };
+  const EX = ['192.168.0.0/24', '10.0.0.0/8', '172.16.0.0/12', '100.64.0.0/10', '192.168.1.130/26', '10.1.2.3 255.255.252.0'];
 
-    <script src="app.js"></script>
-    <script src="/lib/tool-nav.js"></script>
-    <script src="/lib/site-meta.js"></script>
-    <script>
-      SiteMeta.init({
-        title: 'CIDR Subnet Calculator - tool.cocy.io',
-        description: 'IPv4 CIDR 대역 계산과 네트워크 정보 확인 도구',
-        url: 'https://tool.cocy.io/cidr/'
-      });
-    </script>
+  function parse(str) {
+    const s = str.trim().replace(/\s+/g, ' ');
+    let m = s.match(/^([\d.]+)\s*\/\s*(\d{1,2})$/);
+    let ip, prefix;
+    if (m) { ip = toInt(m[1]); prefix = +m[2]; }
+    else if ((m = s.match(/^([\d.]+)[ /]([\d.]+)$/))) { ip = toInt(m[1]); const mk = toInt(m[2]); prefix = mk == null ? null : prefixOfMask(mk); if (prefix == null) throw new Error('서브넷 마스크가 올바르지 않아요 (연속된 1이어야 해요)'); }
+    else if (toInt(s) != null) { ip = toInt(s); prefix = 32; }
+    else throw new Error('형식: 192.168.1.0/24 또는 10.0.0.5 255.255.0.0');
+    if (ip == null) throw new Error('IP 주소가 올바르지 않아요 (각 자리 0~255)');
+    if (!(prefix >= 0 && prefix <= 32)) throw new Error('프리픽스는 0~32 사이여야 해요');
+    return { ip, prefix };
+  }
+
+  function kindOf(n) {
+    const inR = (c) => { const [b, p] = c.split('/'); const m = maskOf(+p); return ((n & m) >>> 0) === ((toInt(b) & m) >>> 0); };
+    if (inR('10.0.0.0/8') || inR('172.16.0.0/12') || inR('192.168.0.0/16')) return '사설(RFC1918)';
+    if (inR('100.64.0.0/10')) return 'CGNAT';
+    if (inR('127.0.0.0/8')) return '루프백';
+    if (inR('169.254.0.0/16')) return '링크 로컬';
+    if (inR('224.0.0.0/4')) return '멀티캐스트';
+    if (inR('240.0.0.0/4')) return '예약';
+    return '공인';
+  }
+
+  let cur = null;
+  function calc() {
+    const v = $('cidr').value;
+    localStorage.setItem('cidr_last', v);
+    $('err').textContent = '';
+    if (!v.trim()) { $('out').hidden = true; return; }
+    try { cur = parse(v); } catch (e) { $('err').textContent = e.message; $('out').hidden = true; return; }
+    const { ip, prefix } = cur;
+    const mask = maskOf(prefix), net = (ip & mask) >>> 0, bc = (net | (~mask >>> 0)) >>> 0;
+    const total = 2 ** (32 - prefix);
+    const usable = prefix >= 31 ? total : total - 2;
+    const first = prefix >= 31 ? net : net + 1, last = prefix >= 31 ? bc : bc - 1;
+    Object.assign(cur, { net, bc, mask });
+    $('out').hidden = false;
+    $('kind').textContent = kindOf(net) + (net !== ip ? ` · 입력 IP ${toIp(ip)}는 호스트 주소` : '');
+    const rows = [
+      ['CIDR', `${toIp(net)}/${prefix}`], ['네트워크 주소', toIp(net)], ['브로드캐스트', toIp(bc)],
+      ['사용 가능 범위', `${toIp(first)} – ${toIp(last)}`], ['서브넷 마스크', toIp(mask)], ['와일드카드', toIp(~mask >>> 0)],
+      ['전체 주소 수', total.toLocaleString()], ['사용 가능 호스트', usable.toLocaleString() + (prefix === 31 ? ' (P2P)' : '')], ['16진 마스크', '0x' + mask.toString(16).padStart(8, '0').toUpperCase()],
+    ];
+    $('grid').innerHTML = rows.map(([k, val]) => `<div class="kv" title="클릭하면 복사"><span>${k}</span><b>${val}</b></div>`).join('');
+    const bin = (n) => { const b = n.toString(2).padStart(32, '0'); return `<span class="n">${b.slice(0, prefix)}</span><span class="h">${b.slice(prefix)}</span>`.replace(/(\d{8})(?=\d)/g, '$1'); };
+    const dotted = (n) => { const b = n.toString(2).padStart(32, '0'); let o = ''; for (let i = 0; i < 32; i++) { if (i && i % 8 === 0) o += '.'; o += `<span class="${i < prefix ? 'n' : 'h'}">${b[i]}</span>`; } return o; };
+    $('bin').innerHTML = `IP&nbsp;&nbsp;&nbsp;${dotted(ip)}<br>마스크 ${dotted(mask)}<br>네트워크 ${dotted(net)}`;
+    void bin;
+    const sel = $('split'), prev = +sel.value;
+    sel.innerHTML = '';
+    for (let p = prefix + 1; p <= Math.min(32, prefix + 12); p++) sel.add(new Option(`/${p} — ${(2 ** (p - prefix)).toLocaleString()}개 × ${(2 ** (32 - p)).toLocaleString()}주소`, p));
+    if (!sel.options.length) sel.add(new Option('더 나눌 수 없어요', ''));
+    else sel.value = prev > prefix && prev <= prefix + 12 ? prev : Math.min(32, prefix + 2);
+    split(); probe();
+  }
+
+  function split() {
+    const p = +$('split').value, body = $('splitBody');
+    body.innerHTML = '';
+    if (!p || !cur) { $('splitInfo').textContent = ''; return; }
+    const size = 2 ** (32 - p), count = 2 ** (p - cur.prefix), show = Math.min(count, 256);
+    let html = '';
+    for (let i = 0; i < show; i++) {
+      const n = cur.net + i * size, b = n + size - 1;
+      const range = p >= 31 ? `${toIp(n)} – ${toIp(b)}` : `${toIp(n + 1)} – ${toIp(b - 1)}`;
+      html += `<tr><td>${i + 1}</td><td>${toIp(n)}/${p}</td><td>${range}</td><td>${toIp(b)}</td></tr>`;
+    }
+    body.innerHTML = html;
+    $('splitInfo').textContent = `${count.toLocaleString()}개 서브넷, 각 ${(p >= 31 ? size : size - 2).toLocaleString()}개 호스트` + (count > show ? ` (앞 ${show}개만 표시)` : '');
+  }
+
+  function probe() {
+    const v = $('probe').value.trim(), out = $('probeOut');
+    if (!v || !cur) { out.textContent = ''; return; }
+    const n = toInt(v);
+    if (n == null) { out.innerHTML = '<span class="err">IP 형식이 아니에요</span>'; return; }
+    const inside = ((n & cur.mask) >>> 0) === cur.net;
+    out.innerHTML = inside ? `<span class="ok">✔ ${v} 는 ${toIp(cur.net)}/${cur.prefix} 안에 있어요</span>` : `<span class="err">✘ ${v} 는 범위 밖이에요</span>`;
+  }
+
+  $('examples').innerHTML = EX.map((e) => `<button type="button">${e}</button>`).join('');
+  $('examples').addEventListener('click', (e) => { if (e.target.tagName === 'BUTTON') { $('cidr').value = e.target.textContent; calc(); } });
+  $('grid').addEventListener('click', (e) => { const kv = e.target.closest('.kv'); if (kv) UI.copy(kv.querySelector('b').textContent); });
+  $('cidr').addEventListener('input', calc);
+  $('split').addEventListener('change', split);
+  $('probe').addEventListener('input', probe);
+  const q = new URLSearchParams(location.search).get('q');
+  $('cidr').value = q || localStorage.getItem('cidr_last') || '192.168.1.0/24';
+  calc();
+})();
+</script>
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: 'CIDR 서브넷 계산기 · 서브넷 나누기 — tool.cocy.io',
+  description: 'IPv4 CIDR 실시간 계산: 네트워크/브로드캐스트 주소, 호스트 범위, 서브넷 마스크 2진 표기, 서브넷 분할, IP 포함 여부 확인',
+  url: 'https://tool.cocy.io/cidr/'
+});
+</script>
 </body>
 </html>

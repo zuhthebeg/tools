@@ -178,6 +178,20 @@
 
         .footer a { color: var(--primary); text-decoration: none; }
 
+        /* Search */
+        .search-wrap { margin: 0.25rem 0 1.25rem; }
+        .search {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+        }
+        .search:focus { border-color: var(--primary); }
+
         /* Empty state */
         .empty { 
             text-align: center; 
@@ -190,22 +204,24 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <header class="header">
         <h1>🔧 Tool Portal</h1>
-        <p>개발자를 위한 유틸리티 모음</p>
+        <p>설치·로그인 없이 브라우저에서 바로 쓰는 무료 도구 모음</p>
     </header>
 
     <div class="tabs">
         <button class="tab active" data-filter="all">전체</button>
-        <button class="tab" data-filter="tool">🔧 도구</button>
-        <button class="tab" data-filter="devtools">🧪 개발</button>
-        <button class="tab" data-filter="converter">🔁 변환</button>
+        <button class="tab" data-filter="ai">🤖 AI</button>
+        <button class="tab" data-filter="dev">🧪 개발·변환</button>
         <button class="tab" data-filter="network">🌐 네트워크</button>
-        <button class="tab" data-filter="productivity">🗂️ 생산성</button>
-        <button class="tab" data-filter="utility">🛠️ 기타</button>
+        <button class="tab" data-filter="life">🗂️ 생활</button>
+        <button class="tab" data-filter="fun">🎉 재미</button>
     </div>
 
     <div class="container">
+        <div class="search-wrap">
+            <input type="search" id="search" class="search" placeholder="도구 검색 (예: json, 토큰, 디데이)  ·  / 키로 바로 검색" autocomplete="off" aria-label="도구 검색">
+        </div>
         <div id="sections"></div>
-        <div class="empty" id="emptyState" style="display:none;">표시할 앱이 없습니다</div>
+        <div class="empty" id="emptyState" style="display:none;">검색 결과가 없습니다</div>
     </div>
 
     <footer class="footer">
@@ -215,23 +231,24 @@
     <script>
         let apps = [];
         let currentFilter = 'all';
+        let query = '';
 
         const sectionLabels = {
-            tool: '🔧 도구',
-            devtools: '🧪 개발',
-            converter: '🔁 변환',
+            ai: '🤖 AI',
+            dev: '🧪 개발·변환',
             network: '🌐 네트워크',
-            productivity: '🗂️ 생산성',
-            utility: '🛠️ 기타'
+            life: '🗂️ 생활',
+            fun: '🎉 재미',
+            etc: '🛠️ 기타'
         };
+        const sectionOrder = ['ai', 'dev', 'network', 'life', 'fun', 'etc'];
 
-        function inferGroup(app) {
-            const key = (app.url || '').toLowerCase();
-            if (key.includes('/json') || key.includes('/base64') || key.includes('/url') || key.includes('/color') || key.includes('/qr')) return 'converter';
-            if (key.includes('/cidr') || key.includes('/net')) return 'network';
-            if (key.includes('/llm') || key.includes('/count')) return 'devtools';
-            if (key.includes('/calendar') || key.includes('/dday') || key.includes('/lotto') || key.includes('/recipe')) return 'productivity';
-            return 'utility';
+        function groupOf(app) {
+            return sectionLabels[app.group] ? app.group : 'etc';
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
 
         function toCard(app) {
@@ -239,13 +256,12 @@
                 <a href="${app.url}" class="card">
                     ${app.badge ? `<span class="card-badge badge-${app.badge.toLowerCase()}">${app.badge}</span>` : ''}
                     <img class="card-icon" src="${app.icon}" alt="" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🔧</text></svg>'">
-                    <div class="card-title">${app.title}</div>
-                    <div class="card-desc">${app.desc}</div>
+                    <div class="card-title">${escapeHtml(app.title)}</div>
+                    <div class="card-desc">${escapeHtml(app.desc)}</div>
                 </a>
             `;
         }
 
-        // Load apps
         fetch('apps.json?' + Date.now())
             .then(r => r.json())
             .then(data => {
@@ -256,7 +272,6 @@
                 renderApps();
             });
 
-        // Tab filtering
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -269,37 +284,47 @@
             });
         });
 
+        const searchEl = document.getElementById('search');
+        searchEl.addEventListener('input', () => {
+            query = searchEl.value.trim().toLowerCase();
+            renderApps();
+        });
+        searchEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const first = document.querySelector('#sections .card');
+                if (first) location.href = first.href;
+            } else if (e.key === 'Escape') {
+                searchEl.value = '';
+                query = '';
+                renderApps();
+            }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/' && document.activeElement !== searchEl) {
+                e.preventDefault();
+                searchEl.focus();
+            }
+        });
+
+        function matches(app) {
+            if (!query) return true;
+            return [app.title, app.desc, app.url].join(' ').toLowerCase().includes(query);
+        }
+
         function renderApps() {
             const sectionsEl = document.getElementById('sections');
             const empty = document.getElementById('emptyState');
 
             const grouped = {};
-            const sortedApps = [...apps].sort((a, b) => {
-                const aChu = (a.url || '').includes('/chu/');
-                const bChu = (b.url || '').includes('/chu/');
-                if (aChu && !bChu) return -1;
-                if (!aChu && bChu) return 1;
-                return 0;
+            apps.filter(matches).forEach(app => {
+                const group = groupOf(app);
+                if (currentFilter !== 'all' && currentFilter !== group) return;
+                (grouped[group] = grouped[group] || []).push(app);
             });
-
-            sortedApps.forEach(app => {
-                const group = inferGroup(app);
-                if (!grouped[group]) grouped[group] = [];
-                grouped[group].push(app);
-            });
-
-            let sectionOrder = ['tool', 'devtools', 'converter', 'network', 'productivity', 'utility'];
-            if (currentFilter === 'tool') sectionOrder = ['devtools', 'converter', 'network', 'productivity', 'utility'];
-            else if (currentFilter !== 'all') sectionOrder = [currentFilter];
 
             const visibleSections = sectionOrder
-                .map(key => ({ key, items: (grouped[key] || []).filter(app => currentFilter === 'all' || currentFilter === 'tool' ? true : true) }))
-                .filter(section => section.items.length > 0)
-                .filter(section => {
-                    if (currentFilter === 'all') return true;
-                    if (currentFilter === 'tool') return true;
-                    return section.key === currentFilter;
-                });
+                .filter(key => grouped[key] && grouped[key].length)
+                .map(key => ({ key, items: grouped[key] }));
 
             if (visibleSections.length === 0) {
                 sectionsEl.innerHTML = '';
@@ -310,7 +335,7 @@
             empty.style.display = 'none';
             sectionsEl.innerHTML = visibleSections.map(section => `
                 <section class="section">
-                    <h2 class="section-title">${sectionLabels[section.key] || section.key}</h2>
+                    <h2 class="section-title">${sectionLabels[section.key]}</h2>
                     <div class="grid">${section.items.map(toCard).join('')}</div>
                 </section>
             `).join('');
