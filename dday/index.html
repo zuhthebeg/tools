@@ -137,6 +137,7 @@
         if (!confirm(`'${e.name}' 디데이를 삭제할까요?`)) return;
         entries = entries.filter((x) => x.id !== e.id);
         if (selected === e.id) selected = null;
+        if (editing === e.id) resetForm();
         save(); render(); showDetail();
       });
       $('list').appendChild(li);
@@ -166,6 +167,12 @@
     }).join('');
   }
 
+  function resetForm() {
+    editing = null;
+    $('submitBtn').textContent = '추가';
+    $('name').value = ''; $('date').value = ''; $('countFirst').checked = false;
+  }
+
   function startEdit(e) {
     editing = e.id;
     $('name').value = e.name;
@@ -179,16 +186,16 @@
     ev.preventDefault();
     const name = $('name').value.trim(), date = $('date').value;
     if (!name || !date) return;
-    if (editing) {
-      Object.assign(entries.find((x) => x.id === editing), { name, date, countFirst: $('countFirst').checked });
-      selected = editing; editing = null;
-      $('submitBtn').textContent = '추가';
+    const target = editing && entries.find((x) => x.id === editing);
+    if (target) {
+      Object.assign(target, { name, date, countFirst: $('countFirst').checked });
+      selected = editing;
     } else {
       const e = { id: Date.now(), added: Date.now(), name, date, countFirst: $('countFirst').checked };
       entries.push(e); selected = e.id;
     }
     save(); render(); showDetail();
-    $('name').value = ''; $('date').value = ''; $('countFirst').checked = false;
+    resetForm();
   });
   $('sort').addEventListener('change', () => { localStorage.setItem('dday_sort', $('sort').value); render(); });
   $('sort').value = localStorage.getItem('dday_sort') || 'near';
