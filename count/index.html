@@ -30,54 +30,101 @@ textarea#txt { min-height: 240px; font-size: 16px; }
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="wrap">
   <div class="hero">
-    <h1>📝 글자수 세기</h1>
-    <p>자소서·SNS 글자수 제한 체크 · 공백/바이트 계산 · 입력 내용은 이 브라우저에만 자동 저장</p>
+    <h1>📝 <span data-i18n="h1">글자수 세기</span></h1>
+    <p data-i18n="sub">자소서·SNS 글자수 제한 체크 · 공백/바이트 계산 · 입력 내용은 이 브라우저에만 자동 저장</p>
   </div>
   <div class="card">
-    <textarea id="txt" placeholder="여기에 텍스트를 입력하거나 붙여넣으세요..."></textarea>
+    <textarea id="txt" data-i18n-attr="placeholder:ph" placeholder="여기에 텍스트를 입력하거나 붙여넣으세요..."></textarea>
     <div class="goal">
       <div class="row">
-        <label class="lbl" for="goalSel" style="margin:0">제한</label>
+        <label class="lbl" for="goalSel" style="margin:0" data-i18n="limit">제한</label>
         <select id="goalSel" style="width:auto;flex:1 1 180px">
-          <option value="0">없음</option>
-          <option value="500">자소서 500자</option>
-          <option value="700">자소서 700자</option>
-          <option value="1000" selected>자소서 1,000자</option>
-          <option value="1500">자소서 1,500자</option>
-          <option value="2000">자소서 2,000자</option>
-          <option value="280">X(트위터) 280자</option>
-          <option value="2200">인스타그램 캡션 2,200자</option>
-          <option value="90">문자(SMS) 90바이트</option>
-          <option value="custom">직접 입력</option>
+          <option value="0" data-i18n="gNone">없음</option>
+          <option value="500" data-i18n="g500">자소서 500자</option>
+          <option value="700" data-i18n="g700">자소서 700자</option>
+          <option value="1000" selected data-i18n="g1000">자소서 1,000자</option>
+          <option value="1500" data-i18n="g1500">자소서 1,500자</option>
+          <option value="2000" data-i18n="g2000">자소서 2,000자</option>
+          <option value="280" data-i18n="gX">X(트위터) 280자</option>
+          <option value="2200" data-i18n="gIg">인스타그램 캡션 2,200자</option>
+          <option value="90" data-i18n="gSms">문자(SMS) 90바이트</option>
+          <option value="custom" data-i18n="gCustom">직접 입력</option>
         </select>
-        <input type="number" id="goalCustom" min="1" placeholder="글자수" style="width:110px" hidden>
-        <div class="seg" id="basisSeg"><button data-b="with" class="on">공백 포함</button><button data-b="without">공백 제외</button><button data-b="byte">바이트</button></div>
+        <input type="number" id="goalCustom" min="1" data-i18n-attr="placeholder:customPh" placeholder="글자수" style="width:110px" hidden>
+        <div class="seg" id="basisSeg"><button data-b="with" class="on" data-i18n="bWith">공백 포함</button><button data-b="without" data-i18n="bWithout">공백 제외</button><button data-b="byte" data-i18n="bByte">바이트</button></div>
       </div>
       <div class="bar"><i id="bar"></i></div>
       <div class="muted" id="goalTxt" style="margin-top:6px"></div>
     </div>
     <div class="stats">
-      <div class="stat hi" title="클릭하면 복사"><b id="chars">0</b><span>글자 (공백 포함)</span></div>
-      <div class="stat"><b id="noSpace">0</b><span>글자 (공백 제외)</span></div>
-      <div class="stat"><b id="bytesKr">0</b><span>바이트 (한글 2·영문 1)</span></div>
-      <div class="stat"><b id="bytes">0</b><span>바이트 (UTF-8)</span></div>
-      <div class="stat"><b id="words">0</b><span>단어</span></div>
-      <div class="stat"><b id="sentences">0</b><span>문장</span></div>
-      <div class="stat"><b id="paragraphs">0</b><span>단락</span></div>
-      <div class="stat"><b id="lines">0</b><span>줄</span></div>
-      <div class="stat"><b id="readTime">0초</b><span>읽기 시간</span></div>
+      <div class="stat hi" data-i18n-attr="title:clickCopy"><b id="chars">0</b><span data-i18n="sChars">글자 (공백 포함)</span></div>
+      <div class="stat"><b id="noSpace">0</b><span data-i18n="sNoSpace">글자 (공백 제외)</span></div>
+      <div class="stat"><b id="bytesKr">0</b><span data-i18n="sBytesKr">바이트 (한글 2·영문 1)</span></div>
+      <div class="stat"><b id="bytes">0</b><span data-i18n="sBytes">바이트 (UTF-8)</span></div>
+      <div class="stat"><b id="words">0</b><span data-i18n="sWords">단어</span></div>
+      <div class="stat"><b id="sentences">0</b><span data-i18n="sSentences">문장</span></div>
+      <div class="stat"><b id="paragraphs">0</b><span data-i18n="sParagraphs">단락</span></div>
+      <div class="stat"><b id="lines">0</b><span data-i18n="sLines">줄</span></div>
+      <div class="stat"><b id="readTime">0</b><span data-i18n="sRead">읽기 시간</span></div>
     </div>
     <div class="row" style="margin-top:14px">
-      <button class="btn primary" id="copyBtn">텍스트 복사</button>
-      <button class="btn" id="trimBtn" title="연속 공백·줄바꿈 정리">공백 정리</button>
-      <button class="btn danger" id="clearBtn">지우기</button>
+      <button class="btn primary" id="copyBtn" data-i18n="copy">텍스트 복사</button>
+      <button class="btn" id="trimBtn" data-i18n="trim" data-i18n-attr="title:trimTip">공백 정리</button>
+      <button class="btn danger" id="clearBtn" data-i18n="clear">지우기</button>
     </div>
   </div>
-  <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/">모든 도구</a></footer>
+  <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
 </div>
 <script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
 <script>
 (() => {
+  const T = I18n.t;
+  I18n.define({
+    pageTitle: ['글자수 세기 · 자소서 글자수 · 바이트 계산 — tool.cocy.io', 'Character Counter · Word & Byte Count — tool.cocy.io', '字数统计 · 字符与字节计算 — tool.cocy.io', '字數統計 · 字元與位元組計算 — tool.cocy.io', 'Contador de caracteres · Palabras y bytes — tool.cocy.io'],
+    h1: ['글자수 세기', 'Character Counter', '字数统计', '字數統計', 'Contador de caracteres'],
+    sub: ['자소서·SNS 글자수 제한 체크 · 공백/바이트 계산 · 입력 내용은 이 브라우저에만 자동 저장', 'Check length limits for essays and social posts · spaces/bytes · text is auto-saved only in this browser', '检查文书与社交平台字数限制 · 空格/字节计算 · 内容仅自动保存在此浏览器', '檢查文書與社群平台字數限制 · 空格/位元組計算 · 內容僅自動儲存在此瀏覽器', 'Comprueba límites para redacciones y redes sociales · espacios/bytes · el texto se guarda solo en este navegador'],
+    ph: ['여기에 텍스트를 입력하거나 붙여넣으세요...', 'Type or paste your text here...', '在此输入或粘贴文本...', '在此輸入或貼上文字...', 'Escribe o pega tu texto aquí...'],
+    limit: ['제한', 'Limit', '限制', '限制', 'Límite'],
+    gNone: ['없음', 'None', '无', '無', 'Ninguno'],
+    g500: ['자소서 500자', 'Essay 500 chars', '文书 500 字', '文書 500 字', 'Redacción 500 caracteres'],
+    g700: ['자소서 700자', 'Essay 700 chars', '文书 700 字', '文書 700 字', 'Redacción 700 caracteres'],
+    g1000: ['자소서 1,000자', 'Essay 1,000 chars', '文书 1,000 字', '文書 1,000 字', 'Redacción 1.000 caracteres'],
+    g1500: ['자소서 1,500자', 'Essay 1,500 chars', '文书 1,500 字', '文書 1,500 字', 'Redacción 1.500 caracteres'],
+    g2000: ['자소서 2,000자', 'Essay 2,000 chars', '文书 2,000 字', '文書 2,000 字', 'Redacción 2.000 caracteres'],
+    gX: ['X(트위터) 280자', 'X (Twitter) 280 chars', 'X（推特）280 字', 'X（推特）280 字', 'X (Twitter) 280 caracteres'],
+    gIg: ['인스타그램 캡션 2,200자', 'Instagram caption 2,200 chars', 'Instagram 文案 2,200 字', 'Instagram 文案 2,200 字', 'Pie de Instagram 2.200 caracteres'],
+    gSms: ['문자(SMS) 90바이트', 'Korean SMS 90 bytes', '韩国短信 90 字节', '韓國簡訊 90 位元組', 'SMS coreano 90 bytes'],
+    gCustom: ['직접 입력', 'Custom', '自定义', '自訂', 'Personalizado'],
+    customPh: ['글자수', 'Length', '字数', '字數', 'Longitud'],
+    bWith: ['공백 포함', 'With spaces', '含空格', '含空格', 'Con espacios'],
+    bWithout: ['공백 제외', 'No spaces', '不含空格', '不含空格', 'Sin espacios'],
+    bByte: ['바이트', 'Bytes', '字节', '位元組', 'Bytes'],
+    clickCopy: ['클릭하면 복사', 'Click to copy', '点击复制', '點擊複製', 'Clic para copiar'],
+    sChars: ['글자 (공백 포함)', 'Characters (with spaces)', '字符（含空格）', '字元（含空格）', 'Caracteres (con espacios)'],
+    sNoSpace: ['글자 (공백 제외)', 'Characters (no spaces)', '字符（不含空格）', '字元（不含空格）', 'Caracteres (sin espacios)'],
+    sBytesKr: ['바이트 (한글 2·영문 1)', 'Bytes (CJK 2 · ASCII 1)', '字节（中日韩 2 · 英文 1）', '位元組（中日韓 2 · 英文 1）', 'Bytes (CJK 2 · ASCII 1)'],
+    sBytes: ['바이트 (UTF-8)', 'Bytes (UTF-8)', '字节（UTF-8）', '位元組（UTF-8）', 'Bytes (UTF-8)'],
+    sWords: ['단어', 'Words', '单词', '單字', 'Palabras'],
+    sSentences: ['문장', 'Sentences', '句子', '句子', 'Oraciones'],
+    sParagraphs: ['단락', 'Paragraphs', '段落', '段落', 'Párrafos'],
+    sLines: ['줄', 'Lines', '行', '行', 'Líneas'],
+    sRead: ['읽기 시간', 'Reading time', '阅读时间', '閱讀時間', 'Tiempo de lectura'],
+    copy: ['텍스트 복사', 'Copy text', '复制文本', '複製文字', 'Copiar texto'],
+    trim: ['공백 정리', 'Tidy spaces', '整理空格', '整理空格', 'Limpiar espacios'],
+    trimTip: ['연속 공백·줄바꿈 정리', 'Collapse repeated spaces and blank lines', '合并连续空格和空行', '合併連續空格和空行', 'Unir espacios repetidos y líneas vacías'],
+    clear: ['지우기', 'Clear', '清空', '清除', 'Borrar'],
+    sec: ['{s}초', '{s}s', '{s} 秒', '{s} 秒', '{s} s'],
+    minSec: ['{m}분 {s}초', '{m}m {s}s', '{m} 分 {s} 秒', '{m} 分 {s} 秒', '{m} min {s} s'],
+    uChar: ['자', ' chars', ' 字', ' 字', ' caracteres'],
+    uByte: ['바이트', ' bytes', ' 字节', ' 位元組', ' bytes'],
+    over: ['{n}{u} 초과', '{n}{u} over', '超出 {n}{u}', '超出 {n}{u}', '{n}{u} de más'],
+    remain: ['{n}{u} 남음', '{n}{u} left', '剩余 {n}{u}', '剩餘 {n}{u}', 'quedan {n}{u}'],
+    statCopied: ['{label}: {v} 복사', 'Copied {label}: {v}', '已复制 {label}：{v}', '已複製 {label}：{v}', 'Copiado {label}: {v}'],
+    confirmClear: ['입력한 내용을 지울까요?', 'Clear the text?', '清空文本吗？', '清除文字嗎？', '¿Borrar el texto?'],
+  });
+  I18n.init();
+
   const $ = (id) => document.getElementById(id);
   const txt = $('txt');
   const KEY = 'count_tool_v2';
@@ -108,7 +155,7 @@ textarea#txt { min-height: 240px; font-size: 16px; }
       lines: t ? t.split('\n').length : 0,
     };
     const secs = Math.round((v.noSpace / 500) * 60);
-    v.readTime = secs < 60 ? `${secs}초` : `${Math.floor(secs / 60)}분 ${secs % 60}초`;
+    v.readTime = secs < 60 ? T('sec', { s: secs }) : T('minSec', { m: Math.floor(secs / 60), s: secs % 60 });
     for (const k in v) $(k).textContent = typeof v[k] === 'number' ? v[k].toLocaleString() : v[k];
 
     const g = $('goalSel').value;
@@ -117,14 +164,14 @@ textarea#txt { min-height: 240px; font-size: 16px; }
     let b = basis;
     if (g === '90') b = 'byte';
     const cur = b === 'byte' ? v.bytesKr : b === 'without' ? v.noSpace : v.chars;
-    const unit = b === 'byte' ? '바이트' : '자';
+    const u = T(b === 'byte' ? 'uByte' : 'uChar');
     if (goal > 0) {
       const pct = Math.min(100, (cur / goal) * 100);
       $('bar').style.width = pct + '%';
       $('bar').classList.toggle('over', cur > goal);
       $('goalTxt').innerHTML = cur > goal
-        ? `<span class="err">${(cur - goal).toLocaleString()}${unit} 초과</span> · ${cur.toLocaleString()} / ${goal.toLocaleString()}${unit}`
-        : `${cur.toLocaleString()} / ${goal.toLocaleString()}${unit} · ${(goal - cur).toLocaleString()}${unit} 남음 (${pct.toFixed(0)}%)`;
+        ? `<span class="err">${T('over', { n: (cur - goal).toLocaleString(), u })}</span> · ${cur.toLocaleString()} / ${goal.toLocaleString()}${u}`
+        : `${cur.toLocaleString()} / ${goal.toLocaleString()}${u} · ${T('remain', { n: (goal - cur).toLocaleString(), u })} (${pct.toFixed(0)}%)`;
     } else {
       $('bar').style.width = '0'; $('goalTxt').textContent = '';
     }
@@ -136,10 +183,11 @@ textarea#txt { min-height: 240px; font-size: 16px; }
   $('goalSel').addEventListener('change', update);
   $('goalCustom').addEventListener('input', update);
   $('basisSeg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { basis = b.dataset.b; update(); } });
-  document.querySelectorAll('.stat').forEach((el) => el.addEventListener('click', () => UI.copy(el.querySelector('b').textContent, `${el.querySelector('span').textContent}: ${el.querySelector('b').textContent} 복사`)));
+  document.querySelectorAll('.stat').forEach((el) => el.addEventListener('click', () => UI.copy(el.querySelector('b').textContent, T('statCopied', { label: el.querySelector('span').textContent, v: el.querySelector('b').textContent }))));
   $('copyBtn').addEventListener('click', () => txt.value && UI.copy(txt.value));
   $('trimBtn').addEventListener('click', () => { txt.value = txt.value.replace(/[ \t]+/g, ' ').replace(/ *\n */g, '\n').replace(/\n{3,}/g, '\n\n').trim(); update(); });
-  $('clearBtn').addEventListener('click', () => { if (!txt.value || confirm('입력한 내용을 지울까요?')) { txt.value = ''; update(); txt.focus(); } });
+  $('clearBtn').addEventListener('click', () => { if (!txt.value || confirm(T('confirmClear'))) { txt.value = ''; update(); txt.focus(); } });
+  document.addEventListener('i18n:change', update);
   update();
 })();
 </script>

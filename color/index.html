@@ -43,37 +43,70 @@
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="wrap">
   <div class="hero">
-    <h1>🎨 색상 변환기 · 팔레트</h1>
-    <p>HEX · RGB · HSL 변환 · 배색 팔레트 · 명도 대비(WCAG) 검사 — 색 클릭하면 복사</p>
+    <h1>🎨 <span data-i18n="h1">색상 변환기 · 팔레트</span></h1>
+    <p data-i18n="sub">HEX · RGB · HSL 변환 · 배색 팔레트 · 명도 대비(WCAG) 검사 — 색 클릭하면 복사</p>
   </div>
   <div class="card">
     <div class="top">
-      <div class="preview" id="preview" title="클릭해서 색 고르기"><input type="color" id="picker" aria-label="색 고르기"><span id="pvLabel">클릭해서 선택</span></div>
+      <div class="preview" id="preview" data-i18n-attr="title:pickTip"><input type="color" id="picker" data-i18n-attr="aria-label:pickTip"><span id="pvLabel" data-i18n="pick">클릭해서 선택</span></div>
       <div class="fmts">
-        <div class="fmt"><b>HEX</b><input type="text" id="hex" class="mono" spellcheck="false"><button class="btn sm" data-copy="hex">복사</button></div>
-        <div class="fmt"><b>RGB</b><input type="text" id="rgb" class="mono" spellcheck="false"><button class="btn sm" data-copy="rgb">복사</button></div>
-        <div class="fmt"><b>HSL</b><input type="text" id="hsl" class="mono" spellcheck="false"><button class="btn sm" data-copy="hsl">복사</button></div>
-        <div class="row"><button class="btn sm" id="randBtn">🎲 랜덤</button><button class="btn sm" id="eyeBtn" hidden>💧 화면에서 추출</button><span class="muted" id="err"></span></div>
+        <div class="fmt"><b>HEX</b><input type="text" id="hex" class="mono" spellcheck="false"><button class="btn sm" data-copy="hex" data-i18n="copy">복사</button></div>
+        <div class="fmt"><b>RGB</b><input type="text" id="rgb" class="mono" spellcheck="false"><button class="btn sm" data-copy="rgb" data-i18n="copy">복사</button></div>
+        <div class="fmt"><b>HSL</b><input type="text" id="hsl" class="mono" spellcheck="false"><button class="btn sm" data-copy="hsl" data-i18n="copy">복사</button></div>
+        <div class="row"><button class="btn sm" id="randBtn" data-i18n="rand">🎲 랜덤</button><button class="btn sm" id="eyeBtn" hidden data-i18n="eye">💧 화면에서 추출</button><span class="muted" id="err"></span></div>
       </div>
     </div>
   </div>
-  <div class="card"><h2>팔레트</h2><div class="pal" id="pal"></div></div>
+  <div class="card"><h2 data-i18n="palette">팔레트</h2><div class="pal" id="pal"></div></div>
   <div class="card">
-    <h2>명도 대비 검사 (WCAG 2.1)</h2>
+    <h2 data-i18n="contrast">명도 대비 검사 (WCAG 2.1)</h2>
     <div class="contrast">
-      <div><label class="lbl" for="fg">글자색</label><div class="row" style="flex-wrap:nowrap"><input type="color" id="fgPick" style="width:44px;height:40px;padding:0;border:0;background:none"><input type="text" id="fg" class="mono"></div></div>
-      <div><label class="lbl" for="bg">배경색</label><div class="row" style="flex-wrap:nowrap"><input type="color" id="bgPick" style="width:44px;height:40px;padding:0;border:0;background:none"><input type="text" id="bg" class="mono"></div></div>
+      <div><label class="lbl" for="fg" data-i18n="fgL">글자색</label><div class="row" style="flex-wrap:nowrap"><input type="color" id="fgPick" style="width:44px;height:40px;padding:0;border:0;background:none"><input type="text" id="fg" class="mono"></div></div>
+      <div><label class="lbl" for="bg" data-i18n="bgL">배경색</label><div class="row" style="flex-wrap:nowrap"><input type="color" id="bgPick" style="width:44px;height:40px;padding:0;border:0;background:none"><input type="text" id="bg" class="mono"></div></div>
     </div>
-    <div class="row" style="margin-top:10px"><button class="btn sm" id="useMainFg">위 색을 글자색으로</button><button class="btn sm" id="useMainBg">위 색을 배경색으로</button><button class="btn sm" id="swapC">⇄ 바꾸기</button></div>
-    <div class="sample" id="sample"><div class="l">큰 글씨 미리보기 Aa</div><div class="s">작은 본문 글씨는 4.5:1 이상의 대비가 필요해요. The quick brown fox.</div></div>
+    <div class="row" style="margin-top:10px"><button class="btn sm" id="useMainFg" data-i18n="useFg">위 색을 글자색으로</button><button class="btn sm" id="useMainBg" data-i18n="useBg">위 색을 배경색으로</button><button class="btn sm" id="swapC" data-i18n="swap">⇄ 바꾸기</button></div>
+    <div class="sample" id="sample"><div class="l" data-i18n="sampleL">큰 글씨 미리보기 Aa</div><div class="s" data-i18n="sampleS">작은 본문 글씨는 4.5:1 이상의 대비가 필요해요. The quick brown fox.</div></div>
     <div class="row" style="margin-top:12px;align-items:baseline"><span class="ratio" id="ratio"></span><span class="muted">: 1</span></div>
     <div class="badges" id="badges"></div>
   </div>
-  <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/">모든 도구</a></footer>
+  <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
 </div>
 <script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
 <script>
 (() => {
+  const t = I18n.t;
+  I18n.define({
+    pageTitle: ['색상 변환기 · 팔레트 · 명도 대비 — tool.cocy.io', 'Color Converter · Palette · Contrast Checker — tool.cocy.io', '颜色转换器 · 配色 · 对比度检查 — tool.cocy.io', '顏色轉換器 · 配色 · 對比度檢查 — tool.cocy.io', 'Conversor de color · Paleta · Contraste — tool.cocy.io'],
+    h1: ['색상 변환기 · 팔레트', 'Color Converter · Palette', '颜色转换器 · 配色', '顏色轉換器 · 配色', 'Conversor de color · Paleta'],
+    sub: ['HEX · RGB · HSL 변환 · 배색 팔레트 · 명도 대비(WCAG) 검사 — 색 클릭하면 복사', 'HEX · RGB · HSL conversion · color palettes · WCAG contrast check — click a color to copy', 'HEX · RGB · HSL 转换 · 配色方案 · WCAG 对比度检查 — 点击颜色复制', 'HEX · RGB · HSL 轉換 · 配色方案 · WCAG 對比度檢查 — 點擊顏色複製', 'Conversión HEX · RGB · HSL · paletas · contraste WCAG — clic en un color para copiar'],
+    pickTip: ['클릭해서 색 고르기', 'Click to pick a color', '点击选择颜色', '點擊選擇顏色', 'Clic para elegir color'],
+    pick: ['클릭해서 선택', 'Click to pick', '点击选择', '點擊選擇', 'Clic para elegir'],
+    copy: ['복사', 'Copy', '复制', '複製', 'Copiar'],
+    rand: ['🎲 랜덤', '🎲 Random', '🎲 随机', '🎲 隨機', '🎲 Aleatorio'],
+    eye: ['💧 화면에서 추출', '💧 Pick from screen', '💧 屏幕取色', '💧 螢幕取色', '💧 Tomar de la pantalla'],
+    badFmt: ['형식을 확인해 주세요', 'Check the format', '请检查格式', '請檢查格式', 'Revisa el formato'],
+    palette: ['팔레트', 'Palettes', '配色', '配色', 'Paletas'],
+    pShades: ['명암 단계 (Shades)', 'Shades', '明暗阶梯', '明暗階梯', 'Tonos'],
+    pComp: ['보색 (Complementary)', 'Complementary', '互补色', '互補色', 'Complementarios'],
+    pAna: ['유사색 (Analogous)', 'Analogous', '类似色', '類似色', 'Análogos'],
+    pTri: ['삼각 배색 (Triadic)', 'Triadic', '三角配色', '三角配色', 'Tríada'],
+    pSplit: ['분할 보색 (Split)', 'Split complementary', '分裂互补', '分裂互補', 'Complementario dividido'],
+    pTet: ['사각 배색 (Tetradic)', 'Tetradic', '四角配色', '四角配色', 'Tétrada'],
+    copyHex: ['{hx} 복사', 'Copied {hx}', '已复制 {hx}', '已複製 {hx}', 'Copiado {hx}'],
+    contrast: ['명도 대비 검사 (WCAG 2.1)', 'Contrast checker (WCAG 2.1)', '对比度检查（WCAG 2.1）', '對比度檢查（WCAG 2.1）', 'Comprobador de contraste (WCAG 2.1)'],
+    fgL: ['글자색', 'Text color', '文字颜色', '文字顏色', 'Color del texto'],
+    bgL: ['배경색', 'Background', '背景色', '背景色', 'Fondo'],
+    useFg: ['위 색을 글자색으로', 'Use above as text', '将上方颜色设为文字色', '將上方顏色設為文字色', 'Usar como texto'],
+    useBg: ['위 색을 배경색으로', 'Use above as background', '将上方颜色设为背景色', '將上方顏色設為背景色', 'Usar como fondo'],
+    swap: ['⇄ 바꾸기', '⇄ Swap', '⇄ 交换', '⇄ 交換', '⇄ Intercambiar'],
+    sampleL: ['큰 글씨 미리보기 Aa', 'Large text preview Aa', '大号文字预览 Aa', '大字預覽 Aa', 'Vista previa de texto grande Aa'],
+    sampleS: ['작은 본문 글씨는 4.5:1 이상의 대비가 필요해요. The quick brown fox.', 'Small body text needs a contrast of at least 4.5:1. The quick brown fox.', '小号正文需要至少 4.5:1 的对比度。The quick brown fox.', '小字內文需要至少 4.5:1 的對比度。The quick brown fox.', 'El texto pequeño necesita un contraste de al menos 4.5:1. The quick brown fox.'],
+    body: ['본문', 'body text', '正文', '內文', 'texto normal'],
+    large: ['큰 글씨', 'large text', '大号文字', '大字', 'texto grande'],
+    ui: ['UI 요소', 'UI components', 'UI 组件', 'UI 元件', 'Componentes UI'],
+  });
+  I18n.init();
   const $ = (id) => document.getElementById(id);
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const hex2rgb = (h) => { h = h.replace('#', ''); if (h.length === 3) h = [...h].map((c) => c + c).join(''); const n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
@@ -123,7 +156,7 @@
   }
   ['hex', 'rgb', 'hsl'].forEach((id) => $(id).addEventListener('input', () => {
     const c = parseColor($(id).value);
-    if (c) setMain(c, id); else $('err').textContent = '형식을 확인해 주세요';
+    if (c) setMain(c, id); else $('err').textContent = t('badFmt');
   }));
   $('picker').addEventListener('input', () => setMain(hex2rgb($('picker').value)));
   document.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', () => UI.copy($(b.dataset.copy).value)));
@@ -135,16 +168,16 @@
 
   function palette([h, s, l]) {
     const groups = [
-      ['명암 단계 (Shades)', [95, 85, 72, 60, 50, 40, 30, 20, 12].map((L) => [h, s, L])],
-      ['보색 (Complementary)', [[h, s, l], [h + 180, s, l]]],
-      ['유사색 (Analogous)', [[h - 30, s, l], [h - 15, s, l], [h, s, l], [h + 15, s, l], [h + 30, s, l]]],
-      ['삼각 배색 (Triadic)', [[h, s, l], [h + 120, s, l], [h + 240, s, l]]],
-      ['분할 보색 (Split)', [[h, s, l], [h + 150, s, l], [h + 210, s, l]]],
-      ['사각 배색 (Tetradic)', [[h, s, l], [h + 90, s, l], [h + 180, s, l], [h + 270, s, l]]],
+      [t('pShades'), [95, 85, 72, 60, 50, 40, 30, 20, 12].map((L) => [h, s, L])],
+      [t('pComp'), [[h, s, l], [h + 180, s, l]]],
+      [t('pAna'), [[h - 30, s, l], [h - 15, s, l], [h, s, l], [h + 15, s, l], [h + 30, s, l]]],
+      [t('pTri'), [[h, s, l], [h + 120, s, l], [h + 240, s, l]]],
+      [t('pSplit'), [[h, s, l], [h + 150, s, l], [h + 210, s, l]]],
+      [t('pTet'), [[h, s, l], [h + 90, s, l], [h + 180, s, l], [h + 270, s, l]]],
     ];
-    $('pal').innerHTML = groups.map(([name, cols]) => `<div><h3>${name}</h3><div class="sw">${cols.map((c) => { const rgb = hsl2rgb(...c), hx = rgb2hex(...rgb); return `<div data-hex="${hx}" style="background:${hx};color:${textOn(rgb)}" title="${hx} 복사">${hx}</div>`; }).join('')}</div></div>`).join('');
+    $('pal').innerHTML = groups.map(([name, cols]) => `<div><h3>${name}</h3><div class="sw">${cols.map((c) => { const rgb = hsl2rgb(...c), hx = rgb2hex(...rgb); return `<div data-hex="${hx}" style="background:${hx};color:${textOn(rgb)}" title="${t('copyHex', { hx })}">${hx}</div>`; }).join('')}</div></div>`).join('');
   }
-  $('pal').addEventListener('click', (e) => { const hx = e.target.dataset.hex; if (hx) UI.copy(hx, hx + ' 복사'); });
+  $('pal').addEventListener('click', (e) => { const hx = e.target.dataset.hex; if (hx) UI.copy(hx, t('copyHex', { hx })); });
   $('pal').addEventListener('dblclick', (e) => { const hx = e.target.dataset.hex; if (hx) setMain(hex2rgb(hx)); });
 
   let fg = [255, 255, 255], bg = [59, 130, 246];
@@ -156,8 +189,8 @@
     $('sample').style.cssText = `background:${bh};color:${fh}`;
     const r = ratio(fg, bg);
     $('ratio').textContent = (Math.floor(r * 100) / 100).toFixed(2);
-    const t = [['AA 본문', 4.5], ['AA 큰 글씨', 3], ['AAA 본문', 7], ['AAA 큰 글씨', 4.5], ['UI 요소', 3]];
-    $('badges').innerHTML = t.map(([n, min]) => `<span class="badge ${r >= min ? 'pass' : 'fail'}">${r >= min ? '✓' : '✗'} ${n} (${min}:1)</span>`).join('');
+    const levels = [['AA ' + t('body'), 4.5], ['AA ' + t('large'), 3], ['AAA ' + t('body'), 7], ['AAA ' + t('large'), 4.5], [t('ui'), 3]];
+    $('badges').innerHTML = levels.map(([n, min]) => `<span class="badge ${r >= min ? 'pass' : 'fail'}">${r >= min ? '✓' : '✗'} ${n} (${min}:1)</span>`).join('');
   }
   $('fg').addEventListener('input', () => { const c = parseColor($('fg').value); if (c) { fg = c; contrast('fg'); } });
   $('bg').addEventListener('input', () => { const c = parseColor($('bg').value); if (c) { bg = c; contrast('bg'); } });
@@ -171,6 +204,7 @@
   setMain(init);
   bg = init; fg = hex2rgb(textOn(init));
   contrast();
+  document.addEventListener('i18n:change', () => { palette(rgb2hsl(...main)); contrast(); });
 })();
 </script>
 <script src="/lib/tool-nav.js"></script>

@@ -27,62 +27,103 @@
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="wrap">
   <div class="hero">
-    <h1>🔗 URL 인코더 / 디코더</h1>
-    <p>입력하는 즉시 변환 · 쿼리 파라미터 분석 · 모든 처리는 브라우저 안에서</p>
+    <h1>🔗 <span data-i18n="h1">URL 인코더 / 디코더</span></h1>
+    <p data-i18n="sub">입력하는 즉시 변환 · 쿼리 파라미터 분석 · 모든 처리는 브라우저 안에서</p>
   </div>
 
   <div class="card">
     <div class="row" style="justify-content:space-between;margin-bottom:12px">
-      <div class="seg" id="dirSeg" role="tablist" aria-label="변환 방향">
-        <button data-dir="encode" class="on">인코딩</button>
-        <button data-dir="decode">디코딩</button>
+      <div class="seg" id="dirSeg" role="tablist" data-i18n-attr="aria-label:dirLabel">
+        <button data-dir="encode" class="on" data-i18n="encode">인코딩</button>
+        <button data-dir="decode" data-i18n="decode">디코딩</button>
       </div>
-      <div class="seg" id="modeSeg" aria-label="인코딩 방식">
-        <button data-mode="component" class="on" title="encodeURIComponent — 파라미터 값용, / ? & = 까지 인코딩">파라미터 값</button>
-        <button data-mode="uri" title="encodeURI — 전체 URL용, 구조 문자는 유지">전체 URL</button>
+      <div class="seg" id="modeSeg" data-i18n-attr="aria-label:modeLabel">
+        <button data-mode="component" class="on" data-i18n="modeComp" data-i18n-attr="title:modeCompTip">파라미터 값</button>
+        <button data-mode="uri" data-i18n="modeUri" data-i18n-attr="title:modeUriTip">전체 URL</button>
       </div>
     </div>
     <div class="row" style="margin-bottom:12px">
-      <label class="chk"><input type="checkbox" id="plusSpace"> 공백을 + 로 (폼 전송 방식)</label>
+      <label class="chk"><input type="checkbox" id="plusSpace"> <span data-i18n="plus">공백을 + 로 (폼 전송 방식)</span></label>
     </div>
     <div class="io">
       <div>
-        <label class="lbl" for="input">입력</label>
-        <textarea id="input" class="mono" placeholder="https://example.com/search?q=안녕 하세요&lang=ko" spellcheck="false"></textarea>
+        <label class="lbl" for="input" data-i18n="input">입력</label>
+        <textarea id="input" class="mono" data-i18n-attr="placeholder:inputPh" placeholder="https://example.com/search?q=안녕 하세요&lang=ko" spellcheck="false"></textarea>
       </div>
       <div>
-        <label class="lbl" for="output">결과</label>
+        <label class="lbl" for="output" data-i18n="output">결과</label>
         <textarea id="output" class="mono" readonly spellcheck="false"></textarea>
         <div id="status" class="muted" style="margin-top:6px">&nbsp;</div>
       </div>
     </div>
     <div class="row" style="margin-top:12px">
-      <button class="btn primary" id="copyBtn">결과 복사</button>
-      <button class="btn" id="swapBtn" title="결과를 입력으로 옮기고 방향 전환">⇅ 결과를 입력으로</button>
-      <button class="btn" id="sampleBtn">예시</button>
-      <button class="btn danger" id="clearBtn">지우기</button>
+      <button class="btn primary" id="copyBtn" data-i18n="copy">결과 복사</button>
+      <button class="btn" id="swapBtn" data-i18n="swap" data-i18n-attr="title:swapTip">⇅ 결과를 입력으로</button>
+      <button class="btn" id="sampleBtn" data-i18n="sample">예시</button>
+      <button class="btn danger" id="clearBtn" data-i18n="clear">지우기</button>
     </div>
   </div>
 
   <div class="card" id="urlCard" hidden>
-    <h2>URL 분석 <span class="muted" id="paramCount"></span></h2>
+    <h2><span data-i18n="analysis">URL 분석</span> <span class="muted" id="paramCount"></span></h2>
     <dl class="parts" id="parts"></dl>
-    <h2 style="margin-top:16px">쿼리 파라미터 <button class="btn sm" id="addParam">+ 추가</button></h2>
+    <h2 style="margin-top:16px"><span data-i18n="params">쿼리 파라미터</span> <button class="btn sm" id="addParam" data-i18n="add">+ 추가</button></h2>
     <table class="tbl params">
-      <thead><tr><th>키</th><th>값 (디코딩됨)</th><th></th></tr></thead>
+      <thead><tr><th data-i18n="key">키</th><th data-i18n="value">값 (디코딩됨)</th><th></th></tr></thead>
       <tbody id="paramBody"></tbody>
     </table>
     <div class="row" style="margin-top:12px">
-      <input type="text" id="rebuilt" class="mono grow" readonly aria-label="재조립된 URL">
-      <button class="btn" id="copyRebuilt">재조립 URL 복사</button>
+      <input type="text" id="rebuilt" class="mono grow" readonly data-i18n-attr="aria-label:rebuiltLabel">
+      <button class="btn" id="copyRebuilt" data-i18n="copyRebuilt">재조립 URL 복사</button>
     </div>
   </div>
 
-  <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/">모든 도구</a></footer>
+  <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
 </div>
 <script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
 <script>
 (() => {
+  const t = I18n.t;
+  I18n.define({
+    pageTitle: ['URL 인코더/디코더 · 쿼리 파라미터 분석 — tool.cocy.io', 'URL Encoder/Decoder · Query Parameter Analyzer — tool.cocy.io', 'URL 编码/解码 · 查询参数分析 — tool.cocy.io', 'URL 編碼/解碼 · 查詢參數分析 — tool.cocy.io', 'Codificador/Decodificador de URL · Análisis de parámetros — tool.cocy.io'],
+    h1: ['URL 인코더 / 디코더', 'URL Encoder / Decoder', 'URL 编码 / 解码', 'URL 編碼 / 解碼', 'Codificador / Decodificador de URL'],
+    sub: ['입력하는 즉시 변환 · 쿼리 파라미터 분석 · 모든 처리는 브라우저 안에서', 'Converts as you type · Query parameter analysis · Everything runs in your browser', '输入即转换 · 查询参数分析 · 全部在浏览器中处理', '輸入即轉換 · 查詢參數分析 · 全部在瀏覽器中處理', 'Convierte mientras escribes · Análisis de parámetros · Todo se procesa en tu navegador'],
+    dirLabel: ['변환 방향', 'Direction', '转换方向', '轉換方向', 'Dirección'],
+    encode: ['인코딩', 'Encode', '编码', '編碼', 'Codificar'],
+    decode: ['디코딩', 'Decode', '解码', '解碼', 'Decodificar'],
+    modeLabel: ['인코딩 방식', 'Encoding mode', '编码方式', '編碼方式', 'Modo'],
+    modeComp: ['파라미터 값', 'Parameter value', '参数值', '參數值', 'Valor de parámetro'],
+    modeCompTip: ['encodeURIComponent — 파라미터 값용, / ? & = 까지 인코딩', 'encodeURIComponent — for parameter values; also encodes / ? & =', 'encodeURIComponent — 用于参数值，/ ? & = 也会编码', 'encodeURIComponent — 用於參數值，/ ? & = 也會編碼', 'encodeURIComponent — para valores; también codifica / ? & ='],
+    modeUri: ['전체 URL', 'Full URL', '完整 URL', '完整 URL', 'URL completa'],
+    modeUriTip: ['encodeURI — 전체 URL용, 구조 문자는 유지', 'encodeURI — for full URLs; keeps structural characters', 'encodeURI — 用于完整 URL，保留结构字符', 'encodeURI — 用於完整 URL，保留結構字元', 'encodeURI — para URL completas; conserva los caracteres de estructura'],
+    plus: ['공백을 + 로 (폼 전송 방식)', 'Spaces as + (form encoding)', '空格转为 +（表单编码）', '空格轉為 +（表單編碼）', 'Espacios como + (formulario)'],
+    input: ['입력', 'Input', '输入', '輸入', 'Entrada'],
+    inputPh: ['https://example.com/search?q=안녕 하세요&lang=ko', 'https://example.com/search?q=hello world&lang=en', 'https://example.com/search?q=你好 世界&lang=zh', 'https://example.com/search?q=你好 世界&lang=zh', 'https://example.com/search?q=hola mundo&lang=es'],
+    output: ['결과', 'Result', '结果', '結果', 'Resultado'],
+    copy: ['결과 복사', 'Copy result', '复制结果', '複製結果', 'Copiar resultado'],
+    swap: ['⇅ 결과를 입력으로', '⇅ Use result as input', '⇅ 结果作为输入', '⇅ 結果作為輸入', '⇅ Usar resultado como entrada'],
+    swapTip: ['결과를 입력으로 옮기고 방향 전환', 'Move the result to input and flip direction', '将结果移到输入并切换方向', '將結果移到輸入並切換方向', 'Mover el resultado a la entrada e invertir la dirección'],
+    sample: ['예시', 'Example', '示例', '範例', 'Ejemplo'],
+    clear: ['지우기', 'Clear', '清空', '清除', 'Borrar'],
+    analysis: ['URL 분석', 'URL breakdown', 'URL 分析', 'URL 分析', 'Análisis de URL'],
+    params: ['쿼리 파라미터', 'Query parameters', '查询参数', '查詢參數', 'Parámetros de consulta'],
+    add: ['+ 추가', '+ Add', '+ 添加', '+ 新增', '+ Añadir'],
+    key: ['키', 'Key', '键', '鍵', 'Clave'],
+    value: ['값 (디코딩됨)', 'Value (decoded)', '值（已解码）', '值（已解碼）', 'Valor (decodificado)'],
+    rebuiltLabel: ['재조립된 URL', 'Rebuilt URL', '重组后的 URL', '重組後的 URL', 'URL reconstruida'],
+    copyRebuilt: ['재조립 URL 복사', 'Copy rebuilt URL', '复制重组 URL', '複製重組 URL', 'Copiar URL reconstruida'],
+    status: ['{a}자 → {b}자', '{a} → {b} chars', '{a} → {b} 个字符', '{a} → {b} 個字元', '{a} → {b} caracteres'],
+    badSeq: ['디코딩할 수 없는 % 시퀀스가 있어요 (예: %E0%A4%A 처럼 잘린 문자)', 'Contains an undecodable % sequence (e.g. a truncated one like %E0%A4%A)', '包含无法解码的 % 序列（例如被截断的 %E0%A4%A）', '包含無法解碼的 % 序列（例如被截斷的 %E0%A4%A）', 'Hay una secuencia % no decodificable (p. ej., una truncada como %E0%A4%A)'],
+    protocol: ['프로토콜', 'Protocol', '协议', '協定', 'Protocolo'],
+    host: ['호스트', 'Host', '主机', '主機', 'Host'],
+    path: ['경로', 'Path', '路径', '路徑', 'Ruta'],
+    hash: ['해시', 'Hash', '哈希', '雜湊', 'Hash'],
+    del: ['삭제', 'Delete', '删除', '刪除', 'Eliminar'],
+    paramCount: ['파라미터 {n}개', '{n} parameters', '{n} 个参数', '{n} 個參數', '{n} parámetros'],
+  });
+  I18n.init();
+
   const $ = (id) => document.getElementById(id);
   const input = $('input'), output = $('output'), status = $('status');
   const state = { dir: 'encode', mode: 'component' };
@@ -115,11 +156,11 @@
     if (!text) { output.value = ''; status.innerHTML = '&nbsp;'; renderUrl(''); save(); return; }
     try {
       output.value = state.dir === 'encode' ? encode(text) : decode(text);
-      status.textContent = `${text.length.toLocaleString()}자 → ${output.value.length.toLocaleString()}자`;
+      status.textContent = t('status', { a: text.length.toLocaleString(), b: output.value.length.toLocaleString() });
     } catch (e) {
       output.value = '';
       status.className = 'err';
-      status.textContent = '디코딩할 수 없는 % 시퀀스가 있어요 (예: %E0%A4%A 처럼 잘린 문자)';
+      status.textContent = t('badSeq');
     }
     renderUrl(state.dir === 'decode' ? (output.value || text) : text);
     save();
@@ -132,22 +173,28 @@
   let currentUrl = null;
   function renderUrl(text) {
     let u = null;
-    const t = text.trim();
-    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(t)) { try { u = new URL(t); } catch (e) {} }
+    const s = text.trim();
+    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(s)) { try { u = new URL(s); } catch (e) {} }
     currentUrl = u;
     $('urlCard').hidden = !u;
     if (!u) return;
-    const rows = [['프로토콜', u.protocol], ['호스트', u.host], ['경로', safeDecode(u.pathname)], ['해시', safeDecode(u.hash) || '—']];
-    $('parts').innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('');
+    renderParts();
     const body = $('paramBody');
     body.innerHTML = '';
     for (const [k, v] of u.searchParams) addRow(k, v);
     updateRebuilt();
   }
 
+  function renderParts() {
+    const u = currentUrl;
+    if (!u) return;
+    const rows = [[t('protocol'), u.protocol], [t('host'), u.host], [t('path'), safeDecode(u.pathname)], [t('hash'), safeDecode(u.hash) || '—']];
+    $('parts').innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('');
+  }
+
   function addRow(k = '', v = '') {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td><input type="text" class="k"></td><td><input type="text" class="v"></td><td><button class="btn sm danger" title="삭제">✕</button></td>`;
+    tr.innerHTML = `<td><input type="text" class="k"></td><td><input type="text" class="v"></td><td><button class="btn sm danger" data-i18n-attr="title:del" title="${t('del')}">✕</button></td>`;
     tr.querySelector('.k').value = k;
     tr.querySelector('.v').value = v;
     tr.querySelectorAll('input').forEach((i) => i.addEventListener('input', updateRebuilt));
@@ -165,7 +212,7 @@
       if (k) { u.searchParams.append(k, tr.querySelector('.v').value); n++; }
     });
     $('rebuilt').value = u.href;
-    $('paramCount').textContent = `파라미터 ${n}개`;
+    $('paramCount').textContent = t('paramCount', { n });
   }
 
   function safeDecode(s) { try { return decodeURIComponent(s); } catch (e) { return s; } }
@@ -192,6 +239,11 @@
     convert();
   });
   $('clearBtn').addEventListener('click', () => { input.value = ''; convert(); input.focus(); });
+  document.addEventListener('i18n:change', () => {
+    if (input.value) convert();
+    renderParts();
+    updateRebuilt();
+  });
 
   setSeg('dirSeg', 'dir', state.dir);
   setSeg('modeSeg', 'mode', state.mode);

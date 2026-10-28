@@ -79,4 +79,5 @@ table.tbl th { color: var(--muted); font-weight: 600; font-size: 12px; }
 .ok { color: #6ee7b7; }
 footer.site { text-align: center; color: var(--muted); font-size: 13px; padding: 24px 0 8px; }
 footer.site a { color: #60a5fa; text-decoration: none; }
+.lang-sel { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; font: inherit; width: auto; }
 @media (max-width: 520px) { .wrap { padding: 18px 12px 56px; } .card { padding: 14px; } }

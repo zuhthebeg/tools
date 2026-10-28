@@ -25,45 +25,82 @@
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="wrap">
   <div class="hero">
-    <h1>🔐 Base64 인코더 / 디코더</h1>
-    <p>입력 즉시 변환 · 한글(UTF-8) 지원 · 파일·이미지 ↔ Base64 — 파일은 업로드되지 않고 브라우저에서만 처리돼요</p>
+    <h1>🔐 <span data-i18n="h1">Base64 인코더 / 디코더</span></h1>
+    <p data-i18n="sub">입력 즉시 변환 · 한글(UTF-8) 지원 · 파일·이미지 ↔ Base64 — 파일은 업로드되지 않고 브라우저에서만 처리돼요</p>
   </div>
   <div class="card">
     <div class="row" style="justify-content:space-between;margin-bottom:12px">
-      <div class="seg" id="dirSeg"><button data-dir="encode" class="on">인코딩</button><button data-dir="decode">디코딩</button></div>
-      <label class="chk"><input type="checkbox" id="urlSafe"> URL-safe (-_ , 패딩 없음)</label>
+      <div class="seg" id="dirSeg"><button data-dir="encode" class="on" data-i18n="encode">인코딩</button><button data-dir="decode" data-i18n="decode">디코딩</button></div>
+      <label class="chk"><input type="checkbox" id="urlSafe"> <span data-i18n="urlSafe">URL-safe (-_ , 패딩 없음)</span></label>
     </div>
     <div class="io">
-      <div><label class="lbl" for="input">입력</label><textarea id="input" class="mono" spellcheck="false" placeholder="변환할 텍스트를 입력하세요"></textarea></div>
-      <div><label class="lbl" for="output">결과</label><textarea id="output" class="mono" readonly spellcheck="false"></textarea><div id="status" class="muted" style="margin-top:6px">&nbsp;</div></div>
+      <div><label class="lbl" for="input" data-i18n="input">입력</label><textarea id="input" class="mono" spellcheck="false" placeholder="변환할 텍스트를 입력하세요" data-i18n-attr="placeholder:phEnc"></textarea></div>
+      <div><label class="lbl" for="output" data-i18n="output">결과</label><textarea id="output" class="mono" readonly spellcheck="false"></textarea><div id="status" class="muted" style="margin-top:6px">&nbsp;</div></div>
     </div>
     <div class="row" style="margin-top:12px">
-      <button class="btn primary" id="copyBtn">결과 복사</button>
-      <button class="btn" id="swapBtn">⇅ 결과를 입력으로</button>
-      <button class="btn" id="dlBtn" hidden>⬇ 파일로 저장</button>
-      <button class="btn danger" id="clearBtn">지우기</button>
+      <button class="btn primary" id="copyBtn" data-i18n="copy">결과 복사</button>
+      <button class="btn" id="swapBtn" data-i18n="swap">⇅ 결과를 입력으로</button>
+      <button class="btn" id="dlBtn" hidden data-i18n="dl">⬇ 파일로 저장</button>
+      <button class="btn danger" id="clearBtn" data-i18n="clear">지우기</button>
     </div>
-    <img id="decImg" hidden alt="디코딩된 이미지 미리보기">
+    <img id="decImg" hidden alt="" data-i18n-attr="alt:decAlt">
   </div>
   <div class="card">
-    <h2>파일 → Base64</h2>
-    <label class="drop" id="drop"><input type="file" id="file">📁 파일을 끌어다 놓거나 클릭해서 선택 <span class="muted">(최대 20MB)</span></label>
+    <h2 data-i18n="fileTitle">파일 → Base64</h2>
+    <label class="drop" id="drop"><input type="file" id="file"><span data-i18n="drop">📁 파일을 끌어다 놓거나 클릭해서 선택</span> <span class="muted" data-i18n="max">(최대 20MB)</span></label>
     <div id="fileOut" hidden style="margin-top:12px">
       <div class="muted" id="fileInfo"></div>
-      <img id="imgPrev" hidden alt="미리보기">
+      <img id="imgPrev" hidden alt="" data-i18n-attr="alt:prevAlt">
       <div class="row" style="margin-top:10px">
-        <button class="btn primary" id="copyRaw">Base64 복사</button>
-        <button class="btn" id="copyData">Data URL 복사</button>
-        <button class="btn" id="copyCss" hidden>CSS background 복사</button>
-        <button class="btn" id="copyImg" hidden>&lt;img&gt; 태그 복사</button>
+        <button class="btn primary" id="copyRaw" data-i18n="copyRaw">Base64 복사</button>
+        <button class="btn" id="copyData" data-i18n="copyData">Data URL 복사</button>
+        <button class="btn" id="copyCss" hidden data-i18n="copyCss">CSS background 복사</button>
+        <button class="btn" id="copyImg" hidden data-i18n="copyImg">&lt;img&gt; 태그 복사</button>
       </div>
     </div>
   </div>
-  <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/">모든 도구</a></footer>
+  <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
 </div>
 <script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
 <script>
 (() => {
+  const tr = I18n.t;
+  I18n.define({
+    pageTitle: ['Base64 인코더/디코더 · 파일·이미지 변환 — tool.cocy.io', 'Base64 Encoder/Decoder · File & Image — tool.cocy.io', 'Base64 编码/解码 · 文件与图片 — tool.cocy.io', 'Base64 編碼/解碼 · 檔案與圖片 — tool.cocy.io', 'Codificador/decodificador Base64 · Archivos e imágenes — tool.cocy.io'],
+    h1: ['Base64 인코더 / 디코더', 'Base64 Encoder / Decoder', 'Base64 编码 / 解码', 'Base64 編碼 / 解碼', 'Codificador / decodificador Base64'],
+    sub: ['입력 즉시 변환 · 한글(UTF-8) 지원 · 파일·이미지 ↔ Base64 — 파일은 업로드되지 않고 브라우저에서만 처리돼요', 'Converts as you type · UTF-8 text · files & images ↔ Base64 — files never leave your browser', '输入即转换 · 支持 UTF-8 · 文件/图片 ↔ Base64 — 文件不会上传，仅在浏览器中处理', '輸入即轉換 · 支援 UTF-8 · 檔案/圖片 ↔ Base64 — 檔案不會上傳，僅在瀏覽器中處理', 'Convierte al escribir · texto UTF-8 · archivos e imágenes ↔ Base64 — los archivos no salen de tu navegador'],
+    encode: ['인코딩', 'Encode', '编码', '編碼', 'Codificar'],
+    decode: ['디코딩', 'Decode', '解码', '解碼', 'Decodificar'],
+    urlSafe: ['URL-safe (-_ , 패딩 없음)', 'URL-safe (-_ , no padding)', 'URL 安全（-_，无填充）', 'URL 安全（-_，無填充）', 'URL-safe (-_ , sin relleno)'],
+    input: ['입력', 'Input', '输入', '輸入', 'Entrada'],
+    output: ['결과', 'Output', '结果', '結果', 'Resultado'],
+    phEnc: ['변환할 텍스트를 입력하세요', 'Type text to encode', '输入要编码的文本', '輸入要編碼的文字', 'Escribe el texto a codificar'],
+    phDec: ['Base64 또는 data:...;base64, 문자열을 붙여넣으세요', 'Paste Base64 or a data:...;base64, string', '粘贴 Base64 或 data:...;base64, 字符串', '貼上 Base64 或 data:...;base64, 字串', 'Pega Base64 o una cadena data:...;base64,'],
+    copy: ['결과 복사', 'Copy result', '复制结果', '複製結果', 'Copiar resultado'],
+    swap: ['⇅ 결과를 입력으로', '⇅ Use output as input', '⇅ 结果作为输入', '⇅ 結果作為輸入', '⇅ Usar resultado como entrada'],
+    dl: ['⬇ 파일로 저장', '⬇ Save as file', '⬇ 保存为文件', '⬇ 儲存為檔案', '⬇ Guardar archivo'],
+    clear: ['지우기', 'Clear', '清空', '清除', 'Borrar'],
+    decAlt: ['디코딩된 이미지 미리보기', 'Decoded image preview', '解码图片预览', '解碼圖片預覽', 'Vista previa de la imagen'],
+    fileTitle: ['파일 → Base64', 'File → Base64', '文件 → Base64', '檔案 → Base64', 'Archivo → Base64'],
+    drop: ['📁 파일을 끌어다 놓거나 클릭해서 선택', '📁 Drop a file or click to choose', '📁 拖放文件或点击选择', '📁 拖放檔案或點擊選擇', '📁 Suelta un archivo o haz clic para elegir'],
+    max: ['(최대 20MB)', '(max 20 MB)', '（最大 20MB）', '（最大 20MB）', '(máx. 20 MB)'],
+    prevAlt: ['미리보기', 'Preview', '预览', '預覽', 'Vista previa'],
+    copyRaw: ['Base64 복사', 'Copy Base64', '复制 Base64', '複製 Base64', 'Copiar Base64'],
+    copyData: ['Data URL 복사', 'Copy data URL', '复制 Data URL', '複製 Data URL', 'Copiar data URL'],
+    copyCss: ['CSS background 복사', 'Copy CSS background', '复制 CSS background', '複製 CSS background', 'Copiar CSS background'],
+    copyImg: ['<img> 태그 복사', 'Copy <img> tag', '复制 <img> 标签', '複製 <img> 標籤', 'Copiar etiqueta <img>'],
+    encStat: ['{a}자 → {b}자', '{a} chars → {b} chars', '{a} 字符 → {b} 字符', '{a} 字元 → {b} 字元', '{a} caracteres → {b} caracteres'],
+    textStat: ['{n} 바이트 · UTF-8 텍스트', '{n} bytes · UTF-8 text', '{n} 字节 · UTF-8 文本', '{n} 位元組 · UTF-8 文字', '{n} bytes · texto UTF-8'],
+    binStat: ['{n} 바이트 · {type} — 텍스트가 아니라 파일로 저장할 수 있어요', '{n} bytes · {type} — not text; you can save it as a file', '{n} 字节 · {type} — 不是文本，可保存为文件', '{n} 位元組 · {type} — 不是文字，可儲存為檔案', '{n} bytes · {type} — no es texto; puedes guardarlo como archivo'],
+    binary: ['바이너리', 'binary', '二进制', '二進位', 'binario'],
+    invalid: ['올바른 Base64가 아니에요 (허용 문자: A-Z a-z 0-9 + / - _ =)', 'Not valid Base64 (allowed: A-Z a-z 0-9 + / - _ =)', '不是有效的 Base64（允许：A-Z a-z 0-9 + / - _ =）', '不是有效的 Base64（允許：A-Z a-z 0-9 + / - _ =）', 'Base64 no válido (permitido: A-Z a-z 0-9 + / - _ =)'],
+    unknownType: ['알 수 없는 형식', 'unknown type', '未知类型', '未知類型', 'tipo desconocido'],
+    fileStat: ['{n} 바이트 → Base64 {b}자', '{n} bytes → Base64 {b} chars', '{n} 字节 → Base64 {b} 字符', '{n} 位元組 → Base64 {b} 字元', '{n} bytes → Base64 {b} caracteres'],
+    dataCopied: ['Data URL 복사', 'Data URL copied', '已复制 Data URL', '已複製 Data URL', 'Data URL copiada'],
+    tooBig: ['20MB 이하 파일만 변환할 수 있어요', 'Only files up to 20 MB can be converted', '仅支持 20MB 以内的文件', '僅支援 20MB 以內的檔案', 'Solo archivos de hasta 20 MB'],
+  });
+  I18n.init();
   const $ = (id) => document.getElementById(id);
   const input = $('input'), output = $('output'), status = $('status');
   let dir = 'encode', decodedBytes = null;
@@ -71,7 +108,7 @@
   const bytesToB64 = (bytes) => { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); };
   const b64ToBytes = (b64) => {
     let s = b64.replace(/^data:[^,]*,/, '').replace(/\s/g, '').replace(/-/g, '+').replace(/_/g, '/');
-    if (s.length % 4 === 1) throw new Error('길이가 올바르지 않아요');
+    if (s.length % 4 === 1) throw new Error('bad length');
     s += '='.repeat((4 - (s.length % 4)) % 4);
     const bin = atob(s), out = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
@@ -97,17 +134,17 @@
     try {
       if (dir === 'encode') {
         output.value = urlSafe(bytesToB64(new TextEncoder().encode(t)));
-        status.textContent = `${t.length.toLocaleString()}자 → ${output.value.length.toLocaleString()}자`;
+        status.textContent = tr('encStat', { a: t.length.toLocaleString(), b: output.value.length.toLocaleString() });
       } else {
         const bytes = b64ToBytes(t);
         const type = sniff(bytes);
         let text = null;
         if (!type) { try { text = new TextDecoder('utf-8', { fatal: true }).decode(bytes); } catch (e) {} }
-        if (text != null) { output.value = text; status.textContent = `${bytes.length.toLocaleString()} 바이트 · UTF-8 텍스트`; }
+        if (text != null) { output.value = text; status.textContent = tr('textStat', { n: bytes.length.toLocaleString() }); }
         else {
           decodedBytes = { bytes, type: type || ['application/octet-stream', 'bin'] };
           output.value = '';
-          status.textContent = `${bytes.length.toLocaleString()} 바이트 · ${type ? type[0] : '바이너리'} — 텍스트가 아니라 파일로 저장할 수 있어요`;
+          status.textContent = tr('binStat', { n: bytes.length.toLocaleString(), type: type ? type[0] : tr('binary') });
           $('dlBtn').hidden = false;
           if (type && type[0].startsWith('image/')) { $('decImg').src = URL.createObjectURL(new Blob([bytes], { type: type[0] })); $('decImg').hidden = false; }
         }
@@ -115,7 +152,7 @@
     } catch (e) {
       output.value = '';
       status.className = 'err';
-      status.textContent = '올바른 Base64가 아니에요 (허용 문자: A-Z a-z 0-9 + / - _ =)';
+      status.textContent = tr('invalid');
     }
   }
 
@@ -123,7 +160,8 @@
     const b = e.target.closest('button'); if (!b) return;
     dir = b.dataset.dir;
     $('dirSeg').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
-    input.placeholder = dir === 'encode' ? '변환할 텍스트를 입력하세요' : 'Base64 또는 data:...;base64, 문자열을 붙여넣으세요';
+    input.dataset.i18nAttr = 'placeholder:' + (dir === 'encode' ? 'phEnc' : 'phDec');
+    I18n.apply(input.parentNode);
     convert();
   });
   input.addEventListener('input', convert);
@@ -144,18 +182,18 @@
     const raw = urlSafe(fileB64);
     const data = `data:${fileMeta.type || 'application/octet-stream'};base64,${fileB64}`;
     $('fileOut').hidden = false;
-    $('fileInfo').textContent = `${fileMeta.name} · ${fileMeta.type || '알 수 없는 형식'} · ${fileMeta.size.toLocaleString()} 바이트 → Base64 ${raw.length.toLocaleString()}자`;
+    $('fileInfo').textContent = `${fileMeta.name} · ${fileMeta.type || tr('unknownType')} · ` + tr('fileStat', { n: fileMeta.size.toLocaleString(), b: raw.length.toLocaleString() });
     const isImg = (fileMeta.type || '').startsWith('image/');
     $('imgPrev').hidden = !isImg; if (isImg) $('imgPrev').src = data;
     $('copyCss').hidden = $('copyImg').hidden = !isImg;
     $('copyRaw').onclick = () => UI.copy(raw);
-    $('copyData').onclick = () => UI.copy(data, 'Data URL 복사');
+    $('copyData').onclick = () => UI.copy(data, tr('dataCopied'));
     $('copyCss').onclick = () => UI.copy(`background-image: url("${data}");`);
     $('copyImg').onclick = () => UI.copy(`<img src="${data}" alt="">`);
   }
   async function handleFile(f) {
     if (!f) return;
-    if (f.size > 20 * 1024 * 1024) { UI.toast('20MB 이하 파일만 변환할 수 있어요'); return; }
+    if (f.size > 20 * 1024 * 1024) { UI.toast(tr('tooBig')); return; }
     fileB64 = bytesToB64(new Uint8Array(await f.arrayBuffer()));
     fileMeta = { name: f.name, type: f.type, size: f.size };
     showFile();
@@ -166,6 +204,7 @@
   drop.addEventListener('dragleave', () => drop.classList.remove('over'));
   drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); handleFile(e.dataTransfer.files[0]); });
   document.addEventListener('paste', (e) => { if (document.activeElement === input) return; const f = [...(e.clipboardData?.files || [])][0]; if (f) handleFile(f); });
+  document.addEventListener('i18n:change', () => { convert(); if (fileB64) showFile(); });
   convert();
 })();
 </script>

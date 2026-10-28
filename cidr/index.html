@@ -30,35 +30,83 @@
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="wrap">
   <div class="hero">
-    <h1>🌐 CIDR 서브넷 계산기</h1>
-    <p>입력하는 즉시 계산 · 값 클릭하면 복사 · 서브넷 분할과 IP 포함 여부 확인</p>
+    <h1>🌐 <span data-i18n="h1">CIDR 서브넷 계산기</span></h1>
+    <p data-i18n="sub">입력하는 즉시 계산 · 값 클릭하면 복사 · 서브넷 분할과 IP 포함 여부 확인</p>
   </div>
   <div class="card">
-    <label class="lbl" for="cidr">CIDR 또는 IP/마스크</label>
-    <input type="text" id="cidr" class="mono" placeholder="192.168.1.0/24  또는  10.0.0.5 255.255.0.0" autocomplete="off" spellcheck="false">
+    <label class="lbl" for="cidr" data-i18n="inLabel">CIDR 또는 IP/마스크</label>
+    <input type="text" id="cidr" class="mono" data-i18n-attr="placeholder:inPh" placeholder="192.168.1.0/24  또는  10.0.0.5 255.255.0.0" autocomplete="off" spellcheck="false">
     <div id="err" class="err" style="margin-top:6px;min-height:1.2em;font-size:13px"></div>
     <div class="prefixes" id="examples"></div>
   </div>
   <div id="out" hidden>
-    <div class="card"><h2>결과 <span class="muted" id="kind"></span></h2><div class="grid" id="grid"></div></div>
-    <div class="card"><h2>2진 표기 <span class="muted"><span style="color:#60a5fa">■</span> 네트워크 <span style="color:#f59e0b">■</span> 호스트</span></h2><div class="bin" id="bin"></div></div>
+    <div class="card"><h2><span data-i18n="result">결과</span> <span class="muted" id="kind"></span></h2><div class="grid" id="grid"></div></div>
+    <div class="card"><h2><span data-i18n="binary">2진 표기</span> <span class="muted"><span style="color:#60a5fa">■</span> <span data-i18n="network">네트워크</span> <span style="color:#f59e0b">■</span> <span data-i18n="host">호스트</span></span></h2><div class="bin" id="bin"></div></div>
     <div class="card">
-      <h2>서브넷 나누기</h2>
-      <div class="row"><label class="lbl" for="split" style="margin:0">나눌 크기</label><select id="split" style="width:auto;flex:1 1 200px"></select></div>
+      <h2 data-i18n="splitTitle">서브넷 나누기</h2>
+      <div class="row"><label class="lbl" for="split" style="margin:0" data-i18n="splitSize">나눌 크기</label><select id="split" style="width:auto;flex:1 1 200px"></select></div>
       <div class="muted" id="splitInfo" style="margin-top:8px"></div>
-      <div class="tblwrap"><table class="tbl"><thead><tr><th>#</th><th>서브넷</th><th>사용 가능 범위</th><th>브로드캐스트</th></tr></thead><tbody id="splitBody"></tbody></table></div>
+      <div class="tblwrap"><table class="tbl"><thead><tr><th>#</th><th data-i18n="subnet">서브넷</th><th data-i18n="usable">사용 가능 범위</th><th data-i18n="broadcast">브로드캐스트</th></tr></thead><tbody id="splitBody"></tbody></table></div>
     </div>
     <div class="card">
-      <h2>IP 포함 여부</h2>
-      <input type="text" id="probe" class="mono" placeholder="확인할 IP (예: 192.168.1.77)" autocomplete="off">
+      <h2 data-i18n="probeTitle">IP 포함 여부</h2>
+      <input type="text" id="probe" class="mono" data-i18n-attr="placeholder:probePh" placeholder="확인할 IP (예: 192.168.1.77)" autocomplete="off">
       <div id="probeOut" style="margin-top:8px;font-size:14px"></div>
     </div>
   </div>
-  <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/">모든 도구</a></footer>
+  <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
 </div>
 <script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
 <script>
 (() => {
+  const t = I18n.t;
+  I18n.define({
+    pageTitle: ['CIDR 서브넷 계산기 — tool.cocy.io', 'CIDR Subnet Calculator — tool.cocy.io', 'CIDR 子网计算器 — tool.cocy.io', 'CIDR 子網路計算機 — tool.cocy.io', 'Calculadora de subredes CIDR — tool.cocy.io'],
+    h1: ['CIDR 서브넷 계산기', 'CIDR Subnet Calculator', 'CIDR 子网计算器', 'CIDR 子網路計算機', 'Calculadora de subredes CIDR'],
+    sub: ['입력하는 즉시 계산 · 값 클릭하면 복사 · 서브넷 분할과 IP 포함 여부 확인', 'Calculates as you type · click a value to copy · split subnets and check IP membership', '输入即计算 · 点击数值复制 · 子网划分与 IP 归属检查', '輸入即計算 · 點擊數值複製 · 子網路切分與 IP 歸屬檢查', 'Calcula mientras escribes · clic para copiar · divide subredes y comprueba IP'],
+    inLabel: ['CIDR 또는 IP/마스크', 'CIDR or IP/mask', 'CIDR 或 IP/掩码', 'CIDR 或 IP/遮罩', 'CIDR o IP/máscara'],
+    inPh: ['192.168.1.0/24  또는  10.0.0.5 255.255.0.0', '192.168.1.0/24  or  10.0.0.5 255.255.0.0', '192.168.1.0/24  或  10.0.0.5 255.255.0.0', '192.168.1.0/24  或  10.0.0.5 255.255.0.0', '192.168.1.0/24  o  10.0.0.5 255.255.0.0'],
+    result: ['결과', 'Result', '结果', '結果', 'Resultado'],
+    binary: ['2진 표기', 'Binary', '二进制', '二進位', 'Binario'],
+    network: ['네트워크', 'Network', '网络', '網路', 'Red'],
+    host: ['호스트', 'Host', '主机', '主機', 'Host'],
+    splitTitle: ['서브넷 나누기', 'Split subnet', '划分子网', '切分子網路', 'Dividir subred'],
+    splitSize: ['나눌 크기', 'New prefix', '新前缀', '新前綴', 'Nuevo prefijo'],
+    subnet: ['서브넷', 'Subnet', '子网', '子網路', 'Subred'],
+    usable: ['사용 가능 범위', 'Usable range', '可用范围', '可用範圍', 'Rango utilizable'],
+    broadcast: ['브로드캐스트', 'Broadcast', '广播地址', '廣播位址', 'Broadcast'],
+    probeTitle: ['IP 포함 여부', 'Is this IP inside?', 'IP 是否在范围内', 'IP 是否在範圍內', '¿La IP está dentro?'],
+    probePh: ['확인할 IP (예: 192.168.1.77)', 'IP to check (e.g. 192.168.1.77)', '要检查的 IP（例如 192.168.1.77）', '要檢查的 IP（例如 192.168.1.77）', 'IP a comprobar (p. ej., 192.168.1.77)'],
+    errMask: ['서브넷 마스크가 올바르지 않아요 (연속된 1이어야 해요)', 'Invalid subnet mask (the 1 bits must be contiguous)', '子网掩码无效（1 位必须连续）', '子網路遮罩無效（1 位元必須連續）', 'Máscara no válida (los bits 1 deben ser contiguos)'],
+    errFormat: ['형식: 192.168.1.0/24 또는 10.0.0.5 255.255.0.0', 'Format: 192.168.1.0/24 or 10.0.0.5 255.255.0.0', '格式：192.168.1.0/24 或 10.0.0.5 255.255.0.0', '格式：192.168.1.0/24 或 10.0.0.5 255.255.0.0', 'Formato: 192.168.1.0/24 o 10.0.0.5 255.255.0.0'],
+    errIp: ['IP 주소가 올바르지 않아요 (각 자리 0~255)', 'Invalid IP address (each octet 0–255)', 'IP 地址无效（每段 0–255）', 'IP 位址無效（每段 0–255）', 'IP no válida (cada octeto 0–255)'],
+    errPrefix: ['프리픽스는 0~32 사이여야 해요', 'Prefix must be between 0 and 32', '前缀必须在 0–32 之间', '前綴必須在 0–32 之間', 'El prefijo debe estar entre 0 y 32'],
+    kPrivate: ['사설(RFC1918)', 'Private (RFC1918)', '私有（RFC1918）', '私有（RFC1918）', 'Privada (RFC1918)'],
+    kLoop: ['루프백', 'Loopback', '环回', '迴路', 'Loopback'],
+    kLink: ['링크 로컬', 'Link-local', '链路本地', '鏈路本地', 'Enlace local'],
+    kMulti: ['멀티캐스트', 'Multicast', '组播', '多播', 'Multicast'],
+    kReserved: ['예약', 'Reserved', '保留', '保留', 'Reservada'],
+    kPublic: ['공인', 'Public', '公网', '公用', 'Pública'],
+    hostAddr: [' · 입력 IP {ip}는 호스트 주소', ' · input {ip} is a host address', ' · 输入的 {ip} 是主机地址', ' · 輸入的 {ip} 是主機位址', ' · {ip} es una dirección de host'],
+    rNet: ['네트워크 주소', 'Network address', '网络地址', '網路位址', 'Dirección de red'],
+    rMask: ['서브넷 마스크', 'Subnet mask', '子网掩码', '子網路遮罩', 'Máscara de subred'],
+    rWild: ['와일드카드', 'Wildcard', '通配符掩码', '萬用字元遮罩', 'Comodín'],
+    rTotal: ['전체 주소 수', 'Total addresses', '地址总数', '位址總數', 'Direcciones totales'],
+    rHosts: ['사용 가능 호스트', 'Usable hosts', '可用主机', '可用主機', 'Hosts utilizables'],
+    rHex: ['16진 마스크', 'Hex mask', '十六进制掩码', '十六進位遮罩', 'Máscara hex'],
+    clickCopy: ['클릭하면 복사', 'Click to copy', '点击复制', '點擊複製', 'Clic para copiar'],
+    bMask: ['마스크', 'Mask', '掩码', '遮罩', 'Máscara'],
+    splitOpt: ['/{p} — {n}개 × {a}주소', '/{p} — {n} × {a} addresses', '/{p} — {n} 个 × {a} 地址', '/{p} — {n} 個 × {a} 位址', '/{p} — {n} × {a} direcciones'],
+    noSplit: ['더 나눌 수 없어요', 'Cannot split further', '无法继续划分', '無法再切分', 'No se puede dividir más'],
+    splitInfo: ['{n}개 서브넷, 각 {h}개 호스트', '{n} subnets, {h} hosts each', '{n} 个子网，每个 {h} 台主机', '{n} 個子網路，每個 {h} 台主機', '{n} subredes, {h} hosts cada una'],
+    showFirst: [' (앞 {n}개만 표시)', ' (showing first {n})', '（仅显示前 {n} 个）', '（僅顯示前 {n} 個）', ' (se muestran las primeras {n})'],
+    notIp: ['IP 형식이 아니에요', 'Not an IP address', '不是 IP 地址', '不是 IP 位址', 'No es una IP'],
+    inside: ['✔ {ip} 는 {net} 안에 있어요', '✔ {ip} is inside {net}', '✔ {ip} 在 {net} 范围内', '✔ {ip} 在 {net} 範圍內', '✔ {ip} está dentro de {net}'],
+    outside: ['✘ {ip} 는 범위 밖이에요', '✘ {ip} is outside the range', '✘ {ip} 不在范围内', '✘ {ip} 不在範圍內', '✘ {ip} está fuera del rango'],
+  });
+  I18n.init();
+
   const $ = (id) => document.getElementById(id);
   const toInt = (ip) => {
     const p = ip.split('.');
@@ -69,29 +117,30 @@
   const maskOf = (p) => (p === 0 ? 0 : (0xffffffff << (32 - p)) >>> 0);
   const prefixOfMask = (m) => { const b = m.toString(2).padStart(32, '0'); return /^1*0*$/.test(b) ? b.indexOf('0') === -1 ? 32 : b.indexOf('0') : null; };
   const EX = ['192.168.0.0/24', '10.0.0.0/8', '172.16.0.0/12', '100.64.0.0/10', '192.168.1.130/26', '10.1.2.3 255.255.252.0'];
+  const fail = (key) => { throw new Error(key); };
 
   function parse(str) {
     const s = str.trim().replace(/\s+/g, ' ');
     let m = s.match(/^([\d.]+)\s*\/\s*(\d{1,2})$/);
     let ip, prefix;
     if (m) { ip = toInt(m[1]); prefix = +m[2]; }
-    else if ((m = s.match(/^([\d.]+)[ /]([\d.]+)$/))) { ip = toInt(m[1]); const mk = toInt(m[2]); prefix = mk == null ? null : prefixOfMask(mk); if (prefix == null) throw new Error('서브넷 마스크가 올바르지 않아요 (연속된 1이어야 해요)'); }
+    else if ((m = s.match(/^([\d.]+)[ /]([\d.]+)$/))) { ip = toInt(m[1]); const mk = toInt(m[2]); prefix = mk == null ? null : prefixOfMask(mk); if (prefix == null) fail('errMask'); }
     else if (toInt(s) != null) { ip = toInt(s); prefix = 32; }
-    else throw new Error('형식: 192.168.1.0/24 또는 10.0.0.5 255.255.0.0');
-    if (ip == null) throw new Error('IP 주소가 올바르지 않아요 (각 자리 0~255)');
-    if (!(prefix >= 0 && prefix <= 32)) throw new Error('프리픽스는 0~32 사이여야 해요');
+    else fail('errFormat');
+    if (ip == null) fail('errIp');
+    if (!(prefix >= 0 && prefix <= 32)) fail('errPrefix');
     return { ip, prefix };
   }
 
   function kindOf(n) {
     const inR = (c) => { const [b, p] = c.split('/'); const m = maskOf(+p); return ((n & m) >>> 0) === ((toInt(b) & m) >>> 0); };
-    if (inR('10.0.0.0/8') || inR('172.16.0.0/12') || inR('192.168.0.0/16')) return '사설(RFC1918)';
+    if (inR('10.0.0.0/8') || inR('172.16.0.0/12') || inR('192.168.0.0/16')) return t('kPrivate');
     if (inR('100.64.0.0/10')) return 'CGNAT';
-    if (inR('127.0.0.0/8')) return '루프백';
-    if (inR('169.254.0.0/16')) return '링크 로컬';
-    if (inR('224.0.0.0/4')) return '멀티캐스트';
-    if (inR('240.0.0.0/4')) return '예약';
-    return '공인';
+    if (inR('127.0.0.0/8')) return t('kLoop');
+    if (inR('169.254.0.0/16')) return t('kLink');
+    if (inR('224.0.0.0/4')) return t('kMulti');
+    if (inR('240.0.0.0/4')) return t('kReserved');
+    return t('kPublic');
   }
 
   let cur = null;
@@ -100,7 +149,7 @@
     localStorage.setItem('cidr_last', v);
     $('err').textContent = '';
     if (!v.trim()) { $('out').hidden = true; return; }
-    try { cur = parse(v); } catch (e) { $('err').textContent = e.message; $('out').hidden = true; return; }
+    try { cur = parse(v); } catch (e) { $('err').textContent = t(e.message); $('out').hidden = true; return; }
     const { ip, prefix } = cur;
     const mask = maskOf(prefix), net = (ip & mask) >>> 0, bc = (net | (~mask >>> 0)) >>> 0;
     const total = 2 ** (32 - prefix);
@@ -108,21 +157,19 @@
     const first = prefix >= 31 ? net : net + 1, last = prefix >= 31 ? bc : bc - 1;
     Object.assign(cur, { net, bc, mask });
     $('out').hidden = false;
-    $('kind').textContent = kindOf(net) + (net !== ip ? ` · 입력 IP ${toIp(ip)}는 호스트 주소` : '');
+    $('kind').textContent = kindOf(net) + (net !== ip ? t('hostAddr', { ip: toIp(ip) }) : '');
     const rows = [
-      ['CIDR', `${toIp(net)}/${prefix}`], ['네트워크 주소', toIp(net)], ['브로드캐스트', toIp(bc)],
-      ['사용 가능 범위', `${toIp(first)} – ${toIp(last)}`], ['서브넷 마스크', toIp(mask)], ['와일드카드', toIp(~mask >>> 0)],
-      ['전체 주소 수', total.toLocaleString()], ['사용 가능 호스트', usable.toLocaleString() + (prefix === 31 ? ' (P2P)' : '')], ['16진 마스크', '0x' + mask.toString(16).padStart(8, '0').toUpperCase()],
+      ['CIDR', `${toIp(net)}/${prefix}`], [t('rNet'), toIp(net)], [t('broadcast'), toIp(bc)],
+      [t('usable'), `${toIp(first)} – ${toIp(last)}`], [t('rMask'), toIp(mask)], [t('rWild'), toIp(~mask >>> 0)],
+      [t('rTotal'), total.toLocaleString()], [t('rHosts'), usable.toLocaleString() + (prefix === 31 ? ' (P2P)' : '')], [t('rHex'), '0x' + mask.toString(16).padStart(8, '0').toUpperCase()],
     ];
-    $('grid').innerHTML = rows.map(([k, val]) => `<div class="kv" title="클릭하면 복사"><span>${k}</span><b>${val}</b></div>`).join('');
-    const bin = (n) => { const b = n.toString(2).padStart(32, '0'); return `<span class="n">${b.slice(0, prefix)}</span><span class="h">${b.slice(prefix)}</span>`.replace(/(\d{8})(?=\d)/g, '$1'); };
+    $('grid').innerHTML = rows.map(([k, val]) => `<div class="kv" title="${t('clickCopy')}"><span>${k}</span><b>${val}</b></div>`).join('');
     const dotted = (n) => { const b = n.toString(2).padStart(32, '0'); let o = ''; for (let i = 0; i < 32; i++) { if (i && i % 8 === 0) o += '.'; o += `<span class="${i < prefix ? 'n' : 'h'}">${b[i]}</span>`; } return o; };
-    $('bin').innerHTML = `IP&nbsp;&nbsp;&nbsp;${dotted(ip)}<br>마스크 ${dotted(mask)}<br>네트워크 ${dotted(net)}`;
-    void bin;
+    $('bin').innerHTML = `IP&nbsp;&nbsp;&nbsp;${dotted(ip)}<br>${t('bMask')} ${dotted(mask)}<br>${t('network')} ${dotted(net)}`;
     const sel = $('split'), prev = +sel.value;
     sel.innerHTML = '';
-    for (let p = prefix + 1; p <= Math.min(32, prefix + 12); p++) sel.add(new Option(`/${p} — ${(2 ** (p - prefix)).toLocaleString()}개 × ${(2 ** (32 - p)).toLocaleString()}주소`, p));
-    if (!sel.options.length) sel.add(new Option('더 나눌 수 없어요', ''));
+    for (let p = prefix + 1; p <= Math.min(32, prefix + 12); p++) sel.add(new Option(t('splitOpt', { p, n: (2 ** (p - prefix)).toLocaleString(), a: (2 ** (32 - p)).toLocaleString() }), p));
+    if (!sel.options.length) sel.add(new Option(t('noSplit'), ''));
     else sel.value = prev > prefix && prev <= prefix + 12 ? prev : Math.min(32, prefix + 2);
     split(); probe();
   }
@@ -139,16 +186,19 @@
       html += `<tr><td>${i + 1}</td><td>${toIp(n)}/${p}</td><td>${range}</td><td>${toIp(b)}</td></tr>`;
     }
     body.innerHTML = html;
-    $('splitInfo').textContent = `${count.toLocaleString()}개 서브넷, 각 ${(p >= 31 ? size : size - 2).toLocaleString()}개 호스트` + (count > show ? ` (앞 ${show}개만 표시)` : '');
+    $('splitInfo').textContent = t('splitInfo', { n: count.toLocaleString(), h: (p >= 31 ? size : size - 2).toLocaleString() }) + (count > show ? t('showFirst', { n: show }) : '');
   }
 
   function probe() {
     const v = $('probe').value.trim(), out = $('probeOut');
     if (!v || !cur) { out.textContent = ''; return; }
     const n = toInt(v);
-    if (n == null) { out.innerHTML = '<span class="err">IP 형식이 아니에요</span>'; return; }
+    if (n == null) { out.innerHTML = `<span class="err">${t('notIp')}</span>`; return; }
     const inside = ((n & cur.mask) >>> 0) === cur.net;
-    out.innerHTML = inside ? `<span class="ok">✔ ${v} 는 ${toIp(cur.net)}/${cur.prefix} 안에 있어요</span>` : `<span class="err">✘ ${v} 는 범위 밖이에요</span>`;
+    const span = document.createElement('span');
+    span.className = inside ? 'ok' : 'err';
+    span.textContent = inside ? t('inside', { ip: v, net: `${toIp(cur.net)}/${cur.prefix}` }) : t('outside', { ip: v });
+    out.replaceChildren(span);
   }
 
   $('examples').innerHTML = EX.map((e) => `<button type="button">${e}</button>`).join('');
@@ -157,6 +207,7 @@
   $('cidr').addEventListener('input', calc);
   $('split').addEventListener('change', split);
   $('probe').addEventListener('input', probe);
+  document.addEventListener('i18n:change', calc);
   const q = new URLSearchParams(location.search).get('q');
   $('cidr').value = q || localStorage.getItem('cidr_last') || '192.168.1.0/24';
   calc();
