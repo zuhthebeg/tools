@@ -1,312 +1,220 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Neon Sign</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: black;
-      height: 100%;
-      width: 100%;
-      font-family: 'Arial', sans-serif;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #controls {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 1em;
-      border-radius: 12px;
-      z-index: 10;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      transition: opacity 0.3s;
-      min-width: 220px;
-    }
-
-    input[type="text"], input[type="color"], input[type="range"], select {
-      width: 100%;
-    }
-
-    #fullscreenBtn {
-      margin-top: 10px;
-      padding: 0.5em;
-      background: #444;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    #neonContainer {
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .neon-wrapper {
-      display: inline-block;
-      white-space: nowrap;
-    }
-
-    #neonText {
-      display: inline-block;
-      font-size: var(--font-size, 4rem);
-      font-weight: bold;
-      color: white;
-      text-shadow:
-        0 0 8px #fff,
-        0 0 18px var(--neon-color, #0ff),
-        0 0 32px var(--neon-color, #0ff),
-        0 0 64px var(--neon-color, #0ff);
-    }
-
-    @keyframes smooth-flicker {
-      0%, 97%, 100% { opacity: 1; filter: brightness(1.1) blur(0.7px);}
-      2% { opacity: 0.88; filter: brightness(1.2);}
-      3% { opacity: 0.4; filter: brightness(1.4);}
-      5% { opacity: 1; filter: brightness(1);}
-      18% { opacity: 0.92; filter: brightness(1.2);}
-      20% { opacity: 0.36; filter: brightness(1.3);}
-      22% { opacity: 1; filter: brightness(1);}
-      70% { opacity: 0.8; filter: brightness(1.4);}
-      71% { opacity: 1; filter: brightness(1);}
-    }
-
-    @keyframes rainbow-glow {
-      0%   { color: #FF2222; text-shadow: 0 0 8px #fff, 0 0 18px #FF2222, 0 0 32px #FF2222, 0 0 64px #FF2222;}
-      15%  { color: #FF9900; text-shadow: 0 0 8px #fff, 0 0 18px #FF9900, 0 0 32px #FF9900, 0 0 64px #FF9900;}
-      30%  { color: #FFFF00; text-shadow: 0 0 8px #fff, 0 0 18px #FFFF00, 0 0 32px #FFFF00, 0 0 64px #FFFF00;}
-      45%  { color: #33FF33; text-shadow: 0 0 8px #fff, 0 0 18px #33FF33, 0 0 32px #33FF33, 0 0 64px #33FF33;}
-      60%  { color: #00FFFF; text-shadow: 0 0 8px #fff, 0 0 18px #00FFFF, 0 0 32px #00FFFF, 0 0 64px #00FFFF;}
-      75%  { color: #3333FF; text-shadow: 0 0 8px #fff, 0 0 18px #3333FF, 0 0 32px #3333FF, 0 0 64px #3333FF;}
-      90%  { color: #FF33DD; text-shadow: 0 0 8px #fff, 0 0 18px #FF33DD, 0 0 32px #FF33DD, 0 0 64px #FF33DD;}
-      100% { color: #FF2222; text-shadow: 0 0 8px #fff, 0 0 18px #FF2222, 0 0 32px #FF2222, 0 0 64px #FF2222;}
-    }
-
-    @keyframes marquee {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
-    }
-    .marquee .neon-wrapper {
-      animation: marquee 10s linear infinite;
-    }
-
-    .marquee-up .neon-wrapper {
-      animation: marquee-up 10s linear infinite;
-    }
-
-    .marquee-down .neon-wrapper {
-      animation: marquee-down 10s linear infinite;
-    }
-
-    @keyframes marquee-up {
-      0% { transform: translateY(100%); }
-      100% { transform: translateY(-100%); }
-    }
-
-    @keyframes marquee-down {
-      0% { transform: translateY(-100%); }
-      100% { transform: translateY(100%); }
-    }
-
-    @media (orientation: landscape) {
-      #neonText { font-size: var(--font-size, 6rem);}
-      #neonContainer { width: 100vw; height: 100vh;}
-    }
-    @media (orientation: portrait) {
-      #neonText { font-size: var(--font-size, 3.5rem);}
-      #neonContainer { width: 100vw; height: 100vh;}
-    }
-  </style>
-  <script src="../localization.js"></script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607"
-  crossorigin="anonymous"></script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>네온사인 전광판 — 폰을 전광판으로 | tool.cocy.io</title>
+<meta name="description" content="문구를 입력하면 네온사인 전광판으로! 흐르는 글씨·레인보우·깜빡임, 링크로 공유, 화면 꺼짐 방지">
 <link rel="canonical" href="https://tool.cocy.io/neon/">
-<meta name="description" content="Web Neon Sign">
-<meta property="og:url" content="https://tool.cocy.io/neon/">
-<meta property="og:title" content="Neon Sign">
-<meta property="og:description" content="Web Neon Sign">
+<link rel="icon" href="/neon/icon.svg">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607"
+  crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+html, body { height: 100%; overflow: hidden; background: #000; }
+#stage { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; }
+.wrapper { display: inline-block; white-space: nowrap; will-change: transform; }
+#neon { display: inline-block; font-weight: 800; font-size: var(--size, 6rem); color: #fff; font-family: var(--font, system-ui);
+  text-shadow: 0 0 8px #fff, 0 0 18px var(--c, #0ff), 0 0 32px var(--c, #0ff), 0 0 64px var(--c, #0ff), 0 0 100px var(--c, #0ff); }
+.flicker #neon { animation: flicker 4s infinite; }
+.rainbow #neon { animation: rainbow var(--rspd, 4s) linear infinite; }
+.flicker.rainbow #neon { animation: rainbow var(--rspd, 4s) linear infinite, flicker 4s infinite; }
+@keyframes flicker { 0%,96%,100%{opacity:1} 97%{opacity:.35} 98%{opacity:1} 99%{opacity:.5} }
+@keyframes rainbow { 0%{filter:hue-rotate(0deg)} 100%{filter:hue-rotate(360deg)} }
+.m-left .wrapper { animation: mLeft var(--spd, 10s) linear infinite; }
+.m-right .wrapper { animation: mRight var(--spd, 10s) linear infinite; }
+.m-up .wrapper { animation: mUp var(--spd, 10s) linear infinite; }
+@keyframes mLeft { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
+@keyframes mRight { from { transform: translateX(-100%); } to { transform: translateX(100vw); } }
+@keyframes mUp { from { transform: translateY(100vh); } to { transform: translateY(-100%); } }
+#panel { position: fixed; top: 12px; left: 12px; width: min(320px, calc(100vw - 24px)); max-height: calc(100vh - 24px); overflow: auto; z-index: 10; background: rgba(15, 23, 42, .92); backdrop-filter: blur(6px); transition: opacity .25s, transform .25s; margin: 0; }
+#panel.hide { opacity: 0; transform: translateY(-12px); pointer-events: none; }
+#panel .field { margin-bottom: 12px; }
+#panel input[type=range] { width: 100%; accent-color: var(--primary); }
+.presets { display: flex; gap: 6px; flex-wrap: wrap; }
+.presets button { border: 1px solid var(--line); background: var(--panel-2); color: var(--text); border-radius: 999px; padding: 5px 10px; font-size: 13px; cursor: pointer; font-family: inherit; }
+.swatches { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.swatches button { width: 26px; height: 26px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
+.swatches button.on { border-color: #fff; }
+.swatches input[type=color] { width: 34px; height: 30px; padding: 0; border: 0; background: none; }
+#hint { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,.5); font-size: 13px; z-index: 5; pointer-events: none; transition: opacity .3s; }
+#tnav-btn { opacity: .5; }
+</style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Neon Sign", "description": "Web Neon Sign", "url": "https://tool.cocy.io/neon/", "applicationCategory": "UtilityApplication", "operatingSystem": "Any", "browserRequirements": "Requires JavaScript", "inLanguage": "ko", "author": {"@type": "Person", "name": "cocy", "url": "https://cocy.io"}, "publisher": {"@type": "Organization", "name": "cocy.io", "url": "https://cocy.io"}, "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}, "image": "https://tool.cocy.io/neon/icon.svg"}</script>
 </head>
 <body>
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-  <div id="controls">
-    <label>
-      <span data-translate-key="neon_text">문구</span>:
-      <input type="text" id="textInput" data-translate-placeholder="true" placeholder="문구를 입력하세요" />
-    </label>
-    <label>
-      <span data-translate-key="neon_size">글씨 크기</span>:
-      <input type="range" id="fontSizeSlider" min="1" max="12" step="0.1" value="4" />
-      <span id="fontSizeVal">4</span>rem
-    </label>
-    <label>
-      <input type="checkbox" id="marqueeCheck" />
-      <span data-translate-key="neon_marquee">흐르는 글씨</span>
-    </label>
-    <label id="marqueeDirectionLabel" style="display: none;">
-      <span data-translate-key="neon_marquee_direction">흐르는 방향</span>:
-      <select id="marqueeDirection">
-        <option value="left" data-translate-key="marquee_left">왼쪽</option>
-        <option value="up" data-translate-key="marquee_up">위쪽</option>
-        <option value="down" data-translate-key="marquee_down">아래쪽</option>
-      </select>
-    </label>
-    <label>
-      <input type="checkbox" id="rainbowCheck" />
-      <span data-translate-key="neon_rainbow">레인보우</span>
-    </label>
-    <label>
-      <span data-translate-key="neon_color">네온 색상</span>:
-      <input type="color" id="neonColor" value="#00ffff" />
-    </label>
-    <button id="fullscreenBtn" data-translate-key="fullscreen_enter">OK</button>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div id="stage"><div class="wrapper"><div id="neon">네온사인</div></div></div>
+<div id="panel" class="card">
+  <h2>✨ <span data-i18n="h1">네온사인 전광판</span> <button class="btn sm" id="hideBtn" data-i18n="hide" data-i18n-attr="title:hideTip">숨기기</button></h2>
+  <div class="field"><label class="lbl" for="text" data-i18n="text">문구</label><input type="text" id="text" maxlength="200" data-i18n-attr="placeholder:textPh" placeholder="문구를 입력하세요"></div>
+  <div class="field"><div class="presets" id="presets"></div></div>
+  <div class="field"><label class="lbl" data-i18n="color">색상</label><div class="swatches" id="swatches"></div></div>
+  <div class="field"><label class="lbl" for="size"><span data-i18n="size">크기</span> <span id="sizeVal"></span></label><input type="range" id="size" min="2" max="30" step="0.5"></div>
+  <div class="field"><label class="lbl" for="font" data-i18n="font">글꼴</label>
+    <select id="font"><option value="system-ui" data-i18n="fontSans">기본 고딕</option><option value="'Nanum Pen Script', cursive" data-i18n="fontHand">손글씨</option><option value="Georgia, serif" data-i18n="fontSerif">세리프</option><option value="'Courier New', monospace" data-i18n="fontMono">타자기</option><option value="Impact, sans-serif" data-i18n="fontImpact">임팩트</option></select></div>
+  <div class="field"><label class="lbl" for="motion" data-i18n="motion">움직임</label>
+    <select id="motion"><option value="none" data-i18n="mNone">고정</option><option value="left" data-i18n="mLeft">← 왼쪽으로 흐르기</option><option value="right" data-i18n="mRight">→ 오른쪽으로 흐르기</option><option value="up" data-i18n="mUp">↑ 위로 흐르기</option></select></div>
+  <div class="field" id="speedField"><label class="lbl" for="speed" data-i18n="speed">속도</label><input type="range" id="speed" min="1" max="10" step="1"></div>
+  <div class="field row"><label class="chk"><input type="checkbox" id="rainbow"> <span data-i18n="rainbow">레인보우</span></label><label class="chk"><input type="checkbox" id="flicker"> <span data-i18n="flicker">깜빡임</span></label></div>
+  <div class="row">
+    <button class="btn primary grow" id="fsBtn" data-i18n="fs">⛶ 전체화면</button>
+    <button class="btn" id="shareBtn" data-i18n="share">🔗 링크 공유</button>
   </div>
+  <p class="muted" style="margin:10px 0 0" data-i18n="note">전체화면에선 화면이 꺼지지 않아요. 화면을 탭하면 패널이 다시 나와요.</p>
+  <div class="muted" data-lang-host style="margin-top:8px;font-size:13px"></div>
+</div>
+<div id="hint"></div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+(() => {
+  const t = I18n.t;
+  I18n.define({
+    pageTitle: ['네온사인 전광판 — tool.cocy.io', 'Neon Sign Board — tool.cocy.io', '霓虹灯广告牌 — tool.cocy.io', '霓虹燈看板 — tool.cocy.io', 'Letrero de neón — tool.cocy.io'],
+    h1: ['네온사인 전광판', 'Neon Sign Board', '霓虹灯广告牌', '霓虹燈看板', 'Letrero de neón'],
+    hide: ['숨기기', 'Hide', '隐藏', '隱藏', 'Ocultar'],
+    hideTip: ['패널 숨기기 (화면 탭하면 다시 보임)', 'Hide panel (tap the screen to show it again)', '隐藏面板（点击屏幕重新显示）', '隱藏面板（點擊螢幕重新顯示）', 'Ocultar panel (toca la pantalla para volver a verlo)'],
+    text: ['문구', 'Text', '文字', '文字', 'Texto'],
+    textPh: ['문구를 입력하세요', 'Type your message', '输入文字', '輸入文字', 'Escribe tu mensaje'],
+    color: ['색상', 'Color', '颜色', '顏色', 'Color'],
+    custom: ['직접 선택', 'Custom', '自定义', '自訂', 'Personalizado'],
+    size: ['크기', 'Size', '大小', '大小', 'Tamaño'],
+    font: ['글꼴', 'Font', '字体', '字型', 'Fuente'],
+    fontSans: ['기본 고딕', 'Sans-serif', '无衬线', '無襯線', 'Sans serif'],
+    fontHand: ['손글씨', 'Handwriting', '手写', '手寫', 'Manuscrita'],
+    fontSerif: ['세리프', 'Serif', '衬线', '襯線', 'Serif'],
+    fontMono: ['타자기', 'Typewriter', '打字机', '打字機', 'Máquina de escribir'],
+    fontImpact: ['임팩트', 'Impact', 'Impact', 'Impact', 'Impact'],
+    motion: ['움직임', 'Motion', '动画', '動畫', 'Movimiento'],
+    mNone: ['고정', 'Static', '静止', '靜止', 'Fijo'],
+    mLeft: ['← 왼쪽으로 흐르기', '← Scroll left', '← 向左滚动', '← 向左捲動', '← Desplazar a la izquierda'],
+    mRight: ['→ 오른쪽으로 흐르기', '→ Scroll right', '→ 向右滚动', '→ 向右捲動', '→ Desplazar a la derecha'],
+    mUp: ['↑ 위로 흐르기', '↑ Scroll up', '↑ 向上滚动', '↑ 向上捲動', '↑ Desplazar hacia arriba'],
+    speed: ['속도', 'Speed', '速度', '速度', 'Velocidad'],
+    rainbow: ['레인보우', 'Rainbow', '彩虹', '彩虹', 'Arcoíris'],
+    flicker: ['깜빡임', 'Flicker', '闪烁', '閃爍', 'Parpadeo'],
+    fs: ['⛶ 전체화면', '⛶ Fullscreen', '⛶ 全屏', '⛶ 全螢幕', '⛶ Pantalla completa'],
+    share: ['🔗 링크 공유', '🔗 Share link', '🔗 分享链接', '🔗 分享連結', '🔗 Compartir enlace'],
+    note: ['전체화면에선 화면이 꺼지지 않아요. 화면을 탭하면 패널이 다시 나와요.', 'The screen stays on in fullscreen. Tap the screen to bring the panel back.', '全屏时屏幕保持常亮。点击屏幕可重新打开面板。', '全螢幕時螢幕保持常亮。點擊螢幕可重新開啟面板。', 'En pantalla completa la pantalla no se apaga. Toca la pantalla para volver a ver el panel.'],
+    defaultText: ['네온사인', 'NEON', '霓虹灯', '霓虹燈', 'NEÓN'],
+    tapHint: ['화면을 탭하면 설정이 열려요', 'Tap the screen to open settings', '点击屏幕打开设置', '點擊螢幕開啟設定', 'Toca la pantalla para abrir los ajustes'],
+    shareCopied: ['공유 링크를 복사했어요', 'Share link copied', '已复制分享链接', '已複製分享連結', 'Enlace copiado'],
+  });
+  const PRESETS = {
+    ko: ['생일 축하해 🎉', '사랑해 ❤️', '파이팅!', 'WELCOME', '택시!', '공연 최고 👏'],
+    en: ['Happy Birthday 🎉', 'I ❤️ YOU', 'GO GO GO!', 'WELCOME', 'TAXI!', 'Best show ever 👏'],
+    'zh-CN': ['生日快乐 🎉', '我爱你 ❤️', '加油！', 'WELCOME', '出租车！', '演出太棒了 👏'],
+    'zh-TW': ['生日快樂 🎉', '我愛你 ❤️', '加油！', 'WELCOME', '計程車！', '演出太棒了 👏'],
+    es: ['¡Feliz cumpleaños! 🎉', 'Te quiero ❤️', '¡Vamos!', 'BIENVENIDOS', '¡TAXI!', '¡Gran show! 👏'],
+  };
+  I18n.init();
 
-  <div id="neonContainer">
-    <div class="neon-wrapper">
-      <div id="neonText">네온사인 텍스트</div>
-    </div>
-  </div>
+  const $ = (id) => document.getElementById(id);
+  const COLORS = ['#00ffff', '#ff2bd6', '#39ff14', '#ffe600', '#ff3131', '#7a5cff', '#ffffff'];
+  const KEY = 'neon_options_v2';
+  const def = { text: '', color: '#00ffff', size: 6, font: 'system-ui', motion: 'none', speed: 5, rainbow: false, flicker: false };
+  let s = { ...def };
+  try { Object.assign(s, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
+  const q = new URLSearchParams(location.search);
+  if (q.has('t')) {
+    s.text = q.get('t');
+    if (/^#?[0-9a-f]{6}$/i.test(q.get('c') || '')) s.color = '#' + q.get('c').replace('#', '');
+    if (q.get('s')) s.size = Math.min(30, Math.max(2, +q.get('s') || 6));
+    if (['none', 'left', 'right', 'up'].includes(q.get('m'))) s.motion = q.get('m');
+    if (q.get('v')) s.speed = Math.min(10, Math.max(1, +q.get('v') || 5));
+    s.rainbow = q.get('r') === '1';
+    s.flicker = q.get('f') === '1';
+  }
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const STORAGE_KEY = 'neon_options';
-      const textInput = document.getElementById('textInput');
-      const neonText = document.getElementById('neonText');
-      const fontSizeSlider = document.getElementById('fontSizeSlider');
-      const fontSizeVal = document.getElementById('fontSizeVal');
-      const marqueeCheck = document.getElementById('marqueeCheck');
-      const marqueeDirection = document.getElementById('marqueeDirection');
-      const marqueeDirectionLabel = document.getElementById('marqueeDirectionLabel');
-      const rainbowCheck = document.getElementById('rainbowCheck');
-      const neonColor = document.getElementById('neonColor');
-      const container = document.getElementById('neonContainer');
-      const fullscreenBtn = document.getElementById('fullscreenBtn');
-      const controls = document.getElementById('controls');
+  const stage = $('stage'), neon = $('neon'), panel = $('panel');
+  const ctl = { text: $('text'), size: $('size'), font: $('font'), motion: $('motion'), speed: $('speed'), rainbow: $('rainbow'), flicker: $('flicker') };
 
-      function updateStyle() {
-        neonText.textContent = textInput.value || translate('neon_text_placeholder');
-        neonText.style.setProperty('--neon-color', neonColor.value);
-
-        const fontSize = fontSizeSlider.value;
-        neonText.style.setProperty('--font-size', fontSize + 'rem');
-        fontSizeVal.textContent = fontSize;
-
-        container.classList.toggle('marquee', marqueeCheck.checked);
-        container.classList.toggle('rainbow', rainbowCheck.checked);
-
-        if (marqueeCheck.checked) {
-          marqueeDirectionLabel.style.display = 'block';
-          container.classList.remove('marquee-left', 'marquee-up', 'marquee-down');
-          container.classList.add(`marquee-${marqueeDirection.value}`);
-        } else {
-          marqueeDirectionLabel.style.display = 'none';
-        }
-
-        if (rainbowCheck.checked) {
-          neonText.style.animation = 'rainbow-glow 5s linear infinite, smooth-flicker 2.6s infinite';
-          neonText.style.removeProperty('--neon-color');
-        } else {
-          neonText.style.animation = 'smooth-flicker 2.6s infinite';
-          neonText.style.color = 'white';
-          neonText.style.textShadow =
-            `0 0 8px #fff, 0 0 18px ${neonColor.value}, 0 0 32px ${neonColor.value}, 0 0 64px ${neonColor.value}`;
-        }
-      }
-
-      function saveOptionsToStorage() {
-        const options = {
-          text: textInput.value,
-          fontSize: fontSizeSlider.value,
-          marquee: marqueeCheck.checked,
-          marqueeDirection: marqueeDirection.value,
-          rainbow: rainbowCheck.checked,
-          neonColor: neonColor.value
-        };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(options));
-      }
-
-      function loadOptionsFromStorage() {
-        const savedOptions = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if (savedOptions) {
-          textInput.value = savedOptions.text || '';
-          fontSizeSlider.value = savedOptions.fontSize || '4';
-          marqueeCheck.checked = savedOptions.marquee || false;
-          marqueeDirection.value = savedOptions.marqueeDirection || 'left';
-          rainbowCheck.checked = savedOptions.rainbow || false;
-          neonColor.value = savedOptions.neonColor || '#00ffff';
-        }
-      }
-
-      fullscreenBtn.addEventListener('click', async () => {
-        const elem = document.documentElement;
-        if (!document.fullscreenElement) {
-          await elem.requestFullscreen().catch(err => alert(`Fullscreen failed: ${err.message}`));
-          controls.style.opacity = '0';
-          controls.style.pointerEvents = 'none';
-          fullscreenBtn.setAttribute('data-translate-key', 'fullscreen_exit');
-          applyTranslationsToPage(); // Update the button text dynamically
-        } else {
-          document.exitFullscreen();
-        }
-      });
-
-      document.addEventListener('fullscreenchange', () => {
-        if (!document.fullscreenElement) {
-          controls.style.opacity = '1';
-          controls.style.pointerEvents = 'auto';
-          fullscreenBtn.setAttribute('data-translate-key', 'fullscreen_enter');
-          applyTranslationsToPage(); // Update the button text dynamically
-        }
-      });
-
-      textInput.addEventListener('input', () => {
-        updateStyle();
-        saveOptionsToStorage();
-      });
-      fontSizeSlider.addEventListener('input', () => {
-        updateStyle();
-        saveOptionsToStorage();
-      });
-      marqueeCheck.addEventListener('change', () => {
-        updateStyle();
-        saveOptionsToStorage();
-      });
-      marqueeDirection.addEventListener('change', () => {
-        updateStyle();
-        saveOptionsToStorage();
-      });
-      rainbowCheck.addEventListener('change', () => {
-        updateStyle();
-        saveOptionsToStorage();
-      });
-      neonColor.addEventListener('input', () => {
-        updateStyle();
-        saveOptionsToStorage();
-      });
-
-      loadOptionsFromStorage();
-      updateStyle();
+  function renderPresets() {
+    $('presets').innerHTML = '';
+    (PRESETS[I18n.lang] || PRESETS.en).forEach((p) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = p;
+      $('presets').appendChild(b);
     });
-  </script>
+  }
+  renderPresets();
+  $('presets').addEventListener('click', (e) => { if (e.target.tagName === 'BUTTON') { s.text = e.target.textContent; ctl.text.value = s.text; apply(); } });
+  $('swatches').innerHTML = COLORS.map((c) => `<button type="button" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('') + '<input type="color" id="custom" data-i18n-attr="aria-label:custom">';
+  I18n.apply($('swatches'));
+  $('swatches').addEventListener('click', (e) => { const c = e.target.dataset && e.target.dataset.c; if (c) { s.color = c; apply(); } });
+  $('custom').addEventListener('input', (e) => { s.color = e.target.value; apply(); });
+
+  function apply() {
+    neon.textContent = s.text || t('defaultText');
+    stage.style.setProperty('--c', s.color);
+    stage.style.setProperty('--size', s.size + 'rem');
+    stage.style.setProperty('--font', s.font);
+    stage.style.setProperty('--spd', (22 - s.speed * 2) + 's');
+    stage.className = (s.motion !== 'none' ? 'm-' + s.motion : '') + (s.rainbow ? ' rainbow' : '') + (s.flicker ? ' flicker' : '');
+    $('sizeVal').textContent = s.size + 'rem';
+    $('speedField').hidden = s.motion === 'none';
+    $('swatches').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.c === s.color));
+    $('custom').value = s.color;
+    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+  }
+  function sync() {
+    ctl.text.value = s.text; ctl.size.value = s.size; ctl.font.value = s.font; ctl.motion.value = s.motion;
+    ctl.speed.value = s.speed; ctl.rainbow.checked = s.rainbow; ctl.flicker.checked = s.flicker;
+  }
+  ctl.text.addEventListener('input', () => { s.text = ctl.text.value; apply(); });
+  ctl.size.addEventListener('input', () => { s.size = +ctl.size.value; apply(); });
+  ctl.speed.addEventListener('input', () => { s.speed = +ctl.speed.value; apply(); });
+  ctl.font.addEventListener('change', () => { s.font = ctl.font.value; apply(); });
+  ctl.motion.addEventListener('change', () => { s.motion = ctl.motion.value; apply(); });
+  ctl.rainbow.addEventListener('change', () => { s.rainbow = ctl.rainbow.checked; apply(); });
+  ctl.flicker.addEventListener('change', () => { s.flicker = ctl.flicker.checked; apply(); });
+
+  const hint = $('hint');
+  function hidePanel() { panel.classList.add('hide'); hint.textContent = t('tapHint'); hint.style.opacity = 1; setTimeout(() => (hint.style.opacity = 0), 2000); }
+  function showPanel() { panel.classList.remove('hide'); hint.style.opacity = 0; }
+  $('hideBtn').addEventListener('click', hidePanel);
+  stage.addEventListener('click', () => (panel.classList.contains('hide') ? showPanel() : hidePanel()));
+
+  let wakeLock = null;
+  async function lockScreen() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {} }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && document.fullscreenElement) lockScreen(); });
+  $('fsBtn').addEventListener('click', async () => {
+    try { await document.documentElement.requestFullscreen(); } catch (e) {}
+    try { await screen.orientation.lock('landscape'); } catch (e) {}
+    lockScreen();
+    hidePanel();
+  });
+  document.addEventListener('fullscreenchange', () => {
+    const nav = document.getElementById('tnav-btn');
+    if (nav) nav.style.display = document.fullscreenElement ? 'none' : '';
+    if (!document.fullscreenElement && wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
+  });
+
+  $('shareBtn').addEventListener('click', async () => {
+    const p = new URLSearchParams({ t: s.text || t('defaultText'), c: s.color.replace('#', ''), s: s.size, m: s.motion, v: s.speed });
+    if (s.rainbow) p.set('r', '1');
+    if (s.flicker) p.set('f', '1');
+    const url = `${location.origin}${location.pathname}?${p}`;
+    if (navigator.share && /Mobi/i.test(navigator.userAgent)) { try { await navigator.share({ title: t('h1'), url }); return; } catch (e) {} }
+    UI.copy(url, t('shareCopied'));
+  });
+  document.addEventListener('i18n:change', () => { renderPresets(); apply(); });
+
+  sync(); apply();
+  if (q.has('t')) hidePanel();
+})();
+</script>
 <script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: '네온사인 전광판 — 폰을 전광판으로 | tool.cocy.io',
+  description: '문구를 입력하면 네온사인 전광판으로! 흐르는 글씨·레인보우·깜빡임, 링크로 공유, 화면 꺼짐 방지',
+  url: 'https://tool.cocy.io/neon/'
+});
+</script>
 </body>
 </html>

@@ -10,11 +10,10 @@
 - [느낌가사 Feel Lyrics](https://tool.cocy.io/feellyrics/): 외국 노래를 한글 발음으로 따라 부르자! AI 느낌가사 생성 + 노래방 모드
 - [로또번호 생성기](https://tool.cocy.io/lotto/): 행운의 로또 번호 생성 + 동행복권 링크
 - [계산기](https://tool.cocy.io/calc/): 쉼표 지원 및 붙여넣기 가능한 계산기
-- [색상 코드](https://tool.cocy.io/color/): 색상 코드 변환기
+- [색상 코드 · 팔레트](https://tool.cocy.io/color/): HEX/RGB/HSL 변환 · 팔레트 생성 · 명도 대비(WCAG) 체크
 - [CIDR 서브넷](https://tool.cocy.io/cidr/): CIDR 서브넷 계산기
 - [Base64 인코더](https://tool.cocy.io/base64/): 텍스트 인코딩/디코딩 도구
 - [JSON 포맷터](https://tool.cocy.io/json/): JSON 정렬 및 검증 도구
-- [LLM 토크나이저](https://tool.cocy.io/llm/): AI 모델 토큰 계산기
 - [QR 코드 생성기](https://tool.cocy.io/qr/): QR 코드 생성 및 스캐너
 - [URL 인코더](https://tool.cocy.io/url/): URL 인코딩/디코딩 도구
 - [IP/DNS Lookup](https://tool.cocy.io/net/): IP/DNS Lookup

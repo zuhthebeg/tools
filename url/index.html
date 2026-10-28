@@ -1,238 +1,263 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f)})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>URL Encoder/Decoder - Online Tool</title>
-    <meta name="description" content="Free online URL encoder and decoder tool for converting special characters in URLs">
-    <meta name="keywords" content="URL encoder, URL 디코더, online tool, web utility, URL 인코딩, 퍼센트 인코딩">
-    <meta name="author" content="Your Name">
-    <meta property="og:title" content="URL Encoder/Decoder">
-    <meta property="og:description" content="Free online URL encoding/decoding tool">
-    <script src="../localization.js"></script>
-
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607"
-    crossorigin="anonymous"></script>
-    <style>
-        /* 다크 테마 적용 */
-        :root {
-            --primary: #7fbfff;
-            --secondary: #2d2d2d;
-            --hover: #5a8fcc;
-        }
-
-        body {
-            background: #1a1a1a;
-            color: #e0e0e0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            padding: 20px 0;
-        }
-
-        .container {
-            background: #2d2d2d;
-            border: 1px solid #404040;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 40px;
-            flex-grow: 1;
-            transition: all 0.3s ease;
-        }
-
-        h1 {
-            color: #ffffff;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .input-group {
-            margin: 2rem 0;
-            width: 100%;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 1rem;
-            color: #7fbfff;
-            font-size: 1.1rem;
-            font-weight: 600;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        }
-
-        textarea {
-            width: calc(100% - 3rem); /* 패딩 고려 */
-            margin: 0 auto;
-            display: block;
-            max-width: 1000px;
-            height: 150px;
-            padding: 2rem;
-            border: 2px solid #555;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            line-height: 1.6;
-            background: #404040;
-            border-color: #555;
-            color: #fff;
-            resize: vertical;
-            font-family: monospace;
-            transition: border-color 0.3s ease;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .button-group {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin: 1.5rem 0;
-        }
-
-        button {
-            flex: 1;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 6px;
-            background-color: var(--primary);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: var(--hover);
-            transform: translateY(-1px);
-        }
-
-        /* 반응형 조정 */
-        @media (min-width: 1600px) {
-            .container {
-                max-width: 1400px;
-            }
-            textarea {
-                max-width: 1200px;
-            }
-        }
-
-        @media (max-width: 1599px) {
-            .container {
-                max-width: 90%;
-            }
-            textarea {
-                max-width: 90%;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-                margin: 10px auto;
-            }
-            textarea {
-                width: calc(100% - 2rem);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 15px;
-            }
-            textarea {
-                padding: 1rem;
-            }
-        }
-
-        /* 푸터 스타일 */
-        footer {
-            margin-top: auto;
-            padding: 1.5rem;
-            text-align: center;
-            color: rgba(255,255,255,0.7);
-            width: 100%;
-            max-width: 800px;
-            margin: 20px auto 0;
-            border-top: 1px solid #404040;
-        }
-        footer a {
-            color: #7fbfff;
-            text-decoration: none;
-            transition: opacity 0.2s;
-        }
-        footer a:hover {
-            opacity: 0.8;
-        }
-    </style>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f)})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>URL 인코더/디코더 · 쿼리 파라미터 분석 — tool.cocy.io</title>
+<meta name="description" content="URL 실시간 인코딩/디코딩, encodeURIComponent·encodeURI 모드, 쿼리 파라미터 표로 분석·편집">
 <link rel="canonical" href="https://tool.cocy.io/url/">
-<meta property="og:url" content="https://tool.cocy.io/url/">
+<link rel="icon" href="/url/icon.svg">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607"
+    crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+.io { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 860px) { .io { grid-template-columns: 1fr 1fr; } }
+.io textarea { min-height: 160px; }
+.params input { font-family: var(--mono); font-size: 13px; padding: 7px 9px; }
+.params td:last-child { width: 1%; white-space: nowrap; }
+.parts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; font-size: 14px; }
+.parts dt { color: var(--muted); }
+.parts dd { margin: 0; font-family: var(--mono); word-break: break-all; }
+</style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "URL 인코더", "description": "URL 인코딩/디코딩 도구", "url": "https://tool.cocy.io/url/", "applicationCategory": "UtilityApplication", "operatingSystem": "Any", "browserRequirements": "Requires JavaScript", "inLanguage": "ko", "author": {"@type": "Person", "name": "cocy", "url": "https://cocy.io"}, "publisher": {"@type": "Organization", "name": "cocy.io", "url": "https://cocy.io"}, "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}, "image": "https://tool.cocy.io/url/icon.svg"}</script>
 </head>
-<!-- Google tag (gtag.js) -->
-
 <body>
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <div class="container">
-        <h1>URL Encoder/Decoder</h1>
-        
-        <div class="input-group">
-            <label for="inputText">Input Text:</label>
-            <textarea id="inputText" placeholder="Enter your text here..."></textarea>
-        </div>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>🔗 <span data-i18n="h1">URL 인코더 / 디코더</span></h1>
+    <p data-i18n="sub">입력하는 즉시 변환 · 쿼리 파라미터 분석 · 모든 처리는 브라우저 안에서</p>
+  </div>
 
-        <div class="button-group">
-            <button onclick="encodeURL()">Encode</button>
-            <button onclick="decodeURL()">Decode</button>
-            <button onclick="clearText()">Clear</button>
-        </div>
-
-        <div class="input-group">
-            <label for="outputText">Result:</label>
-            <textarea id="outputText" readonly></textarea>
-        </div>
+  <div class="card">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <div class="seg" id="dirSeg" role="tablist" data-i18n-attr="aria-label:dirLabel">
+        <button data-dir="encode" class="on" data-i18n="encode">인코딩</button>
+        <button data-dir="decode" data-i18n="decode">디코딩</button>
+      </div>
+      <div class="seg" id="modeSeg" data-i18n-attr="aria-label:modeLabel">
+        <button data-mode="component" class="on" data-i18n="modeComp" data-i18n-attr="title:modeCompTip">파라미터 값</button>
+        <button data-mode="uri" data-i18n="modeUri" data-i18n-attr="title:modeUriTip">전체 URL</button>
+      </div>
     </div>
+    <div class="row" style="margin-bottom:12px">
+      <label class="chk"><input type="checkbox" id="plusSpace"> <span data-i18n="plus">공백을 + 로 (폼 전송 방식)</span></label>
+    </div>
+    <div class="io">
+      <div>
+        <label class="lbl" for="input" data-i18n="input">입력</label>
+        <textarea id="input" class="mono" data-i18n-attr="placeholder:inputPh" placeholder="https://example.com/search?q=안녕 하세요&lang=ko" spellcheck="false"></textarea>
+      </div>
+      <div>
+        <label class="lbl" for="output" data-i18n="output">결과</label>
+        <textarea id="output" class="mono" readonly spellcheck="false"></textarea>
+        <div id="status" class="muted" style="margin-top:6px">&nbsp;</div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" id="copyBtn" data-i18n="copy">결과 복사</button>
+      <button class="btn" id="swapBtn" data-i18n="swap" data-i18n-attr="title:swapTip">⇅ 결과를 입력으로</button>
+      <button class="btn" id="sampleBtn" data-i18n="sample">예시</button>
+      <button class="btn danger" id="clearBtn" data-i18n="clear">지우기</button>
+    </div>
+  </div>
 
-    <!-- 푸터 추가 -->
-    <footer>
-        <p style="margin: 0;">
-            © 2025 URL Tools. 
-            <a href="https://cocy.io" target="_blank">COCY.IO</a> 
-            All rights reserved.
-        </p>
-    </footer>
+  <div class="card" id="urlCard" hidden>
+    <h2><span data-i18n="analysis">URL 분석</span> <span class="muted" id="paramCount"></span></h2>
+    <dl class="parts" id="parts"></dl>
+    <h2 style="margin-top:16px"><span data-i18n="params">쿼리 파라미터</span> <button class="btn sm" id="addParam" data-i18n="add">+ 추가</button></h2>
+    <table class="tbl params">
+      <thead><tr><th data-i18n="key">키</th><th data-i18n="value">값 (디코딩됨)</th><th></th></tr></thead>
+      <tbody id="paramBody"></tbody>
+    </table>
+    <div class="row" style="margin-top:12px">
+      <input type="text" id="rebuilt" class="mono grow" readonly data-i18n-attr="aria-label:rebuiltLabel">
+      <button class="btn" id="copyRebuilt" data-i18n="copyRebuilt">재조립 URL 복사</button>
+    </div>
+  </div>
 
-    <script>
-        function encodeURL() {
-            const input = document.getElementById("inputText").value;
-            document.getElementById("outputText").value = encodeURIComponent(input);
-        }
+  <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+(() => {
+  const t = I18n.t;
+  I18n.define({
+    pageTitle: ['URL 인코더/디코더 · 쿼리 파라미터 분석 — tool.cocy.io', 'URL Encoder/Decoder · Query Parameter Analyzer — tool.cocy.io', 'URL 编码/解码 · 查询参数分析 — tool.cocy.io', 'URL 編碼/解碼 · 查詢參數分析 — tool.cocy.io', 'Codificador/Decodificador de URL · Análisis de parámetros — tool.cocy.io'],
+    h1: ['URL 인코더 / 디코더', 'URL Encoder / Decoder', 'URL 编码 / 解码', 'URL 編碼 / 解碼', 'Codificador / Decodificador de URL'],
+    sub: ['입력하는 즉시 변환 · 쿼리 파라미터 분석 · 모든 처리는 브라우저 안에서', 'Converts as you type · Query parameter analysis · Everything runs in your browser', '输入即转换 · 查询参数分析 · 全部在浏览器中处理', '輸入即轉換 · 查詢參數分析 · 全部在瀏覽器中處理', 'Convierte mientras escribes · Análisis de parámetros · Todo se procesa en tu navegador'],
+    dirLabel: ['변환 방향', 'Direction', '转换方向', '轉換方向', 'Dirección'],
+    encode: ['인코딩', 'Encode', '编码', '編碼', 'Codificar'],
+    decode: ['디코딩', 'Decode', '解码', '解碼', 'Decodificar'],
+    modeLabel: ['인코딩 방식', 'Encoding mode', '编码方式', '編碼方式', 'Modo'],
+    modeComp: ['파라미터 값', 'Parameter value', '参数值', '參數值', 'Valor de parámetro'],
+    modeCompTip: ['encodeURIComponent — 파라미터 값용, / ? & = 까지 인코딩', 'encodeURIComponent — for parameter values; also encodes / ? & =', 'encodeURIComponent — 用于参数值，/ ? & = 也会编码', 'encodeURIComponent — 用於參數值，/ ? & = 也會編碼', 'encodeURIComponent — para valores; también codifica / ? & ='],
+    modeUri: ['전체 URL', 'Full URL', '完整 URL', '完整 URL', 'URL completa'],
+    modeUriTip: ['encodeURI — 전체 URL용, 구조 문자는 유지', 'encodeURI — for full URLs; keeps structural characters', 'encodeURI — 用于完整 URL，保留结构字符', 'encodeURI — 用於完整 URL，保留結構字元', 'encodeURI — para URL completas; conserva los caracteres de estructura'],
+    plus: ['공백을 + 로 (폼 전송 방식)', 'Spaces as + (form encoding)', '空格转为 +（表单编码）', '空格轉為 +（表單編碼）', 'Espacios como + (formulario)'],
+    input: ['입력', 'Input', '输入', '輸入', 'Entrada'],
+    inputPh: ['https://example.com/search?q=안녕 하세요&lang=ko', 'https://example.com/search?q=hello world&lang=en', 'https://example.com/search?q=你好 世界&lang=zh', 'https://example.com/search?q=你好 世界&lang=zh', 'https://example.com/search?q=hola mundo&lang=es'],
+    output: ['결과', 'Result', '结果', '結果', 'Resultado'],
+    copy: ['결과 복사', 'Copy result', '复制结果', '複製結果', 'Copiar resultado'],
+    swap: ['⇅ 결과를 입력으로', '⇅ Use result as input', '⇅ 结果作为输入', '⇅ 結果作為輸入', '⇅ Usar resultado como entrada'],
+    swapTip: ['결과를 입력으로 옮기고 방향 전환', 'Move the result to input and flip direction', '将结果移到输入并切换方向', '將結果移到輸入並切換方向', 'Mover el resultado a la entrada e invertir la dirección'],
+    sample: ['예시', 'Example', '示例', '範例', 'Ejemplo'],
+    clear: ['지우기', 'Clear', '清空', '清除', 'Borrar'],
+    analysis: ['URL 분석', 'URL breakdown', 'URL 分析', 'URL 分析', 'Análisis de URL'],
+    params: ['쿼리 파라미터', 'Query parameters', '查询参数', '查詢參數', 'Parámetros de consulta'],
+    add: ['+ 추가', '+ Add', '+ 添加', '+ 新增', '+ Añadir'],
+    key: ['키', 'Key', '键', '鍵', 'Clave'],
+    value: ['값 (디코딩됨)', 'Value (decoded)', '值（已解码）', '值（已解碼）', 'Valor (decodificado)'],
+    rebuiltLabel: ['재조립된 URL', 'Rebuilt URL', '重组后的 URL', '重組後的 URL', 'URL reconstruida'],
+    copyRebuilt: ['재조립 URL 복사', 'Copy rebuilt URL', '复制重组 URL', '複製重組 URL', 'Copiar URL reconstruida'],
+    status: ['{a}자 → {b}자', '{a} → {b} chars', '{a} → {b} 个字符', '{a} → {b} 個字元', '{a} → {b} caracteres'],
+    badSeq: ['디코딩할 수 없는 % 시퀀스가 있어요 (예: %E0%A4%A 처럼 잘린 문자)', 'Contains an undecodable % sequence (e.g. a truncated one like %E0%A4%A)', '包含无法解码的 % 序列（例如被截断的 %E0%A4%A）', '包含無法解碼的 % 序列（例如被截斷的 %E0%A4%A）', 'Hay una secuencia % no decodificable (p. ej., una truncada como %E0%A4%A)'],
+    protocol: ['프로토콜', 'Protocol', '协议', '協定', 'Protocolo'],
+    host: ['호스트', 'Host', '主机', '主機', 'Host'],
+    path: ['경로', 'Path', '路径', '路徑', 'Ruta'],
+    hash: ['해시', 'Hash', '哈希', '雜湊', 'Hash'],
+    del: ['삭제', 'Delete', '删除', '刪除', 'Eliminar'],
+    paramCount: ['파라미터 {n}개', '{n} parameters', '{n} 个参数', '{n} 個參數', '{n} parámetros'],
+  });
+  I18n.init();
 
-        function decodeURL() {
-            try {
-                const input = document.getElementById("inputText").value;
-                document.getElementById("outputText").value = decodeURIComponent(input);
-            } catch (error) {
-                document.getElementById("outputText").value = "Error: Invalid encoded URL";
-            }
-        }
+  const $ = (id) => document.getElementById(id);
+  const input = $('input'), output = $('output'), status = $('status');
+  const state = { dir: 'encode', mode: 'component' };
+  const LS = 'url_tool_v2';
 
-        function clearText() {
-            document.getElementById("inputText").value = "";
-            document.getElementById("outputText").value = "";
-        }
-    </script>
-    <script src="/lib/tool-nav.js"></script>
-    <script src="/lib/site-meta.js"></script>
-    <script>
-      SiteMeta.init({
-        title: 'URL Encoder/Decoder - tool.cocy.io',
-        description: 'URL 인코딩/디코딩을 빠르게 처리하는 온라인 유틸리티',
-        url: 'https://tool.cocy.io/url/'
-      });
-    </script>
+  try {
+    const saved = JSON.parse(localStorage.getItem(LS) || '{}');
+    Object.assign(state, saved.state || {});
+    if (typeof saved.input === 'string') input.value = saved.input;
+    $('plusSpace').checked = !!saved.plus;
+  } catch (e) {}
+
+  function setSeg(segId, attr, val) {
+    $(segId).querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset[attr] === val));
+  }
+
+  function encode(text) {
+    let out = state.mode === 'uri' ? encodeURI(text) : encodeURIComponent(text);
+    if ($('plusSpace').checked) out = out.replace(/%20/g, '+');
+    return out;
+  }
+  function decode(text) {
+    const src = $('plusSpace').checked ? text.replace(/\+/g, ' ') : text;
+    return state.mode === 'uri' ? decodeURI(src) : decodeURIComponent(src);
+  }
+
+  function convert() {
+    const text = input.value;
+    status.className = 'muted';
+    if (!text) { output.value = ''; status.innerHTML = '&nbsp;'; renderUrl(''); save(); return; }
+    try {
+      output.value = state.dir === 'encode' ? encode(text) : decode(text);
+      status.textContent = t('status', { a: text.length.toLocaleString(), b: output.value.length.toLocaleString() });
+    } catch (e) {
+      output.value = '';
+      status.className = 'err';
+      status.textContent = t('badSeq');
+    }
+    renderUrl(state.dir === 'decode' ? (output.value || text) : text);
+    save();
+  }
+
+  function save() {
+    try { localStorage.setItem(LS, JSON.stringify({ state, input: input.value.slice(0, 20000), plus: $('plusSpace').checked })); } catch (e) {}
+  }
+
+  let currentUrl = null;
+  function renderUrl(text) {
+    let u = null;
+    const s = text.trim();
+    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(s)) { try { u = new URL(s); } catch (e) {} }
+    currentUrl = u;
+    $('urlCard').hidden = !u;
+    if (!u) return;
+    renderParts();
+    const body = $('paramBody');
+    body.innerHTML = '';
+    for (const [k, v] of u.searchParams) addRow(k, v);
+    updateRebuilt();
+  }
+
+  function renderParts() {
+    const u = currentUrl;
+    if (!u) return;
+    const rows = [[t('protocol'), u.protocol], [t('host'), u.host], [t('path'), safeDecode(u.pathname)], [t('hash'), safeDecode(u.hash) || '—']];
+    $('parts').innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('');
+  }
+
+  function addRow(k = '', v = '') {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><input type="text" class="k"></td><td><input type="text" class="v"></td><td><button class="btn sm danger" data-i18n-attr="title:del" title="${t('del')}">✕</button></td>`;
+    tr.querySelector('.k').value = k;
+    tr.querySelector('.v').value = v;
+    tr.querySelectorAll('input').forEach((i) => i.addEventListener('input', updateRebuilt));
+    tr.querySelector('button').addEventListener('click', () => { tr.remove(); updateRebuilt(); });
+    $('paramBody').appendChild(tr);
+  }
+
+  function updateRebuilt() {
+    if (!currentUrl) return;
+    const u = new URL(currentUrl.href);
+    u.search = '';
+    let n = 0;
+    $('paramBody').querySelectorAll('tr').forEach((tr) => {
+      const k = tr.querySelector('.k').value;
+      if (k) { u.searchParams.append(k, tr.querySelector('.v').value); n++; }
+    });
+    $('rebuilt').value = u.href;
+    $('paramCount').textContent = t('paramCount', { n });
+  }
+
+  function safeDecode(s) { try { return decodeURIComponent(s); } catch (e) { return s; } }
+  function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+  $('dirSeg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; state.dir = b.dataset.dir; setSeg('dirSeg', 'dir', state.dir); convert(); });
+  $('modeSeg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; state.mode = b.dataset.mode; setSeg('modeSeg', 'mode', state.mode); convert(); });
+  $('plusSpace').addEventListener('change', convert);
+  input.addEventListener('input', convert);
+  $('copyBtn').addEventListener('click', () => output.value && UI.copy(output.value));
+  $('copyRebuilt').addEventListener('click', () => $('rebuilt').value && UI.copy($('rebuilt').value));
+  $('addParam').addEventListener('click', () => { addRow(); updateRebuilt(); });
+  $('swapBtn').addEventListener('click', () => {
+    if (!output.value) return;
+    input.value = output.value;
+    state.dir = state.dir === 'encode' ? 'decode' : 'encode';
+    setSeg('dirSeg', 'dir', state.dir);
+    convert();
+  });
+  $('sampleBtn').addEventListener('click', () => {
+    state.dir = 'decode'; state.mode = 'uri';
+    setSeg('dirSeg', 'dir', 'decode'); setSeg('modeSeg', 'mode', 'uri');
+    input.value = 'https://tool.cocy.io/search?q=%EC%95%88%EB%85%95%20%ED%95%98%EC%84%B8%EC%9A%94&lang=ko&tags=a%2Cb#%EA%B2%B0%EA%B3%BC';
+    convert();
+  });
+  $('clearBtn').addEventListener('click', () => { input.value = ''; convert(); input.focus(); });
+  document.addEventListener('i18n:change', () => {
+    if (input.value) convert();
+    renderParts();
+    updateRebuilt();
+  });
+
+  setSeg('dirSeg', 'dir', state.dir);
+  setSeg('modeSeg', 'mode', state.mode);
+  convert();
+})();
+</script>
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: 'URL 인코더/디코더 · 쿼리 파라미터 분석 — tool.cocy.io',
+  description: 'URL 실시간 인코딩/디코딩, encodeURIComponent·encodeURI 모드, 쿼리 파라미터 표로 분석·편집',
+  url: 'https://tool.cocy.io/url/'
+});
+</script>
 </body>
 </html>

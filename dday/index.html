@@ -1,20 +1,33 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <meta name="description" content="중요한 날짜까지 남은 기간을 계산하고 디데이를 관리하는 도구입니다.">
-    <link rel="canonical" href="https://tool.cocy.io/dday/">
-    <meta property="og:title" content="디데이 계산기 | tool.cocy.io">
-    <meta property="og:description" content="중요한 날짜까지 남은 기간을 계산하고 디데이를 관리하는 도구입니다.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://tool.cocy.io/dday/">
-    <meta property="og:locale" content="ko_KR">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="디데이 계산기 | tool.cocy.io">
-    <meta name="twitter:description" content="중요한 날짜까지 남은 기간을 계산하고 디데이를 관리하는 도구입니다.">
-    <script type="application/ld+json">
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D-Day 계산기 · 기념일 계산 — tool.cocy.io</title>
+<meta name="description" content="디데이 계산, 100일·200일·1000일·1주년 기념일 날짜, 두 날짜 사이 일수 계산. 브라우저에 자동 저장">
+<link rel="canonical" href="https://tool.cocy.io/dday/">
+<link rel="icon" href="/dday/icon.svg">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607"
+  crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+.big { font-size: clamp(34px, 8vw, 52px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+.big.future { color: #60a5fa; } .big.past { color: #f59e0b; } .big.today { color: var(--accent); }
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.item { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.item .name { font-weight: 700; word-break: break-all; }
+.item .sub { color: var(--muted); font-size: 12px; }
+.item .dd { font-weight: 800; font-size: 20px; font-variant-numeric: tabular-nums; }
+.dd.future { color: #60a5fa; } .dd.past { color: #f59e0b; } .dd.today { color: var(--accent); }
+.ann { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.ann div { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 13px; }
+.ann b { display: block; font-size: 14px; }
+.ann .gone { opacity: .45; }
+.ann .next { border-color: var(--accent); }
+</style>
+<script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
@@ -26,212 +39,234 @@
       "inLanguage": "ko-KR"
     }
     </script>
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
-<!-- End Google Tag Manager -->
-
-  <title>D-day Calculator</title>
-  <script src="../localization.js"></script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607"
-  crossorigin="anonymous"></script>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Arial', sans-serif;
-      background: #f4f4f9;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      padding: 20px;
-    }
-
-    .container {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      max-width: 600px;
-      width: 100%;
-    }
-
-    h1 {
-      font-size: 1.5rem;
-      margin-bottom: 20px;
-      text-align: center;
-      color: #444;
-    }
-
-    .dday-form {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .dday-form input[type="text"], .dday-form input[type="date"] {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 1rem;
-      outline: none;
-    }
-
-    .dday-form button {
-      padding: 10px 15px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-
-    .dday-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .dday-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      background: #fff;
-    }
-
-    .dday-item span {
-      font-size: 1rem;
-    }
-
-    .dday-item button {
-      padding: 5px 10px;
-      background: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 1.2rem;
-      }
-
-      .dday-form {
-        flex-direction: column;
-      }
-
-      .dday-form input, .dday-form button {
-        width: 100%;
-      }
-    }
-  </style>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-
-  <div class="container">
-    <h1 data-translate-key="dday_title">D-day Calculator</h1>
-    <form class="dday-form" id="ddayForm">
-      <input type="text" id="ddayName" placeholder="Event Name" data-translate-placeholder="true">
-      <input type="date" id="ddayDate">
-      <button type="submit" data-translate-key="add_button">Add</button>
-    </form>
-    <ul class="dday-list" id="ddayList"></ul>
+<div class="wrap">
+  <div class="hero">
+    <h1>⏳ <span data-i18n="h1">D-Day 계산기</span></h1>
+    <p data-i18n="sub">디데이 · 기념일(100일, 1주년…) · 두 날짜 사이 일수 — 이 브라우저에 자동 저장</p>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const ddayForm = document.getElementById('ddayForm');
-      const ddayName = document.getElementById('ddayName');
-      const ddayDate = document.getElementById('ddayDate');
-      const ddayList = document.getElementById('ddayList');
-      const STORAGE_KEY = 'dday_entries';
+  <div class="card">
+    <h2 data-i18n="newTitle">새 디데이</h2>
+    <form id="form" class="row">
+      <input type="text" id="name" class="grow" data-i18n-attr="placeholder:namePh" placeholder="이름 (예: 수능, 여행, 사귄 날)" maxlength="40" required>
+      <input type="date" id="date" style="flex:0 1 180px" required>
+      <button class="btn primary" type="submit" id="submitBtn" data-i18n="add">추가</button>
+    </form>
+    <div class="row" style="margin-top:10px">
+      <label class="chk"><input type="checkbox" id="countFirst"> <span data-i18n="countFirst">시작일을 1일로 세기 (사귄 날·태어난 날)</span></label>
+    </div>
+  </div>
 
-      function loadDdays() {
-        const savedDdays = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-        savedDdays.forEach(addDdayToList);
-      }
+  <div class="card">
+    <h2><span data-i18n="mine">내 디데이</span> <span class="row"><select id="sort" style="width:auto;padding:6px 10px;font-size:13px" data-i18n-attr="aria-label:sort"><option value="near" data-i18n="sortNear">가까운 순</option><option value="date" data-i18n="sortDate">날짜 순</option><option value="added" data-i18n="sortAdded">추가 순</option></select></span></h2>
+    <ul class="list" id="list"></ul>
+    <p class="muted" id="empty" data-i18n="empty">아직 디데이가 없어요. 위에서 추가해 보세요.</p>
+  </div>
 
-      function saveDdays() {
-        const ddayItems = Array.from(ddayList.children).map(item => ({
-          name: item.querySelector('.dday-name').textContent,
-          date: item.querySelector('.dday-date').dataset.date
-        }));
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(ddayItems));
-      }
+  <div class="card" id="detail" hidden>
+    <h2 id="dName"></h2>
+    <div class="big" id="dBig"></div>
+    <div class="muted" id="dSub" style="margin:4px 0 14px"></div>
+    <div class="ann" id="dAnn"></div>
+  </div>
 
-      function calculateDday(date) {
-        const today = new Date();
-        const targetDate = new Date(date);
-        const diffTime = targetDate - today;
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      }
+  <div class="card">
+    <h2 data-i18n="betweenTitle">두 날짜 사이</h2>
+    <div class="row">
+      <input type="date" id="from" style="flex:1 1 160px" data-i18n-attr="aria-label:fromLabel">
+      <span class="muted">→</span>
+      <input type="date" id="to" style="flex:1 1 160px" data-i18n-attr="aria-label:toLabel">
+    </div>
+    <div id="between" style="margin-top:10px;font-size:15px"></div>
+  </div>
 
-      function addDdayToList({ name, date }) {
-        const ddayItem = document.createElement('li');
-        ddayItem.className = 'dday-item';
+  <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+(() => {
+  const t = I18n.t;
+  I18n.define({
+    pageTitle: ['D-Day 계산기 · 기념일 · 날짜 차이 — tool.cocy.io', 'D-Day Counter · Anniversaries · Days Between — tool.cocy.io', '倒数日计算器 · 纪念日 · 日期差 — tool.cocy.io', '倒數日計算器 · 紀念日 · 日期差 — tool.cocy.io', 'Cuenta regresiva · Aniversarios · Días entre fechas — tool.cocy.io'],
+    h1: ['D-Day 계산기', 'D-Day Counter', '倒数日计算器', '倒數日計算器', 'Cuenta regresiva (D-Day)'],
+    sub: ['디데이 · 기념일(100일, 1주년…) · 두 날짜 사이 일수 — 이 브라우저에 자동 저장', 'Countdowns · Milestones (100 days, 1st anniversary…) · Days between dates — saved in this browser', '倒数日 · 纪念日（100 天、1 周年…）· 两个日期之间的天数 — 自动保存在此浏览器', '倒數日 · 紀念日（100 天、1 週年…）· 兩個日期之間的天數 — 自動儲存在此瀏覽器', 'Cuentas regresivas · Hitos (100 días, 1.er aniversario…) · Días entre fechas — guardado en este navegador'],
+    newTitle: ['새 디데이', 'New D-Day', '新建倒数日', '新增倒數日', 'Nueva fecha'],
+    namePh: ['이름 (예: 수능, 여행, 사귄 날)', 'Name (e.g. exam, trip, anniversary)', '名称（例如：考试、旅行、纪念日）', '名稱（例如：考試、旅行、紀念日）', 'Nombre (p. ej., examen, viaje, aniversario)'],
+    add: ['추가', 'Add', '添加', '新增', 'Añadir'],
+    saveEdit: ['수정 완료', 'Save', '保存修改', '儲存修改', 'Guardar'],
+    countFirst: ['시작일을 1일로 세기 (사귄 날·태어난 날)', 'Count the start date as day 1 (relationships, birthdays)', '起始日算作第 1 天（恋爱纪念、出生日）', '起始日算作第 1 天（戀愛紀念、出生日）', 'Contar la fecha de inicio como día 1 (relaciones, nacimientos)'],
+    mine: ['내 디데이', 'My D-Days', '我的倒数日', '我的倒數日', 'Mis fechas'],
+    sort: ['정렬', 'Sort', '排序', '排序', 'Ordenar'],
+    sortNear: ['가까운 순', 'Nearest', '最近的', '最近的', 'Más cercanas'],
+    sortDate: ['날짜 순', 'By date', '按日期', '按日期', 'Por fecha'],
+    sortAdded: ['추가 순', 'By added', '按添加顺序', '按新增順序', 'Por orden añadido'],
+    empty: ['아직 디데이가 없어요. 위에서 추가해 보세요.', 'No D-Days yet. Add one above.', '还没有倒数日，请在上方添加。', '還沒有倒數日，請在上方新增。', 'Aún no hay fechas. Añade una arriba.'],
+    betweenTitle: ['두 날짜 사이', 'Days between dates', '两个日期之间', '兩個日期之間', 'Días entre fechas'],
+    fromLabel: ['시작 날짜', 'Start date', '开始日期', '開始日期', 'Fecha de inicio'],
+    toLabel: ['끝 날짜', 'End date', '结束日期', '結束日期', 'Fecha final'],
+    dayN: ['{n}일째', 'Day {n}', '第 {n} 天', '第 {n} 天', 'Día {n}'],
+    fromDay1: [' · 1일부터', ' · from day 1', ' · 从第 1 天起', ' · 從第 1 天起', ' · desde el día 1'],
+    edit: ['수정', 'Edit', '编辑', '編輯', 'Editar'],
+    del: ['삭제', 'Delete', '删除', '刪除', 'Eliminar'],
+    confirmDel: ["'{name}' 디데이를 삭제할까요?", "Delete '{name}'?", "删除“{name}”吗？", "刪除「{name}」嗎？", "¿Eliminar «{name}»?"],
+    left: ['{w}주 {d}일 남음', '{w} wk {d} d left', '还剩 {w} 周 {d} 天', '還剩 {w} 週 {d} 天', 'Faltan {w} sem {d} d'],
+    today: ['오늘이에요!', "It's today!", '就是今天！', '就是今天！', '¡Es hoy!'],
+    passed: ['{n}일 지남', '{n} days ago', '已过 {n} 天', '已過 {n} 天', 'Hace {n} días'],
+    days: ['{n}일', '{n} days', '{n} 天', '{n} 天', '{n} días'],
+    years: ['{n}주년', '{n} yr', '{n} 周年', '{n} 週年', '{n} años'],
+    todayShort: ['오늘', 'Today', '今天', '今天', 'Hoy'],
+    pickTwo: ['두 날짜를 고르면 일수를 계산해요.', 'Pick two dates to count the days.', '选择两个日期即可计算天数。', '選擇兩個日期即可計算天數。', 'Elige dos fechas para contar los días.'],
+    betweenResult: ['<b>{n}일</b> 차이 <span class="muted">(시작일 포함 {n1}일 · {w}주 {d}일)</span>', '<b>{n} days</b> apart <span class="muted">({n1} days inclusive · {w} wk {d} d)</span>', '相差 <b>{n} 天</b> <span class="muted">（含起始日 {n1} 天 · {w} 周 {d} 天）</span>', '相差 <b>{n} 天</b> <span class="muted">（含起始日 {n1} 天 · {w} 週 {d} 天）</span>', '<b>{n} días</b> de diferencia <span class="muted">({n1} días incluyendo el inicio · {w} sem {d} d)</span>'],
+  });
+  I18n.init();
 
-        const ddayNameSpan = document.createElement('span');
-        ddayNameSpan.className = 'dday-name';
-        ddayNameSpan.textContent = name;
+  const $ = (id) => document.getElementById(id);
+  const KEY = 'dday_entries';
+  const DAY = 86400000;
 
-        const ddayDateSpan = document.createElement('span');
-        ddayDateSpan.className = 'dday-date';
-        ddayDateSpan.dataset.date = date;
-        const ddayCount = calculateDday(date);
-        ddayDateSpan.textContent = `D${ddayCount >= 0 ? '-' : '+'}${Math.abs(ddayCount)}`;
+  const parse = (s) => { const [y, m, d] = s.split('-').map(Number); return Date.UTC(y, m - 1, d); };
+  const todayUTC = () => { const n = new Date(); return Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()); };
+  let dateFmt;
+  const fmt = (ts) => {
+    if (!dateFmt || dateFmt.lang !== I18n.lang) {
+      dateFmt = new Intl.DateTimeFormat(I18n.lang, { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short', timeZone: 'UTC' });
+      dateFmt.lang = I18n.lang;
+    }
+    return dateFmt.format(ts);
+  };
+  const iso = (ts) => new Date(ts).toISOString().slice(0, 10);
+  const diff = (s) => Math.round((parse(s) - todayUTC()) / DAY);
 
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Delete';
-        deleteButton.setAttribute('data-translate-key', 'delete_button');
-        deleteButton.addEventListener('click', () => {
-          ddayItem.remove();
-          saveDdays();
-        });
+  function label(e) {
+    const n = diff(e.date);
+    if (n > 0) return { text: `D-${n}`, cls: 'future' };
+    if (n === 0) return { text: 'D-Day', cls: 'today' };
+    const passed = -n + (e.countFirst ? 1 : 0);
+    return e.countFirst ? { text: t('dayN', { n: passed.toLocaleString() }), cls: 'past' } : { text: `D+${-n}`, cls: 'past' };
+  }
 
-        ddayItem.appendChild(ddayNameSpan);
-        ddayItem.appendChild(ddayDateSpan);
-        ddayItem.appendChild(deleteButton);
+  let entries = [];
+  try {
+    entries = (JSON.parse(localStorage.getItem(KEY)) || []).filter((e) => e && e.date).map((e, i) => ({ id: e.id || Date.now() + i, added: e.added || i, countFirst: !!e.countFirst, name: e.name || '', date: e.date }));
+  } catch (e) { entries = []; }
+  let selected = null, editing = null;
+  const save = () => localStorage.setItem(KEY, JSON.stringify(entries));
 
-        ddayList.appendChild(ddayItem);
-      }
-
-      ddayForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const name = ddayName.value.trim();
-        const date = ddayDate.value;
-        if (!name || !date) return;
-
-        addDdayToList({ name, date });
-        saveDdays();
-
-        ddayName.value = '';
-        ddayDate.value = '';
-      });
-
-      loadDdays();
-
-      // Initialize localization
-      initializeLocalization();
+  function render() {
+    const sort = $('sort').value;
+    const list = [...entries].sort((a, b) => {
+      if (sort === 'date') return parse(a.date) - parse(b.date);
+      if (sort === 'added') return a.added - b.added;
+      const da = diff(a.date), db = diff(b.date);
+      if ((da >= 0) !== (db >= 0)) return da >= 0 ? -1 : 1;
+      return Math.abs(da) - Math.abs(db);
     });
-  </script>
+    $('empty').hidden = entries.length > 0;
+    $('list').innerHTML = '';
+    for (const e of list) {
+      const l = label(e);
+      const li = document.createElement('li');
+      li.className = 'item';
+      li.innerHTML = `<div style="cursor:pointer"><div class="name"></div><div class="sub">${fmt(parse(e.date))}${e.countFirst ? t('fromDay1') : ''}</div></div><div class="dd ${l.cls}">${l.text}</div><div class="row" style="gap:4px"><button class="btn sm" data-a="edit" title="${t('edit')}">✎</button><button class="btn sm danger" data-a="del" title="${t('del')}">✕</button></div>`;
+      li.querySelector('.name').textContent = e.name;
+      li.firstElementChild.addEventListener('click', () => { selected = e.id; showDetail(); });
+      li.querySelector('[data-a=edit]').addEventListener('click', () => startEdit(e));
+      li.querySelector('[data-a=del]').addEventListener('click', () => {
+        if (!confirm(t('confirmDel', { name: e.name }))) return;
+        entries = entries.filter((x) => x.id !== e.id);
+        if (selected === e.id) selected = null;
+        if (editing === e.id) resetForm();
+        save(); render(); showDetail();
+      });
+      $('list').appendChild(li);
+    }
+  }
+
+  function showDetail() {
+    const e = entries.find((x) => x.id === selected) || entries[0];
+    $('detail').hidden = !e;
+    if (!e) return;
+    const l = label(e);
+    $('dName').textContent = e.name;
+    $('dBig').textContent = l.text;
+    $('dBig').className = 'big ' + l.cls;
+    const n = diff(e.date);
+    $('dSub').textContent = `${fmt(parse(e.date))} · ` + (n > 0 ? t('left', { w: Math.floor(n / 7), d: n % 7 }) : n === 0 ? t('today') : t('passed', { n: (-n).toLocaleString() }));
+    const base = parse(e.date), today = todayUTC(), off = e.countFirst ? 1 : 0;
+    const marks = [];
+    [100, 200, 300, 500, 1000, 2000, 3000, 5000, 10000].forEach((d) => marks.push({ t: t('days', { n: d.toLocaleString() }), at: base + (d - off) * DAY }));
+    const bd = new Date(base);
+    [1, 2, 3, 5, 10, 20].forEach((y) => marks.push({ t: t('years', { n: y }), at: Date.UTC(bd.getUTCFullYear() + y, bd.getUTCMonth(), bd.getUTCDate()) }));
+    marks.sort((a, b) => a.at - b.at);
+    const next = marks.find((m) => m.at >= today);
+    $('dAnn').innerHTML = marks.map((m) => {
+      const k = Math.round((m.at - today) / DAY);
+      return `<div class="${m.at < today ? 'gone' : ''} ${m === next ? 'next' : ''}"><b>${m.t}</b>${fmt(m.at)}<br><span class="muted">${k > 0 ? `D-${k}` : k === 0 ? t('todayShort') : `D+${-k}`}</span></div>`;
+    }).join('');
+  }
+
+  function setSubmitLabel() { $('submitBtn').textContent = t(editing ? 'saveEdit' : 'add'); }
+
+  function resetForm() {
+    editing = null;
+    setSubmitLabel();
+    $('name').value = ''; $('date').value = ''; $('countFirst').checked = false;
+  }
+
+  function startEdit(e) {
+    editing = e.id;
+    $('name').value = e.name;
+    $('date').value = e.date;
+    $('countFirst').checked = e.countFirst;
+    setSubmitLabel();
+    $('name').focus();
+  }
+
+  $('form').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const name = $('name').value.trim(), date = $('date').value;
+    if (!name || !date) return;
+    const target = editing && entries.find((x) => x.id === editing);
+    if (target) {
+      Object.assign(target, { name, date, countFirst: $('countFirst').checked });
+      selected = editing;
+    } else {
+      const e = { id: Date.now(), added: Date.now(), name, date, countFirst: $('countFirst').checked };
+      entries.push(e); selected = e.id;
+    }
+    save(); render(); showDetail();
+    resetForm();
+  });
+  $('sort').addEventListener('change', () => { localStorage.setItem('dday_sort', $('sort').value); render(); });
+  $('sort').value = localStorage.getItem('dday_sort') || 'near';
+
+  function between() {
+    const a = $('from').value, b = $('to').value;
+    if (!a || !b) { $('between').innerHTML = `<span class="muted">${t('pickTwo')}</span>`; return; }
+    const n = Math.round((parse(b) - parse(a)) / DAY);
+    const abs = Math.abs(n);
+    $('between').innerHTML = t('betweenResult', { n: abs.toLocaleString(), n1: (abs + 1).toLocaleString(), w: Math.floor(abs / 7), d: abs % 7 });
+  }
+  $('from').value = iso(todayUTC());
+  $('from').addEventListener('change', between);
+  $('to').addEventListener('change', between);
+  document.addEventListener('i18n:change', () => { setSubmitLabel(); render(); showDetail(); between(); });
+
+  render(); showDetail(); between();
+})();
+</script>
 <script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: 'D-Day 계산기 · 기념일 계산 — tool.cocy.io',
+  description: '디데이 계산, 100일·200일·1000일·1주년 기념일 날짜, 두 날짜 사이 일수 계산. 브라우저에 자동 저장',
+  url: 'https://tool.cocy.io/dday/'
+});
+</script>
 </body>
 </html>

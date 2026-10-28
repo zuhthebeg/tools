@@ -1,689 +1,220 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="색상 코드 변환기 - HEX, RGB, HSL 변환">
-    <title>색상 코드 변환기 | cocy.io</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #6b4f40;
-            --secondary: #8b6b4d;
-            --accent: #3498db;
-            --light: #ecf0f1;
-            --dark: #2c3e50;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--primary);
-            color: var(--light);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        body.dark-mode {
-            --primary: #1a1a1a;
-            --secondary: #2d2d2d;
-            --accent: #3498db;
-            --light: #ecf0f1;
-            --dark: #ecf0f1;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 5px;
-        }
-
-        .card {
-            background: var(--secondary);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .color-preview {
-            width: 100%;
-            height: 120px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border: 3px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .color-preview:hover {
-            transform: scale(1.02);
-            border-color: rgba(255, 255, 255, 0.4);
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 6px;
-            color: #bbb;
-            text-transform: uppercase;
-        }
-
-        .input-wrapper {
-            display: flex;
-            gap: 8px;
-        }
-
-        .input-wrapper input {
-            flex: 1;
-            padding: 10px 12px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            background: rgba(0, 0, 0, 0.2);
-            color: var(--light);
-            font-size: 14px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .input-wrapper input:focus {
-            outline: none;
-            border-color: var(--accent);
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .input-wrapper input::placeholder {
-            color: #888;
-        }
-
-        .copy-btn {
-            padding: 10px 14px;
-            background: var(--accent);
-            border: none;
-            border-radius: 6px;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s;
-            font-size: 12px;
-        }
-
-        .copy-btn:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .copy-btn.copied {
-            background: #2ecc71;
-        }
-
-        .sliders {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .slider-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .slider-label {
-            min-width: 35px;
-            font-weight: bold;
-            font-size: 12px;
-        }
-
-        input[type="range"] {
-            flex: 1;
-            height: 6px;
-            border-radius: 3px;
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--accent);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-            background: #2980b9;
-        }
-
-        input[type="range"]::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--accent);
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-        }
-
-        input[type="range"]::-moz-range-thumb:hover {
-            transform: scale(1.2);
-            background: #2980b9;
-        }
-
-        .slider-value {
-            min-width: 45px;
-            text-align: right;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-        }
-
-        .theme-btn {
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: var(--secondary);
-            border: none;
-            color: var(--light);
-            font-size: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .theme-btn:hover {
-            background: var(--accent);
-        }
-
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 10px;
-            border: 2px solid transparent;
-            border-radius: 6px;
-            background: rgba(0, 0, 0, 0.2);
-            color: var(--light);
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s;
-            font-size: 12px;
-        }
-
-        .tab-btn.active {
-            background: var(--accent);
-            border-color: var(--light);
-        }
-
-        .tab-btn:hover {
-            background: rgba(52, 152, 219, 0.7);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .recent-colors {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .recent-color {
-            width: 100%;
-            aspect-ratio: 1;
-            border-radius: 6px;
-            cursor: pointer;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.2s;
-        }
-
-        .recent-color:hover {
-            transform: scale(1.1);
-            border-color: rgba(255, 255, 255, 0.5);
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                max-width: 100%;
-            }
-
-            .header h1 {
-                font-size: 24px;
-            }
-
-            .card {
-                padding: 15px;
-            }
-
-            .color-preview {
-                height: 100px;
-            }
-
-            .input-wrapper {
-                flex-direction: column;
-            }
-
-            .copy-btn {
-                width: 100%;
-            }
-
-            .theme-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 18px;
-                top: 10px;
-                right: 10px;
-            }
-        }
-
-        footer {
-            text-align: center;
-            font-size: 12px;
-            color: #999;
-            margin-top: 20px;
-            padding: 20px;
-        }
-
-        .copy-feedback {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #2ecc71;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 6px;
-            font-weight: bold;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            z-index: 2000;
-        }
-
-        .copy-feedback.show {
-            opacity: 1;
-        }
-    </style>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>색상 변환기 · 팔레트 생성 · WCAG 대비 검사 — tool.cocy.io</title>
+<meta name="description" content="HEX·RGB·HSL 색상 변환, 보색·유사색·삼각 배색 팔레트와 명암 단계 생성, 글자/배경 WCAG 명도 대비 검사">
 <link rel="canonical" href="https://tool.cocy.io/color/">
-<meta property="og:url" content="https://tool.cocy.io/color/">
-<meta property="og:title" content="색상 코드">
-<meta property="og:description" content="색상 코드 변환기">
+<link rel="icon" href="/color/icon.svg">
+
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+.top { display: grid; grid-template-columns: 160px 1fr; gap: 16px; align-items: start; }
+@media (max-width: 560px) { .top { grid-template-columns: 1fr; } }
+.preview { height: 160px; border-radius: var(--radius); border: 1px solid var(--line); position: relative; overflow: hidden; }
+.preview input[type=color] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.preview span { position: absolute; bottom: 8px; left: 0; right: 0; text-align: center; font-size: 12px; pointer-events: none; }
+.fmts { display: grid; gap: 8px; }
+.fmt { display: grid; grid-template-columns: 54px 1fr auto; gap: 8px; align-items: center; }
+.fmt b { font-size: 12px; color: var(--muted); }
+.pal { display: grid; gap: 12px; }
+.pal h3 { margin: 0 0 6px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.sw { display: flex; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+.sw div { flex: 1; height: 54px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px; font-family: var(--mono); font-size: 11px; cursor: pointer; transition: flex .15s; }
+.sw div:hover { flex: 1.6; }
+.sw div { min-width: 0; overflow: hidden; }
+@media (max-width: 560px) { .sw div { font-size: 0; } }
+.contrast { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.contrast > div, .fmt > *, .top > * { min-width: 0; }
+@media (max-width: 560px) { .contrast { grid-template-columns: 1fr; } }
+.sample { border-radius: 10px; padding: 18px; border: 1px solid var(--line); margin-top: 12px; }
+.sample .l { font-size: 24px; font-weight: 700; } .sample .s { font-size: 14px; }
+.badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.badge { padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; border: 1px solid var(--line); }
+.badge.pass { background: rgba(16,185,129,.15); color: #6ee7b7; border-color: rgba(16,185,129,.4); }
+.badge.fail { background: rgba(239,68,68,.12); color: #fca5a5; border-color: rgba(239,68,68,.35); }
+.ratio { font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums; }
+</style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "색상 코드", "description": "색상 코드 변환기", "url": "https://tool.cocy.io/color/", "applicationCategory": "UtilityApplication", "operatingSystem": "Any", "browserRequirements": "Requires JavaScript", "inLanguage": "ko", "author": {"@type": "Person", "name": "cocy", "url": "https://cocy.io"}, "publisher": {"@type": "Organization", "name": "cocy.io", "url": "https://cocy.io"}, "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}, "image": "https://tool.cocy.io/color/icon.svg"}</script>
 </head>
 <body>
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <button class="theme-btn" onclick="toggleTheme()">🌙</button>
-
-    <div class="container">
-        <div class="header">
-            <h1>🎨 색상 변환기</h1>
-        </div>
-
-        <div class="card">
-            <div class="color-preview" id="preview" onclick="pickColor()"></div>
-
-            <div class="tabs">
-                <button class="tab-btn active" data-tab="hex">HEX</button>
-                <button class="tab-btn" data-tab="rgb">RGB</button>
-                <button class="tab-btn" data-tab="hsl">HSL</button>
-            </div>
-
-            <!-- HEX Tab -->
-            <div class="tab-content active" id="hex-tab">
-                <div class="input-group">
-                    <label>HEX 코드</label>
-                    <div class="input-wrapper">
-                        <input type="text" id="hex-input" placeholder="#000000" maxlength="7">
-                        <button class="copy-btn" onclick="copyToClipboard('hex-input')">복사</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RGB Tab -->
-            <div class="tab-content" id="rgb-tab">
-                <div class="sliders">
-                    <div class="slider-group">
-                        <span class="slider-label">R</span>
-                        <input type="range" id="rgb-r" min="0" max="255" value="0">
-                        <span class="slider-value" id="rgb-r-value">0</span>
-                    </div>
-                    <div class="slider-group">
-                        <span class="slider-label">G</span>
-                        <input type="range" id="rgb-g" min="0" max="255" value="0">
-                        <span class="slider-value" id="rgb-g-value">0</span>
-                    </div>
-                    <div class="slider-group">
-                        <span class="slider-label">B</span>
-                        <input type="range" id="rgb-b" min="0" max="255" value="0">
-                        <span class="slider-value" id="rgb-b-value">0</span>
-                    </div>
-                </div>
-                <div class="input-group" style="margin-top: 15px;">
-                    <label>RGB 형식</label>
-                    <div class="input-wrapper">
-                        <input type="text" id="rgb-input" placeholder="rgb(0, 0, 0)" readonly>
-                        <button class="copy-btn" onclick="copyToClipboard('rgb-input')">복사</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- HSL Tab -->
-            <div class="tab-content" id="hsl-tab">
-                <div class="sliders">
-                    <div class="slider-group">
-                        <span class="slider-label">H</span>
-                        <input type="range" id="hsl-h" min="0" max="360" value="0">
-                        <span class="slider-value" id="hsl-h-value">0°</span>
-                    </div>
-                    <div class="slider-group">
-                        <span class="slider-label">S</span>
-                        <input type="range" id="hsl-s" min="0" max="100" value="0">
-                        <span class="slider-value" id="hsl-s-value">0%</span>
-                    </div>
-                    <div class="slider-group">
-                        <span class="slider-label">L</span>
-                        <input type="range" id="hsl-l" min="0" max="100" value="0">
-                        <span class="slider-value" id="hsl-l-value">0%</span>
-                    </div>
-                </div>
-                <div class="input-group" style="margin-top: 15px;">
-                    <label>HSL 형식</label>
-                    <div class="input-wrapper">
-                        <input type="text" id="hsl-input" placeholder="hsl(0, 0%, 0%)" readonly>
-                        <button class="copy-btn" onclick="copyToClipboard('hsl-input')">복사</button>
-                    </div>
-                </div>
-            </div>
-
-            <div style="margin-top: 20px;">
-                <label style="display: block; font-size: 12px; margin-bottom: 10px; color: #bbb; text-transform: uppercase;">최근 색상</label>
-                <div class="recent-colors" id="recent-colors"></div>
-            </div>
-        </div>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>🎨 <span data-i18n="h1">색상 변환기 · 팔레트</span></h1>
+    <p data-i18n="sub">HEX · RGB · HSL 변환 · 배색 팔레트 · 명도 대비(WCAG) 검사 — 색 클릭하면 복사</p>
+  </div>
+  <div class="card">
+    <div class="top">
+      <div class="preview" id="preview" data-i18n-attr="title:pickTip"><input type="color" id="picker" data-i18n-attr="aria-label:pickTip"><span id="pvLabel" data-i18n="pick">클릭해서 선택</span></div>
+      <div class="fmts">
+        <div class="fmt"><b>HEX</b><input type="text" id="hex" class="mono" spellcheck="false"><button class="btn sm" data-copy="hex" data-i18n="copy">복사</button></div>
+        <div class="fmt"><b>RGB</b><input type="text" id="rgb" class="mono" spellcheck="false"><button class="btn sm" data-copy="rgb" data-i18n="copy">복사</button></div>
+        <div class="fmt"><b>HSL</b><input type="text" id="hsl" class="mono" spellcheck="false"><button class="btn sm" data-copy="hsl" data-i18n="copy">복사</button></div>
+        <div class="row"><button class="btn sm" id="randBtn" data-i18n="rand">🎲 랜덤</button><button class="btn sm" id="eyeBtn" hidden data-i18n="eye">💧 화면에서 추출</button><span class="muted" id="err"></span></div>
+      </div>
     </div>
+  </div>
+  <div class="card"><h2 data-i18n="palette">팔레트</h2><div class="pal" id="pal"></div></div>
+  <div class="card">
+    <h2 data-i18n="contrast">명도 대비 검사 (WCAG 2.1)</h2>
+    <div class="contrast">
+      <div><label class="lbl" for="fg" data-i18n="fgL">글자색</label><div class="row" style="flex-wrap:nowrap"><input type="color" id="fgPick" style="width:44px;height:40px;padding:0;border:0;background:none"><input type="text" id="fg" class="mono"></div></div>
+      <div><label class="lbl" for="bg" data-i18n="bgL">배경색</label><div class="row" style="flex-wrap:nowrap"><input type="color" id="bgPick" style="width:44px;height:40px;padding:0;border:0;background:none"><input type="text" id="bg" class="mono"></div></div>
+    </div>
+    <div class="row" style="margin-top:10px"><button class="btn sm" id="useMainFg" data-i18n="useFg">위 색을 글자색으로</button><button class="btn sm" id="useMainBg" data-i18n="useBg">위 색을 배경색으로</button><button class="btn sm" id="swapC" data-i18n="swap">⇄ 바꾸기</button></div>
+    <div class="sample" id="sample"><div class="l" data-i18n="sampleL">큰 글씨 미리보기 Aa</div><div class="s" data-i18n="sampleS">작은 본문 글씨는 4.5:1 이상의 대비가 필요해요. The quick brown fox.</div></div>
+    <div class="row" style="margin-top:12px;align-items:baseline"><span class="ratio" id="ratio"></span><span class="muted">: 1</span></div>
+    <div class="badges" id="badges"></div>
+  </div>
+  <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+(() => {
+  const t = I18n.t;
+  I18n.define({
+    pageTitle: ['색상 변환기 · 팔레트 · 명도 대비 — tool.cocy.io', 'Color Converter · Palette · Contrast Checker — tool.cocy.io', '颜色转换器 · 配色 · 对比度检查 — tool.cocy.io', '顏色轉換器 · 配色 · 對比度檢查 — tool.cocy.io', 'Conversor de color · Paleta · Contraste — tool.cocy.io'],
+    h1: ['색상 변환기 · 팔레트', 'Color Converter · Palette', '颜色转换器 · 配色', '顏色轉換器 · 配色', 'Conversor de color · Paleta'],
+    sub: ['HEX · RGB · HSL 변환 · 배색 팔레트 · 명도 대비(WCAG) 검사 — 색 클릭하면 복사', 'HEX · RGB · HSL conversion · color palettes · WCAG contrast check — click a color to copy', 'HEX · RGB · HSL 转换 · 配色方案 · WCAG 对比度检查 — 点击颜色复制', 'HEX · RGB · HSL 轉換 · 配色方案 · WCAG 對比度檢查 — 點擊顏色複製', 'Conversión HEX · RGB · HSL · paletas · contraste WCAG — clic en un color para copiar'],
+    pickTip: ['클릭해서 색 고르기', 'Click to pick a color', '点击选择颜色', '點擊選擇顏色', 'Clic para elegir color'],
+    pick: ['클릭해서 선택', 'Click to pick', '点击选择', '點擊選擇', 'Clic para elegir'],
+    copy: ['복사', 'Copy', '复制', '複製', 'Copiar'],
+    rand: ['🎲 랜덤', '🎲 Random', '🎲 随机', '🎲 隨機', '🎲 Aleatorio'],
+    eye: ['💧 화면에서 추출', '💧 Pick from screen', '💧 屏幕取色', '💧 螢幕取色', '💧 Tomar de la pantalla'],
+    badFmt: ['형식을 확인해 주세요', 'Check the format', '请检查格式', '請檢查格式', 'Revisa el formato'],
+    palette: ['팔레트', 'Palettes', '配色', '配色', 'Paletas'],
+    pShades: ['명암 단계 (Shades)', 'Shades', '明暗阶梯', '明暗階梯', 'Tonos'],
+    pComp: ['보색 (Complementary)', 'Complementary', '互补色', '互補色', 'Complementarios'],
+    pAna: ['유사색 (Analogous)', 'Analogous', '类似色', '類似色', 'Análogos'],
+    pTri: ['삼각 배색 (Triadic)', 'Triadic', '三角配色', '三角配色', 'Tríada'],
+    pSplit: ['분할 보색 (Split)', 'Split complementary', '分裂互补', '分裂互補', 'Complementario dividido'],
+    pTet: ['사각 배색 (Tetradic)', 'Tetradic', '四角配色', '四角配色', 'Tétrada'],
+    copyHex: ['{hx} 복사', 'Copied {hx}', '已复制 {hx}', '已複製 {hx}', 'Copiado {hx}'],
+    contrast: ['명도 대비 검사 (WCAG 2.1)', 'Contrast checker (WCAG 2.1)', '对比度检查（WCAG 2.1）', '對比度檢查（WCAG 2.1）', 'Comprobador de contraste (WCAG 2.1)'],
+    fgL: ['글자색', 'Text color', '文字颜色', '文字顏色', 'Color del texto'],
+    bgL: ['배경색', 'Background', '背景色', '背景色', 'Fondo'],
+    useFg: ['위 색을 글자색으로', 'Use above as text', '将上方颜色设为文字色', '將上方顏色設為文字色', 'Usar como texto'],
+    useBg: ['위 색을 배경색으로', 'Use above as background', '将上方颜色设为背景色', '將上方顏色設為背景色', 'Usar como fondo'],
+    swap: ['⇄ 바꾸기', '⇄ Swap', '⇄ 交换', '⇄ 交換', '⇄ Intercambiar'],
+    sampleL: ['큰 글씨 미리보기 Aa', 'Large text preview Aa', '大号文字预览 Aa', '大字預覽 Aa', 'Vista previa de texto grande Aa'],
+    sampleS: ['작은 본문 글씨는 4.5:1 이상의 대비가 필요해요. The quick brown fox.', 'Small body text needs a contrast of at least 4.5:1. The quick brown fox.', '小号正文需要至少 4.5:1 的对比度。The quick brown fox.', '小字內文需要至少 4.5:1 的對比度。The quick brown fox.', 'El texto pequeño necesita un contraste de al menos 4.5:1. The quick brown fox.'],
+    body: ['본문', 'body text', '正文', '內文', 'texto normal'],
+    large: ['큰 글씨', 'large text', '大号文字', '大字', 'texto grande'],
+    ui: ['UI 요소', 'UI components', 'UI 组件', 'UI 元件', 'Componentes UI'],
+  });
+  I18n.init();
+  const $ = (id) => document.getElementById(id);
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const hex2rgb = (h) => { h = h.replace('#', ''); if (h.length === 3) h = [...h].map((c) => c + c).join(''); const n = parseInt(h, 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+  const rgb2hex = (r, g, b) => '#' + [r, g, b].map((v) => Math.round(clamp(v, 0, 255)).toString(16).padStart(2, '0')).join('').toUpperCase();
+  function rgb2hsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+    let h = 0, s = 0;
+    if (mx !== mn) {
+      const d = mx - mn; s = l > .5 ? d / (2 - mx - mn) : d / (mx + mn);
+      h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60;
+    }
+    return [Math.round(h), Math.round(s * 100), Math.round(l * 100)];
+  }
+  function hsl2rgb(h, s, l) {
+    h = ((h % 360) + 360) % 360; s = clamp(s, 0, 100) / 100; l = clamp(l, 0, 100) / 100;
+    const k = (n) => (n + h / 30) % 12, a = s * Math.min(l, 1 - l);
+    const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+    return [f(0) * 255, f(8) * 255, f(4) * 255].map(Math.round);
+  }
+  function parseColor(str) {
+    const s = str.trim().toLowerCase();
+    let m;
+    if ((m = s.match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/))) return hex2rgb(m[1]);
+    if ((m = s.match(/^rgba?\(?\s*(\d{1,3})[\s,]+(\d{1,3})[\s,]+(\d{1,3})/))) return [+m[1], +m[2], +m[3]].map((v) => clamp(v, 0, 255));
+    if ((m = s.match(/^hsla?\(?\s*(-?\d+(?:\.\d+)?)(?:deg)?[\s,]+(\d+(?:\.\d+)?)%?[\s,]+(\d+(?:\.\d+)?)%?/))) return hsl2rgb(+m[1], +m[2], +m[3]);
+    return null;
+  }
+  const lum = ([r, g, b]) => { const c = [r, g, b].map((v) => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }); return .2126 * c[0] + .7152 * c[1] + .0722 * c[2]; };
+  const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+  const textOn = (rgb) => (lum(rgb) > .4 ? '#0f172a' : '#ffffff');
 
-    <div class="copy-feedback" id="copy-feedback">복사되었습니다!</div>
-    <footer>© 2025 cocy.io - 색상 변환기</footer>
+  let main = [59, 130, 246];
+  function setMain(rgb, from) {
+    main = rgb;
+    const hex = rgb2hex(...rgb), hsl = rgb2hsl(...rgb);
+    if (from !== 'hex') $('hex').value = hex;
+    if (from !== 'rgb') $('rgb').value = `rgb(${rgb.join(', ')})`;
+    if (from !== 'hsl') $('hsl').value = `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`;
+    $('picker').value = hex.toLowerCase();
+    $('preview').style.background = hex;
+    $('pvLabel').style.color = textOn(rgb);
+    $('err').textContent = '';
+    localStorage.setItem('color_last', hex);
+    history.replaceState(null, '', '#' + hex.slice(1));
+    palette(hsl);
+  }
+  ['hex', 'rgb', 'hsl'].forEach((id) => $(id).addEventListener('input', () => {
+    const c = parseColor($(id).value);
+    if (c) setMain(c, id); else $('err').textContent = t('badFmt');
+  }));
+  $('picker').addEventListener('input', () => setMain(hex2rgb($('picker').value)));
+  document.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', () => UI.copy($(b.dataset.copy).value)));
+  $('randBtn').addEventListener('click', () => setMain(hsl2rgb(Math.random() * 360, 55 + Math.random() * 35, 40 + Math.random() * 25)));
+  if ('EyeDropper' in window) {
+    $('eyeBtn').hidden = false;
+    $('eyeBtn').addEventListener('click', async () => { try { const r = await new EyeDropper().open(); setMain(hex2rgb(r.sRGBHex)); } catch (e) {} });
+  }
 
-    <script>
-        let currentColor = {
-            hex: '#FF0000',
-            r: 255,
-            g: 0,
-            b: 0,
-            h: 0,
-            s: 100,
-            l: 50
-        };
+  function palette([h, s, l]) {
+    const groups = [
+      [t('pShades'), [95, 85, 72, 60, 50, 40, 30, 20, 12].map((L) => [h, s, L])],
+      [t('pComp'), [[h, s, l], [h + 180, s, l]]],
+      [t('pAna'), [[h - 30, s, l], [h - 15, s, l], [h, s, l], [h + 15, s, l], [h + 30, s, l]]],
+      [t('pTri'), [[h, s, l], [h + 120, s, l], [h + 240, s, l]]],
+      [t('pSplit'), [[h, s, l], [h + 150, s, l], [h + 210, s, l]]],
+      [t('pTet'), [[h, s, l], [h + 90, s, l], [h + 180, s, l], [h + 270, s, l]]],
+    ];
+    $('pal').innerHTML = groups.map(([name, cols]) => `<div><h3>${name}</h3><div class="sw">${cols.map((c) => { const rgb = hsl2rgb(...c), hx = rgb2hex(...rgb); return `<div data-hex="${hx}" style="background:${hx};color:${textOn(rgb)}" title="${t('copyHex', { hx })}">${hx}</div>`; }).join('')}</div></div>`).join('');
+  }
+  $('pal').addEventListener('click', (e) => { const hx = e.target.dataset.hex; if (hx) UI.copy(hx, t('copyHex', { hx })); });
+  $('pal').addEventListener('dblclick', (e) => { const hx = e.target.dataset.hex; if (hx) setMain(hex2rgb(hx)); });
 
-        let recentColors = JSON.parse(localStorage.getItem('recentColors')) || [];
+  let fg = [255, 255, 255], bg = [59, 130, 246];
+  function contrast(from) {
+    const fh = rgb2hex(...fg), bh = rgb2hex(...bg);
+    if (from !== 'fg') $('fg').value = fh;
+    if (from !== 'bg') $('bg').value = bh;
+    $('fgPick').value = fh.toLowerCase(); $('bgPick').value = bh.toLowerCase();
+    $('sample').style.cssText = `background:${bh};color:${fh}`;
+    const r = ratio(fg, bg);
+    $('ratio').textContent = (Math.floor(r * 100) / 100).toFixed(2);
+    const levels = [['AA ' + t('body'), 4.5], ['AA ' + t('large'), 3], ['AAA ' + t('body'), 7], ['AAA ' + t('large'), 4.5], [t('ui'), 3]];
+    $('badges').innerHTML = levels.map(([n, min]) => `<span class="badge ${r >= min ? 'pass' : 'fail'}">${r >= min ? '✓' : '✗'} ${n} (${min}:1)</span>`).join('');
+  }
+  $('fg').addEventListener('input', () => { const c = parseColor($('fg').value); if (c) { fg = c; contrast('fg'); } });
+  $('bg').addEventListener('input', () => { const c = parseColor($('bg').value); if (c) { bg = c; contrast('bg'); } });
+  $('fgPick').addEventListener('input', () => { fg = hex2rgb($('fgPick').value); contrast(); });
+  $('bgPick').addEventListener('input', () => { bg = hex2rgb($('bgPick').value); contrast(); });
+  $('useMainFg').addEventListener('click', () => { fg = main; contrast(); });
+  $('useMainBg').addEventListener('click', () => { bg = main; contrast(); });
+  $('swapC').addEventListener('click', () => { [fg, bg] = [bg, fg]; contrast(); });
 
-        // 탭 전환
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                e.target.classList.add('active');
-                const tab = e.target.dataset.tab;
-                document.getElementById(`${tab}-tab`).classList.add('active');
-            });
-        });
-
-        // RGB 슬라이더
-        document.querySelectorAll('#rgb-r, #rgb-g, #rgb-b').forEach(slider => {
-            slider.addEventListener('input', (e) => {
-                currentColor.r = parseInt(document.getElementById('rgb-r').value);
-                currentColor.g = parseInt(document.getElementById('rgb-g').value);
-                currentColor.b = parseInt(document.getElementById('rgb-b').value);
-                updateFromRGB();
-            });
-        });
-
-        // HSL 슬라이더
-        document.querySelectorAll('#hsl-h, #hsl-s, #hsl-l').forEach(slider => {
-            slider.addEventListener('input', (e) => {
-                currentColor.h = parseInt(document.getElementById('hsl-h').value);
-                currentColor.s = parseInt(document.getElementById('hsl-s').value);
-                currentColor.l = parseInt(document.getElementById('hsl-l').value);
-                updateFromHSL();
-            });
-        });
-
-        // HEX 입력
-        document.getElementById('hex-input').addEventListener('input', (e) => {
-            let hex = e.target.value;
-            if(hex.startsWith('#') && hex.length === 7) {
-                currentColor.hex = hex;
-                updateFromHEX();
-            }
-        });
-
-        function updateFromHEX() {
-            let hex = currentColor.hex.replace('#', '');
-            currentColor.r = parseInt(hex.substr(0, 2), 16);
-            currentColor.g = parseInt(hex.substr(2, 2), 16);
-            currentColor.b = parseInt(hex.substr(4, 2), 16);
-            const hsl = rgbToHsl(currentColor.r, currentColor.g, currentColor.b);
-            currentColor.h = hsl.h;
-            currentColor.s = hsl.s;
-            currentColor.l = hsl.l;
-            updateDisplay();
-        }
-
-        function updateFromRGB() {
-            currentColor.hex = `#${componentToHex(currentColor.r)}${componentToHex(currentColor.g)}${componentToHex(currentColor.b)}`;
-            const hsl = rgbToHsl(currentColor.r, currentColor.g, currentColor.b);
-            currentColor.h = hsl.h;
-            currentColor.s = hsl.s;
-            currentColor.l = hsl.l;
-            updateDisplay();
-        }
-
-        function updateFromHSL() {
-            const rgb = hslToRgb(currentColor.h, currentColor.s, currentColor.l);
-            currentColor.r = rgb.r;
-            currentColor.g = rgb.g;
-            currentColor.b = rgb.b;
-            currentColor.hex = `#${componentToHex(currentColor.r)}${componentToHex(currentColor.g)}${componentToHex(currentColor.b)}`;
-            updateDisplay();
-        }
-
-        function updateDisplay() {
-            // 프리뷰 업데이트
-            document.getElementById('preview').style.backgroundColor = currentColor.hex;
-
-            // HEX
-            document.getElementById('hex-input').value = currentColor.hex;
-
-            // RGB
-            document.getElementById('rgb-r').value = currentColor.r;
-            document.getElementById('rgb-g').value = currentColor.g;
-            document.getElementById('rgb-b').value = currentColor.b;
-            document.getElementById('rgb-r-value').textContent = currentColor.r;
-            document.getElementById('rgb-g-value').textContent = currentColor.g;
-            document.getElementById('rgb-b-value').textContent = currentColor.b;
-            document.getElementById('rgb-input').value = `rgb(${currentColor.r}, ${currentColor.g}, ${currentColor.b})`;
-
-            // HSL
-            document.getElementById('hsl-h').value = currentColor.h;
-            document.getElementById('hsl-s').value = currentColor.s;
-            document.getElementById('hsl-l').value = currentColor.l;
-            document.getElementById('hsl-h-value').textContent = `${currentColor.h}°`;
-            document.getElementById('hsl-s-value').textContent = `${currentColor.s}%`;
-            document.getElementById('hsl-l-value').textContent = `${currentColor.l}%`;
-            document.getElementById('hsl-input').value = `hsl(${currentColor.h}, ${currentColor.s}%, ${currentColor.l}%)`;
-
-            addToRecentColors();
-        }
-
-        function componentToHex(c) {
-            const hex = c.toString(16);
-            return hex.length === 1 ? '0' + hex : hex;
-        }
-
-        function rgbToHsl(r, g, b) {
-            r /= 255;
-            g /= 255;
-            b /= 255;
-            const max = Math.max(r, g, b);
-            const min = Math.min(r, g, b);
-            let h, s, l = (max + min) / 2;
-
-            if(max === min) {
-                h = s = 0;
-            } else {
-                const d = max - min;
-                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-                switch(max) {
-                    case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
-                    case g: h = ((b - r) / d + 2) / 6; break;
-                    case b: h = ((r - g) / d + 4) / 6; break;
-                }
-            }
-
-            return {
-                h: Math.round(h * 360),
-                s: Math.round(s * 100),
-                l: Math.round(l * 100)
-            };
-        }
-
-        function hslToRgb(h, s, l) {
-            h = h / 360;
-            s = s / 100;
-            l = l / 100;
-            let r, g, b;
-
-            if(s === 0) {
-                r = g = b = l;
-            } else {
-                const hue2rgb = (p, q, t) => {
-                    if(t < 0) t += 1;
-                    if(t > 1) t -= 1;
-                    if(t < 1/6) return p + (q - p) * 6 * t;
-                    if(t < 1/2) return q;
-                    if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-                    return p;
-                };
-                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-                const p = 2 * l - q;
-                r = hue2rgb(p, q, h + 1/3);
-                g = hue2rgb(p, q, h);
-                b = hue2rgb(p, q, h - 1/3);
-            }
-
-            return {
-                r: Math.round(r * 255),
-                g: Math.round(g * 255),
-                b: Math.round(b * 255)
-            };
-        }
-
-        function copyToClipboard(elementId) {
-            const element = document.getElementById(elementId);
-            const text = element.value;
-            navigator.clipboard.writeText(text).then(() => {
-                const feedback = document.getElementById('copy-feedback');
-                feedback.classList.add('show');
-                setTimeout(() => feedback.classList.remove('show'), 2000);
-            });
-        }
-
-        function addToRecentColors() {
-            if(!recentColors.includes(currentColor.hex)) {
-                recentColors.unshift(currentColor.hex);
-                if(recentColors.length > 12) recentColors.pop();
-                localStorage.setItem('recentColors', JSON.stringify(recentColors));
-                renderRecentColors();
-            }
-        }
-
-        function renderRecentColors() {
-            const container = document.getElementById('recent-colors');
-            container.innerHTML = '';
-            recentColors.forEach(color => {
-                const div = document.createElement('div');
-                div.className = 'recent-color';
-                div.style.backgroundColor = color;
-                div.onclick = () => {
-                    currentColor.hex = color;
-                    updateFromHEX();
-                };
-                container.appendChild(div);
-            });
-        }
-
-        function pickColor() {
-            const input = document.createElement('input');
-            input.type = 'color';
-            input.value = currentColor.hex;
-            input.onchange = (e) => {
-                currentColor.hex = e.target.value;
-                updateFromHEX();
-            };
-            input.click();
-        }
-
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-        }
-
-        // 초기화
-        renderRecentColors();
-        updateDisplay();
-    </script>
-    <script src="/lib/tool-nav.js"></script>
-    <script src="/lib/site-meta.js"></script>
-    <script>
-      SiteMeta.init({
-        title: 'Color Converter - tool.cocy.io',
-        description: 'HEX, RGB, HSL 색상 코드를 상호 변환하는 온라인 도구',
-        url: 'https://tool.cocy.io/color/'
-      });
-    </script>
+  const init = parseColor(location.hash.slice(1)) || parseColor(localStorage.getItem('color_last') || '') || main;
+  setMain(init);
+  bg = init; fg = hex2rgb(textOn(init));
+  contrast();
+  document.addEventListener('i18n:change', () => { palette(rgb2hsl(...main)); contrast(); });
+})();
+</script>
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: '색상 변환기 · 팔레트 생성 · WCAG 대비 검사 — tool.cocy.io',
+  description: 'HEX·RGB·HSL 색상 변환, 보색·유사색·삼각 배색 팔레트와 명암 단계 생성, 글자/배경 WCAG 명도 대비 검사',
+  url: 'https://tool.cocy.io/color/'
+});
+</script>
 </body>
 </html>

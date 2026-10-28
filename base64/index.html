@@ -1,682 +1,221 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f)})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Base64 Online Converter | Encode/Decode Text & Strings</title>
-    <meta name="description" content="Free online Base64 encoder/decoder tool with charset support. Instantly convert text to Base64 and vice versa with UTF-8, ISO-8859-1, Windows-1252 encoding support.">
-    <meta name="keywords" content="Base64 converter, Base64 인코더, Base64 디코더, online tool, text encoding, charset converter, base64 변환기">
-    <meta name="author" content="cocy.io">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Online Base64 Converter with Charset Support">
-    <meta property="og:description" content="Free instant Base64 encoding/decoding tool with multiple charset support. Works on any device!">
-    <meta property="og:image" content="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAwIDYzMCI+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzY2N2VlYSIvPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjQ4IiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiPkJhc2U2NCBDb252ZXJ0ZXI8L3RleHQ+CiAgPHJlY3QgeD0iMjAwIiB5PSIyMDAiIHdpZHRoPSI4MDAiIGhlaWdodD0iMjAwIiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iNSIvPgogIDxwYXRoIGQ9Ik00MDAgNDAwIEw4MDAgNDAwIEw2MDAgNTAwIEw0MDAgNTAwIFoiIGZpbGw9IiNmZmYiLz4KPC9zdmc+">
-    <meta name="theme-color" content="#667eea">
-    <script src="../localization.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607"
-     crossorigin="anonymous"></script>
-
-    <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --success-gradient: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
-            --glow-color: #667eea;
-        }
-
-        body {
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: #000;
-            color: #fff;
-            min-height: 100vh;
-            background-image: 
-                radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(240, 147, 251, 0.05) 0%, transparent 50%);
-        }
-
-        .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-        }
-
-        .glass-hover {
-            transition: all 0.3s ease;
-        }
-
-        .glass-hover:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .gradient-text {
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .floating {
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        .floating button {
-            animation: none !important;
-            transform: none !important;
-        }
-
-        .btn-primary {
-            background: var(--primary-gradient);
-            border: none;
-            color: white;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn-primary:hover::before {
-            left: 100%;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .copy-btn {
-            background: var(--accent-gradient);
-            transition: all 0.3s ease;
-        }
-
-        .copy-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
-        }
-
-        .textarea-custom {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: #fff;
-            resize: vertical;
-            transition: all 0.3s ease;
-            font-family: 'Fira Code', 'Monaco', 'Cascadia Code', monospace;
-            font-size: 14px;
-        }
-
-        .textarea-custom:focus {
-            outline: none;
-            border-color: rgba(102, 126, 234, 0.5);
-            box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .select-custom {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .select-custom:focus {
-            outline: none;
-            border-color: rgba(102, 126, 234, 0.5);
-            box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
-        }
-
-        .select-custom option {
-            background: #1a1a1a;
-            color: #fff;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .icon-animate {
-            transition: transform 0.3s ease;
-        }
-
-        .icon-animate:hover {
-            transform: rotate(360deg);
-        }
-
-        /* 스크롤바 스타일링 */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary-gradient);
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--secondary-gradient);
-        }
-
-        /* 반응형 */
-        @media (max-width: 768px) {
-            .container-main {
-                margin: 1rem;
-                padding: 1.5rem;
-            }
-            
-            .grid-main {
-                gap: 1rem;
-            }
-        }
-
-        /* 토스트 알림 스타일 */
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--success-gradient);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-        }
-
-        .toast.show {
-            transform: translateX(0);
-        }
-    </style>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f)})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base64 인코더/디코더 · 파일·이미지 변환 — tool.cocy.io</title>
+<meta name="description" content="텍스트 Base64 실시간 인코딩/디코딩(UTF-8 한글 지원), URL-safe, 파일·이미지를 Base64/Data URL로, Base64를 파일로 저장">
 <link rel="canonical" href="https://tool.cocy.io/base64/">
-<meta property="og:url" content="https://tool.cocy.io/base64/">
+<link rel="icon" href="/base64/icon.svg">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6634731722045607"
+     crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+.io { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 860px) { .io { grid-template-columns: 1fr 1fr; } }
+.drop { border: 2px dashed var(--line); border-radius: var(--radius); padding: 28px 16px; text-align: center; color: var(--muted); cursor: pointer; transition: border-color .15s, background .15s; }
+.drop.over, .drop:hover { border-color: var(--primary); background: rgba(59,130,246,.06); }
+.drop input { display: none; }
+#imgPrev, #decImg { max-width: 100%; max-height: 220px; border-radius: 8px; margin-top: 10px; background: repeating-conic-gradient(#334155 0 25%, #1e293b 0 50%) 0 0/16px 16px; }
+</style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Base64 인코더", "description": "텍스트 인코딩/디코딩 도구", "url": "https://tool.cocy.io/base64/", "applicationCategory": "UtilityApplication", "operatingSystem": "Any", "browserRequirements": "Requires JavaScript", "inLanguage": "ko", "author": {"@type": "Person", "name": "cocy", "url": "https://cocy.io"}, "publisher": {"@type": "Organization", "name": "cocy.io", "url": "https://cocy.io"}, "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}, "image": "https://tool.cocy.io/base64/icon.svg"}</script>
 </head>
-
-<!-- Google tag (gtag.js) -->
-
-
-<body class="overflow-x-hidden">
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- 헤더 -->
-    <header class="w-full py-6 px-4">
-        <div class="max-w-6xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-white icon-animate">
-                    B64
-                </div>
-                <h1 class="text-2xl md:text-3xl font-bold gradient-text">
-                    Base64 Converter
-                </h1>
-            </div>
-            
-            <a href="https://cocy.io" 
-               class="text-sm text-gray-400 hover:text-white transition-colors duration-300"
-               target="_blank">
-                COCY.IO
-            </a>
-        </div>
-    </header>
-
-    <!-- 메인 컨테이너 -->
-    <main class="w-full max-w-4xl mx-auto px-4 pb-8">
-        <div class="glass container-main p-6 md:p-8 floating">
-            
-            <!-- 설명 섹션 -->
-            <div class="text-center mb-8">
-                <p class="text-gray-300 text-lg leading-relaxed">
-                    Encode and decode text using Base64 with multiple charset support. 
-                    <span class="gradient-text font-semibold">Fast, secure, and works offline!</span>
-                </p>
-            </div>
-
-            <!-- 컨트롤 섹션 -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium text-gray-300">Character Encoding</label>
-                    <select id="charset" class="select-custom w-full p-3">
-                        <option value="utf-8">UTF-8 (Universal)</option>
-                        <option value="iso-8859-1">ISO-8859-1 (Latin-1)</option>
-                        <option value="windows-1252">Windows-1252 (CP-1252)</option>
-                    </select>
-                </div>
-                
-                <div class="space-y-2">
-                    <label class="block text-sm font-medium text-gray-300">Operation Mode</label>
-                    <select id="mode" class="select-custom w-full p-3">
-                        <option value="auto">Auto-detect</option>
-                        <option value="encode">Encode to Base64</option>
-                        <option value="decode">Decode from Base64</option>
-                    </select>
-                </div>
-                
-                <div class="flex items-end">
-                    <button onclick="convert()" 
-                            class="btn-primary w-full p-3 rounded-lg font-semibold text-white">
-                        🔄 Convert
-                    </button>
-                </div>
-            </div>
-
-            <!-- 입력/출력 섹션 -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 grid-main">
-                <!-- 입력 -->
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <label class="block text-sm font-medium text-gray-300">Input</label>
-                        <button onclick="clearInput()" 
-                                class="text-xs text-gray-400 hover:text-red-400 transition-colors">
-                            Clear
-                        </button>
-                    </div>
-                    <div class="relative">
-                        <textarea 
-                            id="input" 
-                            class="textarea-custom w-full h-40 p-4" 
-                            placeholder="Enter your text or Base64 encoded string here..."
-                            oninput="autoConvert()"></textarea>
-                        <div class="absolute bottom-3 right-3 text-xs text-gray-500" id="inputLength">
-                            0 characters
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 출력 -->
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <label class="block text-sm font-medium text-gray-300">Output</label>
-                        <div class="flex space-x-2">
-                            <button onclick="copyResult()" 
-                                    class="copy-btn text-xs px-3 py-1 rounded-md text-white font-medium">
-                                📋 Copy
-                            </button>
-                            <button onclick="downloadResult()" 
-                                    class="text-xs px-3 py-1 rounded-md bg-purple-600 hover:bg-purple-700 text-white font-medium transition-colors">
-                                💾 Download
-                            </button>
-                        </div>
-                    </div>
-                    <div class="relative">
-                        <textarea 
-                            id="output" 
-                            class="textarea-custom w-full h-40 p-4" 
-                            readonly 
-                            placeholder="Converted result will appear here..."></textarea>
-                        <div class="absolute bottom-3 right-3 text-xs text-gray-500" id="outputLength">
-                            0 characters
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 상태 표시 -->
-            <div class="mt-6 flex items-center justify-between text-sm">
-                <div class="flex items-center space-x-4">
-                    <span id="status" class="text-gray-400">Ready to convert</span>
-                    <div id="loadingSpinner" class="hidden">
-                        <div class="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                </div>
-                
-                <div class="flex items-center space-x-4 text-gray-500">
-                    <span>🔒 Client-side processing</span>
-                    <span>⚡ Real-time conversion</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- 기능 설명 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-            <div class="glass glass-hover p-6 text-center">
-                <div class="text-3xl mb-3">🚀</div>
-                <h3 class="text-lg font-semibold gradient-text mb-2">Lightning Fast</h3>
-                <p class="text-gray-400 text-sm">Instant conversion with real-time processing. No server delays!</p>
-            </div>
-            
-            <div class="glass glass-hover p-6 text-center">
-                <div class="text-3xl mb-3">🔒</div>
-                <h3 class="text-lg font-semibold gradient-text mb-2">100% Secure</h3>
-                <p class="text-gray-400 text-sm">All processing happens in your browser. Your data never leaves your device.</p>
-            </div>
-            
-            <div class="glass glass-hover p-6 text-center">
-                <div class="text-3xl mb-3">📱</div>
-                <h3 class="text-lg font-semibold gradient-text mb-2">Mobile Friendly</h3>
-                <p class="text-gray-400 text-sm">Responsive design that works perfectly on all devices and screen sizes.</p>
-            </div>
-        </div>
-    </main>
-
-    <!-- 푸터 -->
-    <footer class="w-full max-w-4xl mx-auto px-4 py-8 mt-16">
-        <div class="glass p-6 text-center">
-            <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
-                <div class="text-gray-400">
-                    © 2025 Base64 Converter. Made with ❤️ by 
-                    <a href="https://cocy.io" 
-                       class="gradient-text font-semibold hover:underline transition-all"
-                       target="_blank">COCY.IO</a>
-                </div>
-                
-                <div class="flex items-center space-x-6 text-sm text-gray-500">
-                    <span>Privacy-First</span>
-                    <span>•</span>
-                    <span>Open Source</span>
-                    <span>•</span>
-                    <span>No Tracking</span>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- 토스트 알림 -->
-    <div id="toast" class="toast">
-        <span id="toastMessage"></span>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>🔐 <span data-i18n="h1">Base64 인코더 / 디코더</span></h1>
+    <p data-i18n="sub">입력 즉시 변환 · 한글(UTF-8) 지원 · 파일·이미지 ↔ Base64 — 파일은 업로드되지 않고 브라우저에서만 처리돼요</p>
+  </div>
+  <div class="card">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <div class="seg" id="dirSeg"><button data-dir="encode" class="on" data-i18n="encode">인코딩</button><button data-dir="decode" data-i18n="decode">디코딩</button></div>
+      <label class="chk"><input type="checkbox" id="urlSafe"> <span data-i18n="urlSafe">URL-safe (-_ , 패딩 없음)</span></label>
     </div>
+    <div class="io">
+      <div><label class="lbl" for="input" data-i18n="input">입력</label><textarea id="input" class="mono" spellcheck="false" placeholder="변환할 텍스트를 입력하세요" data-i18n-attr="placeholder:phEnc"></textarea></div>
+      <div><label class="lbl" for="output" data-i18n="output">결과</label><textarea id="output" class="mono" readonly spellcheck="false"></textarea><div id="status" class="muted" style="margin-top:6px">&nbsp;</div></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" id="copyBtn" data-i18n="copy">결과 복사</button>
+      <button class="btn" id="swapBtn" data-i18n="swap">⇅ 결과를 입력으로</button>
+      <button class="btn" id="dlBtn" hidden data-i18n="dl">⬇ 파일로 저장</button>
+      <button class="btn danger" id="clearBtn" data-i18n="clear">지우기</button>
+    </div>
+    <img id="decImg" hidden alt="" data-i18n-attr="alt:decAlt">
+  </div>
+  <div class="card">
+    <h2 data-i18n="fileTitle">파일 → Base64</h2>
+    <label class="drop" id="drop"><input type="file" id="file"><span data-i18n="drop">📁 파일을 끌어다 놓거나 클릭해서 선택</span> <span class="muted" data-i18n="max">(최대 20MB)</span></label>
+    <div id="fileOut" hidden style="margin-top:12px">
+      <div class="muted" id="fileInfo"></div>
+      <img id="imgPrev" hidden alt="" data-i18n-attr="alt:prevAlt">
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="copyRaw" data-i18n="copyRaw">Base64 복사</button>
+        <button class="btn" id="copyData" data-i18n="copyData">Data URL 복사</button>
+        <button class="btn" id="copyCss" hidden data-i18n="copyCss">CSS background 복사</button>
+        <button class="btn" id="copyImg" hidden data-i18n="copyImg">&lt;img&gt; 태그 복사</button>
+      </div>
+    </div>
+  </div>
+  <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+(() => {
+  const tr = I18n.t;
+  I18n.define({
+    pageTitle: ['Base64 인코더/디코더 · 파일·이미지 변환 — tool.cocy.io', 'Base64 Encoder/Decoder · File & Image — tool.cocy.io', 'Base64 编码/解码 · 文件与图片 — tool.cocy.io', 'Base64 編碼/解碼 · 檔案與圖片 — tool.cocy.io', 'Codificador/decodificador Base64 · Archivos e imágenes — tool.cocy.io'],
+    h1: ['Base64 인코더 / 디코더', 'Base64 Encoder / Decoder', 'Base64 编码 / 解码', 'Base64 編碼 / 解碼', 'Codificador / decodificador Base64'],
+    sub: ['입력 즉시 변환 · 한글(UTF-8) 지원 · 파일·이미지 ↔ Base64 — 파일은 업로드되지 않고 브라우저에서만 처리돼요', 'Converts as you type · UTF-8 text · files & images ↔ Base64 — files never leave your browser', '输入即转换 · 支持 UTF-8 · 文件/图片 ↔ Base64 — 文件不会上传，仅在浏览器中处理', '輸入即轉換 · 支援 UTF-8 · 檔案/圖片 ↔ Base64 — 檔案不會上傳，僅在瀏覽器中處理', 'Convierte al escribir · texto UTF-8 · archivos e imágenes ↔ Base64 — los archivos no salen de tu navegador'],
+    encode: ['인코딩', 'Encode', '编码', '編碼', 'Codificar'],
+    decode: ['디코딩', 'Decode', '解码', '解碼', 'Decodificar'],
+    urlSafe: ['URL-safe (-_ , 패딩 없음)', 'URL-safe (-_ , no padding)', 'URL 安全（-_，无填充）', 'URL 安全（-_，無填充）', 'URL-safe (-_ , sin relleno)'],
+    input: ['입력', 'Input', '输入', '輸入', 'Entrada'],
+    output: ['결과', 'Output', '结果', '結果', 'Resultado'],
+    phEnc: ['변환할 텍스트를 입력하세요', 'Type text to encode', '输入要编码的文本', '輸入要編碼的文字', 'Escribe el texto a codificar'],
+    phDec: ['Base64 또는 data:...;base64, 문자열을 붙여넣으세요', 'Paste Base64 or a data:...;base64, string', '粘贴 Base64 或 data:...;base64, 字符串', '貼上 Base64 或 data:...;base64, 字串', 'Pega Base64 o una cadena data:...;base64,'],
+    copy: ['결과 복사', 'Copy result', '复制结果', '複製結果', 'Copiar resultado'],
+    swap: ['⇅ 결과를 입력으로', '⇅ Use output as input', '⇅ 结果作为输入', '⇅ 結果作為輸入', '⇅ Usar resultado como entrada'],
+    dl: ['⬇ 파일로 저장', '⬇ Save as file', '⬇ 保存为文件', '⬇ 儲存為檔案', '⬇ Guardar archivo'],
+    clear: ['지우기', 'Clear', '清空', '清除', 'Borrar'],
+    decAlt: ['디코딩된 이미지 미리보기', 'Decoded image preview', '解码图片预览', '解碼圖片預覽', 'Vista previa de la imagen'],
+    fileTitle: ['파일 → Base64', 'File → Base64', '文件 → Base64', '檔案 → Base64', 'Archivo → Base64'],
+    drop: ['📁 파일을 끌어다 놓거나 클릭해서 선택', '📁 Drop a file or click to choose', '📁 拖放文件或点击选择', '📁 拖放檔案或點擊選擇', '📁 Suelta un archivo o haz clic para elegir'],
+    max: ['(최대 20MB)', '(max 20 MB)', '（最大 20MB）', '（最大 20MB）', '(máx. 20 MB)'],
+    prevAlt: ['미리보기', 'Preview', '预览', '預覽', 'Vista previa'],
+    copyRaw: ['Base64 복사', 'Copy Base64', '复制 Base64', '複製 Base64', 'Copiar Base64'],
+    copyData: ['Data URL 복사', 'Copy data URL', '复制 Data URL', '複製 Data URL', 'Copiar data URL'],
+    copyCss: ['CSS background 복사', 'Copy CSS background', '复制 CSS background', '複製 CSS background', 'Copiar CSS background'],
+    copyImg: ['<img> 태그 복사', 'Copy <img> tag', '复制 <img> 标签', '複製 <img> 標籤', 'Copiar etiqueta <img>'],
+    encStat: ['{a}자 → {b}자', '{a} chars → {b} chars', '{a} 字符 → {b} 字符', '{a} 字元 → {b} 字元', '{a} caracteres → {b} caracteres'],
+    textStat: ['{n} 바이트 · UTF-8 텍스트', '{n} bytes · UTF-8 text', '{n} 字节 · UTF-8 文本', '{n} 位元組 · UTF-8 文字', '{n} bytes · texto UTF-8'],
+    binStat: ['{n} 바이트 · {type} — 텍스트가 아니라 파일로 저장할 수 있어요', '{n} bytes · {type} — not text; you can save it as a file', '{n} 字节 · {type} — 不是文本，可保存为文件', '{n} 位元組 · {type} — 不是文字，可儲存為檔案', '{n} bytes · {type} — no es texto; puedes guardarlo como archivo'],
+    binary: ['바이너리', 'binary', '二进制', '二進位', 'binario'],
+    invalid: ['올바른 Base64가 아니에요 (허용 문자: A-Z a-z 0-9 + / - _ =)', 'Not valid Base64 (allowed: A-Z a-z 0-9 + / - _ =)', '不是有效的 Base64（允许：A-Z a-z 0-9 + / - _ =）', '不是有效的 Base64（允許：A-Z a-z 0-9 + / - _ =）', 'Base64 no válido (permitido: A-Z a-z 0-9 + / - _ =)'],
+    unknownType: ['알 수 없는 형식', 'unknown type', '未知类型', '未知類型', 'tipo desconocido'],
+    fileStat: ['{n} 바이트 → Base64 {b}자', '{n} bytes → Base64 {b} chars', '{n} 字节 → Base64 {b} 字符', '{n} 位元組 → Base64 {b} 字元', '{n} bytes → Base64 {b} caracteres'],
+    dataCopied: ['Data URL 복사', 'Data URL copied', '已复制 Data URL', '已複製 Data URL', 'Data URL copiada'],
+    tooBig: ['20MB 이하 파일만 변환할 수 있어요', 'Only files up to 20 MB can be converted', '仅支持 20MB 以内的文件', '僅支援 20MB 以內的檔案', 'Solo archivos de hasta 20 MB'],
+  });
+  I18n.init();
+  const $ = (id) => document.getElementById(id);
+  const input = $('input'), output = $('output'), status = $('status');
+  let dir = 'encode', decodedBytes = null;
 
-    <script>
-        let autoConvertEnabled = true;
+  const bytesToB64 = (bytes) => { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); };
+  const b64ToBytes = (b64) => {
+    let s = b64.replace(/^data:[^,]*,/, '').replace(/\s/g, '').replace(/-/g, '+').replace(/_/g, '/');
+    if (s.length % 4 === 1) throw new Error('bad length');
+    s += '='.repeat((4 - (s.length % 4)) % 4);
+    const bin = atob(s), out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  };
+  const urlSafe = (b64) => ($('urlSafe').checked ? b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') : b64);
+  const sniff = (b) => {
+    const h = [...b.subarray(0, 12)].map((x) => x.toString(16).padStart(2, '0')).join('');
+    if (h.startsWith('89504e47')) return ['image/png', 'png'];
+    if (h.startsWith('ffd8ff')) return ['image/jpeg', 'jpg'];
+    if (h.startsWith('47494638')) return ['image/gif', 'gif'];
+    if (h.startsWith('52494646') && h.slice(16, 24) === '57454250') return ['image/webp', 'webp'];
+    if (h.startsWith('25504446')) return ['application/pdf', 'pdf'];
+    if (h.startsWith('504b0304')) return ['application/zip', 'zip'];
+    return null;
+  };
 
-        function updateCharacterCount() {
-            const input = document.getElementById('input');
-            const output = document.getElementById('output');
-            
-            document.getElementById('inputLength').textContent = `${input.value.length} characters`;
-            document.getElementById('outputLength').textContent = `${output.value.length} characters`;
+  function convert() {
+    const t = input.value;
+    status.className = 'muted';
+    decodedBytes = null; $('dlBtn').hidden = true; $('decImg').hidden = true;
+    if (!t) { output.value = ''; status.innerHTML = '&nbsp;'; return; }
+    try {
+      if (dir === 'encode') {
+        output.value = urlSafe(bytesToB64(new TextEncoder().encode(t)));
+        status.textContent = tr('encStat', { a: t.length.toLocaleString(), b: output.value.length.toLocaleString() });
+      } else {
+        const bytes = b64ToBytes(t);
+        const type = sniff(bytes);
+        let text = null;
+        if (!type) { try { text = new TextDecoder('utf-8', { fatal: true }).decode(bytes); } catch (e) {} }
+        if (text != null) { output.value = text; status.textContent = tr('textStat', { n: bytes.length.toLocaleString() }); }
+        else {
+          decodedBytes = { bytes, type: type || ['application/octet-stream', 'bin'] };
+          output.value = '';
+          status.textContent = tr('binStat', { n: bytes.length.toLocaleString(), type: type ? type[0] : tr('binary') });
+          $('dlBtn').hidden = false;
+          if (type && type[0].startsWith('image/')) { $('decImg').src = URL.createObjectURL(new Blob([bytes], { type: type[0] })); $('decImg').hidden = false; }
         }
+      }
+    } catch (e) {
+      output.value = '';
+      status.className = 'err';
+      status.textContent = tr('invalid');
+    }
+  }
 
-        function showStatus(message, type = 'info') {
-            const status = document.getElementById('status');
-            status.textContent = message;
-            
-            // 상태에 따른 색상 변경
-            status.className = type === 'error' ? 'text-red-400' : 
-                              type === 'success' ? 'text-green-400' : 'text-gray-400';
-        }
+  $('dirSeg').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    dir = b.dataset.dir;
+    $('dirSeg').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+    input.dataset.i18nAttr = 'placeholder:' + (dir === 'encode' ? 'phEnc' : 'phDec');
+    I18n.apply(input.parentNode);
+    convert();
+  });
+  input.addEventListener('input', convert);
+  $('urlSafe').addEventListener('change', () => { convert(); if (fileB64) showFile(); });
+  $('copyBtn').addEventListener('click', () => output.value && UI.copy(output.value));
+  $('swapBtn').addEventListener('click', () => { if (!output.value) return; input.value = output.value; $('dirSeg').querySelector(`[data-dir=${dir === 'encode' ? 'decode' : 'encode'}]`).click(); });
+  $('clearBtn').addEventListener('click', () => { input.value = ''; convert(); input.focus(); });
+  $('dlBtn').addEventListener('click', () => {
+    if (!decodedBytes) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([decodedBytes.bytes], { type: decodedBytes.type[0] }));
+    a.download = 'decoded.' + decodedBytes.type[1];
+    a.click();
+  });
 
-        function showLoading(show) {
-            const spinner = document.getElementById('loadingSpinner');
-            spinner.classList.toggle('hidden', !show);
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            
-            toastMessage.textContent = message;
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        function isBase64(str) {
-            try {
-                // Base64 정규식 체크
-                if (!str || str.length % 4 !== 0 || !/^[A-Za-z0-9+/]*={0,2}$/.test(str)) {
-                    return false;
-                }
-                // 실제 디코딩 테스트
-                atob(str);
-                return true;
-            } catch (e) {
-                return false;
-            }
-        }
-
-        function convert() {
-            const input = document.getElementById('input').value.trim();
-            const charset = document.getElementById('charset').value;
-            const mode = document.getElementById('mode').value;
-            const output = document.getElementById('output');
-            
-            if (!input) {
-                showStatus('Please enter some text to convert', 'error');
-                return;
-            }
-
-            showLoading(true);
-            showStatus('Converting...');
-
-            try {
-                let result = '';
-                let operation = '';
-
-                if (mode === 'auto') {
-                    // 자동 감지: Base64인지 확인
-                    if (isBase64(input)) {
-                        result = decodeBase64(input, charset);
-                        operation = 'Decoded from Base64';
-                    } else {
-                        result = encodeBase64(input, charset);
-                        operation = 'Encoded to Base64';
-                    }
-                } else if (mode === 'encode') {
-                    result = encodeBase64(input, charset);
-                    operation = 'Encoded to Base64';
-                } else if (mode === 'decode') {
-                    result = decodeBase64(input, charset);
-                    operation = 'Decoded from Base64';
-                }
-
-                output.value = result;
-                showStatus(`✅ ${operation} successfully`, 'success');
-                updateCharacterCount();
-                
-            } catch (error) {
-                output.value = '';
-                showStatus(`❌ Error: ${error.message}`, 'error');
-                console.error('Conversion error:', error);
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        function encodeBase64(text, charset) {
-            try {
-                if (window.TextEncoder) {
-                    const encoder = new TextEncoder();
-                    const bytes = encoder.encode(text);
-                    return btoa(String.fromCharCode(...bytes));
-                } else {
-                    // 폴백: UTF-8 인코딩
-                    const utf8 = unescape(encodeURIComponent(text));
-                    return btoa(utf8);
-                }
-            } catch (error) {
-                throw new Error('Failed to encode text. Please check your input.');
-            }
-        }
-
-        function decodeBase64(base64, charset) {
-            try {
-                // 패딩 보정
-                const paddedBase64 = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, '=');
-                const decoded = atob(paddedBase64);
-                
-                if (window.TextDecoder) {
-                    const bytes = new Uint8Array([...decoded].map(c => c.charCodeAt(0)));
-                    try {
-                        const decoder = new TextDecoder(charset, { fatal: true });
-                        return decoder.decode(bytes);
-                    } catch (e) {
-                        // 폴백: UTF-8로 시도
-                        const decoder = new TextDecoder('utf-8', { fatal: false });
-                        return decoder.decode(bytes);
-                    }
-                } else {
-                    // 폴백: URI 디코딩
-                    return decodeURIComponent(escape(decoded));
-                }
-            } catch (error) {
-                throw new Error('Invalid Base64 string or encoding mismatch');
-            }
-        }
-
-        function autoConvert() {
-            updateCharacterCount();
-            
-            if (autoConvertEnabled && document.getElementById('input').value.trim()) {
-                setTimeout(convert, 300); // 300ms 디바운스
-            }
-        }
-
-        function clearInput() {
-            document.getElementById('input').value = '';
-            document.getElementById('output').value = '';
-            showStatus('Ready to convert');
-            updateCharacterCount();
-        }
-
-        function copyResult() {
-            const output = document.getElementById('output');
-            
-            if (!output.value) {
-                showToast('Nothing to copy!');
-                return;
-            }
-
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(output.value)
-                    .then(() => {
-                        showToast('📋 Copied to clipboard!');
-                    })
-                    .catch(err => {
-                        console.error('Failed to copy: ', err);
-                        fallbackCopy(output);
-                    });
-            } else {
-                fallbackCopy(output);
-            }
-        }
-
-        function fallbackCopy(output) {
-            try {
-                output.select();
-                output.setSelectionRange(0, 99999); // 모바일 지원
-                document.execCommand('copy');
-                showToast('📋 Copied to clipboard!');
-            } catch (err) {
-                showToast('❌ Failed to copy. Please copy manually.');
-            }
-        }
-
-        function downloadResult() {
-            const output = document.getElementById('output').value;
-            
-            if (!output) {
-                showToast('Nothing to download!');
-                return;
-            }
-
-            const blob = new Blob([output], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            
-            a.href = url;
-            a.download = 'base64_result.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-            
-            showToast('💾 File downloaded!');
-        }
-
-        // 키보드 단축키
-        document.addEventListener('keydown', function(e) {
-            // Ctrl/Cmd + Enter: 변환
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                e.preventDefault();
-                convert();
-            }
-            
-            // Ctrl/Cmd + C: 결과 복사 (output에 포커스된 경우)
-            if ((e.ctrlKey || e.metaKey) && e.key === 'c' && document.activeElement.id === 'output') {
-                e.preventDefault();
-                copyResult();
-            }
-        });
-
-        // 초기화
-        document.addEventListener('DOMContentLoaded', function() {
-            updateCharacterCount();
-            showStatus('Ready to convert');
-            
-            // 입력 필드에 포커스
-            document.getElementById('input').focus();
-        });
-
-        // 드래그 앤 드롭 파일 업로드
-        const inputArea = document.getElementById('input');
-        
-        inputArea.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            this.style.borderColor = 'rgba(102, 126, 234, 0.5)';
-        });
-        
-        inputArea.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            this.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-        });
-        
-        inputArea.addEventListener('drop', function(e) {
-            e.preventDefault();
-            this.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-            
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                const file = files[0];
-                if (file.type.startsWith('text/') || file.size < 1024 * 1024) { // 1MB 제한
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        inputArea.value = e.target.result;
-                        updateCharacterCount();
-                        autoConvert();
-                    };
-                    reader.readAsText(file);
-                } else {
-                    showToast('❌ Please drop a text file (max 1MB)');
-                }
-            }
-        });
-    </script>
-    <script src="/lib/tool-nav.js"></script>
-    <script src="/lib/site-meta.js"></script>
-    <script>
-      SiteMeta.init({
-        title: 'Base64 Converter - tool.cocy.io',
-        description: 'Base64 인코딩/디코딩과 문자셋 변환을 지원하는 온라인 도구',
-        url: 'https://tool.cocy.io/base64/'
-      });
-    </script>
+  let fileB64 = '', fileMeta = null;
+  function showFile() {
+    const raw = urlSafe(fileB64);
+    const data = `data:${fileMeta.type || 'application/octet-stream'};base64,${fileB64}`;
+    $('fileOut').hidden = false;
+    $('fileInfo').textContent = `${fileMeta.name} · ${fileMeta.type || tr('unknownType')} · ` + tr('fileStat', { n: fileMeta.size.toLocaleString(), b: raw.length.toLocaleString() });
+    const isImg = (fileMeta.type || '').startsWith('image/');
+    $('imgPrev').hidden = !isImg; if (isImg) $('imgPrev').src = data;
+    $('copyCss').hidden = $('copyImg').hidden = !isImg;
+    $('copyRaw').onclick = () => UI.copy(raw);
+    $('copyData').onclick = () => UI.copy(data, tr('dataCopied'));
+    $('copyCss').onclick = () => UI.copy(`background-image: url("${data}");`);
+    $('copyImg').onclick = () => UI.copy(`<img src="${data}" alt="">`);
+  }
+  async function handleFile(f) {
+    if (!f) return;
+    if (f.size > 20 * 1024 * 1024) { UI.toast(tr('tooBig')); return; }
+    fileB64 = bytesToB64(new Uint8Array(await f.arrayBuffer()));
+    fileMeta = { name: f.name, type: f.type, size: f.size };
+    showFile();
+  }
+  const drop = $('drop');
+  $('file').addEventListener('change', (e) => handleFile(e.target.files[0]));
+  drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); handleFile(e.dataTransfer.files[0]); });
+  document.addEventListener('paste', (e) => { if (document.activeElement === input) return; const f = [...(e.clipboardData?.files || [])][0]; if (f) handleFile(f); });
+  document.addEventListener('i18n:change', () => { convert(); if (fileB64) showFile(); });
+  convert();
+})();
+</script>
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: 'Base64 인코더/디코더 · 파일·이미지 변환 — tool.cocy.io',
+  description: '텍스트 Base64 실시간 인코딩/디코딩(UTF-8 한글 지원), URL-safe, 파일·이미지를 Base64/Data URL로, Base64를 파일로 저장',
+  url: 'https://tool.cocy.io/base64/'
+});
+</script>
 </body>
 </html>
