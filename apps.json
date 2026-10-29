@@ -1,5 +1,20 @@
 [
   {
+    "title": "내 기기 AI 체커",
+    "icon": "https://tool.cocy.io/aicheck/icon.svg",
+    "url": "https://tool.cocy.io/aicheck/",
+    "desc": "이 브라우저에서 AI 모델을 돌릴 수 있는지 확인. WebGPU·GPU 정보, Chrome 내장 AI(Gemini Nano), WASM, 벤치마크, 모델별 실행 가능 여부",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool",
+    "group": "ai"
+  },
+  {
     "title": "온디바이스 AI 비전",
     "icon": "https://tool.cocy.io/vtest/icon.svg",
     "url": "https://tool.cocy.io/vtest/",
