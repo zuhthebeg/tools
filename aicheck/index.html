@@ -247,7 +247,8 @@ I18n.init();
 
   const MODELS = [
     { name: 'all-MiniLM-L6-v2', use: 'uEmb', size: '25 MB', need: 'wasm' },
-    { name: 'RMBG-1.4', use: 'uBg', size: '45 MB', need: 'wasm', link: null },
+    { name: 'MODNet', use: 'uBg', size: '24 MB', need: 'wasm', link: '/bgremove/' },
+    { name: 'BiRefNet lite', use: 'uBg', size: '110 MB', need: 'gpu', link: '/bgremove/' },
     { name: 'Whisper base', use: 'uSTT', size: '80 MB', need: 'wasm' },
     { name: 'SmolVLM-256M', use: 'uVLM', size: '300 MB', need: 'wasmSlow', link: '/vtest/' },
     { name: 'Whisper large-v3 turbo', use: 'uSTT', size: '600 MB', need: 'gpu' },

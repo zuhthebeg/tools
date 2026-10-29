@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>배경 제거 · 브라우저에서 무료 누끼 따기 — tool.cocy.io</title>
+<meta name="description" content="사진 배경을 브라우저 안에서 AI로 지우기. 업로드 없음. 인물·사물 모델 선택, 투명 PNG·배경색 합성, 전후 비교 슬라이더, WebGPU 가속">
+<link rel="canonical" href="https://tool.cocy.io/bgremove/">
+<link rel="icon" href="/bgremove/icon.svg">
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+.drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px 14px; text-align: center; cursor: pointer; color: var(--muted); }
+.drop.over, .drop:hover { border-color: #f472b6; color: var(--text); }
+.drop b { color: var(--text); }
+.opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 12px; }
+.bar { height: 8px; background: var(--panel-2); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #f472b6, #a78bfa); transition: width .2s; }
+.stage { position: relative; margin-top: 12px; border-radius: 10px; overflow: hidden; line-height: 0; user-select: none; touch-action: none;
+  background: repeating-conic-gradient(#334155 0 25%, #1e293b 0 50%) 0 0 / 20px 20px; }
+.stage canvas, .stage img { width: 100%; height: auto; display: block; }
+.stage .before { position: absolute; inset: 0; clip-path: inset(0 calc(100% - var(--x, 50%)) 0 0); }
+.stage .handle { position: absolute; top: 0; bottom: 0; left: var(--x, 50%); width: 2px; background: #fff; box-shadow: 0 0 4px #000; pointer-events: none; }
+.stage .handle::after { content: '⇆'; position: absolute; top: 50%; left: -14px; width: 28px; height: 28px; margin-top: -14px; border-radius: 50%; background: #fff; color: #000; font-size: 16px; line-height: 28px; text-align: center; }
+.swatches { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.swatches button { width: 30px; height: 30px; border-radius: 8px; border: 2px solid var(--line); cursor: pointer; padding: 0; }
+.swatches button.on { border-color: #f472b6; }
+.swatches .tp { background: repeating-conic-gradient(#94a3b8 0 25%, #fff 0 50%) 0 0 / 10px 10px; }
+.swatches input[type=color] { width: 36px; height: 30px; padding: 0; border: 0; background: none; cursor: pointer; }
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>✂️ <span data-i18n="h1">배경 제거</span></h1>
+    <p data-i18n="sub">AI가 브라우저 안에서 배경을 지워요. 사진은 서버로 올라가지 않아요.</p>
+  </div>
+
+  <div class="card">
+    <input type="file" id="file" accept="image/*" hidden>
+    <div class="drop" id="drop"><b data-i18n="dropB">이미지를 끌어다 놓거나 클릭 · 붙여넣기(Ctrl+V)</b><br><small>PNG · JPG · WebP</small></div>
+    <div class="opts">
+      <div><label class="lbl" for="model" data-i18n="model">모델</label><select id="model"></select></div>
+      <div><label class="lbl" data-i18n="bg">배경</label>
+        <div class="swatches" id="swatches">
+          <button class="tp on" data-bg="" data-i18n-attr="title:transparent" title="투명"></button>
+          <button style="background:#fff" data-bg="#ffffff"></button>
+          <button style="background:#000" data-bg="#000000"></button>
+          <button style="background:#22c55e" data-bg="#22c55e"></button>
+          <button style="background:#3b82f6" data-bg="#3b82f6"></button>
+          <input type="color" id="bgColor" value="#f472b6" data-i18n-attr="title:custom" title="직접 고르기">
+        </div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <label class="chk"><input type="checkbox" id="forceCpu"> <span data-i18n="forceCpu">CPU(WASM)로 실행</span></label>
+      <span class="muted grow" id="devInfo"></span>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="sampleBtn" data-i18n="sample">샘플 사진으로 해보기</button>
+      <button class="btn primary" id="runBtn" disabled data-i18n="run">✂ 다시 처리</button>
+      <span class="muted grow" id="status"></span>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+  </div>
+
+  <div class="card" id="outCard" hidden>
+    <div class="row">
+      <button class="btn primary" id="dlBtn" data-i18n="dl">⬇ PNG 저장</button>
+      <button class="btn" id="copyBtn" data-i18n="copyImg">📋 이미지 복사</button>
+      <span class="muted grow" id="dims"></span>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="out"></canvas>
+      <img id="before" class="before" alt="">
+      <div class="handle"></div>
+    </div>
+    <p class="muted" style="font-size:12px;margin:8px 0 0" data-i18n="slideHint">이미지를 좌우로 끌면 원본과 비교할 수 있어요.</p>
+  </div>
+
+  <p class="muted" style="font-size:13px" data-i18n="tip">처음 한 번은 모델을 내려받고, 다음부터는 브라우저 캐시에서 바로 불러와요. 인물은 MODNet이 빠르고, 사물·상품은 BiRefNet이 깔끔해요.</p>
+  <footer class="site">© 2026 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+I18n.define({
+  pageTitle: ['배경 제거 · 브라우저에서 무료 누끼 따기 — tool.cocy.io', 'Background Remover · free, in your browser — tool.cocy.io', '背景移除 · 浏览器内免费抠图 — tool.cocy.io', '背景移除 · 瀏覽器內免費去背 — tool.cocy.io', 'Quitar fondo · gratis en tu navegador — tool.cocy.io'],
+  h1: ['배경 제거', 'Background Remover', '背景移除', '背景移除', 'Quitar fondo'],
+  sub: ['AI가 브라우저 안에서 배경을 지워요. 사진은 서버로 올라가지 않아요.', 'AI removes the background right in your browser. Your photo never leaves the device.', 'AI 在浏览器内移除背景，照片不会上传到服务器。', 'AI 在瀏覽器內移除背景，照片不會上傳到伺服器。', 'La IA quita el fondo en tu navegador. La foto nunca sale del dispositivo.'],
+  dropB: ['이미지를 끌어다 놓거나 클릭 · 붙여넣기(Ctrl+V)', 'Drop an image, click, or paste (Ctrl+V)', '拖入图片、点击选择或粘贴 (Ctrl+V)', '拖入圖片、點擊選擇或貼上 (Ctrl+V)', 'Suelta una imagen, haz clic o pega (Ctrl+V)'],
+  model: ['모델', 'Model', '模型', '模型', 'Modelo'],
+  mModnet: ['MODNet · 인물 전용, 빠름', 'MODNet · portraits, fast', 'MODNet · 人像，快速', 'MODNet · 人像，快速', 'MODNet · retratos, rápido'],
+  mBiref: ['BiRefNet lite · 사물·상품 (추천)', 'BiRefNet lite · objects & products (recommended)', 'BiRefNet lite · 物体/商品（推荐）', 'BiRefNet lite · 物體/商品（推薦）', 'BiRefNet lite · objetos y productos (recomendado)'],
+  mBen2: ['BEN2 · 머리카락까지 정밀', 'BEN2 · fine detail (hair)', 'BEN2 · 精细（发丝）', 'BEN2 · 精細（髮絲）', 'BEN2 · detalle fino (cabello)'],
+  needGpu: ['WebGPU 필요', 'needs WebGPU', '需要 WebGPU', '需要 WebGPU', 'requiere WebGPU'],
+  bg: ['배경', 'Background', '背景', '背景', 'Fondo'],
+  transparent: ['투명', 'Transparent', '透明', '透明', 'Transparente'],
+  custom: ['직접 고르기', 'Pick a color', '自选颜色', '自選顏色', 'Elegir color'],
+  forceCpu: ['CPU(WASM)로 실행', 'Run on CPU (WASM)', '用 CPU(WASM) 运行', '用 CPU(WASM) 執行', 'Ejecutar en CPU (WASM)'],
+  devGpu: ['WebGPU 가속 사용', 'Using WebGPU acceleration', '使用 WebGPU 加速', '使用 WebGPU 加速', 'Usando aceleración WebGPU'],
+  devCpu: ['CPU(WASM)로 실행 — 큰 모델은 수십 초 걸릴 수 있어요', 'Running on CPU (WASM) — large models may take tens of seconds', '使用 CPU(WASM) — 大模型可能需要数十秒', '使用 CPU(WASM) — 大模型可能需要數十秒', 'En CPU (WASM): los modelos grandes pueden tardar decenas de segundos'],
+  sample: ['샘플 사진으로 해보기', 'Try a sample photo', '用示例图片试试', '用範例圖片試試', 'Probar con una foto de ejemplo'],
+  run: ['✂ 다시 처리', '✂ Process again', '✂ 重新处理', '✂ 重新處理', '✂ Procesar de nuevo'],
+  loading: ['모델 불러오는 중… {p}', 'Loading model… {p}', '正在加载模型… {p}', '正在載入模型… {p}', 'Cargando modelo… {p}'],
+  initModel: ['모델 초기화 중…', 'Initializing model…', '正在初始化模型…', '正在初始化模型…', 'Inicializando modelo…'],
+  working: ['배경 지우는 중…', 'Removing background…', '正在移除背景…', '正在移除背景…', 'Quitando fondo…'],
+  doneStat: ['완료 · {sec}초', 'Done in {sec}s', '完成 · {sec} 秒', '完成 · {sec} 秒', 'Listo en {sec} s'],
+  failed: ['실패: {msg}', 'Failed: {msg}', '失败：{msg}', '失敗：{msg}', 'Error: {msg}'],
+  badImg: ['이미지를 읽지 못했어요', "Couldn't read this image", '无法读取此图片', '無法讀取此圖片', 'No se pudo leer la imagen'],
+  dl: ['⬇ PNG 저장', '⬇ Save PNG', '⬇ 保存 PNG', '⬇ 儲存 PNG', '⬇ Guardar PNG'],
+  copyImg: ['📋 이미지 복사', '📋 Copy image', '📋 复制图片', '📋 複製圖片', '📋 Copiar imagen'],
+  imgCopied: ['이미지를 복사했어요', 'Image copied', '已复制图片', '已複製圖片', 'Imagen copiada'],
+  slideHint: ['이미지를 좌우로 끌면 원본과 비교할 수 있어요.', 'Drag across the image to compare with the original.', '左右拖动图片可与原图对比。', '左右拖曳圖片可與原圖比較。', 'Arrastra sobre la imagen para compararla con el original.'],
+  tip: ['처음 한 번은 모델을 내려받고, 다음부터는 브라우저 캐시에서 바로 불러와요. 인물은 MODNet이 빠르고, 사물·상품은 BiRefNet이 깔끔해요.', 'The model downloads once, then loads from the browser cache. MODNet is fast for portraits; BiRefNet is cleaner for objects and products.', '模型首次下载后从浏览器缓存加载。人像用 MODNet 更快，物体/商品用 BiRefNet 更干净。', '模型首次下載後從瀏覽器快取載入。人像用 MODNet 更快，物體/商品用 BiRefNet 更乾淨。', 'El modelo se descarga una vez y luego se carga de la caché. MODNet es rápido para retratos; BiRefNet es más limpio para objetos y productos.'],
+  allTools: ['모든 도구', 'All tools', '全部工具', '全部工具', 'Todas las herramientas'],
+});
+I18n.init();
+
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const t = I18n.t;
+  const MODELS = [
+    { id: 'onnx-community/BiRefNet_lite-ONNX', key: 'mBiref', gpu: ['fp16', 109], gpu32: ['fp32', 213] },
+    { id: 'Xenova/modnet', key: 'mModnet', gpu: ['fp32', 24], gpu32: ['fp32', 24], cpu: ['fp32', 24] },
+    { id: 'onnx-community/BEN2-ONNX', key: 'mBen2', gpu: ['fp16', 208], f16only: true },
+  ];
+  let gpu = { ok: false, f16: false }, worker = null, srcBlob = null, mask = null, bg = '', busy = false, lastStatus = null, beforeUrl = null;
+  const useGpu = () => gpu.ok && !$('forceCpu').checked;
+  const cfg = (m) => (useGpu() ? (m.f16only && !gpu.f16 ? null : gpu.f16 ? m.gpu : m.gpu32) : m.cpu);
+  function status(key, vars, cls) {
+    lastStatus = key ? [key, vars, cls] : null;
+    $('status').className = cls || 'muted';
+    $('status').textContent = key ? t(key, vars) : '';
+  }
+
+  function renderSelect() {
+    const cur = $('model').value || localStorage.getItem('bgremove_model') || MODELS[0].id;
+    $('model').innerHTML = MODELS.map((m) => {
+      const c = cfg(m);
+      return `<option value="${m.id}"${c ? '' : ' disabled'}>${t(m.key)} · ${c ? '~' + c[1] + ' MB' : t('needGpu')}</option>`;
+    }).join('');
+    const ok = [...$('model').options].find((o) => o.value === cur && !o.disabled);
+    $('model').value = ok ? cur : [...$('model').options].find((o) => !o.disabled).value;
+    $('devInfo').textContent = useGpu() ? t('devGpu') : t('devCpu');
+    $('forceCpu').parentNode.hidden = !gpu.ok;
+  }
+
+  function call(msg, onProgress) {
+    if (!worker) worker = new Worker('/bgremove/worker.js', { type: 'module' });
+    return new Promise((resolve, reject) => {
+      worker.onmessage = ({ data }) => {
+        if (data.type === 'progress') onProgress && onProgress(data.p);
+        else if (data.type === 'error') reject(new Error(data.message));
+        else resolve(data);
+      };
+      worker.onerror = (e) => reject(new Error(e.message || 'worker error'));
+      worker.postMessage(msg);
+    });
+  }
+
+  const files = {};
+  function onProgress(p) {
+    if (p.status === 'progress' && p.file && p.total) {
+      files[p.file] = [p.loaded, p.total];
+      const v = Object.values(files), l = v.reduce((a, x) => a + x[0], 0), tot = v.reduce((a, x) => a + x[1], 0);
+      $('bar').style.width = ((l / tot) * 100).toFixed(1) + '%';
+      status('loading', { p: `${Math.round(l / 2 ** 20)} / ${Math.round(tot / 2 ** 20)} MB` });
+    } else if (p.status === 'done' || p.status === 'ready') status('initModel');
+  }
+
+  async function setImage(blob) {
+    if (!blob || !/^image\//.test(blob.type)) { status('badImg', null, 'err'); return; }
+    srcBlob = blob;
+    mask = null;
+    $('outCard').hidden = true;
+    if (beforeUrl) URL.revokeObjectURL(beforeUrl);
+    beforeUrl = URL.createObjectURL(blob);
+    $('before').src = beforeUrl;
+    $('runBtn').disabled = false;
+    process();
+  }
+
+  async function process() {
+    if (!srcBlob || busy) return;
+    busy = true;
+    $('runBtn').disabled = true;
+    $('bar').style.width = '0';
+    const m = MODELS.find((x) => x.id === $('model').value), c = cfg(m);
+    try {
+      for (const k in files) delete files[k];
+      status('initModel');
+      await call({ type: 'load', model: m.id, device: useGpu() ? 'webgpu' : 'wasm', dtype: c[0] }, onProgress);
+      status('working');
+      $('bar').style.width = '100%';
+      const t0 = performance.now();
+      const r = await call({ type: 'run', blob: srcBlob });
+      mask = new ImageData(new Uint8ClampedArray(r.data), r.width, r.height);
+      draw();
+      $('outCard').hidden = false;
+      $('dims').textContent = `${r.width} × ${r.height}`;
+      status('doneStat', { sec: ((performance.now() - t0) / 1000).toFixed(1) });
+    } catch (e) {
+      status('failed', { msg: e.message }, 'err');
+      $('outCard').hidden = true;
+      if (worker) { worker.terminate(); worker = null; }
+    } finally {
+      busy = false;
+      $('runBtn').disabled = false;
+    }
+  }
+
+  function draw() {
+    if (!mask) return;
+    const cv = $('out');
+    cv.width = mask.width; cv.height = mask.height;
+    const ctx = cv.getContext('2d');
+    const tmp = new OffscreenCanvas(mask.width, mask.height);
+    tmp.getContext('2d').putImageData(mask, 0, 0);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    if (bg) { ctx.fillStyle = bg; ctx.fillRect(0, 0, cv.width, cv.height); }
+    ctx.drawImage(tmp, 0, 0);
+  }
+
+  const toBlob = () => new Promise((r) => $('out').toBlob(r, 'image/png'));
+  $('dlBtn').addEventListener('click', async () => {
+    const blob = await toBlob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = ((srcBlob && srcBlob.name) || 'image').replace(/\.[^.]+$/, '') + '-nobg.png';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+  $('copyBtn').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': toBlob() })]);
+      UI.toast(t('imgCopied'));
+    } catch (e) { UI.toast(t('copyFail')); }
+  });
+
+  const stage = $('stage');
+  const slide = (e) => {
+    const r = stage.getBoundingClientRect();
+    stage.style.setProperty('--x', Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100)) + '%');
+  };
+  stage.addEventListener('pointerdown', (e) => { stage.setPointerCapture(e.pointerId); slide(e); });
+  stage.addEventListener('pointermove', (e) => { if (e.buttons) slide(e); });
+
+  $('swatches').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    bg = b.dataset.bg;
+    $('swatches').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+    draw();
+  });
+  $('bgColor').addEventListener('input', (e) => { bg = e.target.value; $('swatches').querySelectorAll('button').forEach((x) => x.classList.remove('on')); draw(); });
+
+  const drop = $('drop');
+  drop.addEventListener('click', () => $('file').click());
+  $('file').addEventListener('change', (e) => e.target.files[0] && setImage(e.target.files[0]));
+  drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); e.dataTransfer.files[0] && setImage(e.dataTransfer.files[0]); });
+  document.addEventListener('paste', (e) => {
+    const f = [...(e.clipboardData ? e.clipboardData.files : [])].find((x) => x.type.startsWith('image/'));
+    if (f) setImage(f);
+  });
+  $('sampleBtn').addEventListener('click', async () => {
+    const r = await fetch('https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/portrait-of-woman.jpg');
+    const b = await r.blob();
+    setImage(new File([b], 'sample.jpg', { type: b.type || 'image/jpeg' }));
+  });
+  $('runBtn').addEventListener('click', process);
+  $('model').addEventListener('change', () => { try { localStorage.setItem('bgremove_model', $('model').value); } catch (e) {} if (srcBlob) process(); });
+  $('forceCpu').addEventListener('change', () => { renderSelect(); if (srcBlob) process(); });
+  document.addEventListener('i18n:change', () => { renderSelect(); if (lastStatus) status(...lastStatus); });
+
+  renderSelect();
+  (async () => {
+    try {
+      const ad = navigator.gpu && (await navigator.gpu.requestAdapter());
+      if (ad && !(ad.isFallbackAdapter || (ad.info && ad.info.isFallbackAdapter))) gpu = { ok: true, f16: ad.features.has('shader-f16') };
+    } catch (e) {}
+    renderSelect();
+  })();
+})();
+</script>
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: '배경 제거 · 브라우저에서 무료 누끼 따기 — tool.cocy.io',
+  description: '사진 배경을 브라우저 안에서 AI로 지우기. 업로드 없음. 인물·사물 모델 선택, 투명 PNG·배경색 합성, 전후 비교 슬라이더, WebGPU 가속',
+  url: 'https://tool.cocy.io/bgremove/'
+});
+</script>
+</body>
+</html>

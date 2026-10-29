@@ -45,6 +45,21 @@
     "group": "ai"
   },
   {
+    "title": "배경 제거",
+    "icon": "https://tool.cocy.io/bgremove/icon.svg",
+    "url": "https://tool.cocy.io/bgremove/",
+    "desc": "사진 배경을 브라우저 안에서 AI로 지우기. 업로드 없음. 인물·사물 모델, 투명 PNG·배경색 합성, 전후 비교, WebGPU 가속",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool",
+    "group": "ai"
+  },
+  {
     "title": "유니코드 디코더",
     "icon": "https://tool.cocy.io/unicodedec/icon.svg",
     "url": "https://tool.cocy.io/unicodedec/",
