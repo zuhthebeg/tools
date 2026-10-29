@@ -144,7 +144,7 @@
   function label(e) {
     const n = diff(e.date);
     if (n > 0) return { text: `D-${n}`, cls: 'future' };
-    if (n === 0) return { text: 'D-Day', cls: 'today' };
+    if (n === 0) return e.countFirst ? { text: t('dayN', { n: 1 }), cls: 'today' } : { text: 'D-Day', cls: 'today' };
     const passed = -n + (e.countFirst ? 1 : 0);
     return e.countFirst ? { text: t('dayN', { n: passed.toLocaleString() }), cls: 'past' } : { text: `D+${-n}`, cls: 'past' };
   }
