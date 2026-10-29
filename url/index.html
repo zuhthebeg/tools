@@ -208,8 +208,8 @@
     u.search = '';
     let n = 0;
     $('paramBody').querySelectorAll('tr').forEach((tr) => {
-      const k = tr.querySelector('.k').value;
-      if (k) { u.searchParams.append(k, tr.querySelector('.v').value); n++; }
+      const k = tr.querySelector('.k').value, v = tr.querySelector('.v').value;
+      if (k || v) { u.searchParams.append(k, v); n++; }
     });
     $('rebuilt').value = u.href;
     $('paramCount').textContent = t('paramCount', { n });

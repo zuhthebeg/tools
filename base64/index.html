@@ -103,7 +103,7 @@
   I18n.init();
   const $ = (id) => document.getElementById(id);
   const input = $('input'), output = $('output'), status = $('status');
-  let dir = 'encode', decodedBytes = null;
+  let dir = 'encode', decodedBytes = null, previewUrl = null;
 
   const bytesToB64 = (bytes) => { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); };
   const b64ToBytes = (b64) => {
@@ -114,6 +114,7 @@
     for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
     return out;
   };
+  const EXT = { 'text/plain': 'txt', 'text/html': 'html', 'text/css': 'css', 'text/csv': 'csv', 'application/json': 'json', 'image/svg+xml': 'svg', 'application/xml': 'xml', 'text/javascript': 'js' };
   const urlSafe = (b64) => ($('urlSafe').checked ? b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') : b64);
   const sniff = (b) => {
     const h = [...b.subarray(0, 12)].map((x) => x.toString(16).padStart(2, '0')).join('');
@@ -130,6 +131,7 @@
     const t = input.value;
     status.className = 'muted';
     decodedBytes = null; $('dlBtn').hidden = true; $('decImg').hidden = true;
+    if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = null; $('decImg').removeAttribute('src'); }
     if (!t) { output.value = ''; status.innerHTML = '&nbsp;'; return; }
     try {
       if (dir === 'encode') {
@@ -140,13 +142,19 @@
         const type = sniff(bytes);
         let text = null;
         if (!type) { try { text = new TextDecoder('utf-8', { fatal: true }).decode(bytes); } catch (e) {} }
-        if (text != null) { output.value = text; status.textContent = tr('textStat', { n: bytes.length.toLocaleString() }); }
+        if (text != null) {
+          output.value = text;
+          status.textContent = tr('textStat', { n: bytes.length.toLocaleString() });
+          const m = t.match(/^data:([^;,]+)/);
+          decodedBytes = { bytes, type: [m ? m[1] : 'text/plain', m && EXT[m[1]] || 'txt'] };
+          $('dlBtn').hidden = false;
+        }
         else {
           decodedBytes = { bytes, type: type || ['application/octet-stream', 'bin'] };
           output.value = '';
           status.textContent = tr('binStat', { n: bytes.length.toLocaleString(), type: type ? type[0] : tr('binary') });
           $('dlBtn').hidden = false;
-          if (type && type[0].startsWith('image/')) { $('decImg').src = URL.createObjectURL(new Blob([bytes], { type: type[0] })); $('decImg').hidden = false; }
+          if (type && type[0].startsWith('image/')) { previewUrl = URL.createObjectURL(new Blob([bytes], { type: type[0] })); $('decImg').src = previewUrl; $('decImg').hidden = false; }
         }
       }
     } catch (e) {
@@ -175,6 +183,7 @@
     a.href = URL.createObjectURL(new Blob([decodedBytes.bytes], { type: decodedBytes.type[0] }));
     a.download = 'decoded.' + decodedBytes.type[1];
     a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   });
 
   let fileB64 = '', fileMeta = null;

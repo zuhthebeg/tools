@@ -121,6 +121,7 @@ textarea#txt { min-height: 240px; font-size: 16px; }
     over: ['{n}{u} 초과', '{n}{u} over', '超出 {n}{u}', '超出 {n}{u}', '{n}{u} de más'],
     remain: ['{n}{u} 남음', '{n}{u} left', '剩余 {n}{u}', '剩餘 {n}{u}', 'quedan {n}{u}'],
     statCopied: ['{label}: {v} 복사', 'Copied {label}: {v}', '已复制 {label}：{v}', '已複製 {label}：{v}', 'Copiado {label}: {v}'],
+    saveFail: ['글이 너무 길어 자동 저장하지 못했어요. 새로고침하면 사라질 수 있어요', 'Too long to autosave — the text may be lost on reload', '文本过长，无法自动保存，刷新后可能丢失', '文字過長，無法自動儲存，重新整理後可能遺失', 'Demasiado largo para guardar automáticamente; podría perderse al recargar'],
     confirmClear: ['입력한 내용을 지울까요?', 'Clear the text?', '清空文本吗？', '清除文字嗎？', '¿Borrar el texto?'],
   });
   I18n.init();
@@ -128,7 +129,7 @@ textarea#txt { min-height: 240px; font-size: 16px; }
   const $ = (id) => document.getElementById(id);
   const txt = $('txt');
   const KEY = 'count_tool_v2';
-  let basis = 'with';
+  let basis = 'with', saveFailed = false;
   try {
     const s = JSON.parse(localStorage.getItem(KEY) || '{}');
     if (typeof s.text === 'string') txt.value = s.text;
@@ -176,7 +177,13 @@ textarea#txt { min-height: 240px; font-size: 16px; }
       $('bar').style.width = '0'; $('goalTxt').textContent = '';
     }
     $('basisSeg').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x.dataset.b === b));
-    try { localStorage.setItem(KEY, JSON.stringify({ text: t.slice(0, 100000), goal: g, custom: $('goalCustom').value, basis })); } catch (e) {}
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ text: t, goal: g, custom: $('goalCustom').value, basis }));
+      saveFailed = false;
+    } catch (e) {
+      if (!saveFailed) UI.toast(T('saveFail'));
+      saveFailed = true;
+    }
   }
 
   txt.addEventListener('input', update);
