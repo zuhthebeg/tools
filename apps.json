@@ -30,6 +30,21 @@
     "group": "ai"
   },
   {
+    "title": "음성→텍스트·자막 (Whisper)",
+    "icon": "https://tool.cocy.io/stt/icon.svg",
+    "url": "https://tool.cocy.io/stt/",
+    "desc": "오디오·영상·녹음을 브라우저 안에서 Whisper로 받아쓰기. 업로드 없음. SRT·VTT·TXT 자막 내보내기, WebGPU 가속",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool",
+    "group": "ai"
+  },
+  {
     "title": "NVIDIA GTC 2026 세션 가이드",
     "icon": "https://tool.cocy.io/gtc2026/icon.svg",
     "url": "https://tool.cocy.io/gtc2026/",
