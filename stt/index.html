@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>음성→텍스트·자막 (Whisper) · 브라우저에서 무료 받아쓰기 — tool.cocy.io</title>
+<meta name="description" content="오디오·영상 파일이나 녹음을 브라우저 안에서 Whisper로 받아쓰기. 서버 업로드 없음. 타임스탬프 편집, SRT·VTT·TXT 자막 내보내기, WebGPU 가속">
+<link rel="canonical" href="https://tool.cocy.io/stt/">
+<link rel="icon" href="/stt/icon.svg">
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+.drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px 14px; text-align: center; cursor: pointer; color: var(--muted); }
+.drop.over, .drop:hover { border-color: #38bdf8; color: var(--text); }
+.drop b { color: var(--text); }
+.opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-top: 12px; }
+.bar { height: 8px; background: var(--panel-2); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #38bdf8, #3ecf8e); transition: width .2s; }
+audio { width: 100%; margin-top: 12px; }
+.segs { max-height: 460px; overflow: auto; margin-top: 10px; }
+.seg { display: flex; gap: 10px; padding: 6px 4px; border-bottom: 1px solid var(--line); align-items: baseline; }
+.seg.on { background: rgba(56, 189, 248, .12); }
+.seg button { font-family: var(--mono); font-size: 12px; color: #38bdf8; background: none; border: 0; cursor: pointer; padding: 0; white-space: nowrap; }
+.seg span { flex: 1; outline: none; line-height: 1.5; min-width: 0; word-break: break-word; }
+.seg span:focus { background: var(--panel-2); border-radius: 4px; }
+.rec { color: #f87171; font-family: var(--mono); }
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>🎙️ <span data-i18n="h1">음성→텍스트·자막</span></h1>
+    <p data-i18n="sub">Whisper 모델이 브라우저 안에서 받아써요. 오디오는 서버로 올라가지 않아요.</p>
+  </div>
+
+  <div class="card">
+    <input type="file" id="file" accept="audio/*,video/*" hidden>
+    <div class="drop" id="drop"><b data-i18n="dropB">오디오·영상 파일을 끌어다 놓거나 클릭</b><br><small data-i18n="dropS">mp3 · wav · m4a · webm · mp4 등</small></div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="recBtn" data-i18n="rec">⏺ 녹음</button>
+      <span class="rec" id="recTime"></span>
+      <span class="muted grow" id="fileInfo"></span>
+    </div>
+    <audio id="player" controls hidden></audio>
+    <div class="opts">
+      <div><label class="lbl" for="model" data-i18n="model">모델</label><select id="model"></select></div>
+      <div><label class="lbl" for="lang" data-i18n="lang">언어</label><select id="lang"></select></div>
+      <div><label class="lbl" for="task" data-i18n="task">작업</label><select id="task"><option value="transcribe" data-i18n="transcribe">받아쓰기</option><option value="translate" data-i18n="translate">영어로 번역</option></select></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <label class="chk"><input type="checkbox" id="forceCpu"> <span data-i18n="forceCpu">CPU(WASM)로 실행</span></label>
+      <span class="muted grow" id="devInfo"></span>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" id="runBtn" disabled data-i18n="run">▶ 받아쓰기 시작</button>
+      <button class="btn" id="stopBtn" hidden data-i18n="stop">■ 중지</button>
+      <span class="muted grow" id="status"></span>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+  </div>
+
+  <div class="card" id="outCard" hidden>
+    <h2><span data-i18n="result">결과</span> <span class="muted" id="segCount"></span></h2>
+    <div class="row">
+      <button class="btn sm" data-dl="srt">⬇ SRT</button>
+      <button class="btn sm" data-dl="vtt">⬇ VTT</button>
+      <button class="btn sm" data-dl="txt">⬇ TXT</button>
+      <button class="btn sm" id="copyTxt" data-i18n="copy">📋 텍스트 복사</button>
+    </div>
+    <p class="muted" style="font-size:12px;margin:8px 0 0" data-i18n="editHint">시간을 누르면 그 위치부터 재생돼요. 문장은 눌러서 바로 고칠 수 있어요.</p>
+    <div class="segs" id="segs"></div>
+  </div>
+
+  <p class="muted" style="font-size:13px"><span data-i18n="tip">처음 한 번은 모델을 내려받아요(수십~수백 MB). 다음부터는 브라우저 캐시에서 바로 불러와요. 내 기기 사양은</span> <a href="/aicheck/" data-i18n="tipLink">AI 체커</a><span data-i18n="tipEnd">에서 확인해 보세요.</span></p>
+  <footer class="site">© 2026 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+I18n.define({
+  pageTitle: ['음성→텍스트·자막 (Whisper) · 브라우저에서 무료 받아쓰기 — tool.cocy.io', 'Speech to Text & Subtitles (Whisper) · free in-browser transcription — tool.cocy.io', '语音转文字与字幕 (Whisper) · 浏览器内免费转写 — tool.cocy.io', '語音轉文字與字幕 (Whisper) · 瀏覽器內免費轉寫 — tool.cocy.io', 'Voz a texto y subtítulos (Whisper) · transcripción gratis en el navegador — tool.cocy.io'],
+  h1: ['음성→텍스트·자막', 'Speech to Text & Subtitles', '语音转文字与字幕', '語音轉文字與字幕', 'Voz a texto y subtítulos'],
+  sub: ['Whisper 모델이 브라우저 안에서 받아써요. 오디오는 서버로 올라가지 않아요.', 'Whisper transcribes right in your browser. Your audio never leaves the device.', 'Whisper 在浏览器内转写，音频不会上传到服务器。', 'Whisper 在瀏覽器內轉寫，音訊不會上傳到伺服器。', 'Whisper transcribe en tu navegador. El audio nunca sale del dispositivo.'],
+  dropB: ['오디오·영상 파일을 끌어다 놓거나 클릭', 'Drop an audio/video file or click', '拖入音频/视频文件或点击选择', '拖入音訊/影片檔案或點擊選擇', 'Suelta un archivo de audio/vídeo o haz clic'],
+  dropS: ['mp3 · wav · m4a · webm · mp4 등', 'mp3 · wav · m4a · webm · mp4 …', 'mp3 · wav · m4a · webm · mp4 等', 'mp3 · wav · m4a · webm · mp4 等', 'mp3 · wav · m4a · webm · mp4 …'],
+  rec: ['⏺ 녹음', '⏺ Record', '⏺ 录音', '⏺ 錄音', '⏺ Grabar'],
+  recStop: ['⏹ 녹음 끝', '⏹ Stop recording', '⏹ 停止录音', '⏹ 停止錄音', '⏹ Detener'],
+  micErr: ['마이크를 쓸 수 없어요', 'Microphone unavailable', '无法使用麦克风', '無法使用麥克風', 'Micrófono no disponible'],
+  decodeErr: ['이 파일의 오디오를 읽지 못했어요', "Couldn't read audio from this file", '无法读取此文件的音频', '無法讀取此檔案的音訊', 'No se pudo leer el audio del archivo'],
+  model: ['모델', 'Model', '模型', '模型', 'Modelo'],
+  lang: ['언어', 'Language', '语言', '語言', 'Idioma'],
+  auto: ['자동 감지', 'Auto-detect', '自动检测', '自動偵測', 'Detección automática'],
+  task: ['작업', 'Task', '任务', '任務', 'Tarea'],
+  transcribe: ['받아쓰기', 'Transcribe', '转写', '轉寫', 'Transcribir'],
+  translate: ['영어로 번역', 'Translate to English', '翻译成英文', '翻譯成英文', 'Traducir al inglés'],
+  mTiny: ['Tiny · 가장 빠름', 'Tiny · fastest', 'Tiny · 最快', 'Tiny · 最快', 'Tiny · la más rápida'],
+  mBase: ['Base · 균형 (추천)', 'Base · balanced (recommended)', 'Base · 均衡（推荐）', 'Base · 均衡（推薦）', 'Base · equilibrada (recomendada)'],
+  mSmall: ['Small · 더 정확', 'Small · more accurate', 'Small · 更准确', 'Small · 更準確', 'Small · más precisa'],
+  mTurbo: ['Large v3 Turbo · 최고 정확도', 'Large v3 Turbo · best accuracy', 'Large v3 Turbo · 最高精度', 'Large v3 Turbo · 最高精度', 'Large v3 Turbo · máxima precisión'],
+  needGpu: ['WebGPU 필요', 'needs WebGPU', '需要 WebGPU', '需要 WebGPU', 'requiere WebGPU'],
+  forceCpu: ['CPU(WASM)로 실행', 'Run on CPU (WASM)', '用 CPU(WASM) 运行', '用 CPU(WASM) 執行', 'Ejecutar en CPU (WASM)'],
+  devGpu: ['WebGPU 가속 사용', 'Using WebGPU acceleration', '使用 WebGPU 加速', '使用 WebGPU 加速', 'Usando aceleración WebGPU'],
+  devCpu: ['CPU(WASM)로 실행 — 긴 파일은 느릴 수 있어요', 'Running on CPU (WASM) — long files may be slow', '使用 CPU(WASM) — 长文件可能较慢', '使用 CPU(WASM) — 長檔案可能較慢', 'En CPU (WASM): los archivos largos pueden ir lentos'],
+  run: ['▶ 받아쓰기 시작', '▶ Start transcribing', '▶ 开始转写', '▶ 開始轉寫', '▶ Empezar'],
+  stop: ['■ 중지', '■ Stop', '■ 停止', '■ 停止', '■ Detener'],
+  loading: ['모델 불러오는 중… {p}', 'Loading model… {p}', '正在加载模型… {p}', '正在載入模型… {p}', 'Cargando modelo… {p}'],
+  initModel: ['모델 초기화 중…', 'Initializing model…', '正在初始化模型…', '正在初始化模型…', 'Inicializando modelo…'],
+  working: ['받아쓰는 중… {done} / {total}', 'Transcribing… {done} / {total}', '转写中… {done} / {total}', '轉寫中… {done} / {total}', 'Transcribiendo… {done} / {total}'],
+  doneStat: ['완료 · {sec}초 걸림 ({x}배속)', 'Done in {sec}s ({x}× real time)', '完成 · 用时 {sec} 秒（{x} 倍速）', '完成 · 用時 {sec} 秒（{x} 倍速）', 'Listo en {sec} s ({x}× tiempo real)'],
+  stopped: ['중지했어요', 'Stopped', '已停止', '已停止', 'Detenido'],
+  failed: ['실패: {msg}', 'Failed: {msg}', '失败：{msg}', '失敗：{msg}', 'Error: {msg}'],
+  result: ['결과', 'Result', '结果', '結果', 'Resultado'],
+  segCount: ['{n}개 구간', '{n} segments', '{n} 段', '{n} 段', '{n} segmentos'],
+  copy: ['📋 텍스트 복사', '📋 Copy text', '📋 复制文本', '📋 複製文字', '📋 Copiar texto'],
+  editHint: ['시간을 누르면 그 위치부터 재생돼요. 문장은 눌러서 바로 고칠 수 있어요.', 'Click a time to play from there. Click any line to edit it.', '点击时间可从该处播放；点击句子可直接编辑。', '點擊時間可從該處播放；點擊句子可直接編輯。', 'Haz clic en una marca de tiempo para reproducir; haz clic en una línea para editarla.'],
+  tip: ['처음 한 번은 모델을 내려받아요(수십~수백 MB). 다음부터는 브라우저 캐시에서 바로 불러와요. 내 기기 사양은', 'The model downloads once (tens to hundreds of MB), then loads from the browser cache. Check your device in the', '首次需下载模型（数十至数百 MB），之后从浏览器缓存加载。设备性能可在', '首次需下載模型（數十至數百 MB），之後從瀏覽器快取載入。裝置效能可在', 'El modelo se descarga una vez (decenas a cientos de MB) y luego se carga de la caché. Revisa tu dispositivo en el'],
+  tipLink: ['AI 체커', 'AI Checker', 'AI 检测', 'AI 檢測', 'Comprobador de IA'],
+  tipEnd: ['에서 확인해 보세요.', '.', '中查看。', '中查看。', '.'],
+  allTools: ['모든 도구', 'All tools', '全部工具', '全部工具', 'Todas las herramientas'],
+});
+I18n.init();
+
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const t = I18n.t;
+  const SR = 16000, WIN = 300;
+  const MODELS = [
+    { id: 'onnx-community/whisper-tiny', key: 'mTiny', cpu: 40, gpu: 115 },
+    { id: 'onnx-community/whisper-base', key: 'mBase', cpu: 75, gpu: 195 },
+    { id: 'onnx-community/whisper-small', key: 'mSmall', cpu: 240, gpu: 560 },
+    { id: 'onnx-community/whisper-large-v3-turbo', key: 'mTurbo', cpu: 0, gpu: 1530, f16: true },
+  ];
+  const LANGS = [['', 'auto'], ['ko', '한국어'], ['en', 'English'], ['ja', '日本語'], ['zh', '中文'], ['es', 'Español'], ['fr', 'Français'], ['de', 'Deutsch'], ['ru', 'Русский'], ['pt', 'Português'], ['it', 'Italiano'], ['vi', 'Tiếng Việt'], ['th', 'ไทย'], ['id', 'Bahasa Indonesia'], ['ar', 'العربية'], ['hi', 'हिन्दी']];
+
+  let gpu = { ok: false, f16: false }, audio = null, fileName = 'transcript', segs = [], worker = null, running = false, playerUrl = null;
+  const pref = (() => { try { return JSON.parse(localStorage.getItem('stt_prefs')) || {}; } catch (e) { return {}; } })();
+  const savePref = () => { try { localStorage.setItem('stt_prefs', JSON.stringify({ model: $('model').value, lang: $('lang').value, task: $('task').value, cpu: $('forceCpu').checked })); } catch (e) {} };
+  const useGpu = () => gpu.ok && !$('forceCpu').checked;
+  const fmtSize = (mb) => (mb >= 1000 ? (mb / 1000).toFixed(1) + ' GB' : mb + ' MB');
+
+  function renderSelects() {
+    const cur = $('model').value || pref.model || MODELS[1].id;
+    $('model').innerHTML = MODELS.map((m) => {
+      const ok = m.f16 ? useGpu() && gpu.f16 : true;
+      const size = useGpu() ? m.gpu : m.cpu;
+      return `<option value="${m.id}"${ok ? '' : ' disabled'}>${t(m.key)} · ${ok ? '~' + fmtSize(size) : t('needGpu')}</option>`;
+    }).join('');
+    const opt = [...$('model').options].find((o) => o.value === cur && !o.disabled);
+    $('model').value = opt ? cur : MODELS[1].id;
+    const curL = $('lang').value || pref.lang || '';
+    $('lang').innerHTML = LANGS.map(([v, n]) => `<option value="${v}">${v ? n : t('auto')}</option>`).join('');
+    $('lang').value = curL;
+    $('devInfo').textContent = useGpu() ? t('devGpu') : t('devCpu');
+    $('forceCpu').parentNode.hidden = !gpu.ok;
+  }
+
+  async function detectGpu() {
+    try {
+      const ad = navigator.gpu && (await navigator.gpu.requestAdapter());
+      const fb = ad && (ad.isFallbackAdapter || (ad.info && ad.info.isFallbackAdapter));
+      if (ad && !fb) gpu = { ok: true, f16: ad.features.has('shader-f16') };
+    } catch (e) {}
+  }
+
+  async function loadFile(file, name) {
+    $('status').className = 'muted';
+    $('status').textContent = '';
+    try {
+      const buf = await file.arrayBuffer();
+      const ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SR });
+      const ab = await ctx.decodeAudioData(buf);
+      ctx.close();
+      const ch = ab.numberOfChannels, len = ab.length, mono = new Float32Array(len);
+      for (let c = 0; c < ch; c++) { const d = ab.getChannelData(c); for (let i = 0; i < len; i++) mono[i] += d[i] / ch; }
+      audio = mono;
+      fileName = (name || file.name || 'transcript').replace(/\.[^.]+$/, '') || 'transcript';
+      if (playerUrl) URL.revokeObjectURL(playerUrl);
+      playerUrl = URL.createObjectURL(file);
+      $('player').src = playerUrl;
+      $('player').hidden = false;
+      $('fileInfo').textContent = `${name || file.name} · ${clock(len / SR)}`;
+      $('runBtn').disabled = false;
+    } catch (e) {
+      audio = null;
+      $('runBtn').disabled = true;
+      $('status').className = 'err';
+      $('status').textContent = t('decodeErr');
+    }
+  }
+
+  const pad = (n, w = 2) => String(n).padStart(w, '0');
+  function clock(s) { s = Math.max(0, s); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = Math.floor(s % 60); return (h ? h + ':' + pad(m) : m) + ':' + pad(x); }
+  function stamp(s, sep) { s = Math.max(0, s); const ms = Math.round(s * 1000); return `${pad(Math.floor(ms / 3600000))}:${pad(Math.floor(ms / 60000) % 60)}:${pad(Math.floor(ms / 1000) % 60)}${sep}${pad(ms % 1000, 3)}`; }
+
+  function newWorker() {
+    if (worker) worker.terminate();
+    worker = new Worker('/stt/worker.js', { type: 'module' });
+  }
+  function call(msg, transfer, onProgress) {
+    return new Promise((resolve, reject) => {
+      worker.onmessage = ({ data }) => {
+        if (data.type === 'progress') onProgress && onProgress(data.p);
+        else if (data.type === 'error') reject(new Error(data.message));
+        else resolve(data);
+      };
+      worker.onerror = (e) => reject(new Error(e.message || 'worker error'));
+      worker.postMessage(msg, transfer || []);
+    });
+  }
+
+  const files = {};
+  function onLoadProgress(p) {
+    if (p.status === 'progress' && p.file && p.total) {
+      files[p.file] = [p.loaded, p.total];
+      const v = Object.values(files), loaded = v.reduce((a, x) => a + x[0], 0), total = v.reduce((a, x) => a + x[1], 0);
+      $('bar').style.width = ((loaded / total) * 100).toFixed(1) + '%';
+      $('status').textContent = t('loading', { p: `${Math.round(loaded / 2 ** 20)} / ${Math.round(total / 2 ** 20)} MB` });
+    } else if (p.status === 'done' || p.status === 'ready') {
+      $('status').textContent = t('initModel');
+    }
+  }
+
+  async function run() {
+    if (!audio || running) return;
+    running = true;
+    $('runBtn').hidden = true; $('stopBtn').hidden = false;
+    $('status').className = 'muted';
+    $('bar').style.width = '0';
+    segs = []; renderSegs();
+    $('outCard').hidden = false;
+    if (!worker) newWorker();
+    const gpuOn = useGpu();
+    const m = MODELS.find((x) => x.id === $('model').value);
+    const dtype = gpuOn ? { encoder_model: m.f16 ? 'fp16' : 'fp32', decoder_model_merged: 'q4' } : 'q8';
+    try {
+      for (const k in files) delete files[k];
+      $('status').textContent = t('initModel');
+      await call({ type: 'load', model: m.id, device: gpuOn ? 'webgpu' : 'wasm', dtype }, null, onLoadProgress);
+      const dur = audio.length / SR, t0 = performance.now();
+      for (let start = 0; start < dur && running; start += WIN) {
+        const end = Math.min(dur, start + WIN);
+        $('bar').style.width = ((start / dur) * 100).toFixed(1) + '%';
+        $('status').textContent = t('working', { done: clock(start), total: clock(dur) });
+        const slice = audio.slice(Math.floor(start * SR), Math.floor(end * SR));
+        const { out } = await call({ type: 'run', audio: slice, lang: $('lang').value, task: $('task').value }, [slice.buffer]);
+        const chunks = out.chunks && out.chunks.length ? out.chunks : [{ timestamp: [0, end - start], text: out.text || '' }];
+        chunks.forEach((c, i) => {
+          const s = (c.timestamp[0] ?? 0) + start;
+          const next = chunks[i + 1] && chunks[i + 1].timestamp[0];
+          const e = (c.timestamp[1] ?? next ?? end - start) + start;
+          const text = (c.text || '').trim();
+          if (text) segs.push({ start: s, end: Math.min(Math.max(e, s), end), text });
+        });
+        renderSegs();
+      }
+      const sec = (performance.now() - t0) / 1000;
+      $('bar').style.width = '100%';
+      $('status').textContent = t('doneStat', { sec: sec.toFixed(1), x: (dur / sec).toFixed(1) });
+    } catch (e) {
+      if (running) { $('status').className = 'err'; $('status').textContent = t('failed', { msg: e.message }); }
+    } finally {
+      running = false;
+      $('runBtn').hidden = false; $('stopBtn').hidden = true;
+    }
+  }
+
+  function renderSegs() {
+    $('segCount').textContent = segs.length ? t('segCount', { n: segs.length }) : '';
+    $('segs').innerHTML = '';
+    segs.forEach((s, i) => {
+      const row = document.createElement('div');
+      row.className = 'seg';
+      row.innerHTML = `<button type="button">${clock(s.start)}</button><span contenteditable="plaintext-only" spellcheck="false"></span>`;
+      row.querySelector('span').textContent = s.text;
+      row.querySelector('span').addEventListener('input', (e) => { segs[i].text = e.target.textContent; });
+      row.querySelector('button').addEventListener('click', () => { $('player').currentTime = s.start; $('player').play().catch(() => {}); });
+      $('segs').appendChild(row);
+    });
+  }
+
+  function exportText(kind) {
+    if (kind === 'txt') return segs.map((s) => s.text.trim()).join('\n') + '\n';
+    if (kind === 'vtt') return 'WEBVTT\n\n' + segs.map((s) => `${stamp(s.start, '.')} --> ${stamp(s.end, '.')}\n${s.text.trim()}\n`).join('\n');
+    return segs.map((s, i) => `${i + 1}\n${stamp(s.start, ',')} --> ${stamp(s.end, ',')}\n${s.text.trim()}\n`).join('\n');
+  }
+  document.querySelectorAll('[data-dl]').forEach((b) => b.addEventListener('click', () => {
+    if (!segs.length) return;
+    const kind = b.dataset.dl;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([exportText(kind)], { type: kind === 'vtt' ? 'text/vtt' : 'text/plain' }));
+    a.download = `${fileName}.${kind}`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }));
+  $('copyTxt').addEventListener('click', () => segs.length && UI.copy(exportText('txt')));
+
+  $('player').addEventListener('timeupdate', () => {
+    const ct = $('player').currentTime;
+    [...$('segs').children].forEach((el, i) => el.classList.toggle('on', segs[i] && ct >= segs[i].start && ct < segs[i].end));
+  });
+
+  const drop = $('drop');
+  drop.addEventListener('click', () => $('file').click());
+  $('file').addEventListener('change', (e) => e.target.files[0] && loadFile(e.target.files[0]));
+  drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); e.dataTransfer.files[0] && loadFile(e.dataTransfer.files[0]); });
+
+  let rec = null, recTimer = null;
+  $('recBtn').addEventListener('click', async () => {
+    if (rec) { rec.stop(); return; }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const parts = [];
+      rec = new MediaRecorder(stream);
+      rec.ondataavailable = (e) => e.data.size && parts.push(e.data);
+      rec.onstop = () => {
+        stream.getTracks().forEach((x) => x.stop());
+        clearInterval(recTimer);
+        $('recTime').textContent = '';
+        $('recBtn').dataset.i18n = 'rec'; $('recBtn').textContent = t('rec');
+        const blob = new Blob(parts, { type: rec.mimeType || 'audio/webm' });
+        rec = null;
+        loadFile(blob, 'recording.' + (blob.type.includes('mp4') ? 'm4a' : 'webm'));
+      };
+      rec.start();
+      const t0 = Date.now();
+      recTimer = setInterval(() => { $('recTime').textContent = '● ' + clock((Date.now() - t0) / 1000); }, 250);
+      $('recBtn').dataset.i18n = 'recStop'; $('recBtn').textContent = t('recStop');
+    } catch (e) {
+      $('status').className = 'err';
+      $('status').textContent = t('micErr');
+    }
+  });
+
+  $('runBtn').addEventListener('click', run);
+  $('stopBtn').addEventListener('click', () => {
+    running = false;
+    if (worker) { worker.terminate(); worker = null; }
+    $('status').className = 'muted';
+    $('status').textContent = t('stopped');
+    $('runBtn').hidden = false; $('stopBtn').hidden = true;
+  });
+  $('forceCpu').addEventListener('change', () => { renderSelects(); savePref(); });
+  ['model', 'lang', 'task'].forEach((id) => $(id).addEventListener('change', savePref));
+  document.addEventListener('i18n:change', () => { renderSelects(); renderSegs(); });
+
+  if (pref.task) $('task').value = pref.task;
+  $('forceCpu').checked = !!pref.cpu;
+  renderSelects();
+  detectGpu().then(renderSelects);
+})();
+</script>
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: '음성→텍스트·자막 (Whisper) · 브라우저에서 무료 받아쓰기 — tool.cocy.io',
+  description: '오디오·영상 파일이나 녹음을 브라우저 안에서 Whisper로 받아쓰기. 서버 업로드 없음. 타임스탬프 편집, SRT·VTT·TXT 자막 내보내기, WebGPU 가속',
+  url: 'https://tool.cocy.io/stt/'
+});
+</script>
+</body>
+</html>
