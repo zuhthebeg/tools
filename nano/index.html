@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chrome 내장 AI 플레이그라운드 (Gemini Nano) — tool.cocy.io</title>
+<meta name="description" content="Chrome에 내장된 Gemini Nano로 채팅·요약·번역·언어 감지·글쓰기·다시 쓰기·맞춤법 검사를 오프라인으로. 서버 전송 없음">
+<link rel="canonical" href="https://tool.cocy.io/nano/">
+<link rel="icon" href="/nano/icon.svg">
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+.pill { display: inline-block; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.pill.ok { background: #064e3b; color: #6ee7b7; }
+.pill.warn { background: #78350f; color: #fcd34d; }
+.pill.no { background: #3f1d1d; color: #fca5a5; }
+.apis { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.apis div { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 10px 0; }
+.out { white-space: pre-wrap; word-break: break-word; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px; min-height: 60px; margin-top: 10px; line-height: 1.6; }
+.out:empty::before { content: attr(data-ph); color: var(--muted); }
+.chat { display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow: auto; margin-bottom: 10px; }
+.msg { padding: 9px 12px; border-radius: 12px; white-space: pre-wrap; word-break: break-word; max-width: 88%; line-height: 1.55; }
+.msg.user { align-self: flex-end; background: #1d4ed8; color: #fff; }
+.msg.ai { align-self: flex-start; background: var(--panel-2); border: 1px solid var(--line); }
+.bar { height: 6px; background: var(--panel-2); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #60a5fa, #c084fc); }
+mark { background: #713f12; color: #fde68a; border-radius: 3px; padding: 0 2px; }
+.guide li { margin: 4px 0; }
+.guide code { background: var(--panel-2); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+.wrap > p a, .guide a { color: #60a5fa; }
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>✨ <span data-i18n="h1">Chrome 내장 AI 플레이그라운드</span></h1>
+    <p data-i18n="sub">Chrome에 들어 있는 Gemini Nano를 바로 써보세요. 모델 다운로드 후에는 오프라인으로 동작하고, 입력은 기기 밖으로 나가지 않아요.</p>
+  </div>
+
+  <div class="card">
+    <h2><span data-i18n="apiTitle">이 브라우저의 내장 AI</span></h2>
+    <div class="apis" id="apis"></div>
+    <div class="bar" id="barWrap" hidden><i id="bar"></i></div>
+    <p class="muted" id="dlStatus" style="margin:8px 0 0"></p>
+  </div>
+
+  <div class="card guide" id="guide" hidden>
+    <h2 data-i18n="guideTitle">사용하려면</h2>
+    <ul>
+      <li data-i18n="g1">데스크톱 Chrome 138 이상 (Windows 10/11, macOS 13+, Linux, Chromebook Plus). 모바일·다른 브라우저는 아직 지원하지 않아요.</li>
+      <li data-i18n="g2">저장공간 22GB 이상 여유, GPU 4GB VRAM 이상 또는 RAM 16GB·4코어 이상.</li>
+      <li><span data-i18n="g3">요약·번역·언어 감지는 기본 제공. 채팅·글쓰기·다시 쓰기·맞춤법은 아래 플래그를 켜고 Chrome을 다시 시작하세요 (이름은 바뀔 수 있어요):</span>
+        <br><code>chrome://flags/#prompt-api-for-gemini-nano</code> <code>#writer-api-for-gemini-nano</code> <code>#rewriter-api-for-gemini-nano</code> <code>#proofreader-api-for-gemini-nano</code></li>
+      <li><span data-i18n="g4">내 기기 사양은</span> <a href="/aicheck/" data-i18n="aicheck">AI 체커</a></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="seg" id="tabs" style="margin-bottom:12px">
+      <button data-tab="prompt" class="on" data-i18n="tPrompt">채팅</button>
+      <button data-tab="sum" data-i18n="tSum">요약</button>
+      <button data-tab="tr" data-i18n="tTr">번역</button>
+      <button data-tab="write" data-i18n="tWrite">글쓰기</button>
+      <button data-tab="rewrite" data-i18n="tRewrite">다시 쓰기</button>
+      <button data-tab="proof" data-i18n="tProof">맞춤법</button>
+    </div>
+
+    <section data-panel="prompt">
+      <label class="lbl" for="sys" data-i18n="sys">시스템 프롬프트 (선택)</label>
+      <input type="text" id="sys" data-i18n-attr="placeholder:sysPh" placeholder="예: 너는 간결하게 답하는 조수야">
+      <div class="grid2">
+        <div><label class="lbl" for="temp"><span data-i18n="temp">창의성(temperature)</span> <b id="tempV"></b></label><input type="range" id="temp" min="0" max="2" step="0.1" value="1"></div>
+        <div><label class="lbl" for="topk">top-K <b id="topkV"></b></label><input type="range" id="topk" min="1" max="128" step="1" value="3"></div>
+      </div>
+      <div class="chat" id="chat"></div>
+      <textarea id="pIn" rows="3" data-i18n-attr="placeholder:pPh" placeholder="메시지를 입력하고 Ctrl+Enter"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button class="btn primary" data-run="prompt" data-i18n="send">보내기</button>
+        <button class="btn" id="resetChat" data-i18n="reset">새 대화</button>
+        <span class="muted grow" id="usage"></span>
+      </div>
+    </section>
+
+    <section data-panel="sum" hidden>
+      <textarea id="sIn" rows="7" data-i18n-attr="placeholder:sPh" placeholder="요약할 글을 붙여넣으세요"></textarea>
+      <div class="grid2">
+        <div><label class="lbl" data-i18n="sType">형식</label><select id="sType"><option value="key-points" data-i18n="kp">핵심 bullet</option><option value="tldr">TL;DR</option><option value="teaser" data-i18n="teaser">티저</option><option value="headline" data-i18n="headline">제목</option></select></div>
+        <div><label class="lbl" data-i18n="len">길이</label><select id="sLen"><option value="short" data-i18n="short">짧게</option><option value="medium" selected data-i18n="medium">보통</option><option value="long" data-i18n="long">길게</option></select></div>
+      </div>
+      <button class="btn primary" data-run="sum" data-i18n="run">실행</button>
+      <div class="out" id="sOut" data-ph="—"></div>
+    </section>
+
+    <section data-panel="tr" hidden>
+      <textarea id="tIn" rows="6" data-i18n-attr="placeholder:tPh" placeholder="번역할 글"></textarea>
+      <div class="grid2">
+        <div><label class="lbl" data-i18n="from">원문 언어</label><select id="tFrom"></select></div>
+        <div><label class="lbl" data-i18n="to">번역 언어</label><select id="tTo"></select></div>
+      </div>
+      <div class="row"><button class="btn primary" data-run="tr" data-i18n="translate">번역</button><span class="muted grow" id="detected"></span></div>
+      <div class="out" id="tOut" data-ph="—"></div>
+    </section>
+
+    <section data-panel="write" hidden>
+      <textarea id="wIn" rows="4" data-i18n-attr="placeholder:wPh" placeholder="무엇을 쓸까요? 예: 팀에 회의 일정 변경 공지"></textarea>
+      <div class="grid2">
+        <div><label class="lbl" data-i18n="tone">톤</label><select id="wTone"><option value="formal" data-i18n="formal">격식</option><option value="neutral" selected data-i18n="neutral">중립</option><option value="casual" data-i18n="casual">친근</option></select></div>
+        <div><label class="lbl" data-i18n="len">길이</label><select id="wLen"><option value="short" data-i18n="short">짧게</option><option value="medium" selected data-i18n="medium">보통</option><option value="long" data-i18n="long">길게</option></select></div>
+      </div>
+      <button class="btn primary" data-run="write" data-i18n="run">실행</button>
+      <div class="out" id="wOut" data-ph="—"></div>
+    </section>
+
+    <section data-panel="rewrite" hidden>
+      <textarea id="rIn" rows="5" data-i18n-attr="placeholder:rPh" placeholder="다듬을 글"></textarea>
+      <div class="grid2">
+        <div><label class="lbl" data-i18n="tone">톤</label><select id="rTone"><option value="as-is" data-i18n="asIs">그대로</option><option value="more-formal" data-i18n="moreFormal">더 격식 있게</option><option value="more-casual" data-i18n="moreCasual">더 친근하게</option></select></div>
+        <div><label class="lbl" data-i18n="len">길이</label><select id="rLen"><option value="as-is" data-i18n="asIs">그대로</option><option value="shorter" data-i18n="shorter">더 짧게</option><option value="longer" data-i18n="longer">더 길게</option></select></div>
+      </div>
+      <button class="btn primary" data-run="rewrite" data-i18n="run">실행</button>
+      <div class="out" id="rOut" data-ph="—"></div>
+    </section>
+
+    <section data-panel="proof" hidden>
+      <textarea id="pfIn" rows="5" data-i18n-attr="placeholder:pfPh" placeholder="검사할 영어 글"></textarea>
+      <button class="btn primary" data-run="proof" data-i18n="check" style="margin-top:10px">검사</button>
+      <div class="out" id="pfOut" data-ph="—"></div>
+    </section>
+
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="stopBtn" hidden data-i18n="stop">■ 중지</button>
+      <button class="btn" id="copyBtn" data-i18n="copy">📋 결과 복사</button>
+      <span class="muted grow" id="status"></span>
+    </div>
+  </div>
+
+  <p class="muted" style="font-size:13px" data-i18n="tip">Gemini Nano는 영어·스페인어·일본어에서 가장 잘 동작해요. 한국어는 번역 API는 지원하지만, 채팅·요약 품질은 떨어질 수 있어요.</p>
+  <footer class="site">© 2026 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+I18n.define({
+  pageTitle: ['Chrome 내장 AI 플레이그라운드 (Gemini Nano) — tool.cocy.io', 'Chrome Built-in AI Playground (Gemini Nano) — tool.cocy.io', 'Chrome 内置 AI 试验场 (Gemini Nano) — tool.cocy.io', 'Chrome 內建 AI 試驗場 (Gemini Nano) — tool.cocy.io', 'Playground de IA integrada de Chrome (Gemini Nano) — tool.cocy.io'],
+  h1: ['Chrome 내장 AI 플레이그라운드', 'Chrome Built-in AI Playground', 'Chrome 内置 AI 试验场', 'Chrome 內建 AI 試驗場', 'Playground de IA integrada de Chrome'],
+  sub: ['Chrome에 들어 있는 Gemini Nano를 바로 써보세요. 모델 다운로드 후에는 오프라인으로 동작하고, 입력은 기기 밖으로 나가지 않아요.', 'Try the Gemini Nano model built into Chrome. After the one-time download it works offline, and your input never leaves the device.', '直接体验 Chrome 内置的 Gemini Nano。模型下载后可离线运行，输入不会离开设备。', '直接體驗 Chrome 內建的 Gemini Nano。模型下載後可離線執行，輸入不會離開裝置。', 'Prueba Gemini Nano, integrado en Chrome. Tras la descarga funciona sin conexión y tu texto nunca sale del dispositivo.'],
+  apiTitle: ['이 브라우저의 내장 AI', 'Built-in AI in this browser', '此浏览器的内置 AI', '此瀏覽器的內建 AI', 'IA integrada en este navegador'],
+  sAvailable: ['사용 가능', 'Ready', '可用', '可用', 'Lista'],
+  sDownloadable: ['다운로드 필요', 'Needs download', '需下载', '需下載', 'Requiere descarga'],
+  sDownloading: ['다운로드 중', 'Downloading', '下载中', '下載中', 'Descargando'],
+  sUnavailable: ['기기 미지원', 'Unsupported', '设备不支持', '裝置不支援', 'No compatible'],
+  sMissing: ['API 없음', 'No API', '无 API', '無 API', 'Sin API'],
+  guideTitle: ['사용하려면', 'How to enable', '如何启用', '如何啟用', 'Cómo activarlo'],
+  g1: ['데스크톱 Chrome 138 이상 (Windows 10/11, macOS 13+, Linux, Chromebook Plus). 모바일·다른 브라우저는 아직 지원하지 않아요.', 'Desktop Chrome 138+ (Windows 10/11, macOS 13+, Linux, Chromebook Plus). Mobile and other browsers are not supported yet.', '桌面版 Chrome 138+（Windows 10/11、macOS 13+、Linux、Chromebook Plus）。暂不支持移动端和其他浏览器。', '桌面版 Chrome 138+（Windows 10/11、macOS 13+、Linux、Chromebook Plus）。暫不支援行動裝置和其他瀏覽器。', 'Chrome de escritorio 138+ (Windows 10/11, macOS 13+, Linux, Chromebook Plus). Aún no hay soporte en móviles ni otros navegadores.'],
+  g2: ['저장공간 22GB 이상 여유, GPU 4GB VRAM 이상 또는 RAM 16GB·4코어 이상.', '22 GB+ free disk, and a GPU with 4 GB+ VRAM or 16 GB RAM with 4+ CPU cores.', '22 GB 以上可用空间，以及 4 GB+ 显存的 GPU 或 16 GB 内存 + 4 核 CPU。', '22 GB 以上可用空間，以及 4 GB+ 顯存的 GPU 或 16 GB 記憶體 + 4 核 CPU。', '22 GB libres y una GPU con 4 GB+ de VRAM, o 16 GB de RAM con 4+ núcleos.'],
+  g3: ['요약·번역·언어 감지는 기본 제공. 채팅·글쓰기·다시 쓰기·맞춤법은 아래 플래그를 켜고 Chrome을 다시 시작하세요 (이름은 바뀔 수 있어요):', 'Summarize, translate and language detection are on by default. For chat, write, rewrite and proofread, enable these flags and restart Chrome (names may change):', '摘要、翻译、语言检测默认开启。聊天、写作、改写、校对需开启以下 flag 并重启 Chrome（名称可能变化）：', '摘要、翻譯、語言偵測預設開啟。聊天、寫作、改寫、校對需開啟以下 flag 並重新啟動 Chrome（名稱可能變更）：', 'Resumir, traducir y detectar idioma vienen activados. Para chat, escribir, reescribir y corregir, activa estos flags y reinicia Chrome (los nombres pueden cambiar):'],
+  g4: ['내 기기 사양은', 'Check your device in', '查看设备配置：', '查看裝置配置：', 'Revisa tu dispositivo en'],
+  aicheck: ['AI 체커', 'AI Checker', 'AI 检测', 'AI 檢測', 'Comprobador de IA'],
+  tPrompt: ['채팅', 'Chat', '聊天', '聊天', 'Chat'],
+  tSum: ['요약', 'Summarize', '摘要', '摘要', 'Resumir'],
+  tTr: ['번역', 'Translate', '翻译', '翻譯', 'Traducir'],
+  tWrite: ['글쓰기', 'Write', '写作', '寫作', 'Escribir'],
+  tRewrite: ['다시 쓰기', 'Rewrite', '改写', '改寫', 'Reescribir'],
+  tProof: ['맞춤법', 'Proofread', '校对', '校對', 'Corregir'],
+  sys: ['시스템 프롬프트 (선택)', 'System prompt (optional)', '系统提示词（可选）', '系統提示詞（選填）', 'Prompt de sistema (opcional)'],
+  sysPh: ['예: 너는 간결하게 답하는 조수야', 'e.g. You are a concise assistant', '例如：你是一个简洁的助手', '例如：你是一個簡潔的助手', 'p. ej.: Eres un asistente conciso'],
+  temp: ['창의성(temperature)', 'Temperature', '创造性 (temperature)', '創造性 (temperature)', 'Temperatura'],
+  pPh: ['메시지를 입력하고 Ctrl+Enter', 'Type a message, Ctrl+Enter to send', '输入消息，Ctrl+Enter 发送', '輸入訊息，Ctrl+Enter 送出', 'Escribe un mensaje, Ctrl+Enter para enviar'],
+  send: ['보내기', 'Send', '发送', '送出', 'Enviar'],
+  reset: ['새 대화', 'New chat', '新对话', '新對話', 'Nuevo chat'],
+  usage: ['컨텍스트 {u} / {q} 토큰', 'Context {u} / {q} tokens', '上下文 {u} / {q} token', '上下文 {u} / {q} token', 'Contexto {u} / {q} tokens'],
+  sPh: ['요약할 글을 붙여넣으세요', 'Paste text to summarize', '粘贴要摘要的文本', '貼上要摘要的文字', 'Pega el texto a resumir'],
+  sType: ['형식', 'Type', '类型', '類型', 'Tipo'],
+  kp: ['핵심 bullet', 'Key points', '要点', '重點', 'Puntos clave'],
+  teaser: ['티저', 'Teaser', '预告', '預告', 'Avance'],
+  headline: ['제목', 'Headline', '标题', '標題', 'Titular'],
+  len: ['길이', 'Length', '长度', '長度', 'Longitud'],
+  short: ['짧게', 'Short', '短', '短', 'Corto'],
+  medium: ['보통', 'Medium', '中', '中', 'Medio'],
+  long: ['길게', 'Long', '长', '長', 'Largo'],
+  run: ['실행', 'Run', '运行', '執行', 'Ejecutar'],
+  tPh: ['번역할 글', 'Text to translate', '要翻译的文本', '要翻譯的文字', 'Texto a traducir'],
+  from: ['원문 언어', 'From', '源语言', '來源語言', 'Desde'],
+  to: ['번역 언어', 'To', '目标语言', '目標語言', 'A'],
+  auto: ['자동 감지', 'Detect', '自动检测', '自動偵測', 'Detectar'],
+  translate: ['번역', 'Translate', '翻译', '翻譯', 'Traducir'],
+  detected: ['감지: {l} ({p}%)', 'Detected: {l} ({p}%)', '检测到：{l} ({p}%)', '偵測到：{l} ({p}%)', 'Detectado: {l} ({p}%)'],
+  wPh: ['무엇을 쓸까요? 예: 팀에 회의 일정 변경 공지', 'What should I write? e.g. a note telling the team the meeting moved', '要写什么？例如：通知团队会议改期', '要寫什麼？例如：通知團隊會議改期', '¿Qué escribo? p. ej.: avisar al equipo del cambio de reunión'],
+  tone: ['톤', 'Tone', '语气', '語氣', 'Tono'],
+  formal: ['격식', 'Formal', '正式', '正式', 'Formal'],
+  neutral: ['중립', 'Neutral', '中性', '中性', 'Neutral'],
+  casual: ['친근', 'Casual', '随意', '隨意', 'Informal'],
+  rPh: ['다듬을 글', 'Text to rewrite', '要改写的文本', '要改寫的文字', 'Texto a reescribir'],
+  asIs: ['그대로', 'As is', '保持', '保持', 'Igual'],
+  moreFormal: ['더 격식 있게', 'More formal', '更正式', '更正式', 'Más formal'],
+  moreCasual: ['더 친근하게', 'More casual', '更随意', '更隨意', 'Más informal'],
+  shorter: ['더 짧게', 'Shorter', '更短', '更短', 'Más corto'],
+  longer: ['더 길게', 'Longer', '更长', '更長', 'Más largo'],
+  pfPh: ['검사할 영어 글', 'English text to proofread', '要校对的英文文本', '要校對的英文文字', 'Texto en inglés a corregir'],
+  check: ['검사', 'Check', '检查', '檢查', 'Revisar'],
+  noErr: ['고칠 곳이 없어요 ✓', 'No corrections needed ✓', '无需修改 ✓', '無需修改 ✓', 'Sin correcciones ✓'],
+  nFix: ['{n}곳 수정', '{n} corrections', '{n} 处修改', '{n} 處修改', '{n} correcciones'],
+  stop: ['■ 중지', '■ Stop', '■ 停止', '■ 停止', '■ Detener'],
+  copy: ['📋 결과 복사', '📋 Copy result', '📋 复制结果', '📋 複製結果', '📋 Copiar resultado'],
+  noApi: ['이 브라우저에는 {api} API가 없어요', 'This browser has no {api} API', '此浏览器没有 {api} API', '此瀏覽器沒有 {api} API', 'Este navegador no tiene la API {api}'],
+  unsupported: ['이 기기/언어 조합은 지원하지 않아요', 'Not supported on this device or language pair', '此设备或语言组合不受支持', '此裝置或語言組合不受支援', 'No compatible con este dispositivo o par de idiomas'],
+  downloading: ['모델 다운로드 중… {p}%', 'Downloading model… {p}%', '正在下载模型… {p}%', '正在下載模型… {p}%', 'Descargando modelo… {p}%'],
+  working: ['생성 중…', 'Generating…', '生成中…', '生成中…', 'Generando…'],
+  doneStat: ['완료 · {sec}초', 'Done in {sec}s', '完成 · {sec} 秒', '完成 · {sec} 秒', 'Listo en {sec} s'],
+  failed: ['실패: {msg}', 'Failed: {msg}', '失败：{msg}', '失敗：{msg}', 'Error: {msg}'],
+  empty: ['입력을 넣어 주세요', 'Please enter some text', '请输入内容', '請輸入內容', 'Escribe algún texto'],
+  tip: ['Gemini Nano는 영어·스페인어·일본어에서 가장 잘 동작해요. 한국어는 번역 API는 지원하지만, 채팅·요약 품질은 떨어질 수 있어요.', 'Gemini Nano works best in English, Spanish and Japanese. Translation supports many languages, but chat and summary quality may drop elsewhere.', 'Gemini Nano 在英语、西班牙语、日语中效果最好。翻译支持多种语言，但其他语言的聊天和摘要质量可能下降。', 'Gemini Nano 在英語、西班牙語、日語中效果最好。翻譯支援多種語言，但其他語言的聊天和摘要品質可能下降。', 'Gemini Nano funciona mejor en inglés, español y japonés. La traducción admite muchos idiomas, pero el chat y los resúmenes pueden empeorar en otros.'],
+  allTools: ['모든 도구', 'All tools', '全部工具', '全部工具', 'Todas las herramientas'],
+});
+I18n.init();
+
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const t = I18n.t;
+  const APIS = [
+    ['LanguageModel', 'tPrompt'], ['Summarizer', 'tSum'], ['Translator', 'tTr'], ['LanguageDetector', 'auto'],
+    ['Writer', 'tWrite'], ['Rewriter', 'tRewrite'], ['Proofreader', 'tProof'],
+  ];
+  const LANGS = ['ko', 'en', 'ja', 'zh', 'zh-Hant', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'vi', 'th', 'id', 'hi', 'ar', 'tr', 'nl', 'pl'];
+  const PILL = { available: 'ok', downloadable: 'warn', downloading: 'warn', unavailable: 'no', missing: 'no' };
+  const SKEY = { available: 'sAvailable', downloadable: 'sDownloadable', downloading: 'sDownloading', unavailable: 'sUnavailable', missing: 'sMissing' };
+  const state = {}, cache = {};
+  let tab = 'prompt', busy = false, ctrl = null, lastStatus = null, chatSession = null, chatKey = '';
+
+  function status(key, vars, cls) {
+    lastStatus = key ? [key, vars, cls] : null;
+    $('status').className = 'grow ' + (cls || 'muted');
+    $('status').textContent = key ? t(key, vars) : '';
+  }
+  const langName = (code) => {
+    try { return new Intl.DisplayNames([I18n.lang], { type: 'language' }).of(code); } catch (e) { return code; }
+  };
+
+  async function availability(name, opts) {
+    const api = self[name];
+    if (!api || !api.availability) return 'missing';
+    try { return await api.availability(opts || {}); } catch (e) { return 'unavailable'; }
+  }
+  async function refresh() {
+    await Promise.all(APIS.map(async ([n]) => {
+      state[n] = await availability(n, n === 'Translator' ? { sourceLanguage: 'en', targetLanguage: 'ko' } : undefined);
+    }));
+    renderApis();
+  }
+  function renderApis() {
+    $('apis').innerHTML = APIS.map(([n, k]) => `<div><span>${n === 'LanguageDetector' ? t('tTr') + ' · ' + t('auto') : t(k)}</span><span class="pill ${PILL[state[n]] || 'no'}">${t(SKEY[state[n]] || 'sMissing')}</span></div>`).join('');
+    $('guide').hidden = !APIS.some(([n]) => state[n] === 'missing' || state[n] === 'unavailable');
+  }
+
+  function monitor(m) {
+    m.addEventListener('downloadprogress', (e) => {
+      const p = Math.round((e.total ? e.loaded / e.total : e.loaded) * 100);
+      $('barWrap').hidden = p >= 100;
+      $('bar').style.width = p + '%';
+      status('downloading', { p });
+    });
+  }
+  async function get(name, opts) {
+    const k = name + JSON.stringify(opts);
+    if (cache[k]) return cache[k];
+    if (!self[name]) throw Object.assign(new Error(t('noApi', { api: name })), { quiet: true });
+    const a = await availability(name, opts);
+    if (a === 'unavailable') throw Object.assign(new Error(t('unsupported')), { quiet: true });
+    cache[k] = await self[name].create({ ...opts, monitor });
+    $('barWrap').hidden = true;
+    refresh();
+    return cache[k];
+  }
+
+  async function pump(stream, onText) {
+    let acc = '';
+    for await (const chunk of stream) {
+      if (ctrl.signal.aborted) break;
+      acc = chunk.startsWith(acc) && acc ? chunk : acc + chunk;
+      onText(acc);
+    }
+    return acc;
+  }
+
+  const RUN = {
+    async prompt() {
+      const text = $('pIn').value.trim();
+      if (!text) throw Object.assign(new Error(t('empty')), { quiet: true });
+      const opts = { temperature: +$('temp').value, topK: +$('topk').value };
+      if ($('sys').value.trim()) opts.initialPrompts = [{ role: 'system', content: $('sys').value.trim() }];
+      const key = JSON.stringify(opts);
+      if (!chatSession || chatKey !== key) {
+        if (!self.LanguageModel) throw Object.assign(new Error(t('noApi', { api: 'LanguageModel' })), { quiet: true });
+        if ((await availability('LanguageModel')) === 'unavailable') throw Object.assign(new Error(t('unsupported')), { quiet: true });
+        if (chatSession) { try { chatSession.destroy(); } catch (e) {} }
+        $('chat').innerHTML = '';
+        chatSession = await LanguageModel.create({ ...opts, monitor });
+        chatKey = key;
+        refresh();
+      }
+      $('pIn').value = '';
+      bubble('user', text);
+      const el = bubble('ai', '…');
+      const out = await pump(chatSession.promptStreaming(text, { signal: ctrl.signal }), (s) => { el.textContent = s; $('chat').scrollTop = 1e9; });
+      const u = chatSession.inputUsage ?? chatSession.tokensSoFar, q = chatSession.inputQuota ?? chatSession.maxTokens;
+      if (u != null && q) $('usage').textContent = t('usage', { u: u.toLocaleString(), q: q.toLocaleString() });
+      return out;
+    },
+    async sum() {
+      const text = need('sIn');
+      const s = await get('Summarizer', { type: $('sType').value, length: $('sLen').value, format: 'plain-text' });
+      return pump(s.summarizeStreaming(text, { signal: ctrl.signal }), (x) => ($('sOut').textContent = x));
+    },
+    async tr() {
+      const text = need('tIn');
+      let from = $('tFrom').value;
+      $('detected').textContent = '';
+      if (from === 'auto') {
+        const d = await get('LanguageDetector', {});
+        const [top] = await d.detect(text);
+        if (!top || top.detectedLanguage === 'und') throw Object.assign(new Error(t('unsupported')), { quiet: true });
+        from = top.detectedLanguage;
+        $('detected').textContent = t('detected', { l: langName(from), p: Math.round(top.confidence * 100) });
+      }
+      const to = $('tTo').value;
+      if (from === to) return ($('tOut').textContent = text);
+      const tr = await get('Translator', { sourceLanguage: from, targetLanguage: to });
+      if (tr.translateStreaming) return pump(tr.translateStreaming(text, { signal: ctrl.signal }), (x) => ($('tOut').textContent = x));
+      return ($('tOut').textContent = await tr.translate(text, { signal: ctrl.signal }));
+    },
+    async write() {
+      const text = need('wIn');
+      const w = await get('Writer', { tone: $('wTone').value, length: $('wLen').value, format: 'plain-text' });
+      return pump(w.writeStreaming(text, { signal: ctrl.signal }), (x) => ($('wOut').textContent = x));
+    },
+    async rewrite() {
+      const text = need('rIn');
+      const r = await get('Rewriter', { tone: $('rTone').value, length: $('rLen').value, format: 'plain-text' });
+      return pump(r.rewriteStreaming(text, { signal: ctrl.signal }), (x) => ($('rOut').textContent = x));
+    },
+    async proof() {
+      const text = need('pfIn');
+      const p = await get('Proofreader', { expectedInputLanguages: ['en'] });
+      const r = await p.proofread(text, { signal: ctrl.signal });
+      const out = $('pfOut');
+      out.textContent = '';
+      const fixes = (r.corrections || []).slice().sort((a, b) => a.startIndex - b.startIndex);
+      if (!fixes.length) { out.textContent = t('noErr'); return r.correctedInput || text; }
+      let i = 0;
+      for (const c of fixes) {
+        out.append(text.slice(i, c.startIndex));
+        const m = document.createElement('mark');
+        m.textContent = c.correction;
+        m.title = text.slice(c.startIndex, c.endIndex);
+        out.append(m);
+        i = c.endIndex;
+      }
+      out.append(text.slice(i));
+      out.append(document.createElement('br'), document.createElement('br'), t('nFix', { n: fixes.length }));
+      return r.correctedInput;
+    },
+  };
+  function need(id) {
+    const v = $(id).value.trim();
+    if (!v) throw Object.assign(new Error(t('empty')), { quiet: true });
+    return v;
+  }
+  function bubble(cls, text) {
+    const d = document.createElement('div');
+    d.className = 'msg ' + cls;
+    d.textContent = text;
+    $('chat').append(d);
+    $('chat').scrollTop = 1e9;
+    return d;
+  }
+
+  let lastOut = '';
+  async function run(kind) {
+    if (busy) return;
+    busy = true;
+    ctrl = new AbortController();
+    $('stopBtn').hidden = false;
+    document.querySelectorAll('[data-run]').forEach((b) => (b.disabled = true));
+    status('working');
+    const t0 = performance.now();
+    try {
+      lastOut = (await RUN[kind]()) || '';
+      status(ctrl.signal.aborted ? null : 'doneStat', { sec: ((performance.now() - t0) / 1000).toFixed(1) });
+    } catch (e) {
+      if (e.name === 'AbortError') status(null);
+      else if (e.quiet) { lastStatus = null; $('status').className = 'grow err'; $('status').textContent = e.message; }
+      else status('failed', { msg: e.message }, 'err');
+    } finally {
+      busy = false;
+      $('stopBtn').hidden = true;
+      $('barWrap').hidden = true;
+      document.querySelectorAll('[data-run]').forEach((b) => (b.disabled = false));
+    }
+  }
+
+  function renderLangs() {
+    for (const [id, auto] of [['tFrom', true], ['tTo', false]]) {
+      const cur = $(id).value;
+      $(id).innerHTML = (auto ? `<option value="auto">${t('auto')}</option>` : '') + LANGS.map((l) => `<option value="${l}">${langName(l)}</option>`).join('');
+      $(id).value = cur || (auto ? 'auto' : I18n.lang === 'ko' ? 'en' : 'ko');
+    }
+  }
+
+  $('tabs').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    tab = b.dataset.tab;
+    $('tabs').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+    document.querySelectorAll('[data-panel]').forEach((p) => (p.hidden = p.dataset.panel !== tab));
+    lastOut = '';
+    status(null);
+  });
+  document.querySelectorAll('[data-run]').forEach((b) => b.addEventListener('click', () => run(b.dataset.run)));
+  $('pIn').addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run('prompt'); } });
+  $('stopBtn').addEventListener('click', () => ctrl && ctrl.abort());
+  $('resetChat').addEventListener('click', () => {
+    if (chatSession) { try { chatSession.destroy(); } catch (e) {} }
+    chatSession = null; chatKey = '';
+    $('chat').innerHTML = ''; $('usage').textContent = '';
+  });
+  $('copyBtn').addEventListener('click', () => {
+    const txt = tab === 'prompt' ? [...$('chat').children].map((m) => (m.classList.contains('user') ? '> ' : '') + m.textContent).join('\n\n') : lastOut;
+    if (txt) UI.copy(txt);
+  });
+  const syncRange = () => { $('tempV').textContent = $('temp').value; $('topkV').textContent = $('topk').value; };
+  ['temp', 'topk'].forEach((id) => $(id).addEventListener('input', syncRange));
+  document.addEventListener('i18n:change', () => { renderApis(); renderLangs(); if (lastStatus) status(...lastStatus); });
+
+  (async () => {
+    if (self.LanguageModel && LanguageModel.params) {
+      try {
+        const p = await LanguageModel.params();
+        $('temp').max = p.maxTemperature; $('temp').value = p.defaultTemperature;
+        $('topk').max = p.maxTopK; $('topk').value = p.defaultTopK;
+      } catch (e) {}
+    }
+    syncRange();
+  })();
+  renderLangs();
+  renderApis();
+  refresh();
+})();
+</script>
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: 'Chrome 내장 AI 플레이그라운드 (Gemini Nano) — tool.cocy.io',
+  description: 'Chrome에 내장된 Gemini Nano로 채팅·요약·번역·언어 감지·글쓰기·다시 쓰기·맞춤법 검사를 오프라인으로. 서버 전송 없음',
+  url: 'https://tool.cocy.io/nano/'
+});
+</script>
+</body>
+</html>
