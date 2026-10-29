@@ -23,6 +23,7 @@ audio { width: 100%; margin-top: 12px; }
 .seg button { font-family: var(--mono); font-size: 12px; color: #38bdf8; background: none; border: 0; cursor: pointer; padding: 0; white-space: nowrap; }
 .seg span { flex: 1; outline: none; line-height: 1.5; min-width: 0; word-break: break-word; }
 .seg span:focus { background: var(--panel-2); border-radius: 4px; }
+.wrap > p a { color: #60a5fa; }
 .rec { color: #f87171; font-family: var(--mono); }
 </style>
 </head>
@@ -137,6 +138,12 @@ I18n.init();
   const pref = (() => { try { return JSON.parse(localStorage.getItem('stt_prefs')) || {}; } catch (e) { return {}; } })();
   const savePref = () => { try { localStorage.setItem('stt_prefs', JSON.stringify({ model: $('model').value, lang: $('lang').value, task: $('task').value, cpu: $('forceCpu').checked })); } catch (e) {} };
   const useGpu = () => gpu.ok && !$('forceCpu').checked;
+  let lastStatus = null;
+  function status(key, vars, cls) {
+    lastStatus = key ? [key, vars, cls] : null;
+    $('status').className = cls || 'muted';
+    $('status').textContent = key ? t(key, vars) : '';
+  }
   const fmtSize = (mb) => (mb >= 1000 ? (mb / 1000).toFixed(1) + ' GB' : mb + ' MB');
 
   function renderSelects() {
@@ -164,8 +171,7 @@ I18n.init();
   }
 
   async function loadFile(file, name) {
-    $('status').className = 'muted';
-    $('status').textContent = '';
+    status(null);
     try {
       const buf = await file.arrayBuffer();
       const ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SR });
@@ -184,8 +190,7 @@ I18n.init();
     } catch (e) {
       audio = null;
       $('runBtn').disabled = true;
-      $('status').className = 'err';
-      $('status').textContent = t('decodeErr');
+      status('decodeErr', null, 'err');
     }
   }
 
@@ -215,9 +220,9 @@ I18n.init();
       files[p.file] = [p.loaded, p.total];
       const v = Object.values(files), loaded = v.reduce((a, x) => a + x[0], 0), total = v.reduce((a, x) => a + x[1], 0);
       $('bar').style.width = ((loaded / total) * 100).toFixed(1) + '%';
-      $('status').textContent = t('loading', { p: `${Math.round(loaded / 2 ** 20)} / ${Math.round(total / 2 ** 20)} MB` });
+      status('loading', { p: `${Math.round(loaded / 2 ** 20)} / ${Math.round(total / 2 ** 20)} MB` });
     } else if (p.status === 'done' || p.status === 'ready') {
-      $('status').textContent = t('initModel');
+      status('initModel');
     }
   }
 
@@ -235,13 +240,13 @@ I18n.init();
     const dtype = gpuOn ? { encoder_model: m.f16 ? 'fp16' : 'fp32', decoder_model_merged: 'q4' } : 'q8';
     try {
       for (const k in files) delete files[k];
-      $('status').textContent = t('initModel');
+      status('initModel');
       await call({ type: 'load', model: m.id, device: gpuOn ? 'webgpu' : 'wasm', dtype }, null, onLoadProgress);
       const dur = audio.length / SR, t0 = performance.now();
       for (let start = 0; start < dur && running; start += WIN) {
         const end = Math.min(dur, start + WIN);
         $('bar').style.width = ((start / dur) * 100).toFixed(1) + '%';
-        $('status').textContent = t('working', { done: clock(start), total: clock(dur) });
+        status('working', { done: clock(start), total: clock(dur) });
         const slice = audio.slice(Math.floor(start * SR), Math.floor(end * SR));
         const { out } = await call({ type: 'run', audio: slice, lang: $('lang').value, task: $('task').value }, [slice.buffer]);
         const chunks = out.chunks && out.chunks.length ? out.chunks : [{ timestamp: [0, end - start], text: out.text || '' }];
@@ -256,9 +261,9 @@ I18n.init();
       }
       const sec = (performance.now() - t0) / 1000;
       $('bar').style.width = '100%';
-      $('status').textContent = t('doneStat', { sec: sec.toFixed(1), x: (dur / sec).toFixed(1) });
+      status('doneStat', { sec: sec.toFixed(1), x: (dur / sec).toFixed(1) });
     } catch (e) {
-      if (running) { $('status').className = 'err'; $('status').textContent = t('failed', { msg: e.message }); }
+      if (running) { status('failed', { msg: e.message }, 'err'); }
     } finally {
       running = false;
       $('runBtn').hidden = false; $('stopBtn').hidden = true;
@@ -329,8 +334,7 @@ I18n.init();
       recTimer = setInterval(() => { $('recTime').textContent = '● ' + clock((Date.now() - t0) / 1000); }, 250);
       $('recBtn').dataset.i18n = 'recStop'; $('recBtn').textContent = t('recStop');
     } catch (e) {
-      $('status').className = 'err';
-      $('status').textContent = t('micErr');
+      status('micErr', null, 'err');
     }
   });
 
@@ -338,13 +342,12 @@ I18n.init();
   $('stopBtn').addEventListener('click', () => {
     running = false;
     if (worker) { worker.terminate(); worker = null; }
-    $('status').className = 'muted';
-    $('status').textContent = t('stopped');
+    status('stopped', null, 'muted');
     $('runBtn').hidden = false; $('stopBtn').hidden = true;
   });
   $('forceCpu').addEventListener('change', () => { renderSelects(); savePref(); });
   ['model', 'lang', 'task'].forEach((id) => $(id).addEventListener('change', savePref));
-  document.addEventListener('i18n:change', () => { renderSelects(); renderSegs(); });
+  document.addEventListener('i18n:change', () => { renderSelects(); renderSegs(); if (lastStatus) status(...lastStatus); });
 
   if (pref.task) $('task').value = pref.task;
   $('forceCpu').checked = !!pref.cpu;
