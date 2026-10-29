@@ -3,6 +3,7 @@
 > 설치·로그인 없이 브라우저에서 바로 쓰는 무료 웹 도구 모음. 개발자 유틸리티(인코딩·토크나이저·네트워크)부터 생활 도구(로또·D-Day·QR)까지 전부 클라이언트 사이드로 동작해 데이터가 서버로 전송되지 않는다.
 
 ## tool
+- [브라우저 LLM 툴 콜링](https://tool.cocy.io/browserllm/): 브라우저 안에서 도는 LLM(WebGPU/Qwen3.5·Chrome 내장 Gemini Nano)이 위키 검색·날씨·계산 툴을 직접 호출. 서버 없이 100% 온디바이스.
 - [온디바이스 AI 비전](https://tool.cocy.io/vtest/): 서버 없이 브라우저에서 100% 실행되는 AI 비전. 사진 속 물건·텍스트를 WebGPU로 즉시 인식 (SmolVLM). 이미지가 외부로 안 나감.
 - [NVIDIA GTC 2026 세션 가이드](https://tool.cocy.io/gtc2026/): GTC 2026 (3/16-19, San Jose) 주요 트랙·세션·일정 정리. Agentic AI, 로보틱스, 추론, CUDA, 양자컴퓨팅 등 900+ 세션.
 - [유니코드 디코더](https://tool.cocy.io/unicodedec/): \uXXXX 유니코드 이스케이프, URL 인코딩(%XX), HTML 엔티티, Base64 실시간 디코딩/인코딩

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="브라우저 안에서 100% 실행되는 LLM으로 툴 콜링(function calling)을 테스트. WebGPU(WebLLM Qwen3.5·Hermes3)와 Chrome 내장 Gemini Nano를 골라 위키 검색·날씨·계산·시간 툴을 직접 호출시켜 봅니다.">
+<link rel="icon" href="icon.svg">
+<title>브라우저 LLM 툴 콜링 데모 — 온디바이스 에이전트 테스트</title>
+<link rel="canonical" href="https://tool.cocy.io/browserllm/">
+<meta property="og:url" content="https://tool.cocy.io/browserllm/">
+<meta property="og:title" content="브라우저 LLM 툴 콜링 데모">
+<meta property="og:description" content="WebGPU(WebLLM)·Chrome 내장 Gemini Nano를 브라우저에서 구동해 위키 검색·날씨·계산 툴 콜링까지 테스트. 서버 없이 100% 온디바이스.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"브라우저 LLM 툴 콜링 데모","description":"브라우저 안에서 100% 실행되는 LLM(WebLLM/WebGPU, Chrome 내장 Gemini Nano)으로 위키 검색·날씨·계산·시간 툴 콜링을 테스트하는 온디바이스 에이전트 데모.","url":"https://tool.cocy.io/browserllm/","applicationCategory":"DeveloperApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript, WebGPU recommended","inLanguage":"ko","author":{"@type":"Person","name":"cocy","url":"https://cocy.io"},"publisher":{"@type":"Organization","name":"cocy.io","url":"https://cocy.io"},"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"},"image":"https://tool.cocy.io/browserllm/icon.svg"}</script>
+<style>
+  :root { --bg:#0e0f1a; --card:#1a1c2e; --line:#2c2f47; --fg:#e8e9f3; --mut:#9aa0c0; --acc:#5b8cff; --ok:#3ecf8e; --warn:#ffb86b; --bad:#ff6b6b; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0 auto; background:var(--bg); color:var(--fg); font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Noto Sans KR",sans-serif; padding:16px; max-width:720px; }
+  h1 { font-size:1.25rem; margin:.2em 0 .1em; }
+  .sub { color:var(--mut); font-size:.82rem; margin-bottom:14px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px; }
+  label { display:block; font-size:.8rem; color:var(--mut); margin-bottom:5px; }
+  select, textarea, input[type=text] { width:100%; background:#12141f; color:var(--fg); border:1px solid var(--line); border-radius:9px; padding:10px; font:inherit; }
+  textarea { resize:vertical; min-height:52px; }
+  button { border:0; border-radius:11px; padding:12px; font:600 15px/1 inherit; color:#fff; background:var(--acc); cursor:pointer; width:100%; }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  button.ghost { background:#262a40; }
+  .row { display:flex; gap:8px; margin-top:8px; }
+  .row > * { flex:1; }
+  .stat { display:flex; justify-content:space-between; gap:10px; font-size:.84rem; padding:4px 0; border-bottom:1px dashed var(--line); }
+  .stat:last-child { border:0; }
+  .stat b { color:var(--acc); font-weight:600; }
+  .badge { display:inline-block; font-size:.72rem; padding:2px 8px; border-radius:20px; font-weight:700; }
+  .b-ok { background:rgba(62,207,142,.16); color:var(--ok); }
+  .b-bad { background:rgba(255,107,107,.16); color:var(--bad); }
+  .b-warn { background:rgba(255,184,107,.16); color:var(--warn); }
+  .prog { height:7px; background:#12141f; border-radius:6px; overflow:hidden; margin-top:8px; }
+  .prog > i { display:block; height:100%; width:0; background:var(--acc); transition:width .2s; }
+  .mut { color:var(--mut); font-size:.8rem; }
+  code { background:#12141f; padding:1px 5px; border-radius:5px; font-size:.85em; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .chip { background:#262a40; border:1px solid var(--line); color:var(--fg); border-radius:20px; padding:6px 11px; font-size:.78rem; cursor:pointer; width:auto; }
+  .step { border:1px solid var(--line); border-radius:10px; padding:10px; margin-bottom:8px; background:#12141f; }
+  .step h4 { margin:0 0 6px; font-size:.82rem; color:var(--mut); font-weight:600; display:flex; justify-content:space-between; gap:8px; }
+  .step pre { margin:0; white-space:pre-wrap; word-break:break-word; font-size:.8rem; color:#cfd3ee; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .tool-name { color:var(--warn); font-weight:700; }
+  #answer { white-space:pre-wrap; word-break:break-word; min-height:24px; }
+  details > summary { cursor:pointer; color:var(--mut); font-size:.78rem; }
+  .toolrow { display:flex; justify-content:space-between; gap:10px; font-size:.82rem; padding:5px 0; border-bottom:1px dashed var(--line); }
+  .toolrow:last-child { border:0; }
+  .toolrow span:last-child { color:var(--mut); text-align:right; }
+  footer { color:var(--mut); font-size:.78rem; margin-top:16px; line-height:1.7; }
+  footer a { color:var(--acc); }
+</style>
+</head>
+<body>
+  <h1>🧠 브라우저 LLM 툴 콜링 데모</h1>
+  <div class="sub">모델이 브라우저 안에서만 돌면서 <b>위키 검색 · 날씨 · 계산 · 시간</b> 툴을 직접 호출합니다. 프롬프트도 대화도 서버로 나가지 않고, 툴이 호출될 때만 해당 공개 API로 요청이 갑니다.</div>
+
+  <div class="card">
+    <div class="stat"><span>WebGPU</span><span id="gpuState" class="badge b-warn">확인중…</span></div>
+    <div class="stat"><span>Chrome 내장 모델 (Prompt API)</span><span id="nanoState" class="badge b-warn">확인중…</span></div>
+    <div class="stat"><span>엔진 상태</span><span id="engineState" class="mut">미로딩</span></div>
+  </div>
+
+  <div class="card">
+    <label>① 엔진 / 모델</label>
+    <select id="engineSel">
+      <optgroup label="WebLLM (WebGPU · 첫 실행 시 모델 다운로드)">
+        <option value="webllm:Qwen3.5-0.8B-q4f16_1-MLC">Qwen3.5 0.8B (≈1.6GB VRAM · 가장 가벼움)</option>
+        <option value="webllm:Qwen3.5-2B-q4f16_1-MLC" selected>Qwen3.5 2B (≈2.2GB · 권장)</option>
+        <option value="webllm:Qwen3.5-4B-q4f16_1-MLC">Qwen3.5 4B (≈3.9GB · 가장 똑똑)</option>
+        <option value="webllm:Qwen3-1.7B-q4f16_1-MLC">Qwen3 1.7B (≈2.0GB)</option>
+        <option value="webllm:Hermes-3-Llama-3.2-3B-q4f16_1-MLC">Hermes 3 Llama-3.2 3B (≈2.3GB · 함수호출 튜닝)</option>
+        <option value="webllm:gemma3-1b-it-q4f16_1-MLC">Gemma 3 1B (≈0.7GB)</option>
+        <option value="webllm:Llama-3.2-1B-Instruct-q4f32_1-MLC">Llama 3.2 1B f32 (≈1.1GB · f16 미지원 GPU용)</option>
+      </optgroup>
+      <optgroup label="브라우저 내장">
+        <option value="nano:builtin">Chrome 내장 Gemini Nano (다운로드 불필요 · Chrome 148+)</option>
+      </optgroup>
+      <optgroup label="모델 없이">
+        <option value="mock:rule">모의 엔진 (LLM 아님 · 규칙 기반 · 툴 콜링 흐름만 확인)</option>
+      </optgroup>
+    </select>
+    <div class="row">
+      <button id="loadBtn">엔진 로드</button>
+      <button id="unloadBtn" class="ghost" disabled>해제</button>
+    </div>
+    <div class="prog"><i id="prog"></i></div>
+    <div id="progTxt" class="mut" style="margin-top:6px"></div>
+  </div>
+
+  <div class="card">
+    <label>② 사용 가능한 툴 <span class="mut">(모델이 필요하다고 판단할 때만 호출)</span></label>
+    <div class="toolrow"><span><span class="tool-name">wiki_search</span></span><span>위키백과 검색 (ko/en)</span></div>
+    <div class="toolrow"><span><span class="tool-name">get_weather</span></span><span>도시 현재 날씨 (Open-Meteo)</span></div>
+    <div class="toolrow"><span><span class="tool-name">calculate</span></span><span>사칙연산 계산</span></div>
+    <div class="toolrow"><span><span class="tool-name">get_time</span></span><span>타임존별 현재 시각</span></div>
+    <div style="margin-top:10px">
+      <label style="display:flex;align-items:center;gap:8px;color:var(--fg);font-size:.84rem">
+        <input type="checkbox" id="nativeTools" style="width:auto">
+        네이티브 tools API 사용 (OpenAI 호환 function calling · Hermes/Qwen 계열에서만 권장)
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>③ 질문</label>
+    <textarea id="q" placeholder="예) 서울 날씨 알려줘">서울 날씨 알려줘</textarea>
+    <div class="chips">
+      <button class="chip">서울 날씨 알려줘</button>
+      <button class="chip">1234 * 567 + 89 계산해줘</button>
+      <button class="chip">WebGPU가 뭔지 위키에서 찾아서 한 문장으로 요약해줘</button>
+      <button class="chip">지금 뉴욕 몇 시야?</button>
+    </div>
+    <div class="row">
+      <button id="runBtn" disabled>실행</button>
+      <button id="resetBtn" class="ghost">대화 초기화</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>답변</label>
+    <div id="answer" class="mut">—</div>
+    <div class="stat" style="margin-top:12px"><span>엔진 로드</span><b id="tLoad">—</b></div>
+    <div class="stat"><span>응답 소요</span><b id="tRun">—</b></div>
+    <div class="stat"><span>툴 호출 / 스텝</span><b id="tSteps">—</b></div>
+    <div class="stat"><span>생성 속도</span><b id="tTps">—</b></div>
+  </div>
+
+  <div class="card">
+    <label>실행 추적 <span class="mut">(모델 출력 → 툴 호출 → 툴 결과)</span></label>
+    <div id="trace" class="mut">아직 실행 기록이 없습니다.</div>
+  </div>
+
+  <footer>
+    WebLLM <code>0.2.85</code> (WebGPU) · Chrome Prompt API <code>LanguageModel</code> · 툴 데이터: 위키백과 API, Open-Meteo.
+    브라우저 내장 모델의 네이티브 <code>tools</code> 옵션은 아직 확장·실험 컨텍스트 한정이라, 기본값은 어떤 모델에서도 동작하는 JSON 프로토콜 방식(모델이 <code>{"tool":…}</code> JSON을 출력 → 페이지가 실행 → 결과를 다시 주입)입니다.
+    <br>WebGPU가 없으면 WebLLM은 실행되지 않습니다 — Chrome/Edge 최신 데스크톱 브라우저를 권장합니다. 모바일 등 실행이 불가한 환경에서는 <b>모의 엔진</b>으로 툴 콜링 흐름만 확인할 수 있습니다(실제 추론 아님).
+  </footer>
+
+<script type="module">
+
+const $ = id => document.getElementById(id);
+const MAX_STEPS = 5;
+
+/* ---------- 툴 정의 ---------- */
+const TOOLS = {
+  wiki_search: {
+    description: "위키백과에서 키워드를 검색해 문서 요약을 가져온다. 인물·개념·사건 등 사실 확인이 필요할 때 사용.",
+    parameters: {
+      type: "object",
+      properties: {
+        query: { type: "string", description: "검색어" },
+        lang: { type: "string", enum: ["ko", "en"], description: "위키 언어판 (기본: 한글 검색어면 ko, 영문이면 en)" },
+      },
+      required: ["query"],
+    },
+    async run({ query, lang }) {
+      const first = lang === "ko" || lang === "en" ? lang : (/[^\x00-\x7F]/.test(query) ? "ko" : "en");
+      let out = await wikiExtract(first, query);
+      if (!out) out = await wikiExtract(first === "ko" ? "en" : "ko", query);
+      return out || `"${query}" 검색 결과 없음`;
+    },
+  },
+  get_weather: {
+    description: "도시 이름으로 현재 날씨(기온·체감·습도·풍속·강수)를 조회한다.",
+    parameters: {
+      type: "object",
+      properties: { city: { type: "string", description: "도시 이름 (예: 서울, Tokyo)" } },
+      required: ["city"],
+    },
+    async run({ city }) {
+      const loc = await geocode(city);
+      if (!loc) return `"${city}" 위치를 찾지 못함`;
+      const w = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.latitude}&longitude=${loc.longitude}`
+        + `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m&timezone=auto`);
+      const c = (await w.json())?.current;
+      if (!c) return "날씨 데이터를 가져오지 못함";
+      return `${loc.name}(${loc.country || ""}) 현재: ${WMO[c.weather_code] ?? "알 수 없음"}, `
+        + `기온 ${c.temperature_2m}°C (체감 ${c.apparent_temperature}°C), 습도 ${c.relative_humidity_2m}%, `
+        + `강수 ${c.precipitation}mm, 풍속 ${c.wind_speed_10m}m/s`;
+    },
+  },
+  calculate: {
+    description: "사칙연산 수식을 계산한다. 숫자와 + - * / ( ) % 만 사용 가능.",
+    parameters: {
+      type: "object",
+      properties: { expression: { type: "string", description: "예: (1234*567)+89" } },
+      required: ["expression"],
+    },
+    async run({ expression }) {
+      const expr = String(expression).replace(/[,\s]/g, "").replace(/\^/g, "**");
+      if (!/^[0-9+\-*/().%]+$/.test(expr)) throw new Error("허용되지 않은 문자가 포함됨: " + expression);
+      const value = Function(`"use strict";return (${expr})`)();
+      if (!Number.isFinite(value)) throw new Error("계산 결과가 유효하지 않음");
+      return `${expression} = ${value}`;
+    },
+  },
+  get_time: {
+    description: "지정한 타임존의 현재 날짜와 시각을 알려준다.",
+    parameters: {
+      type: "object",
+      properties: { timezone: { type: "string", description: "IANA 타임존 (예: Asia/Seoul, America/New_York). 기본값은 사용자 타임존" } },
+      required: [],
+    },
+    async run({ timezone }) {
+      const tz = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+      try {
+        return `${tz} 현재 시각: ${new Intl.DateTimeFormat("ko-KR", { dateStyle: "full", timeStyle: "medium", timeZone: tz }).format(new Date())}`;
+      } catch {
+        throw new Error(`알 수 없는 타임존: ${tz}`);
+      }
+    },
+  },
+};
+
+async function wikiExtract(wiki, query) {
+  const r = await fetch(`https://${wiki}.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1`
+    + `&prop=extracts&explaintext=1&exintro=1&generator=search&gsrlimit=2&gsrsearch=${encodeURIComponent(query)}`);
+  if (!r.ok) throw new Error("wikipedia HTTP " + r.status);
+  const pages = Object.values((await r.json())?.query?.pages || {}).filter(p => p.extract);
+  if (!pages.length) return "";
+  return pages.map(p => `[${wiki}:${p.title}] ${p.extract.replace(/\s+/g, " ").slice(0, 450)}`).join("\n");
+}
+
+/* Open-Meteo 지오코딩은 한글 지명을 못 찾는 경우가 많아, 위키백과 언어링크로 영문 지명을 얻어 재시도한다. */
+async function geocode(city) {
+  const lookup = async (name) => {
+    const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?count=1&language=ko&name=${encodeURIComponent(name)}`);
+    return (await r.json())?.results?.[0] || null;
+  };
+  let loc = await lookup(city);
+  if (loc) return loc;
+  const r = await fetch(`https://ko.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1`
+    + `&prop=langlinks&lllang=en&generator=search&gsrlimit=1&gsrsearch=${encodeURIComponent(city)}`);
+  const page = Object.values((await r.json())?.query?.pages || {})[0];
+  const en = page?.langlinks?.[0]?.["*"];
+  if (!en) return null;
+  return (await lookup(en)) || (await lookup(en.split(" ")[0]));
+}
+
+const WMO = {
+  0:"맑음",1:"대체로 맑음",2:"부분 흐림",3:"흐림",45:"안개",48:"서리 안개",51:"약한 이슬비",53:"이슬비",55:"강한 이슬비",
+  61:"약한 비",63:"비",65:"강한 비",66:"어는 비",67:"강한 어는 비",71:"약한 눈",73:"눈",75:"강한 눈",77:"싸락눈",
+  80:"소나기",81:"강한 소나기",82:"매우 강한 소나기",85:"약한 눈소나기",86:"강한 눈소나기",95:"뇌우",96:"우박 동반 뇌우",99:"강한 우박 뇌우",
+};
+
+const toolSpecs = () => Object.entries(TOOLS).map(([name, t]) => ({
+  type: "function",
+  function: { name, description: t.description, parameters: t.parameters },
+}));
+
+function systemPrompt() {
+  const list = Object.entries(TOOLS)
+    .map(([name, t]) => `- ${name}: ${t.description} args=${JSON.stringify(t.parameters.properties)}`)
+    .join("\n");
+  return `You are a helpful assistant running inside a web browser. You can use tools.\n`
+    + `Available tools:\n${list}\n\n`
+    + `Reply with EXACTLY ONE JSON object and nothing else (no markdown, no explanation):\n`
+    + `- to call a tool: {"tool":"<tool name>","args":{...}}\n`
+    + `- to answer the user: {"final":"<answer>"}\n`
+    + `After a TOOL_RESULT message you must either call another tool or give {"final":...}. `
+    + `Never invent tool results. Answer in the user's language (Korean if the user writes Korean).`;
+}
+
+/* 모델이 뱉은 텍스트에서 첫 번째 균형 잡힌 JSON 객체를 뽑아낸다. */
+function extractJson(text) {
+  const s = String(text).replace(/<think>[\s\S]*?<\/think>/g, "").replace(/```(?:json)?/g, "");
+  const start = s.indexOf("{");
+  if (start < 0) return null;
+  let depth = 0, inStr = false, esc = false;
+  for (let i = start; i < s.length; i++) {
+    const ch = s[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (ch === "\\") esc = true;
+      else if (ch === '"') inStr = false;
+      continue;
+    }
+    if (ch === '"') inStr = true;
+    else if (ch === "{") depth++;
+    else if (ch === "}" && --depth === 0) {
+      try { return JSON.parse(s.slice(start, i + 1)); } catch { return null; }
+    }
+  }
+  return null;
+}
+
+/* ---------- 엔진 ---------- */
+let engine = null;        // { kind, chat(messages, useNativeTools), unload() }
+let history = [];
+let hasGPU = false;
+
+(async () => {
+  try {
+    hasGPU = !!(navigator.gpu && await navigator.gpu.requestAdapter());
+  } catch { hasGPU = false; }
+  $("gpuState").textContent = hasGPU ? "지원 ✓" : "미지원";
+  $("gpuState").className = "badge " + (hasGPU ? "b-ok" : "b-bad");
+
+  const nano = $("nanoState");
+  if (!("LanguageModel" in self)) {
+    nano.textContent = "API 없음";
+    nano.className = "badge b-bad";
+  } else {
+    try {
+      const a = await LanguageModel.availability();
+      nano.textContent = { available: "사용 가능 ✓", downloadable: "다운로드 필요", downloading: "다운로드 중", unavailable: "사용 불가" }[a] || a;
+      nano.className = "badge " + (a === "available" ? "b-ok" : a === "unavailable" ? "b-bad" : "b-warn");
+    } catch (e) {
+      nano.textContent = "확인 실패";
+      nano.className = "badge b-bad";
+    }
+  }
+})();
+
+async function createWebLLM(modelId) {
+  if (!hasGPU) throw new Error("이 브라우저에서는 WebGPU를 쓸 수 없습니다. Chrome 내장 모델 또는 모의 엔진을 선택하거나 최신 데스크톱 Chrome/Edge를 사용하세요.");
+  $("progTxt").textContent = "WebLLM 로드 중…";
+  const webllm = await import("https://esm.sh/@mlc-ai/web-llm@0.2.85");
+  const mlc = await webllm.CreateMLCEngine(modelId, {
+    initProgressCallback: (p) => {
+      const pct = Math.round((p.progress || 0) * 100);
+      $("prog").style.width = pct + "%";
+      $("progTxt").textContent = p.text || "";
+    },
+  });
+  return {
+    kind: "webllm",
+    label: modelId,
+    async chat(messages, useNativeTools) {
+      const req = { messages, temperature: 0.2, max_tokens: 512 };
+      if (useNativeTools) { req.tools = toolSpecs(); req.tool_choice = "auto"; }
+      const res = await mlc.chat.completions.create(req);
+      const msg = res.choices?.[0]?.message || {};
+      return {
+        text: msg.content || "",
+        toolCalls: (msg.tool_calls || []).map(tc => ({
+          id: tc.id, name: tc.function?.name, args: safeArgs(tc.function?.arguments),
+        })),
+        usage: res.usage,
+      };
+    },
+    async unload() { await mlc.unload(); },
+  };
+}
+
+/* WebGPU도 내장 모델도 없는 환경에서 툴 콜링 흐름 자체를 보여주기 위한 규칙 기반 가짜 엔진. 실제 추론은 하지 않는다. */
+function createMock() {
+  return {
+    kind: "mock",
+    label: "모의 엔진 (LLM 아님)",
+    async chat(messages) {
+      const last = messages[messages.length - 1].content || "";
+      const hit = /TOOL_RESULT\(([a-z_]+)\): ([\s\S]*?)\n\n/.exec(last);
+      if (hit) return { text: JSON.stringify({ final: `${hit[2].trim()}\n\n(모의 엔진이 ${hit[1]} 결과를 그대로 전달했습니다)` }), toolCalls: [] };
+      const q = messages.filter(m => m.role === "user").pop()?.content || "";
+      let action;
+      if (/날씨|weather/i.test(q)) {
+        action = { tool: "get_weather", args: { city: /([가-훣A-Za-z]+)\s*(?:의)?\s*날씨/.exec(q)?.[1] || "서울" } };
+      } else if (/[0-9][\s0-9+\-*/().^,]*[+\-*/^][\s0-9+\-*/().^,]*[0-9]/.test(q)) {
+        action = { tool: "calculate", args: { expression: /[0-9][\s0-9+\-*/().^,]*[0-9]/.exec(q)[0] } };
+      } else if (/몇 ?시|시각|time/i.test(q)) {
+        action = { tool: "get_time", args: { timezone: /뉴욕|new york/i.test(q) ? "America/New_York" : /도쿄|tokyo/i.test(q) ? "Asia/Tokyo" : "Asia/Seoul" } };
+      } else {
+        action = { tool: "wiki_search", args: { query: q.replace(/위키[\s\S]*$/, "").trim() || q } };
+      }
+      return { text: JSON.stringify(action), toolCalls: [] };
+    },
+    async unload() {},
+  };
+}
+
+async function createNano() {
+  if (!("LanguageModel" in self)) throw new Error("이 브라우저에는 Prompt API(LanguageModel)가 없습니다. Chrome 148+ 데스크톱에서 열어보세요.");
+  const availability = await LanguageModel.availability();
+  if (availability === "unavailable") throw new Error("이 기기에서는 Chrome 내장 모델을 사용할 수 없습니다 (하드웨어/저장공간 요건 미충족).");
+  const session = await LanguageModel.create({
+    monitor(m) {
+      m.addEventListener("downloadprogress", (e) => {
+        const pct = Math.round((e.loaded || 0) * 100);
+        $("prog").style.width = pct + "%";
+        $("progTxt").textContent = `모델 다운로드 ${pct}%`;
+      });
+    },
+  });
+  return {
+    kind: "nano",
+    label: "Chrome 내장 Gemini Nano",
+    async chat(messages) {
+      // Prompt API의 네이티브 tools는 아직 확장/실험 컨텍스트 한정이라 JSON 프로토콜로 통일한다.
+      const prompt = messages.map(m => `${m.role.toUpperCase()}: ${m.content}`).join("\n\n") + "\n\nASSISTANT:";
+      return { text: await session.prompt(prompt), toolCalls: [] };
+    },
+    async unload() { session.destroy(); },
+  };
+}
+
+function safeArgs(raw) {
+  if (!raw) return {};
+  if (typeof raw === "object") return raw;
+  try { return JSON.parse(raw); } catch { return extractJson(raw) || {}; }
+}
+
+/* ---------- 에이전트 루프 ---------- */
+function addStep(title, body, cls) {
+  if ($("trace").classList.contains("mut")) { $("trace").classList.remove("mut"); $("trace").innerHTML = ""; }
+  const el = document.createElement("div");
+  el.className = "step";
+  el.innerHTML = `<h4><span>${title}</span></h4><pre></pre>`;
+  el.querySelector("pre").textContent = body;
+  if (cls) el.querySelector("h4 span").className = cls;
+  $("trace").appendChild(el);
+  el.scrollIntoView({ block: "nearest" });
+}
+
+async function runAgent(question) {
+  const native = $("nativeTools").checked && engine.kind === "webllm";
+  const messages = native
+    ? [{ role: "system", content: "You are a helpful assistant. Use the provided tools when they help, then answer in the user's language." }, ...history]
+    : [{ role: "system", content: systemPrompt() }, ...history];
+  messages.push({ role: "user", content: question });
+
+  let steps = 0, toolCalls = 0, genTokens = 0;
+  const t0 = performance.now();
+
+  for (let i = 0; i < MAX_STEPS; i++) {
+    steps++;
+    const res = await engine.chat(messages, native);
+    genTokens += res.usage?.completion_tokens || 0;
+
+    if (res.toolCalls.length) {
+      addStep(`스텝 ${steps} · 모델 → 네이티브 tool_calls`, JSON.stringify(res.toolCalls, null, 2));
+      messages.push({ role: "assistant", content: res.text || "", tool_calls: res.toolCalls.map(tc => ({
+        id: tc.id, type: "function", function: { name: tc.name, arguments: JSON.stringify(tc.args) } })) });
+      for (const tc of res.toolCalls) {
+        toolCalls++;
+        const out = await execTool(tc.name, tc.args);
+        messages.push({ role: "tool", tool_call_id: tc.id, content: out });
+      }
+      continue;
+    }
+
+    addStep(`스텝 ${steps} · 모델 출력`, res.text.trim() || "(빈 응답)");
+    const action = extractJson(res.text);
+
+    if (action && typeof action.final === "string") {
+      history.push({ role: "user", content: question }, { role: "assistant", content: action.final });
+      return { answer: action.final, steps, toolCalls, genTokens, ms: performance.now() - t0 };
+    }
+    if (action && action.tool) {
+      toolCalls++;
+      const out = await execTool(action.tool, action.args || {});
+      messages.push({ role: "assistant", content: JSON.stringify(action) });
+      messages.push({ role: "user", content: `TOOL_RESULT(${action.tool}): ${out}\n\n위 결과를 바탕으로 {"final":"..."} 형식으로 답하거나, 필요하면 다른 툴을 호출해.` });
+      continue;
+    }
+
+    // JSON을 못 뱉은 경우: 본문을 그대로 답변으로 사용
+    const fallback = res.text.trim();
+    if (fallback) {
+      history.push({ role: "user", content: question }, { role: "assistant", content: fallback });
+      return { answer: fallback, steps, toolCalls, genTokens, ms: performance.now() - t0, loose: true };
+    }
+    messages.push({ role: "user", content: `JSON 한 개만 출력해. {"tool":...} 또는 {"final":...}` });
+  }
+  return { answer: "(최대 스텝을 넘겼습니다 — 더 큰 모델을 쓰거나 질문을 단순하게 해보세요)", steps, toolCalls, genTokens, ms: performance.now() - t0 };
+}
+
+async function execTool(name, args) {
+  const tool = TOOLS[name];
+  addStep(`🔧 툴 호출 · ${name}`, JSON.stringify(args ?? {}, null, 2), "tool-name");
+  if (!tool) {
+    const msg = `알 수 없는 툴: ${name}. 사용 가능: ${Object.keys(TOOLS).join(", ")}`;
+    addStep("↩︎ 툴 결과", msg);
+    return msg;
+  }
+  try {
+    const out = await tool.run(args || {});
+    addStep("↩︎ 툴 결과", out);
+    return out;
+  } catch (e) {
+    const msg = `툴 오류: ${e?.message || e}`;
+    addStep("↩︎ 툴 결과", msg);
+    return msg;
+  }
+}
+
+/* ---------- UI ---------- */
+$("loadBtn").onclick = async () => {
+  const [kind, id] = $("engineSel").value.split(":");
+  $("loadBtn").disabled = $("engineSel").disabled = true;
+  $("engineState").textContent = "로딩중…";
+  $("prog").style.width = "0%";
+  const t0 = performance.now();
+  try {
+    if (engine) { await engine.unload(); engine = null; }
+    engine = kind === "webllm" ? await createWebLLM(id) : kind === "nano" ? await createNano() : createMock();
+    $("tLoad").textContent = ((performance.now() - t0) / 1000).toFixed(1) + "s";
+    $("prog").style.width = "100%";
+    $("progTxt").textContent = "";
+    $("engineState").textContent = `로드 완료 ✓ ${engine.label}`;
+    $("runBtn").disabled = false;
+    $("unloadBtn").disabled = false;
+  } catch (e) {
+    $("engineState").textContent = "로드 실패";
+    $("progTxt").textContent = e?.message || String(e);
+    console.error(e);
+  } finally {
+    $("loadBtn").disabled = $("engineSel").disabled = false;
+  }
+};
+
+$("unloadBtn").onclick = async () => {
+  if (!engine) return;
+  await engine.unload();
+  engine = null;
+  $("engineState").textContent = "해제됨";
+  $("runBtn").disabled = true;
+  $("unloadBtn").disabled = true;
+  $("prog").style.width = "0%";
+};
+
+$("runBtn").onclick = async () => {
+  const q = $("q").value.trim();
+  if (!q || !engine) return;
+  $("runBtn").disabled = true;
+  $("answer").className = "mut";
+  $("answer").textContent = "생성중…";
+  try {
+    const r = await runAgent(q);
+    $("answer").className = "";
+    $("answer").textContent = r.answer + (r.loose ? "\n\n(모델이 JSON 형식을 지키지 않아 원문을 그대로 표시했습니다)" : "");
+    $("tRun").textContent = (r.ms / 1000).toFixed(1) + "s";
+    $("tSteps").textContent = `${r.toolCalls}회 / ${r.steps}스텝`;
+    $("tTps").textContent = r.genTokens ? `${r.genTokens} tok · ${(r.genTokens / (r.ms / 1000)).toFixed(1)} tok/s` : "—";
+  } catch (e) {
+    $("answer").className = "";
+    $("answer").textContent = "오류: " + (e?.message || e);
+    console.error(e);
+  } finally {
+    $("runBtn").disabled = false;
+  }
+};
+
+$("resetBtn").onclick = () => {
+  history = [];
+  $("trace").className = "mut";
+  $("trace").textContent = "아직 실행 기록이 없습니다.";
+  $("answer").className = "mut";
+  $("answer").textContent = "—";
+  $("tRun").textContent = $("tSteps").textContent = $("tTps").textContent = "—";
+};
+
+document.querySelectorAll(".chip").forEach(c => c.onclick = () => { $("q").value = c.textContent; });
+
+// 툴 자체를 모델 없이 확인해보고 싶을 때 (콘솔에서 await BrowserLLM.tools.get_weather.run({city:'서울'}))
+window.BrowserLLM = { tools: TOOLS, extractJson };
+</script>
+</body>
+</html>
