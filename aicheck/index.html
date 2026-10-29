@@ -254,7 +254,7 @@ I18n.init();
     { name: 'Llama 3.2 1B (q4)', use: 'uLLM', size: '900 MB', need: 'gpu' },
     { name: 'Phi-3.5 mini 3.8B (q4)', use: 'uLLM', size: '2.2 GB', need: 'gpuBig' },
     { name: 'Llama 3.1 8B (q4)', use: 'uLLM', size: '4.5 GB', need: 'gpuHuge' },
-    { name: 'Gemini Nano (Chrome)', use: 'uNano', size: '—', need: 'nano' },
+    { name: 'Gemini Nano (Chrome)', use: 'uNano', size: '—', need: 'nano', link: '/nano/' },
   ];
   function verdict(m) {
     const T = tier(), gpu = T === 'High' || T === 'Mid';
