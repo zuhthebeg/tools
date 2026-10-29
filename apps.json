@@ -75,6 +75,21 @@
     "group": "ai"
   },
   {
+    "title": "Chrome 내장 AI 플레이그라운드",
+    "icon": "https://tool.cocy.io/nano/icon.svg",
+    "url": "https://tool.cocy.io/nano/",
+    "desc": "Chrome에 내장된 Gemini Nano로 채팅·요약·번역·언어 감지·글쓰기·다시 쓰기·맞춤법 검사. 오프라인, 서버 전송 없음",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool",
+    "group": "ai"
+  },
+  {
     "title": "느낌가사 Feel Lyrics",
     "icon": "https://tool.cocy.io/feellyrics/icon.svg",
     "url": "https://tool.cocy.io/feellyrics/",
