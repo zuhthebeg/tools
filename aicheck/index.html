@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내 기기 AI 체커 · WebGPU·온디바이스 AI 지원 확인 — tool.cocy.io</title>
+<meta name="description" content="브라우저에서 AI 모델을 돌릴 수 있는지 확인: WebGPU, GPU 정보, WASM SIMD, WebNN, Chrome 내장 AI(Gemini Nano), 저장 공간, GPU/CPU 벤치마크와 모델별 실행 가능 여부">
+<link rel="canonical" href="https://tool.cocy.io/aicheck/">
+<link rel="icon" href="/aicheck/icon.svg">
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+.verdict { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.verdict .big { font-size: 40px; line-height: 1; }
+.verdict b { font-size: 20px; display: block; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.kv { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+.kv > span { display: block; font-size: 12px; color: var(--muted); }
+.kv b { font-family: var(--mono); font-size: 14px; word-break: break-word; }
+.pill { display: inline-block; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.pill.ok { background: #064e3b; color: #6ee7b7; }
+.pill.warn { background: #78350f; color: #fcd34d; }
+.pill.no { background: #3f1d1d; color: #fca5a5; }
+.pill.na { background: #1f2937; color: #9ca3af; }
+.tbl td { vertical-align: top; }
+.tbl a { color: #60a5fa; }
+.tbl td small { color: var(--muted); display: block; }
+.tblwrap { overflow-x: auto; }
+.feats { font-family: var(--mono); font-size: 12px; color: var(--muted); word-break: break-word; margin-top: 8px; }
+.bench { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>🧠 <span data-i18n="h1">내 기기 AI 체커</span></h1>
+    <p data-i18n="sub">이 브라우저에서 AI 모델을 직접 돌릴 수 있는지 확인해요. 검사는 모두 기기 안에서만 실행돼요.</p>
+  </div>
+
+  <div class="card">
+    <div class="verdict">
+      <div class="big" id="vIcon">⏳</div>
+      <div style="flex:1;min-width:200px"><b id="vTitle" data-i18n="checking">검사 중…</b><span class="muted" id="vDesc"></span></div>
+      <button class="btn" id="copyReport" data-i18n="copyReport">📋 결과 복사</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="modelsTitle">모델별 실행 가능 여부</h2>
+    <div class="tblwrap"><table class="tbl"><thead><tr><th data-i18n="colModel">모델</th><th data-i18n="colUse">용도</th><th data-i18n="colSize">크기(약)</th><th data-i18n="colVerdict">판정</th></tr></thead><tbody id="models"></tbody></table></div>
+    <p class="muted" style="font-size:12px;margin-top:8px" data-i18n="modelsNote">크기는 양자화 버전 기준의 대략적인 다운로드 용량이에요. 실제 속도는 기기와 드라이버에 따라 달라요.</p>
+  </div>
+
+  <div class="card">
+    <h2>WebGPU <span id="gpuPill"></span></h2>
+    <div class="grid" id="gpuGrid"></div>
+    <div class="feats" id="gpuFeats"></div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="builtinTitle">Chrome 내장 AI (Gemini Nano)</h2>
+    <div class="tblwrap"><table class="tbl"><tbody id="builtin"></tbody></table></div>
+    <p class="muted" style="font-size:12px;margin-top:8px" data-i18n="builtinNote">Chrome 데스크톱 최신 버전에서 지원해요. 일부 API는 플래그나 오리진 트라이얼이 필요하고, 처음 쓸 때 모델을 내려받아요.</p>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="runtimeTitle">런타임 · 기기</h2>
+    <div class="grid" id="rtGrid"></div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="benchTitle">간이 벤치마크</h2>
+    <div class="bench">
+      <button class="btn primary" id="benchBtn" data-i18n="benchRun">▶ 실행</button>
+      <span class="muted" id="benchOut" data-i18n="benchHint">행렬 곱셈으로 GPU·CPU 연산 속도(GFLOPS)를 대략 측정해요.</span>
+    </div>
+  </div>
+
+  <footer class="site">© 2026 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+I18n.define({
+  pageTitle: ['내 기기 AI 체커 · WebGPU·온디바이스 AI 지원 확인 — tool.cocy.io', 'Device AI Checker · WebGPU & on-device AI support — tool.cocy.io', '设备 AI 检测 · WebGPU 与端侧 AI 支持 — tool.cocy.io', '裝置 AI 檢測 · WebGPU 與端側 AI 支援 — tool.cocy.io', 'Comprobador de IA del dispositivo · WebGPU e IA local — tool.cocy.io'],
+  h1: ['내 기기 AI 체커', 'Device AI Checker', '设备 AI 检测', '裝置 AI 檢測', 'Comprobador de IA del dispositivo'],
+  sub: ['이 브라우저에서 AI 모델을 직접 돌릴 수 있는지 확인해요. 검사는 모두 기기 안에서만 실행돼요.', 'Find out whether this browser can run AI models locally. All checks run on your device.', '检查此浏览器能否在本地运行 AI 模型。所有检测都在设备上完成。', '檢查此瀏覽器能否在本機執行 AI 模型。所有檢測都在裝置上完成。', 'Comprueba si este navegador puede ejecutar modelos de IA localmente. Todo se ejecuta en tu dispositivo.'],
+  checking: ['검사 중…', 'Checking…', '检测中…', '檢測中…', 'Comprobando…'],
+  copyReport: ['📋 결과 복사', '📋 Copy report', '📋 复制结果', '📋 複製結果', '📋 Copiar informe'],
+  tierHigh: ['고성능: 브라우저 LLM까지 OK', 'High: browser LLMs should work', '高性能：可运行浏览器 LLM', '高效能：可執行瀏覽器 LLM', 'Alto: puede ejecutar LLM en el navegador'],
+  tierHighD: ['WebGPU와 f16 연산을 지원해요. 3B급 LLM, Whisper, 배경 제거까지 기기에서 돌릴 수 있어요.', 'WebGPU with f16 is available. 3B-class LLMs, Whisper and background removal can run on-device.', '支持 WebGPU 与 f16。可在本地运行 3B 级 LLM、Whisper 和背景移除。', '支援 WebGPU 與 f16。可在本機執行 3B 級 LLM、Whisper 與背景移除。', 'WebGPU con f16 disponible. LLM de ~3B, Whisper y eliminación de fondo pueden ejecutarse localmente.'],
+  tierMid: ['보통: 소형 모델은 GPU로 빠르게', 'Medium: small models run fast on GPU', '中等：小模型可用 GPU 加速', '中等：小模型可用 GPU 加速', 'Medio: modelos pequeños rápidos en GPU'],
+  tierMidD: ['WebGPU를 쓸 수 있어요. 1B급 LLM과 음성 인식·비전 모델은 무난하고, 큰 LLM은 느리거나 실패할 수 있어요.', 'WebGPU is available. ~1B LLMs and speech/vision models are fine; larger LLMs may be slow or fail.', '可使用 WebGPU。约 1B 的 LLM 及语音/视觉模型没问题，更大的 LLM 可能较慢或失败。', '可使用 WebGPU。約 1B 的 LLM 及語音/視覺模型沒問題，更大的 LLM 可能較慢或失敗。', 'WebGPU disponible. LLM de ~1B y modelos de voz/visión van bien; los LLM grandes pueden ser lentos o fallar.'],
+  tierLow: ['기본: CPU(WASM)로 작은 모델만', 'Basic: small models on CPU (WASM) only', '基础：仅能用 CPU(WASM) 运行小模型', '基礎：僅能用 CPU(WASM) 執行小模型', 'Básico: solo modelos pequeños en CPU (WASM)'],
+  tierLowD: ['WebGPU가 없어 CPU로 실행돼요. 작은 음성 인식·임베딩·배경 제거는 가능하지만 느려요. LLM은 어려워요.', 'No WebGPU, so models run on the CPU. Small speech, embedding and background-removal models work but slowly; LLMs are impractical.', '没有 WebGPU，模型在 CPU 上运行。小型语音、嵌入、背景移除可用但较慢；LLM 不实用。', '沒有 WebGPU，模型在 CPU 上執行。小型語音、嵌入、背景移除可用但較慢；LLM 不實用。', 'Sin WebGPU, los modelos usan la CPU. Voz, embeddings y eliminación de fondo pequeños funcionan lento; los LLM no son prácticos.'],
+  tierNone: ['미지원: 브라우저 AI 실행 불가', 'Unsupported: cannot run browser AI', '不支持：无法运行浏览器 AI', '不支援：無法執行瀏覽器 AI', 'No compatible: no puede ejecutar IA en el navegador'],
+  tierNoneD: ['WebAssembly SIMD도 없어요. 최신 Chrome·Edge·Safari로 열어 보세요.', 'WebAssembly SIMD is missing too. Try the latest Chrome, Edge or Safari.', '也不支持 WebAssembly SIMD。请使用最新版 Chrome、Edge 或 Safari。', '也不支援 WebAssembly SIMD。請使用最新版 Chrome、Edge 或 Safari。', 'Tampoco hay WebAssembly SIMD. Prueba la última versión de Chrome, Edge o Safari.'],
+  nanoReady: [' Chrome 내장 AI도 바로 쓸 수 있어요.', ' Chrome built-in AI is ready too.', ' Chrome 内置 AI 也可直接使用。', ' Chrome 內建 AI 也可直接使用。', ' La IA integrada de Chrome también está lista.'],
+  modelsTitle: ['모델별 실행 가능 여부', 'Model compatibility', '各模型可运行情况', '各模型可執行情況', 'Compatibilidad por modelo'],
+  colModel: ['모델', 'Model', '模型', '模型', 'Modelo'],
+  colUse: ['용도', 'Use', '用途', '用途', 'Uso'],
+  colSize: ['크기(약)', 'Size (approx.)', '大小(约)', '大小(約)', 'Tamaño (aprox.)'],
+  colVerdict: ['판정', 'Verdict', '判定', '判定', 'Resultado'],
+  modelsNote: ['크기는 양자화 버전 기준의 대략적인 다운로드 용량이에요. 실제 속도는 기기와 드라이버에 따라 달라요.', 'Sizes are approximate downloads for quantized builds. Real speed depends on your device and drivers.', '大小为量化版本的大致下载量。实际速度取决于设备和驱动。', '大小為量化版本的大致下載量。實際速度取決於裝置與驅動程式。', 'Los tamaños son descargas aproximadas de versiones cuantizadas. La velocidad real depende del dispositivo y los drivers.'],
+  vOk: ['원활', 'Smooth', '流畅', '流暢', 'Fluido'],
+  vSlow: ['느림', 'Slow', '较慢', '較慢', 'Lento'],
+  vRisky: ['빠듯함', 'Borderline', '勉强', '勉強', 'Al límite'],
+  vNo: ['불가', 'No', '不可', '不可', 'No'],
+  uLLM: ['채팅 LLM', 'Chat LLM', '聊天 LLM', '聊天 LLM', 'LLM de chat'],
+  uSTT: ['음성→텍스트', 'Speech to text', '语音转文字', '語音轉文字', 'Voz a texto'],
+  uBg: ['배경 제거', 'Background removal', '背景移除', '背景移除', 'Quitar fondo'],
+  uEmb: ['문장 임베딩·검색', 'Embeddings / search', '句向量/检索', '句向量/檢索', 'Embeddings / búsqueda'],
+  uVLM: ['이미지 이해', 'Image understanding', '图像理解', '圖像理解', 'Comprensión de imágenes'],
+  uNano: ['요약·번역·프롬프트', 'Summarize / translate / prompt', '摘要/翻译/提示', '摘要/翻譯/提示', 'Resumir / traducir / prompt'],
+  builtinTitle: ['Chrome 내장 AI (Gemini Nano)', 'Chrome built-in AI (Gemini Nano)', 'Chrome 内置 AI (Gemini Nano)', 'Chrome 內建 AI (Gemini Nano)', 'IA integrada de Chrome (Gemini Nano)'],
+  builtinNote: ['Chrome 데스크톱 최신 버전에서 지원해요. 일부 API는 플래그나 오리진 트라이얼이 필요하고, 처음 쓸 때 모델을 내려받아요.', 'Supported in recent desktop Chrome. Some APIs need a flag or origin trial, and the model downloads on first use.', '最新版桌面 Chrome 支持。部分 API 需要开启 flag 或源试用，首次使用时会下载模型。', '最新版桌面 Chrome 支援。部分 API 需要開啟 flag 或來源試用，首次使用時會下載模型。', 'Compatible con Chrome de escritorio reciente. Algunas API requieren un flag u origin trial, y el modelo se descarga al primer uso.'],
+  aAvailable: ['사용 가능', 'Ready', '可用', '可用', 'Disponible'],
+  aDownloadable: ['다운로드 필요', 'Needs download', '需下载', '需下載', 'Requiere descarga'],
+  aDownloading: ['다운로드 중', 'Downloading', '下载中', '下載中', 'Descargando'],
+  aUnavailable: ['이 기기 미지원', 'Not on this device', '此设备不支持', '此裝置不支援', 'No disponible aquí'],
+  aMissing: ['API 없음', 'API missing', '无此 API', '無此 API', 'API ausente'],
+  apiPrompt: ['프롬프트 (LanguageModel)', 'Prompt (LanguageModel)', '提示 (LanguageModel)', '提示 (LanguageModel)', 'Prompt (LanguageModel)'],
+  apiSummarizer: ['요약 (Summarizer)', 'Summarizer', '摘要 (Summarizer)', '摘要 (Summarizer)', 'Resumen (Summarizer)'],
+  apiTranslator: ['번역 en→ko (Translator)', 'Translator en→ko', '翻译 en→ko (Translator)', '翻譯 en→ko (Translator)', 'Traductor en→ko'],
+  apiDetector: ['언어 감지 (LanguageDetector)', 'Language detector', '语言检测 (LanguageDetector)', '語言偵測 (LanguageDetector)', 'Detector de idioma'],
+  apiWriter: ['글쓰기 (Writer)', 'Writer', '写作 (Writer)', '寫作 (Writer)', 'Redactor (Writer)'],
+  apiRewriter: ['다시 쓰기 (Rewriter)', 'Rewriter', '改写 (Rewriter)', '改寫 (Rewriter)', 'Reescritor (Rewriter)'],
+  apiProofreader: ['교정 (Proofreader)', 'Proofreader', '校对 (Proofreader)', '校對 (Proofreader)', 'Corrector (Proofreader)'],
+  supported: ['지원', 'Supported', '支持', '支援', 'Compatible'],
+  unsupported: ['미지원', 'Not supported', '不支持', '不支援', 'No compatible'],
+  noAdapter: ['어댑터 없음', 'No adapter', '无适配器', '無介面卡', 'Sin adaptador'],
+  fallbackAd: ['소프트웨어(폴백) GPU', 'Software (fallback) GPU', '软件(回退) GPU', '軟體(備援) GPU', 'GPU por software (respaldo)'],
+  gpuWhy: ['WebGPU가 없으면 모델이 CPU로 돌아 10배 이상 느려질 수 있어요. Chrome·Edge 113+, Safari 26+에서 지원해요.', 'Without WebGPU, models fall back to the CPU and can be 10× slower or more. Supported in Chrome/Edge 113+ and Safari 26+.', '没有 WebGPU 时模型会回退到 CPU，可能慢 10 倍以上。Chrome/Edge 113+、Safari 26+ 支持。', '沒有 WebGPU 時模型會退回 CPU，可能慢 10 倍以上。Chrome/Edge 113+、Safari 26+ 支援。', 'Sin WebGPU los modelos usan la CPU y pueden ser 10× más lentos. Compatible con Chrome/Edge 113+ y Safari 26+.'],
+  kVendor: ['제조사', 'Vendor', '厂商', '廠商', 'Fabricante'],
+  kArch: ['아키텍처', 'Architecture', '架构', '架構', 'Arquitectura'],
+  kDevice: ['장치', 'Device', '设备', '裝置', 'Dispositivo'],
+  kF16: ['f16 연산 (shader-f16)', 'f16 math (shader-f16)', 'f16 运算 (shader-f16)', 'f16 運算 (shader-f16)', 'Cálculo f16 (shader-f16)'],
+  kMaxBuf: ['최대 버퍼', 'Max buffer', '最大缓冲区', '最大緩衝區', 'Búfer máximo'],
+  kMaxStor: ['최대 스토리지 바인딩', 'Max storage binding', '最大存储绑定', '最大儲存繫結', 'Enlace de almacenamiento máx.'],
+  kWebGL: ['WebGL 렌더러', 'WebGL renderer', 'WebGL 渲染器', 'WebGL 繪製器', 'Renderizador WebGL'],
+  runtimeTitle: ['런타임 · 기기', 'Runtime & device', '运行时与设备', '執行環境與裝置', 'Entorno y dispositivo'],
+  kSimd: ['WASM SIMD', 'WASM SIMD', 'WASM SIMD', 'WASM SIMD', 'WASM SIMD'],
+  kThreads: ['WASM 멀티스레드', 'WASM threads', 'WASM 多线程', 'WASM 多執行緒', 'Hilos WASM'],
+  threadsOff: ['꺼짐 (이 사이트는 격리 헤더 없음)', 'Off (site not cross-origin isolated)', '关闭（本站未跨源隔离）', '關閉（本站未跨來源隔離）', 'Desactivado (sitio sin aislamiento)'],
+  kWebNN: ['WebNN (NPU)', 'WebNN (NPU)', 'WebNN (NPU)', 'WebNN (NPU)', 'WebNN (NPU)'],
+  kCores: ['CPU 논리 코어', 'CPU logical cores', 'CPU 逻辑核心', 'CPU 邏輯核心', 'Núcleos lógicos'],
+  kMem: ['기기 메모리', 'Device memory', '设备内存', '裝置記憶體', 'Memoria'],
+  memNote: ['브라우저가 8GB까지만 알려줘요', 'browsers report at most 8 GB', '浏览器最多报告 8GB', '瀏覽器最多回報 8GB', 'el navegador informa máx. 8 GB'],
+  kStorage: ['모델 캐시용 저장 공간', 'Storage for model cache', '模型缓存可用空间', '模型快取可用空間', 'Espacio para caché de modelos'],
+  storageFmt: ['{free} 사용 가능 / 할당 {quota}', '{free} free of {quota} quota', '可用 {free} / 配额 {quota}', '可用 {free} / 配額 {quota}', '{free} libres de {quota}'],
+  kBrowser: ['브라우저', 'Browser', '浏览器', '瀏覽器', 'Navegador'],
+  unknown: ['알 수 없음', 'Unknown', '未知', '未知', 'Desconocido'],
+  benchTitle: ['간이 벤치마크', 'Quick benchmark', '简易基准测试', '簡易基準測試', 'Prueba rápida'],
+  benchRun: ['▶ 실행', '▶ Run', '▶ 运行', '▶ 執行', '▶ Ejecutar'],
+  benchHint: ['행렬 곱셈으로 GPU·CPU 연산 속도(GFLOPS)를 대략 측정해요.', 'Roughly measures GPU and CPU speed (GFLOPS) with matrix multiplication.', '用矩阵乘法粗略测量 GPU 与 CPU 速度 (GFLOPS)。', '用矩陣乘法粗略測量 GPU 與 CPU 速度 (GFLOPS)。', 'Mide aproximadamente la velocidad de GPU y CPU (GFLOPS) con multiplicación de matrices.'],
+  benching: ['측정 중…', 'Measuring…', '测量中…', '測量中…', 'Midiendo…'],
+  benchRes: ['GPU {gpu} GFLOPS · CPU {cpu} GFLOPS (단순 커널 기준, 참고용)', 'GPU {gpu} GFLOPS · CPU {cpu} GFLOPS (naive kernels, for reference)', 'GPU {gpu} GFLOPS · CPU {cpu} GFLOPS（朴素内核，仅供参考）', 'GPU {gpu} GFLOPS · CPU {cpu} GFLOPS（樸素核心，僅供參考）', 'GPU {gpu} GFLOPS · CPU {cpu} GFLOPS (kernels simples, orientativo)'],
+  allTools: ['모든 도구', 'All tools', '全部工具', '全部工具', 'Todas las herramientas'],
+});
+I18n.init();
+
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const t = I18n.t;
+  const R = { gpu: null, builtin: {}, bench: null };
+  const fmtB = (n) => (n == null ? '—' : n >= 2 ** 30 ? (n / 2 ** 30).toFixed(n >= 10 * 2 ** 30 ? 0 : 1) + ' GB' : Math.round(n / 2 ** 20) + ' MB');
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const pill = (cls, key) => `<span class="pill ${cls}">${esc(t(key))}</span>`;
+  const kv = (k, v) => `<div class="kv"><span>${esc(k)}</span><b>${v}</b></div>`;
+
+  const SIMD = new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 5, 1, 96, 0, 1, 123, 3, 2, 1, 0, 10, 10, 1, 8, 0, 65, 0, 253, 15, 253, 98, 11]);
+  R.simd = typeof WebAssembly === 'object' && (() => { try { return WebAssembly.validate(SIMD); } catch (e) { return false; } })();
+  R.threads = typeof SharedArrayBuffer === 'function' && !!self.crossOriginIsolated;
+  R.webnn = !!navigator.ml;
+  R.cores = navigator.hardwareConcurrency || null;
+  R.mem = navigator.deviceMemory || null;
+  R.browser = (navigator.userAgentData && navigator.userAgentData.brands || []).filter((b) => !/Not.?A.?Brand/i.test(b.brand)).map((b) => b.brand + ' ' + b.version).join(', ') || navigator.userAgent;
+
+  function webglRenderer() {
+    try {
+      const gl = document.createElement('canvas').getContext('webgl2') || document.createElement('canvas').getContext('webgl');
+      if (!gl) return null;
+      const ext = gl.getExtension('WEBGL_debug_renderer_info');
+      return gl.getParameter(ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER);
+    } catch (e) { return null; }
+  }
+  R.webgl = webglRenderer();
+
+  async function detectGPU() {
+    if (!navigator.gpu) return { api: false };
+    try {
+      const ad = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
+      if (!ad) return { api: true, adapter: false };
+      let info = ad.info || {};
+      if (!ad.info && ad.requestAdapterInfo) { try { info = await ad.requestAdapterInfo(); } catch (e) {} }
+      return {
+        api: true, adapter: true, ad,
+        vendor: info.vendor || '', arch: info.architecture || '', device: info.device || info.description || '',
+        fallback: !!(ad.isFallbackAdapter || info.isFallbackAdapter),
+        f16: ad.features.has('shader-f16'),
+        features: [...ad.features].sort(),
+        maxBuf: ad.limits.maxBufferSize, maxStor: ad.limits.maxStorageBufferBindingSize,
+      };
+    } catch (e) { return { api: true, adapter: false }; }
+  }
+
+  const BUILTIN = [
+    ['apiPrompt', 'LanguageModel', 'languageModel'],
+    ['apiSummarizer', 'Summarizer', 'summarizer'],
+    ['apiTranslator', 'Translator', 'translator', { sourceLanguage: 'en', targetLanguage: 'ko' }],
+    ['apiDetector', 'LanguageDetector', 'languageDetector'],
+    ['apiWriter', 'Writer', 'writer'],
+    ['apiRewriter', 'Rewriter', 'rewriter'],
+    ['apiProofreader', 'Proofreader', 'proofreader'],
+  ];
+  const withTimeout = (p, ms) => Promise.race([p, new Promise((r) => setTimeout(() => r('timeout'), ms))]);
+  async function detectBuiltin() {
+    const out = {};
+    await Promise.all(BUILTIN.map(async ([key, glob, legacy, opts]) => {
+      try {
+        const api = self[glob];
+        if (api && api.availability) out[key] = await withTimeout(api.availability(opts), 3000);
+        else if (self.ai && self.ai[legacy] && self.ai[legacy].capabilities) {
+          const c = await withTimeout(self.ai[legacy].capabilities(), 3000);
+          out[key] = c && c.available === 'readily' ? 'available' : c && c.available === 'after-download' ? 'downloadable' : 'unavailable';
+        } else out[key] = 'missing';
+      } catch (e) { out[key] = 'unavailable'; }
+    }));
+    return out;
+  }
+
+  async function detectStorage() {
+    try {
+      const e = await navigator.storage.estimate();
+      return { quota: e.quota, free: e.quota - (e.usage || 0) };
+    } catch (e) { return null; }
+  }
+
+  function tier() {
+    const g = R.gpu || {};
+    if (g.adapter && !g.fallback && g.f16 && g.maxBuf >= 2 ** 30) return 'High';
+    if (g.adapter && !g.fallback) return 'Mid';
+    if (R.simd) return 'Low';
+    return 'None';
+  }
+
+  const MODELS = [
+    { name: 'all-MiniLM-L6-v2', use: 'uEmb', size: '25 MB', need: 'wasm' },
+    { name: 'RMBG-1.4', use: 'uBg', size: '45 MB', need: 'wasm', link: null },
+    { name: 'Whisper base', use: 'uSTT', size: '80 MB', need: 'wasm' },
+    { name: 'SmolVLM-256M', use: 'uVLM', size: '300 MB', need: 'wasmSlow', link: '/vtest/' },
+    { name: 'Whisper large-v3 turbo', use: 'uSTT', size: '600 MB', need: 'gpu' },
+    { name: 'Llama 3.2 1B (q4)', use: 'uLLM', size: '900 MB', need: 'gpu' },
+    { name: 'Phi-3.5 mini 3.8B (q4)', use: 'uLLM', size: '2.2 GB', need: 'gpuBig' },
+    { name: 'Llama 3.1 8B (q4)', use: 'uLLM', size: '4.5 GB', need: 'gpuHuge' },
+    { name: 'Gemini Nano (Chrome)', use: 'uNano', size: '—', need: 'nano' },
+  ];
+  function verdict(m) {
+    const T = tier(), gpu = T === 'High' || T === 'Mid';
+    switch (m.need) {
+      case 'wasm': return gpu ? ['ok', 'vOk'] : R.simd ? ['warn', 'vSlow'] : ['no', 'vNo'];
+      case 'wasmSlow': return gpu ? ['ok', 'vOk'] : R.simd ? ['warn', 'vSlow'] : ['no', 'vNo'];
+      case 'gpu': return gpu ? ['ok', 'vOk'] : ['no', 'vNo'];
+      case 'gpuBig': return T === 'High' ? (R.mem && R.mem < 8 ? ['warn', 'vRisky'] : ['ok', 'vOk']) : gpu ? ['warn', 'vRisky'] : ['no', 'vNo'];
+      case 'gpuHuge': return T === 'High' && R.gpu.maxBuf >= 4 * 2 ** 30 && (!R.mem || R.mem >= 8) ? ['warn', 'vRisky'] : ['no', 'vNo'];
+      case 'nano': {
+        const a = R.builtin.apiPrompt, s = R.builtin.apiSummarizer;
+        if (a === 'available' || s === 'available') return ['ok', 'aAvailable'];
+        if ([a, s].some((x) => x === 'downloadable' || x === 'downloading')) return ['warn', 'aDownloadable'];
+        return ['no', 'vNo'];
+      }
+    }
+  }
+
+  function render() {
+    const g = R.gpu;
+    if (!g) return;
+    const T = tier();
+    const nano = R.builtin.apiPrompt === 'available' || R.builtin.apiSummarizer === 'available';
+    $('vIcon').textContent = { High: '🚀', Mid: '✅', Low: '🐢', None: '⛔' }[T];
+    $('vTitle').textContent = t('tier' + T);
+    $('vTitle').removeAttribute('data-i18n');
+    $('vDesc').textContent = t('tier' + T + 'D') + (nano ? t('nanoReady') : '');
+
+    $('models').innerHTML = MODELS.map((m) => {
+      const [cls, key] = verdict(m);
+      const name = m.link ? `<a href="${m.link}">${esc(m.name)}</a>` : esc(m.name);
+      return `<tr><td>${name}</td><td>${esc(t(m.use))}</td><td class="mono">${m.size}</td><td>${pill(cls, key)}</td></tr>`;
+    }).join('');
+
+    if (!g.api) $('gpuPill').innerHTML = pill('no', 'unsupported');
+    else if (!g.adapter) $('gpuPill').innerHTML = pill('no', 'noAdapter');
+    else if (g.fallback) $('gpuPill').innerHTML = pill('warn', 'fallbackAd');
+    else $('gpuPill').innerHTML = pill('ok', 'supported');
+    const u = t('unknown');
+    $('gpuGrid').innerHTML = g.adapter
+      ? [kv(t('kVendor'), esc(g.vendor || u)), kv(t('kArch'), esc(g.arch || u)), kv(t('kDevice'), esc(g.device || u)),
+         kv(t('kF16'), pill(g.f16 ? 'ok' : 'warn', g.f16 ? 'supported' : 'unsupported')),
+         kv(t('kMaxBuf'), fmtB(g.maxBuf)), kv(t('kMaxStor'), fmtB(g.maxStor)), kv(t('kWebGL'), esc(R.webgl || u))].join('')
+      : `<p class="muted" style="grid-column:1/-1">${esc(t('gpuWhy'))}</p>` + kv(t('kWebGL'), esc(R.webgl || u));
+    $('gpuFeats').textContent = g.adapter ? g.features.join(' · ') : '';
+
+    const cls = { available: 'ok', downloadable: 'warn', downloading: 'warn', unavailable: 'no', missing: 'na', timeout: 'na' };
+    const lbl = { available: 'aAvailable', downloadable: 'aDownloadable', downloading: 'aDownloading', unavailable: 'aUnavailable', missing: 'aMissing', timeout: 'unknown' };
+    $('builtin').innerHTML = BUILTIN.map(([key]) => {
+      const s = R.builtin[key] || 'missing';
+      return `<tr><td>${esc(t(key))}</td><td style="text-align:right">${pill(cls[s] || 'na', lbl[s] || 'unknown')}</td></tr>`;
+    }).join('');
+
+    const st = R.storage;
+    $('rtGrid').innerHTML = [
+      kv(t('kSimd'), pill(R.simd ? 'ok' : 'no', R.simd ? 'supported' : 'unsupported')),
+      kv(t('kThreads'), R.threads ? pill('ok', 'supported') : `<span class="pill na">${esc(t('threadsOff'))}</span>`),
+      kv(t('kWebNN'), pill(R.webnn ? 'ok' : 'na', R.webnn ? 'supported' : 'unsupported')),
+      kv(t('kCores'), R.cores || u),
+      kv(t('kMem'), R.mem ? `${R.mem >= 8 ? '≥ ' : ''}${R.mem} GB <small class="muted" style="font-family:inherit;font-weight:400">(${esc(t('memNote'))})</small>` : u),
+      kv(t('kStorage'), st ? esc(t('storageFmt', { free: fmtB(st.free), quota: fmtB(st.quota) })) : u),
+      kv(t('kBrowser'), esc(R.browser)),
+    ].join('');
+    if (R.bench) $('benchOut').textContent = t('benchRes', R.bench);
+  }
+
+  async function gpuBench(ad) {
+    const dev = await ad.requestDevice();
+    const N = 1024, bytes = N * N * 4;
+    const code = `@group(0) @binding(0) var<storage, read> a: array<f32>;
+@group(0) @binding(1) var<storage, read> b: array<f32>;
+@group(0) @binding(2) var<storage, read_write> c: array<f32>;
+const N: u32 = ${N}u;
+@compute @workgroup_size(8, 8)
+fn main(@builtin(global_invocation_id) g: vec3<u32>) {
+  if (g.x >= N || g.y >= N) { return; }
+  var s = 0.0;
+  for (var k = 0u; k < N; k++) { s += a[g.y * N + k] * b[k * N + g.x]; }
+  c[g.y * N + g.x] = s;
+}`;
+    const data = new Float32Array(N * N).map(() => Math.random());
+    const mk = (usage) => { const b = dev.createBuffer({ size: bytes, usage }); dev.queue.writeBuffer(b, 0, data); return b; };
+    const A = mk(GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST), B = mk(GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST);
+    const C = dev.createBuffer({ size: bytes, usage: GPUBufferUsage.STORAGE });
+    const pipe = dev.createComputePipeline({ layout: 'auto', compute: { module: dev.createShaderModule({ code }), entryPoint: 'main' } });
+    const bg = dev.createBindGroup({ layout: pipe.getBindGroupLayout(0), entries: [A, B, C].map((buffer, binding) => ({ binding, resource: { buffer } })) });
+    const run = async (iters) => {
+      const enc = dev.createCommandEncoder();
+      for (let i = 0; i < iters; i++) { const p = enc.beginComputePass(); p.setPipeline(pipe); p.setBindGroup(0, bg); p.dispatchWorkgroups(N / 8, N / 8); p.end(); }
+      dev.queue.submit([enc.finish()]);
+      await dev.queue.onSubmittedWorkDone();
+    };
+    await run(1);
+    let iters = 2, ms = 0;
+    while (true) {
+      const t0 = performance.now(); await run(iters); ms = performance.now() - t0;
+      if (ms > 300 || iters >= 256) break;
+      iters *= 2;
+    }
+    dev.destroy();
+    return (2 * N ** 3 * iters) / (ms / 1000) / 1e9;
+  }
+  function cpuBench() {
+    const N = 192, a = new Float32Array(N * N).map(Math.random), b = new Float32Array(N * N).map(Math.random), c = new Float32Array(N * N);
+    let best = 0;
+    for (let r = 0; r < 4; r++) {
+      const t0 = performance.now();
+      for (let i = 0; i < N; i++) for (let k = 0; k < N; k++) { const x = a[i * N + k]; for (let j = 0; j < N; j++) c[i * N + j] += x * b[k * N + j]; }
+      best = Math.max(best, (2 * N ** 3) / ((performance.now() - t0) / 1000) / 1e9);
+    }
+    return best;
+  }
+  $('benchBtn').addEventListener('click', async () => {
+    $('benchBtn').disabled = true;
+    $('benchOut').removeAttribute('data-i18n');
+    $('benchOut').textContent = t('benching');
+    await new Promise((r) => setTimeout(r, 30));
+    let gpu = '—';
+    if (R.gpu && R.gpu.adapter) { try { gpu = (await gpuBench(R.gpu.ad)).toFixed(0); } catch (e) { gpu = '—'; } }
+    R.bench = { gpu, cpu: cpuBench().toFixed(1) };
+    $('benchOut').textContent = t('benchRes', R.bench);
+    $('benchBtn').disabled = false;
+  });
+
+  $('copyReport').addEventListener('click', () => {
+    const g = R.gpu || {};
+    const lines = [
+      `${t('h1')} — ${location.origin}${location.pathname}`,
+      `${$('vTitle').textContent}`,
+      `WebGPU: ${g.adapter ? [g.vendor, g.arch, g.device].filter(Boolean).join(' / ') || 'yes' : 'no'}${g.fallback ? ' (fallback)' : ''}; f16=${!!g.f16}; maxBuffer=${fmtB(g.maxBuf)}`,
+      `WebGL: ${R.webgl || '-'}`,
+      `WASM SIMD=${R.simd}; threads=${R.threads}; WebNN=${R.webnn}; cores=${R.cores}; memory=${R.mem || '-'}GB`,
+      `Built-in AI: ${BUILTIN.map(([k, glob]) => `${glob}=${R.builtin[k]}`).join(', ')}`,
+      R.bench ? `Bench: GPU ${R.bench.gpu} GFLOPS, CPU ${R.bench.cpu} GFLOPS` : null,
+      `UA: ${navigator.userAgent}`,
+    ].filter(Boolean);
+    UI.copy(lines.join('\n'));
+  });
+
+  document.addEventListener('i18n:change', render);
+  Promise.all([detectGPU(), detectBuiltin(), detectStorage()]).then(([gpu, builtin, storage]) => {
+    Object.assign(R, { gpu, builtin, storage });
+    render();
+  });
+})();
+</script>
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: '내 기기 AI 체커 · WebGPU·온디바이스 AI 지원 확인 — tool.cocy.io',
+  description: '브라우저에서 AI 모델을 돌릴 수 있는지 확인: WebGPU, GPU 정보, WASM SIMD, WebNN, Chrome 내장 AI(Gemini Nano), 저장 공간, GPU/CPU 벤치마크와 모델별 실행 가능 여부',
+  url: 'https://tool.cocy.io/aicheck/'
+});
+</script>
+</body>
+</html>
