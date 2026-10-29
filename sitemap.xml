@@ -46,6 +46,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://tool.cocy.io/browserllm/</loc>
+    <lastmod>2026-10-29</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://tool.cocy.io/feellyrics/</loc>
     <lastmod>2026-02-28</lastmod>
     <priority>0.8</priority>

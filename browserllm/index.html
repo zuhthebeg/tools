@@ -1,561 +1,759 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="브라우저 안에서 100% 실행되는 LLM으로 툴 콜링(function calling)을 테스트. WebGPU(WebLLM Qwen3.5·Hermes3)와 Chrome 내장 Gemini Nano를 골라 위키 검색·날씨·계산·시간 툴을 직접 호출시켜 봅니다.">
-<link rel="icon" href="icon.svg">
-<title>브라우저 LLM 툴 콜링 데모 — 온디바이스 에이전트 테스트</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>브라우저 LLM 채팅 · 툴 콜링 (WebLLM) — tool.cocy.io</title>
+<meta name="description" content="WebGPU로 Qwen·Llama·Gemma 같은 LLM을 브라우저 안에서 실행. 채팅과 툴 콜링(위키·날씨·계산·시간) 데모. 대화는 서버로 전송되지 않음">
 <link rel="canonical" href="https://tool.cocy.io/browserllm/">
-<meta property="og:url" content="https://tool.cocy.io/browserllm/">
-<meta property="og:title" content="브라우저 LLM 툴 콜링 데모">
-<meta property="og:description" content="WebGPU(WebLLM)·Chrome 내장 Gemini Nano를 브라우저에서 구동해 위키 검색·날씨·계산 툴 콜링까지 테스트. 서버 없이 100% 온디바이스.">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"브라우저 LLM 툴 콜링 데모","description":"브라우저 안에서 100% 실행되는 LLM(WebLLM/WebGPU, Chrome 내장 Gemini Nano)으로 위키 검색·날씨·계산·시간 툴 콜링을 테스트하는 온디바이스 에이전트 데모.","url":"https://tool.cocy.io/browserllm/","applicationCategory":"DeveloperApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript, WebGPU recommended","inLanguage":"ko","author":{"@type":"Person","name":"cocy","url":"https://cocy.io"},"publisher":{"@type":"Organization","name":"cocy.io","url":"https://cocy.io"},"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"},"image":"https://tool.cocy.io/browserllm/icon.svg"}</script>
+<link rel="icon" href="/browserllm/icon.svg">
+<link rel="stylesheet" href="/lib/ui.css">
 <style>
-  :root { --bg:#0e0f1a; --card:#1a1c2e; --line:#2c2f47; --fg:#e8e9f3; --mut:#9aa0c0; --acc:#5b8cff; --ok:#3ecf8e; --warn:#ffb86b; --bad:#ff6b6b; }
-  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body { margin:0 auto; background:var(--bg); color:var(--fg); font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Noto Sans KR",sans-serif; padding:16px; max-width:720px; }
-  h1 { font-size:1.25rem; margin:.2em 0 .1em; }
-  .sub { color:var(--mut); font-size:.82rem; margin-bottom:14px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px; }
-  label { display:block; font-size:.8rem; color:var(--mut); margin-bottom:5px; }
-  select, textarea, input[type=text] { width:100%; background:#12141f; color:var(--fg); border:1px solid var(--line); border-radius:9px; padding:10px; font:inherit; }
-  textarea { resize:vertical; min-height:52px; }
-  button { border:0; border-radius:11px; padding:12px; font:600 15px/1 inherit; color:#fff; background:var(--acc); cursor:pointer; width:100%; }
-  button:disabled { opacity:.45; cursor:not-allowed; }
-  button.ghost { background:#262a40; }
-  .row { display:flex; gap:8px; margin-top:8px; }
-  .row > * { flex:1; }
-  .stat { display:flex; justify-content:space-between; gap:10px; font-size:.84rem; padding:4px 0; border-bottom:1px dashed var(--line); }
-  .stat:last-child { border:0; }
-  .stat b { color:var(--acc); font-weight:600; }
-  .badge { display:inline-block; font-size:.72rem; padding:2px 8px; border-radius:20px; font-weight:700; }
-  .b-ok { background:rgba(62,207,142,.16); color:var(--ok); }
-  .b-bad { background:rgba(255,107,107,.16); color:var(--bad); }
-  .b-warn { background:rgba(255,184,107,.16); color:var(--warn); }
-  .prog { height:7px; background:#12141f; border-radius:6px; overflow:hidden; margin-top:8px; }
-  .prog > i { display:block; height:100%; width:0; background:var(--acc); transition:width .2s; }
-  .mut { color:var(--mut); font-size:.8rem; }
-  code { background:#12141f; padding:1px 5px; border-radius:5px; font-size:.85em; }
-  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
-  .chip { background:#262a40; border:1px solid var(--line); color:var(--fg); border-radius:20px; padding:6px 11px; font-size:.78rem; cursor:pointer; width:auto; }
-  .step { border:1px solid var(--line); border-radius:10px; padding:10px; margin-bottom:8px; background:#12141f; }
-  .step h4 { margin:0 0 6px; font-size:.82rem; color:var(--mut); font-weight:600; display:flex; justify-content:space-between; gap:8px; }
-  .step pre { margin:0; white-space:pre-wrap; word-break:break-word; font-size:.8rem; color:#cfd3ee; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
-  .tool-name { color:var(--warn); font-weight:700; }
-  #answer { white-space:pre-wrap; word-break:break-word; min-height:24px; }
-  details > summary { cursor:pointer; color:var(--mut); font-size:.78rem; }
-  .toolrow { display:flex; justify-content:space-between; gap:10px; font-size:.82rem; padding:5px 0; border-bottom:1px dashed var(--line); }
-  .toolrow:last-child { border:0; }
-  .toolrow span:last-child { color:var(--mut); text-align:right; }
-  footer { color:var(--mut); font-size:.78rem; margin-top:16px; line-height:1.7; }
-  footer a { color:var(--acc); }
+.pill { display: inline-block; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.pill.ok { background: #064e3b; color: #6ee7b7; }
+.pill.warn { background: #78350f; color: #fcd34d; }
+.pill.no { background: #3f1d1d; color: #fca5a5; }
+.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.stats div { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.bar { height: 6px; background: var(--panel-2); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #60a5fa, #c084fc); transition: width .2s; }
+.chat { display: flex; flex-direction: column; gap: 8px; max-height: 460px; overflow: auto; margin: 10px 0; }
+.chat:empty { display: none; }
+.msg { padding: 9px 12px; border-radius: 12px; white-space: pre-wrap; word-break: break-word; max-width: 88%; line-height: 1.55; }
+.msg.user { align-self: flex-end; background: #1d4ed8; color: #fff; }
+.msg.ai { align-self: flex-start; background: var(--panel-2); border: 1px solid var(--line); }
+.msg.ai.err { border-color: var(--bad); color: #fca5a5; }
+.out { white-space: pre-wrap; word-break: break-word; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px; min-height: 48px; margin-top: 10px; line-height: 1.6; }
+.out:empty::before { content: attr(data-ph); color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.chip { background: var(--panel-2); border: 1px solid var(--line); color: var(--text); border-radius: 999px; padding: 5px 11px; font-size: 13px; cursor: pointer; }
+.chip:hover { border-color: var(--primary); }
+.tools { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; margin-bottom: 10px; }
+.tools div { font-size: 13px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 7px 10px; }
+.tools code, .step .tn { color: #fbbf24; font-family: var(--mono); font-size: 12px; }
+.step { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; margin-top: 8px; background: var(--panel-2); }
+.step h4 { margin: 0 0 4px; font-size: 12px; color: var(--muted); font-weight: 600; }
+.step pre { margin: 0; white-space: pre-wrap; word-break: break-word; font: 12px/1.5 var(--mono); color: #cbd5e1; }
+.metrics { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--muted); margin-top: 8px; }
+.metrics b { color: var(--text); font-weight: 600; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 8px; }
+.guide li { margin: 4px 0; }
+.guide a, .wrap > p a { color: #60a5fa; }
+select optgroup { background: var(--panel); }
 </style>
 </head>
 <body>
-  <h1>🧠 브라우저 LLM 툴 콜링 데모</h1>
-  <div class="sub">모델이 브라우저 안에서만 돌면서 <b>위키 검색 · 날씨 · 계산 · 시간</b> 툴을 직접 호출합니다. 프롬프트도 대화도 서버로 나가지 않고, 툴이 호출될 때만 해당 공개 API로 요청이 갑니다.</div>
-
-  <div class="card">
-    <div class="stat"><span>WebGPU</span><span id="gpuState" class="badge b-warn">확인중…</span></div>
-    <div class="stat"><span>Chrome 내장 모델 (Prompt API)</span><span id="nanoState" class="badge b-warn">확인중…</span></div>
-    <div class="stat"><span>엔진 상태</span><span id="engineState" class="mut">미로딩</span></div>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>🧠 <span data-i18n="h1">브라우저 LLM</span></h1>
+    <p data-i18n="sub">WebGPU로 언어 모델을 브라우저 안에서 직접 실행해요. 대화는 서버로 나가지 않고, 툴 모드에서 툴이 호출될 때만 해당 공개 API로 요청이 가요.</p>
   </div>
 
   <div class="card">
-    <label>① 엔진 / 모델</label>
-    <select id="engineSel">
-      <optgroup label="WebLLM (WebGPU · 첫 실행 시 모델 다운로드)">
-        <option value="webllm:Qwen3.5-0.8B-q4f16_1-MLC">Qwen3.5 0.8B (≈1.6GB VRAM · 가장 가벼움)</option>
-        <option value="webllm:Qwen3.5-2B-q4f16_1-MLC" selected>Qwen3.5 2B (≈2.2GB · 권장)</option>
-        <option value="webllm:Qwen3.5-4B-q4f16_1-MLC">Qwen3.5 4B (≈3.9GB · 가장 똑똑)</option>
-        <option value="webllm:Qwen3-1.7B-q4f16_1-MLC">Qwen3 1.7B (≈2.0GB)</option>
-        <option value="webllm:Hermes-3-Llama-3.2-3B-q4f16_1-MLC">Hermes 3 Llama-3.2 3B (≈2.3GB · 함수호출 튜닝)</option>
-        <option value="webllm:gemma3-1b-it-q4f16_1-MLC">Gemma 3 1B (≈0.7GB)</option>
-        <option value="webllm:Llama-3.2-1B-Instruct-q4f32_1-MLC">Llama 3.2 1B f32 (≈1.1GB · f16 미지원 GPU용)</option>
-      </optgroup>
-      <optgroup label="브라우저 내장">
-        <option value="nano:builtin">Chrome 내장 Gemini Nano (다운로드 불필요 · Chrome 148+)</option>
-      </optgroup>
-      <optgroup label="모델 없이">
-        <option value="mock:rule">모의 엔진 (LLM 아님 · 규칙 기반 · 툴 콜링 흐름만 확인)</option>
-      </optgroup>
-    </select>
-    <div class="row">
-      <button id="loadBtn">엔진 로드</button>
-      <button id="unloadBtn" class="ghost" disabled>해제</button>
+    <div class="stats">
+      <div><span>WebGPU</span><span id="gpuState" class="pill warn">…</span></div>
+      <div><span data-i18n="nanoRow">Chrome 내장 AI</span><span id="nanoState" class="pill warn">…</span></div>
     </div>
-    <div class="prog"><i id="prog"></i></div>
-    <div id="progTxt" class="mut" style="margin-top:6px"></div>
-  </div>
-
-  <div class="card">
-    <label>② 사용 가능한 툴 <span class="mut">(모델이 필요하다고 판단할 때만 호출)</span></label>
-    <div class="toolrow"><span><span class="tool-name">wiki_search</span></span><span>위키백과 검색 (ko/en)</span></div>
-    <div class="toolrow"><span><span class="tool-name">get_weather</span></span><span>도시 현재 날씨 (Open-Meteo)</span></div>
-    <div class="toolrow"><span><span class="tool-name">calculate</span></span><span>사칙연산 계산</span></div>
-    <div class="toolrow"><span><span class="tool-name">get_time</span></span><span>타임존별 현재 시각</span></div>
-    <div style="margin-top:10px">
-      <label style="display:flex;align-items:center;gap:8px;color:var(--fg);font-size:.84rem">
-        <input type="checkbox" id="nativeTools" style="width:auto">
-        네이티브 tools API 사용 (OpenAI 호환 function calling · Hermes/Qwen 계열에서만 권장)
-      </label>
+    <label class="lbl" for="engineSel" style="margin-top:12px" data-i18n="engine">엔진 / 모델</label>
+    <select id="engineSel"></select>
+    <div class="row" style="margin-top:8px">
+      <button class="btn primary" id="loadBtn" data-i18n="load">모델 로드</button>
+      <button class="btn" id="unloadBtn" disabled data-i18n="unload">해제</button>
+      <span class="muted" id="engineState" style="font-size:13px"></span>
     </div>
+    <div class="bar" id="barWrap" hidden><i id="bar"></i></div>
+    <p class="muted" id="progTxt" style="margin:6px 0 0;font-size:12px;word-break:break-all"></p>
+  </div>
+
+  <div class="card guide" id="guide" hidden>
+    <h2 data-i18n="guideTitle">WebGPU가 없어요</h2>
+    <ul>
+      <li data-i18n="g1">WebLLM은 WebGPU가 필요해요. 최신 데스크톱 Chrome·Edge(113+)나 Safari 26+에서 열어보세요.</li>
+      <li><span data-i18n="g2">Chrome 내장 Gemini Nano가 있으면 엔진에서 선택할 수 있어요. 자세한 기능은</span> <a href="/nano/" data-i18n="nanoLink">Chrome AI 플레이그라운드</a></li>
+      <li data-i18n="g3">모델 없이 툴 콜링 흐름만 보려면 '모의 엔진'을 고르세요 (실제 추론 아님).</li>
+      <li><span data-i18n="g4">내 기기에서 어떤 모델이 돌아갈지는</span> <a href="/aicheck/" data-i18n="aicheck">AI 체커</a></li>
+    </ul>
   </div>
 
   <div class="card">
-    <label>③ 질문</label>
-    <textarea id="q" placeholder="예) 서울 날씨 알려줘">서울 날씨 알려줘</textarea>
-    <div class="chips">
-      <button class="chip">서울 날씨 알려줘</button>
-      <button class="chip">1234 * 567 + 89 계산해줘</button>
-      <button class="chip">WebGPU가 뭔지 위키에서 찾아서 한 문장으로 요약해줘</button>
-      <button class="chip">지금 뉴욕 몇 시야?</button>
+    <div class="seg" id="tabs" style="margin-bottom:12px">
+      <button data-tab="chat" class="on" data-i18n="tChat">채팅</button>
+      <button data-tab="agent" data-i18n="tAgent">툴 콜링</button>
     </div>
-    <div class="row">
-      <button id="runBtn" disabled>실행</button>
-      <button id="resetBtn" class="ghost">대화 초기화</button>
-    </div>
+
+    <section data-panel="chat">
+      <div class="grid2">
+        <div><label class="lbl" for="sys" data-i18n="sys">시스템 프롬프트 (선택)</label>
+          <input type="text" id="sys" data-i18n-attr="placeholder:sysPh" placeholder="예: 너는 간결하게 답하는 조수야"></div>
+        <div><label class="lbl" for="temp"><span data-i18n="temp">창의성(temperature)</span> <b id="tempV">0.7</b></label>
+          <input type="range" id="temp" min="0" max="1.5" step="0.1" value="0.7"></div>
+      </div>
+      <div class="chat" id="chat"></div>
+      <textarea id="cIn" rows="3" data-i18n-attr="placeholder:cPh" placeholder="메시지를 입력하고 Ctrl+Enter"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button class="btn primary" id="sendBtn" disabled data-i18n="send">보내기</button>
+        <button class="btn" id="cStop" hidden data-i18n="stop">■ 중지</button>
+        <button class="btn" id="cReset" data-i18n="newChat">새 대화</button>
+        <button class="btn" id="cCopy" data-i18n="copyChat">📋 대화 복사</button>
+      </div>
+      <div class="metrics" id="cMetrics"></div>
+    </section>
+
+    <section data-panel="agent" hidden>
+      <p class="muted" style="margin:0 0 8px;font-size:13px" data-i18n="agentDesc">모델이 필요하다고 판단하면 아래 툴을 JSON으로 호출하고, 페이지가 실행한 결과를 다시 모델에 넣어 답을 만들어요.</p>
+      <div class="tools" id="toolList"></div>
+      <textarea id="q" rows="2"></textarea>
+      <div class="chips" id="chips"></div>
+      <div class="row">
+        <button class="btn primary" id="runBtn" disabled data-i18n="run">실행</button>
+        <button class="btn" id="aStop" hidden data-i18n="stop">■ 중지</button>
+        <button class="btn" id="aReset" data-i18n="resetAgent">대화 초기화</button>
+      </div>
+      <div class="out" id="answer" data-i18n-attr="data-ph:answerPh" data-ph="답변이 여기에 나와요"></div>
+      <div class="metrics" id="aMetrics"></div>
+      <details style="margin-top:10px" open>
+        <summary class="muted" style="cursor:pointer;font-size:13px" data-i18n="trace">실행 추적 (모델 출력 → 툴 호출 → 툴 결과)</summary>
+        <div id="trace"></div>
+      </details>
+    </section>
   </div>
 
-  <div class="card">
-    <label>답변</label>
-    <div id="answer" class="mut">—</div>
-    <div class="stat" style="margin-top:12px"><span>엔진 로드</span><b id="tLoad">—</b></div>
-    <div class="stat"><span>응답 소요</span><b id="tRun">—</b></div>
-    <div class="stat"><span>툴 호출 / 스텝</span><b id="tSteps">—</b></div>
-    <div class="stat"><span>생성 속도</span><b id="tTps">—</b></div>
-  </div>
-
-  <div class="card">
-    <label>실행 추적 <span class="mut">(모델 출력 → 툴 호출 → 툴 결과)</span></label>
-    <div id="trace" class="mut">아직 실행 기록이 없습니다.</div>
-  </div>
-
-  <footer>
-    WebLLM <code>0.2.85</code> (WebGPU) · Chrome Prompt API <code>LanguageModel</code> · 툴 데이터: 위키백과 API, Open-Meteo.
-    브라우저 내장 모델의 네이티브 <code>tools</code> 옵션은 아직 확장·실험 컨텍스트 한정이라, 기본값은 어떤 모델에서도 동작하는 JSON 프로토콜 방식(모델이 <code>{"tool":…}</code> JSON을 출력 → 페이지가 실행 → 결과를 다시 주입)입니다.
-    <br>WebGPU가 없으면 WebLLM은 실행되지 않습니다 — Chrome/Edge 최신 데스크톱 브라우저를 권장합니다. 모바일 등 실행이 불가한 환경에서는 <b>모의 엔진</b>으로 툴 콜링 흐름만 확인할 수 있습니다(실제 추론 아님).
-  </footer>
-
+  <p class="muted" style="font-size:12px;line-height:1.7" data-i18n="foot">WebLLM 0.2.85 (MLC) · Chrome Prompt API · 툴 데이터: 위키백과 API, Open-Meteo. 모델은 처음 한 번만 내려받고 브라우저 캐시에 저장돼요.</p>
+  <footer class="site">© 2026 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+I18n.define({
+  pageTitle: ['브라우저 LLM 채팅 · 툴 콜링 (WebLLM) — tool.cocy.io', 'Browser LLM Chat & Tool Calling (WebLLM) — tool.cocy.io', '浏览器 LLM 聊天 · 工具调用 (WebLLM) — tool.cocy.io', '瀏覽器 LLM 聊天 · 工具呼叫 (WebLLM) — tool.cocy.io', 'Chat LLM en el navegador y llamadas a herramientas (WebLLM) — tool.cocy.io'],
+  h1: ['브라우저 LLM', 'Browser LLM', '浏览器 LLM', '瀏覽器 LLM', 'LLM en el navegador'],
+  sub: ['WebGPU로 언어 모델을 브라우저 안에서 직접 실행해요. 대화는 서버로 나가지 않고, 툴 모드에서 툴이 호출될 때만 해당 공개 API로 요청이 가요.', 'Run a language model right in your browser with WebGPU. Chats never leave the device; in tool mode, only the tool calls reach their public APIs.', '用 WebGPU 在浏览器里直接运行语言模型。对话不会发送到服务器；工具模式下只有工具调用会请求对应的公开 API。', '用 WebGPU 在瀏覽器裡直接執行語言模型。對話不會傳到伺服器；工具模式下只有工具呼叫會請求對應的公開 API。', 'Ejecuta un modelo de lenguaje en tu navegador con WebGPU. Las conversaciones no salen del dispositivo; en modo herramientas solo las llamadas llegan a sus APIs públicas.'],
+  nanoRow: ['Chrome 내장 AI', 'Chrome built-in AI', 'Chrome 内置 AI', 'Chrome 內建 AI', 'IA integrada de Chrome'],
+  sOk: ['사용 가능', 'Ready', '可用', '可用', 'Lista'],
+  sNoF16: ['사용 가능 (f16 없음)', 'Ready (no f16)', '可用（无 f16）', '可用（無 f16）', 'Lista (sin f16)'],
+  sFallback: ['소프트웨어 렌더링', 'Software only', '仅软件渲染', '僅軟體渲染', 'Solo software'],
+  sNo: ['미지원', 'Unsupported', '不支持', '不支援', 'No compatible'],
+  sDownloadable: ['다운로드 필요', 'Needs download', '需下载', '需下載', 'Requiere descarga'],
+  sDownloading: ['다운로드 중', 'Downloading', '下载中', '下載中', 'Descargando'],
+  sMissing: ['API 없음', 'No API', '无 API', '無 API', 'Sin API'],
+  engine: ['엔진 / 모델', 'Engine / model', '引擎 / 模型', '引擎 / 模型', 'Motor / modelo'],
+  gWebllm: ['WebLLM (WebGPU · 첫 실행 시 모델 다운로드)', 'WebLLM (WebGPU · downloads the model on first run)', 'WebLLM（WebGPU · 首次运行下载模型）', 'WebLLM（WebGPU · 首次執行下載模型）', 'WebLLM (WebGPU · descarga el modelo la primera vez)'],
+  gBuiltin: ['브라우저 내장', 'Built into the browser', '浏览器内置', '瀏覽器內建', 'Integrado en el navegador'],
+  gNone: ['모델 없이', 'No model', '无模型', '無模型', 'Sin modelo'],
+  tagLight: ['가장 가벼움', 'lightest', '最轻量', '最輕量', 'el más ligero'],
+  tagRec: ['권장', 'recommended', '推荐', '推薦', 'recomendado'],
+  tagSmart: ['가장 똑똑', 'smartest', '最聪明', '最聰明', 'el más listo'],
+  tagFn: ['함수 호출 튜닝', 'tuned for tools', '针对函数调用调优', '針對函式呼叫調校', 'ajustado para herramientas'],
+  tagTiny: ['초경량', 'tiny', '超轻量', '超輕量', 'mínimo'],
+  nanoOpt: ['Chrome 내장 Gemini Nano (다운로드 불필요)', 'Chrome built-in Gemini Nano (no download here)', 'Chrome 内置 Gemini Nano（无需在此下载）', 'Chrome 內建 Gemini Nano（無需在此下載）', 'Gemini Nano integrado en Chrome (sin descarga aquí)'],
+  mockOpt: ['모의 엔진 (LLM 아님 · 툴 콜링 흐름만 확인)', 'Mock engine (not an LLM · shows the tool-calling flow only)', '模拟引擎（非 LLM · 仅演示工具调用流程）', '模擬引擎（非 LLM · 僅示範工具呼叫流程）', 'Motor simulado (no es un LLM · solo muestra el flujo)'],
+  load: ['모델 로드', 'Load model', '加载模型', '載入模型', 'Cargar modelo'],
+  unload: ['해제', 'Unload', '卸载', '卸載', 'Descargar de memoria'],
+  stIdle: ['미로딩', 'Not loaded', '未加载', '未載入', 'Sin cargar'],
+  stLoading: ['로딩 중…', 'Loading…', '加载中…', '載入中…', 'Cargando…'],
+  stLoaded: ['✓ {m} · {sec}초', '✓ {m} · {sec}s', '✓ {m} · {sec} 秒', '✓ {m} · {sec} 秒', '✓ {m} · {sec} s'],
+  stFailed: ['로드 실패', 'Load failed', '加载失败', '載入失敗', 'Error al cargar'],
+  stUnloaded: ['해제됨', 'Unloaded', '已卸载', '已卸載', 'Liberado'],
+  dl: ['모델 다운로드 {p}%', 'Downloading model {p}%', '下载模型 {p}%', '下載模型 {p}%', 'Descargando modelo {p}%'],
+  errGpu: ['이 브라우저에서는 WebGPU를 쓸 수 없어요. Chrome 내장 모델이나 모의 엔진을 고르거나, 최신 데스크톱 Chrome/Edge를 쓰세요.', 'WebGPU is not available in this browser. Pick the Chrome built-in model or the mock engine, or use a recent desktop Chrome/Edge.', '此浏览器无法使用 WebGPU。请选择 Chrome 内置模型或模拟引擎，或使用最新桌面版 Chrome/Edge。', '此瀏覽器無法使用 WebGPU。請選擇 Chrome 內建模型或模擬引擎，或使用最新桌面版 Chrome/Edge。', 'WebGPU no está disponible. Elige el modelo integrado de Chrome o el motor simulado, o usa Chrome/Edge de escritorio reciente.'],
+  errF16: ['이 GPU는 f16을 지원하지 않아 이 모델을 쓸 수 없어요. 다른 모델을 고르세요.', 'This GPU lacks f16 support, so this model cannot run. Pick another model.', '此 GPU 不支持 f16，无法运行该模型，请选择其他模型。', '此 GPU 不支援 f16，無法執行該模型，請選擇其他模型。', 'Esta GPU no admite f16; elige otro modelo.'],
+  errNanoApi: ['이 브라우저에는 Prompt API(LanguageModel)가 없어요. 데스크톱 Chrome 138+에서 열어보세요.', 'This browser has no Prompt API (LanguageModel). Try desktop Chrome 138+.', '此浏览器没有 Prompt API (LanguageModel)。请使用桌面版 Chrome 138+。', '此瀏覽器沒有 Prompt API (LanguageModel)。請使用桌面版 Chrome 138+。', 'Este navegador no tiene la Prompt API (LanguageModel). Prueba Chrome 138+ de escritorio.'],
+  errNanoDev: ['이 기기에서는 Chrome 내장 모델을 쓸 수 없어요 (하드웨어/저장공간 요건 미충족).', 'The Chrome built-in model is not available on this device (hardware or storage requirements).', '此设备无法使用 Chrome 内置模型（硬件/存储不满足要求）。', '此裝置無法使用 Chrome 內建模型（硬體/儲存空間不符要求）。', 'El modelo integrado de Chrome no está disponible en este dispositivo (requisitos de hardware o espacio).'],
+  guideTitle: ['WebGPU가 없어요', 'No WebGPU here', '没有 WebGPU', '沒有 WebGPU', 'Sin WebGPU'],
+  g1: ['WebLLM은 WebGPU가 필요해요. 최신 데스크톱 Chrome·Edge(113+)나 Safari 26+에서 열어보세요.', 'WebLLM needs WebGPU. Open this page in a recent desktop Chrome/Edge (113+) or Safari 26+.', 'WebLLM 需要 WebGPU。请使用最新桌面版 Chrome/Edge (113+) 或 Safari 26+。', 'WebLLM 需要 WebGPU。請使用最新桌面版 Chrome/Edge (113+) 或 Safari 26+。', 'WebLLM necesita WebGPU. Abre la página en Chrome/Edge de escritorio reciente (113+) o Safari 26+.'],
+  g2: ['Chrome 내장 Gemini Nano가 있으면 엔진에서 선택할 수 있어요. 자세한 기능은', 'If Chrome has Gemini Nano built in, you can pick it as the engine. More features in the', '如果 Chrome 内置了 Gemini Nano，可以在引擎中选择。更多功能见', '如果 Chrome 內建 Gemini Nano，可以在引擎中選擇。更多功能見', 'Si Chrome trae Gemini Nano, puedes elegirlo como motor. Más funciones en el'],
+  nanoLink: ['Chrome AI 플레이그라운드', 'Chrome AI playground', 'Chrome AI 试验场', 'Chrome AI 試驗場', 'playground de Chrome AI'],
+  g3: ["모델 없이 툴 콜링 흐름만 보려면 '모의 엔진'을 고르세요 (실제 추론 아님).", 'To see the tool-calling flow without a model, pick the mock engine (no real inference).', '若只想看工具调用流程，请选择“模拟引擎”（不做真实推理）。', '若只想看工具呼叫流程，請選擇「模擬引擎」（不做真實推理）。', 'Para ver el flujo sin modelo, elige el motor simulado (sin inferencia real).'],
+  g4: ['내 기기에서 어떤 모델이 돌아갈지는', 'See which models your device can run in the', '查看设备能运行哪些模型：', '查看裝置能執行哪些模型：', 'Mira qué modelos puede ejecutar tu dispositivo en el'],
+  aicheck: ['AI 체커', 'AI Checker', 'AI 检测', 'AI 檢測', 'Comprobador de IA'],
+  tChat: ['채팅', 'Chat', '聊天', '聊天', 'Chat'],
+  tAgent: ['툴 콜링', 'Tool calling', '工具调用', '工具呼叫', 'Herramientas'],
+  sys: ['시스템 프롬프트 (선택)', 'System prompt (optional)', '系统提示词（可选）', '系統提示詞（選填）', 'Prompt de sistema (opcional)'],
+  sysPh: ['예: 너는 간결하게 답하는 조수야', 'e.g. You are a concise assistant', '例如：你是一个简洁的助手', '例如：你是一個簡潔的助手', 'p. ej.: Eres un asistente conciso'],
+  temp: ['창의성(temperature)', 'Temperature', '创造性 (temperature)', '創造性 (temperature)', 'Temperatura'],
+  cPh: ['메시지를 입력하고 Ctrl+Enter', 'Type a message, Ctrl+Enter to send', '输入消息，Ctrl+Enter 发送', '輸入訊息，Ctrl+Enter 送出', 'Escribe un mensaje, Ctrl+Enter para enviar'],
+  send: ['보내기', 'Send', '发送', '送出', 'Enviar'],
+  stop: ['■ 중지', '■ Stop', '■ 停止', '■ 停止', '■ Detener'],
+  newChat: ['새 대화', 'New chat', '新对话', '新對話', 'Nuevo chat'],
+  copyChat: ['📋 대화 복사', '📋 Copy chat', '📋 复制对话', '📋 複製對話', '📋 Copiar chat'],
+  thinking: ['생각 중…', 'Thinking…', '思考中…', '思考中…', 'Pensando…'],
+  stopped: ['(중지됨)', '(stopped)', '（已停止）', '（已停止）', '(detenido)'],
+  needLoad: ['먼저 모델을 로드하세요', 'Load a model first', '请先加载模型', '請先載入模型', 'Primero carga un modelo'],
+  mockChat: ['모의 엔진은 실제 언어 모델이 아니라 채팅은 할 수 없어요. 툴 콜링 탭에서 흐름을 확인하거나 WebLLM/Gemini Nano 모델을 로드하세요.', 'The mock engine is not a real language model, so it cannot chat. Try the Tool calling tab, or load a WebLLM / Gemini Nano model.', '模拟引擎不是真正的语言模型，无法聊天。请到“工具调用”页查看流程，或加载 WebLLM / Gemini Nano 模型。', '模擬引擎不是真正的語言模型，無法聊天。請到「工具呼叫」頁查看流程，或載入 WebLLM / Gemini Nano 模型。', 'El motor simulado no es un modelo real y no puede chatear. Prueba la pestaña Herramientas o carga un modelo WebLLM / Gemini Nano.'],
+  mElapsed: ['소요 <b>{sec}초</b>', 'Time <b>{sec}s</b>', '耗时 <b>{sec} 秒</b>', '耗時 <b>{sec} 秒</b>', 'Tiempo <b>{sec} s</b>'],
+  mTps: ['속도 <b>{n} tok/s</b>', 'Speed <b>{n} tok/s</b>', '速度 <b>{n} tok/s</b>', '速度 <b>{n} tok/s</b>', 'Velocidad <b>{n} tok/s</b>'],
+  mTok: ['생성 <b>{n} 토큰</b>', 'Generated <b>{n} tokens</b>', '生成 <b>{n} token</b>', '生成 <b>{n} token</b>', 'Generados <b>{n} tokens</b>'],
+  mSteps: ['툴 호출 <b>{c}회</b> / <b>{s}스텝</b>', 'Tool calls <b>{c}</b> / steps <b>{s}</b>', '工具调用 <b>{c}</b> 次 / <b>{s}</b> 步', '工具呼叫 <b>{c}</b> 次 / <b>{s}</b> 步', 'Llamadas <b>{c}</b> / pasos <b>{s}</b>'],
+  agentDesc: ['모델이 필요하다고 판단하면 아래 툴을 JSON으로 호출하고, 페이지가 실행한 결과를 다시 모델에 넣어 답을 만들어요.', 'When the model decides it needs one, it calls a tool below as JSON; the page runs it and feeds the result back for the answer.', '模型认为需要时会以 JSON 调用下面的工具，页面执行后把结果回传给模型生成答案。', '模型認為需要時會以 JSON 呼叫下面的工具，頁面執行後把結果回傳給模型產生答案。', 'Cuando el modelo lo necesita, llama a una herramienta en JSON; la página la ejecuta y le devuelve el resultado.'],
+  dWiki: ['위키백과 검색', 'Wikipedia search', '维基百科搜索', '維基百科搜尋', 'Búsqueda en Wikipedia'],
+  dWeather: ['도시 현재 날씨 (Open-Meteo)', 'Current weather (Open-Meteo)', '城市当前天气 (Open-Meteo)', '城市目前天氣 (Open-Meteo)', 'Tiempo actual (Open-Meteo)'],
+  dCalc: ['사칙연산 계산', 'Arithmetic', '四则运算', '四則運算', 'Aritmética'],
+  dTime: ['타임존별 현재 시각', 'Current time by time zone', '各时区当前时间', '各時區目前時間', 'Hora actual por zona'],
+  qPh: ['질문을 입력하세요', 'Ask something', '输入问题', '輸入問題', 'Pregunta algo'],
+  ex1: ['서울 날씨 알려줘', "What's the weather in Seoul?", '首尔天气怎么样？', '首爾天氣如何？', '¿Qué tiempo hace en Seúl?'],
+  ex2: ['1234 * 567 + 89 계산해줘', 'Calculate 1234 * 567 + 89', '计算 1234 * 567 + 89', '計算 1234 * 567 + 89', 'Calcula 1234 * 567 + 89'],
+  ex3: ['WebGPU가 뭔지 위키에서 찾아서 한 문장으로 요약해줘', 'Look up WebGPU on Wikipedia and summarize it in one sentence', '在维基百科查一下 WebGPU，用一句话总结', '在維基百科查一下 WebGPU，用一句話總結', 'Busca WebGPU en Wikipedia y resúmelo en una frase'],
+  ex4: ['지금 뉴욕 몇 시야?', 'What time is it in New York now?', '纽约现在几点？', '紐約現在幾點？', '¿Qué hora es en Nueva York?'],
+  run: ['실행', 'Run', '运行', '執行', 'Ejecutar'],
+  resetAgent: ['대화 초기화', 'Reset', '重置对话', '重設對話', 'Reiniciar'],
+  answerPh: ['답변이 여기에 나와요', 'The answer appears here', '答案显示在这里', '答案顯示在這裡', 'La respuesta aparece aquí'],
+  trace: ['실행 추적 (모델 출력 → 툴 호출 → 툴 결과)', 'Trace (model output → tool call → tool result)', '执行追踪（模型输出 → 工具调用 → 工具结果）', '執行追蹤（模型輸出 → 工具呼叫 → 工具結果）', 'Traza (salida del modelo → llamada → resultado)'],
+  stepOut: ['스텝 {n} · 모델 출력', 'Step {n} · model output', '第 {n} 步 · 模型输出', '第 {n} 步 · 模型輸出', 'Paso {n} · salida del modelo'],
+  stepCall: ['🔧 툴 호출 · {name}', '🔧 Tool call · {name}', '🔧 工具调用 · {name}', '🔧 工具呼叫 · {name}', '🔧 Llamada · {name}'],
+  stepRes: ['↩︎ 툴 결과', '↩︎ Tool result', '↩︎ 工具结果', '↩︎ 工具結果', '↩︎ Resultado'],
+  emptyOut: ['(빈 응답)', '(empty response)', '（空响应）', '（空回應）', '(respuesta vacía)'],
+  generating: ['생성 중…', 'Generating…', '生成中…', '生成中…', 'Generando…'],
+  loose: ['(모델이 JSON 형식을 지키지 않아 원문을 그대로 표시했어요)', '(The model did not follow the JSON format, so its raw text is shown)', '（模型未遵守 JSON 格式，已直接显示原文）', '（模型未遵守 JSON 格式，已直接顯示原文）', '(El modelo no siguió el formato JSON; se muestra el texto tal cual)'],
+  maxSteps: ['최대 스텝을 넘겼어요. 더 큰 모델을 쓰거나 질문을 단순하게 해보세요.', 'Hit the step limit. Try a larger model or a simpler question.', '超过最大步数。请换更大的模型或简化问题。', '超過最大步數。請換更大的模型或簡化問題。', 'Se alcanzó el límite de pasos. Prueba un modelo mayor o una pregunta más simple.'],
+  mockNote: ['(모의 엔진이 {tool} 결과를 그대로 전달했어요)', '(The mock engine passed the {tool} result through as-is)', '（模拟引擎直接转述了 {tool} 的结果）', '（模擬引擎直接轉述了 {tool} 的結果）', '(El motor simulado reenvió el resultado de {tool} tal cual)'],
+  error: ['오류: {msg}', 'Error: {msg}', '错误：{msg}', '錯誤：{msg}', 'Error: {msg}'],
+  foot: ['WebLLM 0.2.85 (MLC) · Chrome Prompt API · 툴 데이터: 위키백과 API, Open-Meteo. 모델은 처음 한 번만 내려받고 브라우저 캐시에 저장돼요.', 'WebLLM 0.2.85 (MLC) · Chrome Prompt API · tool data: Wikipedia API, Open-Meteo. Models download once and stay in the browser cache.', 'WebLLM 0.2.85 (MLC) · Chrome Prompt API · 工具数据：维基百科 API、Open-Meteo。模型只需下载一次，保存在浏览器缓存中。', 'WebLLM 0.2.85 (MLC) · Chrome Prompt API · 工具資料：維基百科 API、Open-Meteo。模型只需下載一次，儲存在瀏覽器快取中。', 'WebLLM 0.2.85 (MLC) · Chrome Prompt API · datos: API de Wikipedia, Open-Meteo. Los modelos se descargan una vez y quedan en la caché del navegador.'],
+  allTools: ['모든 도구', 'All tools', '全部工具', '全部工具', 'Todas las herramientas'],
+});
+I18n.init();
+</script>
 <script type="module">
-
-const $ = id => document.getElementById(id);
+const $ = (id) => document.getElementById(id);
+const t = I18n.t;
+const WEBLLM = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.85/lib/index.js';
 const MAX_STEPS = 5;
 
-/* ---------- 툴 정의 ---------- */
+/* WebLLM prebuilt models. f32 = fallback for GPUs without shader-f16. GB = vram_required_MB from WebLLM's config. */
+const MODELS = [
+  { id: 'Qwen3.5-0.8B', name: 'Qwen3.5 0.8B', f16: ['Qwen3.5-0.8B-q4f16_1-MLC', 1.6], f32: ['Qwen3.5-0.8B-q4f32_1-MLC', 1.9], tag: 'tagLight' },
+  { id: 'Qwen3.5-2B', name: 'Qwen3.5 2B', f16: ['Qwen3.5-2B-q4f16_1-MLC', 2.2], f32: ['Qwen3.5-2B-q4f32_1-MLC', 2.6], tag: 'tagRec', def: true },
+  { id: 'Qwen3.5-4B', name: 'Qwen3.5 4B', f16: ['Qwen3.5-4B-q4f16_1-MLC', 3.9], f32: ['Qwen3.5-4B-q4f32_1-MLC', 4.7], tag: 'tagSmart' },
+  { id: 'Qwen3-1.7B', name: 'Qwen3 1.7B', f16: ['Qwen3-1.7B-q4f16_1-MLC', 2.0], f32: ['Qwen3-1.7B-q4f32_1-MLC', 2.6] },
+  { id: 'Hermes-3-3B', name: 'Hermes 3 Llama-3.2 3B', f16: ['Hermes-3-Llama-3.2-3B-q4f16_1-MLC', 2.3], f32: ['Hermes-3-Llama-3.2-3B-q4f32_1-MLC', 3.0], tag: 'tagFn' },
+  { id: 'Llama-3.2-1B', name: 'Llama 3.2 1B', f16: ['Llama-3.2-1B-Instruct-q4f16_1-MLC', 0.9], f32: ['Llama-3.2-1B-Instruct-q4f32_1-MLC', 1.1] },
+  { id: 'Gemma3-1B', name: 'Gemma 3 1B', f16: ['gemma3-1b-it-q4f16_1-MLC', 0.7], tag: 'tagTiny' },
+];
+const gpu = { ok: false, f16: false, fallback: false };
+let engine = null;          // { kind, label, chat(messages, signal), stream(messages, opts), interrupt(), unload() }
+let busy = false, runId = 0, active = null;
+let chatHist = [], agentHist = [];
+let tab = 'chat', lastEngineState = ['stIdle'];
+
+/* ---------- tools (model-facing text stays English so every model understands it) ---------- */
 const TOOLS = {
   wiki_search: {
-    description: "위키백과에서 키워드를 검색해 문서 요약을 가져온다. 인물·개념·사건 등 사실 확인이 필요할 때 사용.",
-    parameters: {
-      type: "object",
-      properties: {
-        query: { type: "string", description: "검색어" },
-        lang: { type: "string", enum: ["ko", "en"], description: "위키 언어판 (기본: 한글 검색어면 ko, 영문이면 en)" },
-      },
-      required: ["query"],
-    },
-    async run({ query, lang }) {
-      const first = lang === "ko" || lang === "en" ? lang : (/[^\x00-\x7F]/.test(query) ? "ko" : "en");
-      let out = await wikiExtract(first, query);
-      if (!out) out = await wikiExtract(first === "ko" ? "en" : "ko", query);
-      return out || `"${query}" 검색 결과 없음`;
+    ui: 'dWiki',
+    description: 'Search Wikipedia and return article summaries. Use it for facts about people, concepts or events.',
+    parameters: { type: 'object', properties: { query: { type: 'string', description: 'search terms' }, lang: { type: 'string', enum: ['ko', 'en'], description: 'Wikipedia edition (default: ko for Korean queries, otherwise en)' } }, required: ['query'] },
+    async run({ query, lang }, signal) {
+      const first = lang === 'ko' || lang === 'en' ? lang : (/[\uac00-\ud7a3]/.test(query) ? 'ko' : 'en');
+      let out = await wikiExtract(first, query, signal);
+      if (!out) out = await wikiExtract(first === 'ko' ? 'en' : 'ko', query, signal);
+      return out || `No results for "${query}"`;
     },
   },
   get_weather: {
-    description: "도시 이름으로 현재 날씨(기온·체감·습도·풍속·강수)를 조회한다.",
-    parameters: {
-      type: "object",
-      properties: { city: { type: "string", description: "도시 이름 (예: 서울, Tokyo)" } },
-      required: ["city"],
-    },
-    async run({ city }) {
-      const loc = await geocode(city);
-      if (!loc) return `"${city}" 위치를 찾지 못함`;
+    ui: 'dWeather',
+    description: 'Get the current weather (temperature, feels-like, humidity, wind, precipitation) for a city.',
+    parameters: { type: 'object', properties: { city: { type: 'string', description: 'city name, e.g. Seoul, 서울, Tokyo' } }, required: ['city'] },
+    async run({ city }, signal) {
+      const loc = await geocode(String(city || ''), signal);
+      if (!loc) return `Could not find a place called "${city}"`;
       const w = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.latitude}&longitude=${loc.longitude}`
-        + `&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m&timezone=auto`);
+        + '&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m&timezone=auto', { signal });
       const c = (await w.json())?.current;
-      if (!c) return "날씨 데이터를 가져오지 못함";
-      return `${loc.name}(${loc.country || ""}) 현재: ${WMO[c.weather_code] ?? "알 수 없음"}, `
-        + `기온 ${c.temperature_2m}°C (체감 ${c.apparent_temperature}°C), 습도 ${c.relative_humidity_2m}%, `
-        + `강수 ${c.precipitation}mm, 풍속 ${c.wind_speed_10m}m/s`;
+      if (!c) return 'Weather data unavailable';
+      return `${loc.name} (${loc.country || ''}) now: ${WMO[c.weather_code] ?? 'unknown'}, `
+        + `${c.temperature_2m}°C (feels like ${c.apparent_temperature}°C), humidity ${c.relative_humidity_2m}%, `
+        + `precipitation ${c.precipitation} mm, wind ${c.wind_speed_10m} km/h`;
     },
   },
   calculate: {
-    description: "사칙연산 수식을 계산한다. 숫자와 + - * / ( ) % 만 사용 가능.",
-    parameters: {
-      type: "object",
-      properties: { expression: { type: "string", description: "예: (1234*567)+89" } },
-      required: ["expression"],
-    },
+    ui: 'dCalc',
+    description: 'Evaluate an arithmetic expression. Only digits and + - * / ( ) % ^ are allowed.',
+    parameters: { type: 'object', properties: { expression: { type: 'string', description: 'e.g. (1234*567)+89' } }, required: ['expression'] },
     async run({ expression }) {
-      const expr = String(expression).replace(/[,\s]/g, "").replace(/\^/g, "**");
-      if (!/^[0-9+\-*/().%]+$/.test(expr)) throw new Error("허용되지 않은 문자가 포함됨: " + expression);
+      const expr = String(expression).replace(/[,\s]/g, '').replace(/\^/g, '**');
+      if (!/^[0-9+\-*/().%]+$/.test(expr)) throw new Error('Disallowed characters in: ' + expression);
       const value = Function(`"use strict";return (${expr})`)();
-      if (!Number.isFinite(value)) throw new Error("계산 결과가 유효하지 않음");
+      if (!Number.isFinite(value)) throw new Error('Result is not a finite number');
       return `${expression} = ${value}`;
     },
   },
   get_time: {
-    description: "지정한 타임존의 현재 날짜와 시각을 알려준다.",
-    parameters: {
-      type: "object",
-      properties: { timezone: { type: "string", description: "IANA 타임존 (예: Asia/Seoul, America/New_York). 기본값은 사용자 타임존" } },
-      required: [],
-    },
+    ui: 'dTime',
+    description: 'Tell the current date and time in a time zone.',
+    parameters: { type: 'object', properties: { timezone: { type: 'string', description: "IANA time zone, e.g. Asia/Seoul, America/New_York. Defaults to the user's time zone" } }, required: [] },
     async run({ timezone }) {
       const tz = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
       try {
-        return `${tz} 현재 시각: ${new Intl.DateTimeFormat("ko-KR", { dateStyle: "full", timeStyle: "medium", timeZone: tz }).format(new Date())}`;
-      } catch {
-        throw new Error(`알 수 없는 타임존: ${tz}`);
-      }
+        return `Current time in ${tz}: ${new Intl.DateTimeFormat('en-US', { dateStyle: 'full', timeStyle: 'medium', timeZone: tz }).format(new Date())}`;
+      } catch (e) { throw new Error('Unknown time zone: ' + tz); }
     },
   },
 };
+const WMO = { 0: 'clear', 1: 'mainly clear', 2: 'partly cloudy', 3: 'overcast', 45: 'fog', 48: 'rime fog', 51: 'light drizzle', 53: 'drizzle', 55: 'dense drizzle', 61: 'light rain', 63: 'rain', 65: 'heavy rain', 66: 'freezing rain', 67: 'heavy freezing rain', 71: 'light snow', 73: 'snow', 75: 'heavy snow', 77: 'snow grains', 80: 'rain showers', 81: 'heavy showers', 82: 'violent showers', 85: 'snow showers', 86: 'heavy snow showers', 95: 'thunderstorm', 96: 'thunderstorm with hail', 99: 'thunderstorm with heavy hail' };
 
-async function wikiExtract(wiki, query) {
+async function wikiExtract(wiki, query, signal) {
   const r = await fetch(`https://${wiki}.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1`
-    + `&prop=extracts&explaintext=1&exintro=1&generator=search&gsrlimit=2&gsrsearch=${encodeURIComponent(query)}`);
-  if (!r.ok) throw new Error("wikipedia HTTP " + r.status);
-  const pages = Object.values((await r.json())?.query?.pages || {}).filter(p => p.extract);
-  if (!pages.length) return "";
-  return pages.map(p => `[${wiki}:${p.title}] ${p.extract.replace(/\s+/g, " ").slice(0, 450)}`).join("\n");
+    + `&prop=extracts&explaintext=1&exintro=1&generator=search&gsrlimit=2&gsrsearch=${encodeURIComponent(query)}`, { signal });
+  if (!r.ok) throw new Error('Wikipedia HTTP ' + r.status);
+  const pages = Object.values((await r.json())?.query?.pages || {}).filter((p) => p.extract);
+  return pages.map((p) => `[${wiki}:${p.title}] ${p.extract.replace(/\s+/g, ' ').slice(0, 450)}`).join('\n');
 }
-
-/* Open-Meteo 지오코딩은 한글 지명을 못 찾는 경우가 많아, 위키백과 언어링크로 영문 지명을 얻어 재시도한다. */
-async function geocode(city) {
+/* Open-Meteo geocoding often misses non-Latin names; fall back to the English title via Wikipedia langlinks. */
+async function geocode(city, signal) {
   const lookup = async (name) => {
-    const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?count=1&language=ko&name=${encodeURIComponent(name)}`);
+    const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&name=${encodeURIComponent(name)}`, { signal });
     return (await r.json())?.results?.[0] || null;
   };
-  let loc = await lookup(city);
-  if (loc) return loc;
-  const r = await fetch(`https://ko.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1`
-    + `&prop=langlinks&lllang=en&generator=search&gsrlimit=1&gsrsearch=${encodeURIComponent(city)}`);
+  const loc = await lookup(city);
+  if (loc || !/[^\x00-\x7F]/.test(city)) return loc;
+  const wiki = /[\uac00-\ud7a3]/.test(city) ? 'ko' : /[\u3040-\u30ff]/.test(city) ? 'ja' : /[\u4e00-\u9fff]/.test(city) ? 'zh' : 'es';
+  const r = await fetch(`https://${wiki}.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1`
+    + `&prop=langlinks&lllang=en&generator=search&gsrlimit=1&gsrsearch=${encodeURIComponent(city)}`, { signal });
   const page = Object.values((await r.json())?.query?.pages || {})[0];
-  const en = page?.langlinks?.[0]?.["*"];
+  const en = page?.langlinks?.[0]?.['*'];
   if (!en) return null;
-  return (await lookup(en)) || (await lookup(en.split(" ")[0]));
+  return (await lookup(en)) || (await lookup(en.split(/[ ,]/)[0]));
 }
-
-const WMO = {
-  0:"맑음",1:"대체로 맑음",2:"부분 흐림",3:"흐림",45:"안개",48:"서리 안개",51:"약한 이슬비",53:"이슬비",55:"강한 이슬비",
-  61:"약한 비",63:"비",65:"강한 비",66:"어는 비",67:"강한 어는 비",71:"약한 눈",73:"눈",75:"강한 눈",77:"싸락눈",
-  80:"소나기",81:"강한 소나기",82:"매우 강한 소나기",85:"약한 눈소나기",86:"강한 눈소나기",95:"뇌우",96:"우박 동반 뇌우",99:"강한 우박 뇌우",
-};
-
-const toolSpecs = () => Object.entries(TOOLS).map(([name, t]) => ({
-  type: "function",
-  function: { name, description: t.description, parameters: t.parameters },
-}));
 
 function systemPrompt() {
-  const list = Object.entries(TOOLS)
-    .map(([name, t]) => `- ${name}: ${t.description} args=${JSON.stringify(t.parameters.properties)}`)
-    .join("\n");
-  return `You are a helpful assistant running inside a web browser. You can use tools.\n`
+  const list = Object.entries(TOOLS).map(([name, x]) => `- ${name}: ${x.description} args=${JSON.stringify(x.parameters.properties)}`).join('\n');
+  return 'You are a helpful assistant running inside a web browser. You can use tools.\n'
     + `Available tools:\n${list}\n\n`
-    + `Reply with EXACTLY ONE JSON object and nothing else (no markdown, no explanation):\n`
-    + `- to call a tool: {"tool":"<tool name>","args":{...}}\n`
-    + `- to answer the user: {"final":"<answer>"}\n`
-    + `After a TOOL_RESULT message you must either call another tool or give {"final":...}. `
-    + `Never invent tool results. Answer in the user's language (Korean if the user writes Korean).`;
+    + 'Reply with EXACTLY ONE JSON object and nothing else (no markdown, no explanation):\n'
+    + '- to call a tool: {"tool":"<tool name>","args":{...}}\n'
+    + '- to answer the user: {"final":"<answer>"}\n'
+    + 'After a TOOL_RESULT message you must either call another tool or give {"final":...}. '
+    + "Never invent tool results. Answer in the user's language.";
 }
 
-/* 모델이 뱉은 텍스트에서 첫 번째 균형 잡힌 JSON 객체를 뽑아낸다. */
+/* First balanced JSON object in a model reply (ignores ```json fences and <think> blocks). */
 function extractJson(text) {
-  const s = String(text).replace(/<think>[\s\S]*?<\/think>/g, "").replace(/```(?:json)?/g, "");
-  const start = s.indexOf("{");
+  const s = String(text).replace(/<think>[\s\S]*?<\/think>/g, '').replace(/```(?:json)?/g, '');
+  const start = s.indexOf('{');
   if (start < 0) return null;
   let depth = 0, inStr = false, esc = false;
   for (let i = start; i < s.length; i++) {
     const ch = s[i];
     if (inStr) {
       if (esc) esc = false;
-      else if (ch === "\\") esc = true;
+      else if (ch === '\\') esc = true;
       else if (ch === '"') inStr = false;
       continue;
     }
     if (ch === '"') inStr = true;
-    else if (ch === "{") depth++;
-    else if (ch === "}" && --depth === 0) {
-      try { return JSON.parse(s.slice(start, i + 1)); } catch { return null; }
+    else if (ch === '{') depth++;
+    else if (ch === '}' && --depth === 0) {
+      try { return JSON.parse(s.slice(start, i + 1)); } catch (e) { return null; }
     }
   }
   return null;
 }
+const stripThink = (s) => String(s).replace(/<think>[\s\S]*?(<\/think>|$)/g, '').trim();
+const abortErr = () => Object.assign(new Error('aborted'), { name: 'AbortError' });
 
-/* ---------- 엔진 ---------- */
-let engine = null;        // { kind, chat(messages, useNativeTools), unload() }
-let history = [];
-let hasGPU = false;
-
-(async () => {
+/* ---------- engines ---------- */
+async function createWebLLM(m) {
+  if (!gpu.ok) throw new Error(t('errGpu'));
+  const pick = gpu.f16 ? m.f16 : m.f32;
+  if (!pick) throw new Error(t('errF16'));
+  const modelId = pick[0];
+  const webllm = await import(WEBLLM);
+  const worker = new Worker('/browserllm/worker.js', { type: 'module' });
+  let mlc;
   try {
-    hasGPU = !!(navigator.gpu && await navigator.gpu.requestAdapter());
-  } catch { hasGPU = false; }
-  $("gpuState").textContent = hasGPU ? "지원 ✓" : "미지원";
-  $("gpuState").className = "badge " + (hasGPU ? "b-ok" : "b-bad");
-
-  const nano = $("nanoState");
-  if (!("LanguageModel" in self)) {
-    nano.textContent = "API 없음";
-    nano.className = "badge b-bad";
-  } else {
-    try {
-      const a = await LanguageModel.availability();
-      nano.textContent = { available: "사용 가능 ✓", downloadable: "다운로드 필요", downloading: "다운로드 중", unavailable: "사용 불가" }[a] || a;
-      nano.className = "badge " + (a === "available" ? "b-ok" : a === "unavailable" ? "b-bad" : "b-warn");
-    } catch (e) {
-      nano.textContent = "확인 실패";
-      nano.className = "badge b-bad";
-    }
-  }
-})();
-
-async function createWebLLM(modelId) {
-  if (!hasGPU) throw new Error("이 브라우저에서는 WebGPU를 쓸 수 없습니다. Chrome 내장 모델 또는 모의 엔진을 선택하거나 최신 데스크톱 Chrome/Edge를 사용하세요.");
-  $("progTxt").textContent = "WebLLM 로드 중…";
-  const webllm = await import("https://esm.sh/@mlc-ai/web-llm@0.2.85");
-  const mlc = await webllm.CreateMLCEngine(modelId, {
-    initProgressCallback: (p) => {
-      const pct = Math.round((p.progress || 0) * 100);
-      $("prog").style.width = pct + "%";
-      $("progTxt").textContent = p.text || "";
-    },
-  });
+    mlc = await webllm.CreateWebWorkerMLCEngine(worker, modelId, {
+      initProgressCallback: (p) => {
+        $('barWrap').hidden = false;
+        $('bar').style.width = Math.round((p.progress || 0) * 100) + '%';
+        $('progTxt').textContent = p.text || '';
+      },
+    });
+  } catch (e) { worker.terminate(); throw e; }
+  const extra = /^Qwen3/.test(modelId) ? { extra_body: { enable_thinking: false } } : {};
   return {
-    kind: "webllm",
-    label: modelId,
-    async chat(messages, useNativeTools) {
-      const req = { messages, temperature: 0.2, max_tokens: 512 };
-      if (useNativeTools) { req.tools = toolSpecs(); req.tool_choice = "auto"; }
-      const res = await mlc.chat.completions.create(req);
-      const msg = res.choices?.[0]?.message || {};
-      return {
-        text: msg.content || "",
-        toolCalls: (msg.tool_calls || []).map(tc => ({
-          id: tc.id, name: tc.function?.name, args: safeArgs(tc.function?.arguments),
-        })),
-        usage: res.usage,
-      };
+    kind: 'webllm', label: m.name,
+    async chat(messages, signal) {
+      const res = await mlc.chat.completions.create({ messages, temperature: 0.2, max_tokens: 512, ...extra });
+      if (signal.aborted) throw abortErr();
+      return { text: res.choices?.[0]?.message?.content || '', usage: res.usage };
     },
-    async unload() { await mlc.unload(); },
+    async stream(messages, { temperature, signal, onText }) {
+      const chunks = await mlc.chat.completions.create({ messages, temperature, max_tokens: 1024, stream: true, stream_options: { include_usage: true }, ...extra });
+      let text = '', usage = null;
+      for await (const c of chunks) {
+        if (signal.aborted) break;
+        text += c.choices?.[0]?.delta?.content || '';
+        if (c.usage) usage = c.usage;
+        onText(text);
+      }
+      return { text, usage };
+    },
+    interrupt() { try { mlc.interruptGenerate(); } catch (e) {} },
+    async unload() { try { await mlc.unload(); } finally { worker.terminate(); } },
   };
 }
 
-/* WebGPU도 내장 모델도 없는 환경에서 툴 콜링 흐름 자체를 보여주기 위한 규칙 기반 가짜 엔진. 실제 추론은 하지 않는다. */
-function createMock() {
+/* Gemini Nano: a fresh session per call with the transcript as initialPrompts, so no hidden context survives a reset. */
+async function createNano() {
+  if (!self.LanguageModel) throw new Error(t('errNanoApi'));
+  const a = await LanguageModel.availability();
+  if (a === 'unavailable') throw new Error(t('errNanoDev'));
+  const monitor = (mon) => mon.addEventListener('downloadprogress', (e) => {
+    const p = Math.round((e.total ? e.loaded / e.total : e.loaded) * 100);
+    $('barWrap').hidden = false;
+    $('bar').style.width = p + '%';
+    $('progTxt').textContent = t('dl', { p });
+  });
+  (await LanguageModel.create({ monitor })).destroy();
+  let params = null;
+  try { params = LanguageModel.params ? await LanguageModel.params() : null; } catch (e) {}
+  const open = (messages, temperature, signal) => {
+    const opts = { initialPrompts: messages.slice(0, -1).map(({ role, content }) => ({ role, content })), signal };
+    if (params && temperature != null) Object.assign(opts, { temperature: Math.min(temperature, params.maxTemperature), topK: params.defaultTopK });
+    return LanguageModel.create(opts);
+  };
   return {
-    kind: "mock",
-    label: "모의 엔진 (LLM 아님)",
-    async chat(messages) {
-      const last = messages[messages.length - 1].content || "";
-      const hit = /TOOL_RESULT\(([a-z_]+)\): ([\s\S]*?)\n\n/.exec(last);
-      if (hit) return { text: JSON.stringify({ final: `${hit[2].trim()}\n\n(모의 엔진이 ${hit[1]} 결과를 그대로 전달했습니다)` }), toolCalls: [] };
-      const q = messages.filter(m => m.role === "user").pop()?.content || "";
-      let action;
-      if (/날씨|weather/i.test(q)) {
-        action = { tool: "get_weather", args: { city: /([가-훣A-Za-z]+)\s*(?:의)?\s*날씨/.exec(q)?.[1] || "서울" } };
-      } else if (/[0-9][\s0-9+\-*/().^,]*[+\-*/^][\s0-9+\-*/().^,]*[0-9]/.test(q)) {
-        action = { tool: "calculate", args: { expression: /[0-9][\s0-9+\-*/().^,]*[0-9]/.exec(q)[0] } };
-      } else if (/몇 ?시|시각|time/i.test(q)) {
-        action = { tool: "get_time", args: { timezone: /뉴욕|new york/i.test(q) ? "America/New_York" : /도쿄|tokyo/i.test(q) ? "Asia/Tokyo" : "Asia/Seoul" } };
-      } else {
-        action = { tool: "wiki_search", args: { query: q.replace(/위키[\s\S]*$/, "").trim() || q } };
-      }
-      return { text: JSON.stringify(action), toolCalls: [] };
+    kind: 'nano', label: 'Gemini Nano',
+    async chat(messages, signal) {
+      const s = await open(messages, null, signal);
+      try { return { text: await s.prompt(messages[messages.length - 1].content, { signal }) }; } finally { s.destroy(); }
     },
+    async stream(messages, { temperature, signal, onText }) {
+      const s = await open(messages, temperature, signal);
+      let text = '';
+      try {
+        for await (const chunk of s.promptStreaming(messages[messages.length - 1].content, { signal })) {
+          text = chunk.startsWith(text) && text ? chunk : text + chunk;
+          onText(text);
+        }
+      } finally { s.destroy(); }
+      return { text };
+    },
+    interrupt() {},
     async unload() {},
   };
 }
 
-async function createNano() {
-  if (!("LanguageModel" in self)) throw new Error("이 브라우저에는 Prompt API(LanguageModel)가 없습니다. Chrome 148+ 데스크톱에서 열어보세요.");
-  const availability = await LanguageModel.availability();
-  if (availability === "unavailable") throw new Error("이 기기에서는 Chrome 내장 모델을 사용할 수 없습니다 (하드웨어/저장공간 요건 미충족).");
-  const session = await LanguageModel.create({
-    monitor(m) {
-      m.addEventListener("downloadprogress", (e) => {
-        const pct = Math.round((e.loaded || 0) * 100);
-        $("prog").style.width = pct + "%";
-        $("progTxt").textContent = `모델 다운로드 ${pct}%`;
-      });
-    },
-  });
+/* Rule-based stand-in that shows the tool-calling loop without any model. */
+function createMock() {
   return {
-    kind: "nano",
-    label: "Chrome 내장 Gemini Nano",
+    kind: 'mock', label: t('mockOpt').split(' (')[0],
     async chat(messages) {
-      // Prompt API의 네이티브 tools는 아직 확장/실험 컨텍스트 한정이라 JSON 프로토콜로 통일한다.
-      const prompt = messages.map(m => `${m.role.toUpperCase()}: ${m.content}`).join("\n\n") + "\n\nASSISTANT:";
-      return { text: await session.prompt(prompt), toolCalls: [] };
+      await new Promise((r) => setTimeout(r, 250));
+      const last = messages[messages.length - 1].content || '';
+      const hit = /^TOOL_RESULT\(([a-z_]+)\): ([\s\S]*?)\n\n/.exec(last);
+      if (hit) return { text: JSON.stringify({ final: `${hit[2].trim()}\n\n${t('mockNote', { tool: hit[1] })}` }) };
+      const q = messages.filter((m) => m.role === 'user').pop()?.content || '';
+      let action;
+      if (/날씨|weather|天气|天氣|tiempo|clima/i.test(q)) {
+        const city = /([가-힣A-Za-z]+)\s*(?:의)?\s*날씨/.exec(q)?.[1] || /(?:in|en)\s+([A-Za-zÀ-ÿ ]+?)[?¿!.]*$/i.exec(q)?.[1] || /([\u4e00-\u9fff]+?)天[气氣]/.exec(q)?.[1] || 'Seoul';
+        action = { tool: 'get_weather', args: { city } };
+      } else if (/[0-9][\s0-9+\-*/().^,]*[+\-*/^][\s0-9+\-*/().^,]*[0-9]/.test(q)) {
+        action = { tool: 'calculate', args: { expression: /[0-9][\s0-9+\-*/().^,]*[0-9]/.exec(q)[0].trim() } };
+      } else if (/몇 ?시|시각|time|几点|幾點|hora/i.test(q)) {
+        const tz = /뉴욕|new york|纽约|紐約|nueva york/i.test(q) ? 'America/New_York' : /도쿄|tokyo|东京|東京|tokio/i.test(q) ? 'Asia/Tokyo' : 'Asia/Seoul';
+        action = { tool: 'get_time', args: { timezone: tz } };
+      } else {
+        const m = /WebGPU|[A-Z][\w.-]+/.exec(q);
+        action = { tool: 'wiki_search', args: { query: m ? m[0] : q } };
+      }
+      return { text: JSON.stringify(action) };
     },
-    async unload() { session.destroy(); },
+    async stream(messages, { onText }) {
+      const text = t('mockChat');
+      for (let i = 1; i <= text.length; i += 4) { onText(text.slice(0, i)); await new Promise((r) => setTimeout(r, 8)); }
+      onText(text);
+      return { text };
+    },
+    interrupt() {},
+    async unload() {},
   };
 }
 
-function safeArgs(raw) {
-  if (!raw) return {};
-  if (typeof raw === "object") return raw;
-  try { return JSON.parse(raw); } catch { return extractJson(raw) || {}; }
+/* ---------- run bookkeeping: one run at a time; stop/reset/unload invalidate it ---------- */
+function setBusy(b) {
+  busy = b;
+  $('sendBtn').disabled = $('runBtn').disabled = b || !engine;
+  $('loadBtn').disabled = $('engineSel').disabled = b;
+  $('unloadBtn').disabled = b || !engine;
+  $('cStop').hidden = !(b && active?.kind === 'chat');
+  $('aStop').hidden = !(b && active?.kind === 'agent');
+}
+function beginRun(kind) {
+  const run = { id: ++runId, kind, ctrl: new AbortController() };
+  active = run;
+  setBusy(true);
+  return run;
+}
+const live = (run) => run.id === runId;
+function stopRun(reset) {
+  if (!active) return;
+  active.reset = !!reset;
+  runId++;
+  active.ctrl.abort();
+  engine?.interrupt();
+}
+async function endRun(run) {
+  if (active === run) { active = null; setBusy(false); }
 }
 
-/* ---------- 에이전트 루프 ---------- */
-function addStep(title, body, cls) {
-  if ($("trace").classList.contains("mut")) { $("trace").classList.remove("mut"); $("trace").innerHTML = ""; }
-  const el = document.createElement("div");
-  el.className = "step";
-  el.innerHTML = `<h4><span>${title}</span></h4><pre></pre>`;
-  el.querySelector("pre").textContent = body;
-  if (cls) el.querySelector("h4 span").className = cls;
-  $("trace").appendChild(el);
-  el.scrollIntoView({ block: "nearest" });
+/* ---------- chat ---------- */
+function bubble(role, text) {
+  const el = document.createElement('div');
+  el.className = 'msg ' + role;
+  el.textContent = text;
+  $('chat').appendChild(el);
+  $('chat').scrollTop = $('chat').scrollHeight;
+  return el;
 }
-
-async function runAgent(question) {
-  const native = $("nativeTools").checked && engine.kind === "webllm";
-  const messages = native
-    ? [{ role: "system", content: "You are a helpful assistant. Use the provided tools when they help, then answer in the user's language." }, ...history]
-    : [{ role: "system", content: systemPrompt() }, ...history];
-  messages.push({ role: "user", content: question });
-
-  let steps = 0, toolCalls = 0, genTokens = 0;
+function metrics(el, { ms, tokens, steps, calls }) {
+  const parts = [t('mElapsed', { sec: (ms / 1000).toFixed(1) })];
+  if (steps != null) parts.push(t('mSteps', { c: calls, s: steps }));
+  if (tokens) parts.push(t('mTok', { n: tokens }), t('mTps', { n: (tokens / (ms / 1000)).toFixed(1) }));
+  el.innerHTML = parts.map((p) => `<span>${p}</span>`).join('');
+}
+async function sendChat() {
+  const text = $('cIn').value.trim();
+  if (!text || busy) return;
+  if (!engine) { UI.toast(t('needLoad')); return; }
+  const run = beginRun('chat');
+  $('cIn').value = '';
+  bubble('user', text);
+  const ai = bubble('ai', t('thinking'));
+  const sys = $('sys').value.trim();
+  const messages = [...(sys ? [{ role: 'system', content: sys }] : []), ...chatHist, { role: 'user', content: text }];
   const t0 = performance.now();
-
-  for (let i = 0; i < MAX_STEPS; i++) {
-    steps++;
-    const res = await engine.chat(messages, native);
-    genTokens += res.usage?.completion_tokens || 0;
-
-    if (res.toolCalls.length) {
-      addStep(`스텝 ${steps} · 모델 → 네이티브 tool_calls`, JSON.stringify(res.toolCalls, null, 2));
-      messages.push({ role: "assistant", content: res.text || "", tool_calls: res.toolCalls.map(tc => ({
-        id: tc.id, type: "function", function: { name: tc.name, arguments: JSON.stringify(tc.args) } })) });
-      for (const tc of res.toolCalls) {
-        toolCalls++;
-        const out = await execTool(tc.name, tc.args);
-        messages.push({ role: "tool", tool_call_id: tc.id, content: out });
-      }
-      continue;
+  let shown = '';
+  try {
+    const res = await engine.stream(messages, {
+      temperature: +$('temp').value, signal: run.ctrl.signal,
+      onText: (s) => { if (!live(run)) return; shown = stripThink(s); ai.textContent = shown || t('thinking'); $('chat').scrollTop = $('chat').scrollHeight; },
+    });
+    if (!live(run)) { if (ai.isConnected) ai.textContent = (shown ? shown + '\n' : '') + t('stopped'); return; }
+    const answer = stripThink(res.text);
+    ai.textContent = answer || t('emptyOut');
+    chatHist.push({ role: 'user', content: text }, { role: 'assistant', content: answer });
+    metrics($('cMetrics'), { ms: performance.now() - t0, tokens: res.usage?.completion_tokens });
+  } catch (e) {
+    if (ai.isConnected) {
+      if (!live(run) || e.name === 'AbortError') ai.textContent = (shown ? shown + '\n' : '') + t('stopped');
+      else { ai.classList.add('err'); ai.textContent = t('error', { msg: e?.message || e }); console.error(e); }
     }
+  } finally { endRun(run); }
+}
+$('sendBtn').onclick = sendChat;
+$('cIn').addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); sendChat(); } });
+$('cStop').onclick = () => stopRun();
+$('cReset').onclick = () => {
+  if (active?.kind === 'chat') stopRun(true);
+  chatHist = [];
+  $('chat').innerHTML = '';
+  $('cMetrics').innerHTML = '';
+};
+$('cCopy').onclick = () => {
+  const s = [...$('chat').children].map((m) => (m.classList.contains('user') ? '> ' : '') + m.textContent).join('\n\n');
+  if (s) UI.copy(s);
+};
+$('temp').oninput = () => { $('tempV').textContent = (+$('temp').value).toFixed(1); };
 
-    addStep(`스텝 ${steps} · 모델 출력`, res.text.trim() || "(빈 응답)");
+/* ---------- agent loop ---------- */
+function addStep(run, title, body, tool) {
+  if (!live(run)) return;
+  const el = document.createElement('div');
+  el.className = 'step';
+  el.innerHTML = '<h4></h4><pre></pre>';
+  el.querySelector('h4').textContent = title;
+  if (tool) el.querySelector('h4').className = 'tn';
+  el.querySelector('pre').textContent = body;
+  $('trace').appendChild(el);
+}
+async function execTool(run, name, args) {
+  addStep(run, t('stepCall', { name }), JSON.stringify(args ?? {}, null, 2), true);
+  const tool = TOOLS[name];
+  let out;
+  if (!tool) out = `Unknown tool: ${name}. Available: ${Object.keys(TOOLS).join(', ')}`;
+  else {
+    try { out = await tool.run(args || {}, run.ctrl.signal); }
+    catch (e) { if (!live(run)) throw abortErr(); out = 'Tool error: ' + (e?.message || e); }
+  }
+  if (!live(run)) throw abortErr();
+  addStep(run, t('stepRes'), out);
+  return out;
+}
+async function runAgent(run, question) {
+  const messages = [{ role: 'system', content: systemPrompt() }, ...agentHist, { role: 'user', content: question }];
+  let steps = 0, calls = 0, tokens = 0;
+  const t0 = performance.now();
+  const done = (answer, extra) => ({ answer, steps, calls, tokens, ms: performance.now() - t0, ...extra });
+  for (let i = 0; i < MAX_STEPS; i++) {
+    const last = i === MAX_STEPS - 1;
+    steps++;
+    const res = await engine.chat(messages, run.ctrl.signal);
+    if (!live(run)) throw abortErr();
+    tokens += res.usage?.completion_tokens || 0;
+    addStep(run, t('stepOut', { n: steps }), res.text.trim() || t('emptyOut'));
     const action = extractJson(res.text);
-
-    if (action && typeof action.final === "string") {
-      history.push({ role: "user", content: question }, { role: "assistant", content: action.final });
-      return { answer: action.final, steps, toolCalls, genTokens, ms: performance.now() - t0 };
+    if (action && typeof action.final === 'string') {
+      agentHist.push({ role: 'user', content: question }, { role: 'assistant', content: action.final });
+      return done(action.final);
     }
     if (action && action.tool) {
-      toolCalls++;
-      const out = await execTool(action.tool, action.args || {});
-      messages.push({ role: "assistant", content: JSON.stringify(action) });
-      messages.push({ role: "user", content: `TOOL_RESULT(${action.tool}): ${out}\n\n위 결과를 바탕으로 {"final":"..."} 형식으로 답하거나, 필요하면 다른 툴을 호출해.` });
+      if (last) break; // no generation left to read the result, so don't call it
+      calls++;
+      const out = await execTool(run, action.tool, action.args || {});
+      const hint = i + 1 === MAX_STEPS - 1
+        ? 'This is your last turn: no more tools. Answer now as {"final":"..."}.'
+        : 'Answer as {"final":"..."} based on this result, or call another tool if needed.';
+      messages.push({ role: 'assistant', content: JSON.stringify(action) });
+      messages.push({ role: 'user', content: `TOOL_RESULT(${action.tool}): ${out}\n\n${hint}` });
       continue;
     }
-
-    // JSON을 못 뱉은 경우: 본문을 그대로 답변으로 사용
-    const fallback = res.text.trim();
-    if (fallback) {
-      history.push({ role: "user", content: question }, { role: "assistant", content: fallback });
-      return { answer: fallback, steps, toolCalls, genTokens, ms: performance.now() - t0, loose: true };
+    const loose = stripThink(res.text);
+    if (loose) {
+      agentHist.push({ role: 'user', content: question }, { role: 'assistant', content: loose });
+      return done(loose, { loose: true });
     }
-    messages.push({ role: "user", content: `JSON 한 개만 출력해. {"tool":...} 또는 {"final":...}` });
+    messages.push({ role: 'assistant', content: res.text }, { role: 'user', content: 'Output exactly one JSON object: {"tool":...} or {"final":...}.' });
   }
-  return { answer: "(최대 스텝을 넘겼습니다 — 더 큰 모델을 쓰거나 질문을 단순하게 해보세요)", steps, toolCalls, genTokens, ms: performance.now() - t0 };
+  return done(t('maxSteps'), { failed: true });
 }
-
-async function execTool(name, args) {
-  const tool = TOOLS[name];
-  addStep(`🔧 툴 호출 · ${name}`, JSON.stringify(args ?? {}, null, 2), "tool-name");
-  if (!tool) {
-    const msg = `알 수 없는 툴: ${name}. 사용 가능: ${Object.keys(TOOLS).join(", ")}`;
-    addStep("↩︎ 툴 결과", msg);
-    return msg;
-  }
+async function runAgentUI() {
+  const q = $('q').value.trim();
+  if (!q || busy) return;
+  if (!engine) { UI.toast(t('needLoad')); return; }
+  const run = beginRun('agent');
+  $('answer').className = 'out muted';
+  $('answer').textContent = t('generating');
+  $('aMetrics').innerHTML = '';
+  $('trace').innerHTML = '';
   try {
-    const out = await tool.run(args || {});
-    addStep("↩︎ 툴 결과", out);
-    return out;
+    const r = await runAgent(run, q);
+    if (!live(run)) return;
+    $('answer').className = 'out' + (r.failed ? ' err' : '');
+    $('answer').textContent = r.answer + (r.loose ? '\n\n' + t('loose') : '');
+    metrics($('aMetrics'), r);
   } catch (e) {
-    const msg = `툴 오류: ${e?.message || e}`;
-    addStep("↩︎ 툴 결과", msg);
-    return msg;
-  }
+    if (!live(run) || e.name === 'AbortError') { if (!run.reset) { $('answer').className = 'out muted'; $('answer').textContent = t('stopped'); } return; }
+    $('answer').className = 'out err';
+    $('answer').textContent = t('error', { msg: e?.message || e });
+    console.error(e);
+  } finally { endRun(run); }
 }
+$('runBtn').onclick = runAgentUI;
+$('q').addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); runAgentUI(); } });
+$('aStop').onclick = () => stopRun();
+$('aReset').onclick = () => {
+  if (active?.kind === 'agent') stopRun(true);
+  agentHist = [];
+  $('trace').innerHTML = '';
+  $('answer').className = 'out';
+  $('answer').textContent = '';
+  $('aMetrics').innerHTML = '';
+};
 
-/* ---------- UI ---------- */
-$("loadBtn").onclick = async () => {
-  const [kind, id] = $("engineSel").value.split(":");
-  $("loadBtn").disabled = $("engineSel").disabled = true;
-  $("engineState").textContent = "로딩중…";
-  $("prog").style.width = "0%";
+/* ---------- engine load/unload ---------- */
+function engineState(key, vars, cls) {
+  lastEngineState = [key, vars, cls];
+  $('engineState').className = cls || 'muted';
+  $('engineState').textContent = key ? t(key, vars) : '';
+}
+$('loadBtn').onclick = async () => {
+  if (busy) return;
+  const v = $('engineSel').value;
+  $('loadBtn').disabled = $('engineSel').disabled = $('unloadBtn').disabled = true;
+  $('sendBtn').disabled = $('runBtn').disabled = true;
+  engineState('stLoading');
+  $('progTxt').textContent = '';
+  $('bar').style.width = '0%';
   const t0 = performance.now();
   try {
-    if (engine) { await engine.unload(); engine = null; }
-    engine = kind === "webllm" ? await createWebLLM(id) : kind === "nano" ? await createNano() : createMock();
-    $("tLoad").textContent = ((performance.now() - t0) / 1000).toFixed(1) + "s";
-    $("prog").style.width = "100%";
-    $("progTxt").textContent = "";
-    $("engineState").textContent = `로드 완료 ✓ ${engine.label}`;
-    $("runBtn").disabled = false;
-    $("unloadBtn").disabled = false;
+    if (engine) { const old = engine; engine = null; await old.unload(); }
+    engine = v === 'nano' ? await createNano() : v === 'mock' ? createMock() : await createWebLLM(MODELS.find((m) => m.id === v));
+    engineState('stLoaded', { m: engine.label, sec: ((performance.now() - t0) / 1000).toFixed(1) }, 'ok');
+    $('progTxt').textContent = '';
   } catch (e) {
-    $("engineState").textContent = "로드 실패";
-    $("progTxt").textContent = e?.message || String(e);
+    engine = null;
+    engineState('stFailed', null, 'err');
+    $('progTxt').textContent = e?.message || String(e);
     console.error(e);
   } finally {
-    $("loadBtn").disabled = $("engineSel").disabled = false;
+    $('barWrap').hidden = true;
+    setBusy(false);
   }
 };
-
-$("unloadBtn").onclick = async () => {
-  if (!engine) return;
-  await engine.unload();
+$('unloadBtn').onclick = async () => {
+  if (!engine || busy) return;
+  const old = engine;
   engine = null;
-  $("engineState").textContent = "해제됨";
-  $("runBtn").disabled = true;
-  $("unloadBtn").disabled = true;
-  $("prog").style.width = "0%";
+  setBusy(false);
+  await old.unload();
+  engineState('stUnloaded');
 };
 
-$("runBtn").onclick = async () => {
-  const q = $("q").value.trim();
-  if (!q || !engine) return;
-  $("runBtn").disabled = true;
-  $("answer").className = "mut";
-  $("answer").textContent = "생성중…";
+/* ---------- render ---------- */
+function renderSelect() {
+  const cur = $('engineSel').value || MODELS.find((m) => m.def).id;
+  const size = (m) => { const p = gpu.f16 || !gpu.ok ? (m.f16 || m.f32) : m.f32; return p ? `≈${p[1]} GB` : 'f16'; };
+  const opt = (v, label, dis) => `<option value="${v}"${dis ? ' disabled' : ''}>${label}</option>`;
+  $('engineSel').innerHTML =
+    `<optgroup label="${t('gWebllm')}">` + MODELS.map((m) => opt(m.id, `${m.name} (${size(m)}${m.tag ? ' · ' + t(m.tag) : ''})`, gpu.ok && !gpu.f16 && !m.f32)).join('') + '</optgroup>'
+    + `<optgroup label="${t('gBuiltin')}">${opt('nano', t('nanoOpt'))}</optgroup>`
+    + `<optgroup label="${t('gNone')}">${opt('mock', t('mockOpt'))}</optgroup>`;
+  $('engineSel').value = cur;
+}
+function renderTools() {
+  $('toolList').innerHTML = Object.entries(TOOLS).map(([n, x]) => `<div><code>${n}</code><br><span class="muted">${t(x.ui)}</span></div>`).join('');
+  $('chips').innerHTML = ['ex1', 'ex2', 'ex3', 'ex4'].map((k) => `<button class="chip" data-k="${k}">${t(k)}</button>`).join('');
+  $('q').placeholder = t('qPh');
+}
+$('chips').onclick = (e) => { const b = e.target.closest('.chip'); if (b) $('q').value = t(b.dataset.k); };
+const STATES = {};
+function pill(id, key, cls) { STATES[id] = [key, cls]; $(id).className = 'pill ' + cls; $(id).textContent = t(key); }
+$('tabs').onclick = (e) => {
+  const b = e.target.closest('button[data-tab]');
+  if (!b) return;
+  tab = b.dataset.tab;
+  document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x === b));
+  document.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== tab; });
+};
+document.addEventListener('i18n:change', () => {
+  renderSelect();
+  renderTools();
+  for (const [id, [k, c]] of Object.entries(STATES)) pill(id, k, c);
+  engineState(...lastEngineState);
+});
+
+(async () => {
+  renderSelect();
+  renderTools();
+  engineState('stIdle');
   try {
-    const r = await runAgent(q);
-    $("answer").className = "";
-    $("answer").textContent = r.answer + (r.loose ? "\n\n(모델이 JSON 형식을 지키지 않아 원문을 그대로 표시했습니다)" : "");
-    $("tRun").textContent = (r.ms / 1000).toFixed(1) + "s";
-    $("tSteps").textContent = `${r.toolCalls}회 / ${r.steps}스텝`;
-    $("tTps").textContent = r.genTokens ? `${r.genTokens} tok · ${(r.genTokens / (r.ms / 1000)).toFixed(1)} tok/s` : "—";
-  } catch (e) {
-    $("answer").className = "";
-    $("answer").textContent = "오류: " + (e?.message || e);
-    console.error(e);
-  } finally {
-    $("runBtn").disabled = false;
-  }
-};
+    const ad = navigator.gpu && await navigator.gpu.requestAdapter();
+    if (ad) {
+      const fb = ad.isFallbackAdapter || ad.info?.isFallbackAdapter;
+      Object.assign(gpu, { ok: !fb, f16: ad.features.has('shader-f16'), fallback: !!fb });
+    }
+  } catch (e) {}
+  pill('gpuState', gpu.ok ? (gpu.f16 ? 'sOk' : 'sNoF16') : gpu.fallback ? 'sFallback' : 'sNo', gpu.ok ? (gpu.f16 ? 'ok' : 'warn') : 'no');
+  let nano = 'missing';
+  if (self.LanguageModel?.availability) { try { nano = await LanguageModel.availability(); } catch (e) { nano = 'unavailable'; } }
+  const NK = { available: ['sOk', 'ok'], downloadable: ['sDownloadable', 'warn'], downloading: ['sDownloading', 'warn'], unavailable: ['sNo', 'no'], missing: ['sMissing', 'no'] };
+  pill('nanoState', ...(NK[nano] || NK.missing));
+  $('guide').hidden = gpu.ok;
+  if (!gpu.ok) $('engineSel').value = nano === 'available' || nano === 'downloadable' ? 'nano' : 'mock';
+  renderSelect();
+})();
 
-$("resetBtn").onclick = () => {
-  history = [];
-  $("trace").className = "mut";
-  $("trace").textContent = "아직 실행 기록이 없습니다.";
-  $("answer").className = "mut";
-  $("answer").textContent = "—";
-  $("tRun").textContent = $("tSteps").textContent = $("tTps").textContent = "—";
-};
-
-document.querySelectorAll(".chip").forEach(c => c.onclick = () => { $("q").value = c.textContent; });
-
-// 툴 자체를 모델 없이 확인해보고 싶을 때 (콘솔에서 await BrowserLLM.tools.get_weather.run({city:'서울'}))
 window.BrowserLLM = { tools: TOOLS, extractJson };
+</script>
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: '브라우저 LLM 채팅 · 툴 콜링 (WebLLM) — tool.cocy.io',
+  description: 'WebGPU로 Qwen·Llama·Gemma 같은 LLM을 브라우저 안에서 실행. 채팅과 툴 콜링(위키·날씨·계산·시간) 데모. 대화는 서버로 전송되지 않음',
+  url: 'https://tool.cocy.io/browserllm/'
+});
 </script>
 </body>
 </html>
