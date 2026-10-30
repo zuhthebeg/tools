@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개인정보 가리기 · 얼굴·번호판·전화번호 자동 모자이크 — tool.cocy.io</title>
+<meta name="description" content="사진 속 얼굴, 전화번호, 주민번호, 카드번호, 이메일, 차량번호를 브라우저 AI로 자동 찾아 블러·모자이크·검은 박스로 가리기. 업로드 없음, 직접 영역 추가, 메타데이터 제거 저장">
+<link rel="canonical" href="https://tool.cocy.io/mask/">
+<link rel="icon" href="/mask/icon.svg">
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+.drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px 14px; text-align: center; cursor: pointer; color: var(--muted); }
+.drop.over, .drop:hover { border-color: #f472b6; color: var(--text); }
+.drop b { color: var(--text); }
+.opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin-top: 12px; }
+.opts input[type=range] { width: 100%; }
+.stage { position: relative; line-height: 0; margin-top: 12px; border-radius: 10px; overflow: hidden; background: var(--panel-2); }
+.stage canvas { width: 100%; height: auto; display: block; }
+.stage #ov { position: absolute; inset: 0; height: 100%; cursor: crosshair; touch-action: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 99px; font-size: 13px; background: var(--panel-2); cursor: pointer; max-width: 100%; }
+.chip.off { opacity: .45; text-decoration: line-through; }
+.chip.sel { border-color: #f472b6; }
+.chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+.chip button { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 14px; padding: 0 2px; }
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>🫥 <span data-i18n="h1">개인정보 가리기</span></h1>
+    <p data-i18n="sub">사진 속 얼굴과 전화번호·주민번호·카드번호·이메일·차량번호를 AI가 찾아서 가려 줘요. 모두 브라우저 안에서 처리하고 서버로 보내지 않아요.</p>
+  </div>
+
+  <div class="card">
+    <input type="file" id="file" accept="image/*" hidden>
+    <div class="drop" id="drop"><b data-i18n="dropB">사진을 끌어다 놓거나 클릭 · 붙여넣기(Ctrl+V)</b><br><small>PNG · JPG · WebP</small></div>
+    <div class="opts">
+      <div><span class="lbl" data-i18n="find">찾을 것</span>
+        <label class="chk"><input type="checkbox" id="optFace" checked> <span data-i18n="optFace">얼굴</span></label><br>
+        <label class="chk"><input type="checkbox" id="optPii" checked> <span data-i18n="optPii">글자 속 개인정보 (번호·이메일·차량번호)</span></label><br>
+        <label class="chk"><input type="checkbox" id="optText"> <span data-i18n="optText">모든 글자</span></label></div>
+      <div><span class="lbl" data-i18n="style">가리는 방식</span>
+        <div class="seg" id="style"><button data-v="pixel" class="on" data-i18n="stPixel">모자이크</button><button data-v="blur" data-i18n="stBlur">블러</button><button data-v="box" data-i18n="stBox">검은 박스</button></div>
+        <label class="lbl" for="strength" style="margin-top:10px"><span data-i18n="strength">강도</span> <b id="strengthV"></b></label><input type="range" id="strength" min="10" max="100" value="60"></div>
+      <div><label class="lbl" for="pad"><span data-i18n="pad">여백</span> <b id="padV"></b></label><input type="range" id="pad" min="0" max="60" value="20">
+        <label class="lbl" for="sens" style="margin-top:10px"><span data-i18n="sens">얼굴 민감도</span> <b id="sensV"></b></label><input type="range" id="sens" min="10" max="80" value="40"></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="sampleBtn" data-i18n="sample">샘플 사진으로 해보기</button>
+      <button class="btn" id="redetBtn" disabled data-i18n="redetect">🔎 다시 찾기</button>
+      <span class="muted grow" id="status"></span>
+    </div>
+  </div>
+
+  <div class="card" id="outCard" hidden>
+    <div class="row">
+      <button class="btn primary" id="pngBtn" data-i18n="savePng">⬇ PNG</button>
+      <button class="btn" id="jpgBtn" data-i18n="saveJpg">⬇ JPG</button>
+      <button class="btn" id="copyBtn" data-i18n="copyImg">📋 이미지 복사</button>
+      <button class="btn" id="peekBtn" data-i18n="peek">👁 원본 보기 (누르고 있기)</button>
+      <button class="btn" id="delBtn" disabled data-i18n="del">🗑 선택 삭제</button>
+      <button class="btn" id="clearBtn" data-i18n="clear">모두 지우기</button>
+    </div>
+    <div class="stage" id="stage"><canvas id="out"></canvas><canvas id="ov"></canvas></div>
+    <p class="muted" style="font-size:12px;margin:8px 0 0" data-i18n="hint">빈 곳을 드래그하면 가릴 영역을 추가하고, 영역을 누르면 켜고 끌 수 있어요. 저장하면 위치(GPS) 같은 사진 메타데이터는 빠져요.</p>
+    <div class="muted" style="font-size:13px;margin-top:10px" id="summary"></div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <p class="muted" style="font-size:13px" data-i18n="tip">얼굴은 MediaPipe 얼굴 탐지(약 0.2MB 모델 + 런타임), 글자는 Tesseract OCR(한국어·영어 데이터)로 찾아요. 처음 한 번만 내려받아요. 자동 탐지는 놓칠 수 있으니 저장 전에 꼭 확인하고 필요하면 직접 영역을 추가하세요.</p>
+  <footer class="site">© 2026 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+I18n.define({
+  pageTitle: ['개인정보 가리기 · 얼굴·번호판·전화번호 자동 모자이크 — tool.cocy.io', 'Privacy Mask · auto-blur faces, plates and phone numbers — tool.cocy.io', '隐私遮挡 · 自动打码人脸、车牌、电话号码 — tool.cocy.io', '隱私遮蔽 · 自動打碼人臉、車牌、電話號碼 — tool.cocy.io', 'Ocultar datos privados · difumina caras, matrículas y teléfonos — tool.cocy.io'],
+  h1: ['개인정보 가리기', 'Privacy Mask', '隐私遮挡', '隱私遮蔽', 'Ocultar datos privados'],
+  sub: ['사진 속 얼굴과 전화번호·주민번호·카드번호·이메일·차량번호를 AI가 찾아서 가려 줘요. 모두 브라우저 안에서 처리하고 서버로 보내지 않아요.', 'AI finds faces, phone numbers, ID and card numbers, emails and licence plates in a photo and hides them. Everything runs in your browser; nothing is sent to a server.', 'AI 自动找出照片中的人脸、电话、身份证号、卡号、邮箱和车牌并遮挡。全部在浏览器内处理，不会发送到服务器。', 'AI 自動找出照片中的人臉、電話、身分證號、卡號、電子郵件和車牌並遮蔽。全部在瀏覽器內處理，不會傳送到伺服器。', 'La IA encuentra caras, teléfonos, números de ID y tarjeta, correos y matrículas en una foto y los oculta. Todo se procesa en tu navegador; nada se envía a un servidor.'],
+  dropB: ['사진을 끌어다 놓거나 클릭 · 붙여넣기(Ctrl+V)', 'Drop a photo, click, or paste (Ctrl+V)', '拖入照片、点击选择或粘贴 (Ctrl+V)', '拖入照片、點擊選擇或貼上 (Ctrl+V)', 'Suelta una foto, haz clic o pega (Ctrl+V)'],
+  find: ['찾을 것', 'Detect', '检测', '偵測', 'Detectar'],
+  optFace: ['얼굴', 'Faces', '人脸', '人臉', 'Caras'],
+  optPii: ['글자 속 개인정보 (번호·이메일·차량번호)', 'Personal info in text (numbers, emails, plates)', '文字中的个人信息（号码、邮箱、车牌）', '文字中的個人資料（號碼、電子郵件、車牌）', 'Datos personales en texto (números, correos, matrículas)'],
+  optText: ['모든 글자', 'All text', '所有文字', '所有文字', 'Todo el texto'],
+  style: ['가리는 방식', 'Mask style', '遮挡方式', '遮蔽方式', 'Estilo'],
+  stPixel: ['모자이크', 'Pixelate', '马赛克', '馬賽克', 'Pixelar'],
+  stBlur: ['블러', 'Blur', '模糊', '模糊', 'Desenfocar'],
+  stBox: ['검은 박스', 'Black box', '黑框', '黑框', 'Caja negra'],
+  strength: ['강도', 'Strength', '强度', '強度', 'Intensidad'],
+  pad: ['여백', 'Padding', '边距', '邊距', 'Margen'],
+  sens: ['얼굴 민감도', 'Face sensitivity', '人脸灵敏度', '人臉靈敏度', 'Sensibilidad de caras'],
+  sample: ['샘플 사진으로 해보기', 'Try a sample photo', '用示例照片试试', '用範例照片試試', 'Probar con una foto de ejemplo'],
+  redetect: ['🔎 다시 찾기', '🔎 Detect again', '🔎 重新检测', '🔎 重新偵測', '🔎 Detectar de nuevo'],
+  ldFace: ['얼굴 탐지 모델 불러오는 중…', 'Loading face detector…', '正在加载人脸检测模型…', '正在載入人臉偵測模型…', 'Cargando detector de caras…'],
+  ldOcr: ['글자 인식 준비 중… {p}', 'Preparing text recognition… {p}', '正在准备文字识别… {p}', '正在準備文字辨識… {p}', 'Preparando reconocimiento de texto… {p}'],
+  ocrRun: ['글자 읽는 중… {p}', 'Reading text… {p}', '正在识别文字… {p}', '正在辨識文字… {p}', 'Leyendo texto… {p}'],
+  found: ['{n}곳을 찾았어요 · {sec}초', 'Found {n} area(s) in {sec}s', '找到 {n} 处 · {sec} 秒', '找到 {n} 處 · {sec} 秒', '{n} zona(s) encontradas en {sec} s'],
+  noneFound: ['자동으로 찾은 곳이 없어요. 드래그해서 직접 추가하세요.', 'Nothing detected. Drag on the image to add areas yourself.', '未检测到任何内容。在图片上拖动可手动添加。', '未偵測到任何內容。在圖片上拖曳可手動新增。', 'No se detectó nada. Arrastra sobre la imagen para añadir zonas.'],
+  failed: ['실패: {msg}', 'Failed: {msg}', '失败：{msg}', '失敗：{msg}', 'Error: {msg}'],
+  badImg: ['이미지를 읽지 못했어요', "Couldn't read this image", '无法读取此图片', '無法讀取此圖片', 'No se pudo leer la imagen'],
+  savePng: ['⬇ PNG', '⬇ PNG', '⬇ PNG', '⬇ PNG', '⬇ PNG'],
+  saveJpg: ['⬇ JPG', '⬇ JPG', '⬇ JPG', '⬇ JPG', '⬇ JPG'],
+  copyImg: ['📋 이미지 복사', '📋 Copy image', '📋 复制图片', '📋 複製圖片', '📋 Copiar imagen'],
+  imgCopied: ['이미지를 복사했어요', 'Image copied', '已复制图片', '已複製圖片', 'Imagen copiada'],
+  peek: ['👁 원본 보기 (누르고 있기)', '👁 Hold to see original', '👁 按住查看原图', '👁 按住檢視原圖', '👁 Mantén para ver el original'],
+  del: ['🗑 선택 삭제', '🗑 Delete selected', '🗑 删除所选', '🗑 刪除所選', '🗑 Eliminar selección'],
+  clear: ['모두 지우기', 'Remove all', '全部移除', '全部移除', 'Quitar todo'],
+  hint: ['빈 곳을 드래그하면 가릴 영역을 추가하고, 영역을 누르면 켜고 끌 수 있어요. 저장하면 위치(GPS) 같은 사진 메타데이터는 빠져요.', 'Drag on an empty spot to add an area; tap an area to turn it on or off. Saving strips photo metadata such as GPS location.', '在空白处拖动可添加区域，点击区域可开关。保存时会去除 GPS 位置等照片元数据。', '在空白處拖曳可新增區域，點擊區域可開關。儲存時會移除 GPS 位置等照片中繼資料。', 'Arrastra en una zona vacía para añadir un área; toca un área para activarla o desactivarla. Al guardar se eliminan metadatos como la ubicación GPS.'],
+  summary: ['가리는 곳 {on} / 전체 {n}', 'Masking {on} of {n}', '遮挡 {on} / 共 {n}', '遮蔽 {on} / 共 {n}', 'Ocultando {on} de {n}'],
+  tFace: ['얼굴', 'Face', '人脸', '人臉', 'Cara'],
+  tRrn: ['주민번호', 'National ID', '身份证号', '身分證號', 'N.º de identidad'],
+  tCard: ['카드번호', 'Card number', '卡号', '卡號', 'N.º de tarjeta'],
+  tPhone: ['전화번호', 'Phone', '电话', '電話', 'Teléfono'],
+  tEmail: ['이메일', 'Email', '邮箱', '電子郵件', 'Correo'],
+  tPlate: ['차량번호', 'Licence plate', '车牌', '車牌', 'Matrícula'],
+  tNum: ['긴 번호', 'Long number', '长号码', '長號碼', 'Número largo'],
+  tText: ['글자', 'Text', '文字', '文字', 'Texto'],
+  tManual: ['직접 추가', 'Manual', '手动', '手動', 'Manual'],
+  tip: ['얼굴은 MediaPipe 얼굴 탐지(약 0.2MB 모델 + 런타임), 글자는 Tesseract OCR(한국어·영어 데이터)로 찾아요. 처음 한 번만 내려받아요. 자동 탐지는 놓칠 수 있으니 저장 전에 꼭 확인하고 필요하면 직접 영역을 추가하세요.', 'Faces are found with MediaPipe face detection (≈0.2 MB model + runtime) and text with Tesseract OCR (Korean + English data), downloaded once. Automatic detection can miss things, so always check before saving and add areas by hand if needed.', '人脸使用 MediaPipe 人脸检测（约 0.2 MB 模型 + 运行时），文字使用 Tesseract OCR（韩文、英文数据），仅首次下载。自动检测可能遗漏，保存前请务必检查，必要时手动添加区域。', '人臉使用 MediaPipe 人臉偵測（約 0.2 MB 模型 + 執行環境），文字使用 Tesseract OCR（韓文、英文資料），僅首次下載。自動偵測可能遺漏，儲存前請務必檢查，必要時手動新增區域。', 'Las caras se detectan con MediaPipe (modelo de ≈0,2 MB + runtime) y el texto con Tesseract OCR (datos de coreano e inglés), que se descargan una vez. La detección automática puede fallar: revisa antes de guardar y añade zonas a mano si hace falta.'],
+  allTools: ['모든 도구', 'All tools', '全部工具', '全部工具', 'Todas las herramientas'],
+});
+I18n.init();
+</script>
+<script type="module">
+const $ = (id) => document.getElementById(id);
+const t = I18n.t;
+const MP = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.34';
+const FACE_MODEL = 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite';
+const TESS = 'https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js';
+const MAX_SIDE = 4096;
+const TYPES = { face: ['😀', 'tFace', '#f472b6'], rrn: ['🪪', 'tRrn', '#f87171'], card: ['💳', 'tCard', '#f87171'], phone: ['📞', 'tPhone', '#fb923c'], email: ['✉️', 'tEmail', '#fb923c'], plate: ['🚗', 'tPlate', '#facc15'], num: ['🔢', 'tNum', '#facc15'], text: ['🔤', 'tText', '#38bdf8'], manual: ['✏️', 'tManual', '#34d399'] };
+const PATTERNS = [
+  ['email', /[\w.+-]+\s?@\s?[\w-]+(?:\s?\.\s?[\w-]+)+/g],
+  ['rrn', /\d{6}\s?[-–~]\s?[1-8][\d*]{6}/g],
+  ['card', /\d{4}(?:[\s-]?\d{4}){2}[\s-]?\d{2,4}/g],
+  ['phone', /(?:\+\d{1,3}[\s.-]?)?\(?0?\d{1,3}\)?[\s.-]?\d{3,4}[\s.-]\d{4}/g],
+  ['plate', /\d{2,3}\s?[가-힣]\s?\d{4}/g],
+  ['plate', /\b\d{2,3}[^\d\s]{1,2}\s?\d{4}\b/g],
+  ['num', /\d(?:[\s.-]?\d){7,}/g],
+];
+
+let img = null, W = 0, H = 0, name = 'image', regions = [], sel = -1, gen = 0, detector = null, detectorP = null, ocr = null, ocrP = null, lastStatus = null, peek = false, drawing = null;
+const out = $('out'), ov = $('out').nextElementSibling, octx = out.getContext('2d'), vctx = ov.getContext('2d');
+const style = () => $('style').querySelector('.on').dataset.v;
+
+function status(key, vars, cls) {
+  lastStatus = key ? [key, vars, cls] : null;
+  $('status').className = 'grow ' + (cls || 'muted');
+  $('status').textContent = key ? t(key, vars) : '';
+}
+function sliders() {
+  $('strengthV').textContent = $('strength').value;
+  $('padV').textContent = $('pad').value + '%';
+  $('sensV').textContent = $('sens').value + '%';
+}
+function boxOf(r) {
+  const p = r.type === 'manual' ? 0 : +$('pad').value / 100, face = r.type === 'face';
+  const px = (face ? r.w : r.h) * p, py = r.h * p;
+  const x = Math.max(0, r.x - px), y = Math.max(0, r.y - py * (face ? 1.6 : 1));
+  return { x, y, w: Math.min(W, r.x + r.w + px) - x, h: Math.min(H, r.y + r.h + py) - y };
+}
+
+function render() {
+  if (!img) return;
+  octx.filter = 'none';
+  octx.drawImage(img, 0, 0, W, H);
+  const k = +$('strength').value / 100, st = style();
+  if (!peek) for (const r of regions) {
+    if (!r.on) continue;
+    const b = boxOf(r), bx = Math.round(b.x), by = Math.round(b.y), bw = Math.max(1, Math.round(b.w)), bh = Math.max(1, Math.round(b.h));
+    const sz = Math.max(4, Math.min(bw, bh) * k * 0.25);
+    if (st === 'box') { octx.fillStyle = '#000'; octx.fillRect(bx, by, bw, bh); continue; }
+    if (st === 'blur' && 'filter' in octx) {
+      const m = Math.ceil(sz * 2);
+      octx.save();
+      octx.beginPath(); octx.rect(bx, by, bw, bh); octx.clip();
+      octx.filter = `blur(${sz}px)`;
+      octx.drawImage(out, bx - m, by - m, bw + 2 * m, bh + 2 * m, bx - m, by - m, bw + 2 * m, bh + 2 * m);
+      octx.drawImage(out, bx - m, by - m, bw + 2 * m, bh + 2 * m, bx - m, by - m, bw + 2 * m, bh + 2 * m);
+      octx.restore();
+      continue;
+    }
+    const cw = Math.max(1, Math.round(bw / sz)), ch = Math.max(1, Math.round(bh / sz)), tmp = new OffscreenCanvas(cw, ch), tc = tmp.getContext('2d');
+    tc.drawImage(out, bx, by, bw, bh, 0, 0, cw, ch);
+    octx.imageSmoothingEnabled = false;
+    octx.drawImage(tmp, 0, 0, cw, ch, bx, by, bw, bh);
+    octx.imageSmoothingEnabled = true;
+  }
+  drawOverlay();
+}
+function drawOverlay() {
+  vctx.clearRect(0, 0, W, H);
+  if (peek) return;
+  const lw = Math.max(2, W / 400);
+  regions.forEach((r, i) => {
+    const b = boxOf(r);
+    vctx.setLineDash(r.on ? [] : [lw * 3, lw * 2]);
+    vctx.lineWidth = i === sel ? lw * 2.2 : lw;
+    vctx.strokeStyle = TYPES[r.type][2];
+    vctx.strokeRect(b.x, b.y, b.w, b.h);
+  });
+  if (drawing) {
+    vctx.setLineDash([lw * 3, lw * 2]); vctx.lineWidth = lw; vctx.strokeStyle = '#34d399';
+    vctx.strokeRect(Math.min(drawing.x0, drawing.x1), Math.min(drawing.y0, drawing.y1), Math.abs(drawing.x1 - drawing.x0), Math.abs(drawing.y1 - drawing.y0));
+  }
+}
+function renderList() {
+  const on = regions.filter((r) => r.on).length;
+  $('summary').textContent = regions.length ? t('summary', { on, n: regions.length }) : '';
+  $('chips').innerHTML = regions.map((r, i) => {
+    const [e, k] = TYPES[r.type], label = t(k) + (r.text ? ' · ' + r.text : r.score ? ` ${Math.round(r.score * 100)}%` : '');
+    return `<div class="chip${r.on ? '' : ' off'}${i === sel ? ' sel' : ''}" data-i="${i}" title="${esc(label)}">${e} <span>${esc(label)}</span><button data-del="${i}" aria-label="×">×</button></div>`;
+  }).join('');
+  $('delBtn').disabled = sel < 0;
+}
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const refresh = () => { render(); renderList(); };
+
+async function getDetector() {
+  if (detector) return detector;
+  if (!detectorP) detectorP = (async () => {
+    const { FilesetResolver, FaceDetector } = await import(`${MP}/vision_bundle.mjs`);
+    const fs = await FilesetResolver.forVisionTasks(`${MP}/wasm`);
+    let d;
+    try { d = await FaceDetector.createFromOptions(fs, { baseOptions: { modelAssetPath: FACE_MODEL, delegate: 'GPU' }, runningMode: 'IMAGE', minDetectionConfidence: 0.2 }); }
+    catch (e) { d = await FaceDetector.createFromOptions(fs, { baseOptions: { modelAssetPath: FACE_MODEL, delegate: 'CPU' }, runningMode: 'IMAGE', minDetectionConfidence: 0.2 }); }
+    return (detector = d);
+  })().catch((e) => { detectorP = null; throw e; });
+  return detectorP;
+}
+const iou = (a, b) => {
+  const x = Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)), y = Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y)), i = x * y;
+  return [i / (a.w * a.h + b.w * b.h - i), i / Math.min(a.w * a.h, b.w * b.h)];
+};
+async function detectFaces() {
+  status('ldFace');
+  const d = await getDetector(), thr = (100 - +$('sens').value) / 100, found = [], long = Math.max(W, H);
+  for (let n = 1; n <= 4; n++) {
+    if (n > 1 && long / n < 220) break;
+    const tw = Math.min(W, Math.ceil((W / n) * 1.35)), th = Math.min(H, Math.ceil((H / n) * 1.35));
+    for (let iy = 0; iy < n; iy++) for (let ix = 0; ix < n; ix++) {
+      const sx = n === 1 ? 0 : Math.round(((W - tw) * ix) / (n - 1)), sy = n === 1 ? 0 : Math.round(((H - th) * iy) / (n - 1));
+      const sc = Math.min(1, 1024 / Math.max(tw, th)), cw = Math.round(tw * sc), ch = Math.round(th * sc);
+      const cv = new OffscreenCanvas(cw, ch);
+      cv.getContext('2d').drawImage(img, sx, sy, tw, th, 0, 0, cw, ch);
+      const res = d.detect(cv);
+      for (const det of res.detections || []) {
+        const s = det.categories && det.categories[0] ? det.categories[0].score : 0, bb = det.boundingBox;
+        if (s < thr || !bb) continue;
+        found.push({ type: 'face', x: sx + bb.originX / sc, y: sy + bb.originY / sc, w: bb.width / sc, h: bb.height / sc, score: s, on: true });
+      }
+    }
+  }
+  found.sort((a, b) => b.score - a.score);
+  const keep = [];
+  for (const f of found) if (!keep.some((k) => { const [u, m] = iou(f, k); return u > 0.3 || m > 0.6; })) keep.push(f);
+  return keep;
+}
+
+function loadScript(src) {
+  return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('load ' + src)); document.head.appendChild(s); });
+}
+let ocrLog = null;
+async function getOcr() {
+  if (ocr) return ocr;
+  if (!ocrP) ocrP = (async () => {
+    if (!window.Tesseract) await loadScript(TESS);
+    return (ocr = await Tesseract.createWorker(['kor', 'eng'], 1, { logger: (m) => ocrLog && ocrLog(m) }));
+  })().catch((e) => { ocrP = null; throw e; });
+  return ocrP;
+}
+async function detectText(all) {
+  ocrLog = (m) => {
+    const p = m.progress ? Math.round(m.progress * 100) + '%' : '';
+    status(m.status === 'recognizing text' ? 'ocrRun' : 'ldOcr', { p });
+  };
+  status('ldOcr', { p: '' });
+  const w = await getOcr();
+  const sc = Math.min(1, 2400 / Math.max(W, H)), cv = document.createElement('canvas');
+  cv.width = Math.round(W * sc); cv.height = Math.round(H * sc);
+  cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+  const { data } = await w.recognize(cv, {}, { blocks: true });
+  const found = [];
+  const add = (type, words, text, cut) => {
+    let x0 = Math.min(...words.map((q) => q.bbox.x0)), x1 = Math.max(...words.map((q) => q.bbox.x1));
+    const y0 = Math.min(...words.map((q) => q.bbox.y0)), y1 = Math.max(...words.map((q) => q.bbox.y1));
+    if (cut) {
+      const f = words[0], l = words[words.length - 1];
+      x0 = f.bbox.x0 + ((f.bbox.x1 - f.bbox.x0) * cut[0]) / f.text.length;
+      x1 = l.bbox.x1 - ((l.bbox.x1 - l.bbox.x0) * cut[1]) / l.text.length;
+    }
+    found.push({ type, x: x0 / sc, y: y0 / sc, w: (x1 - x0) / sc, h: (y1 - y0) / sc, text: text.trim().slice(0, 40), on: true });
+  };
+  for (const b of data.blocks || []) for (const p of b.paragraphs || []) for (const l of p.lines || []) {
+    const words = (l.words || []).filter((q) => q.text.trim());
+    if (!words.length) continue;
+    if (all) { add('text', words, words.map((q) => q.text).join(' ')); continue; }
+    let s = '';
+    const spans = words.map((q) => { const a = s.length; s += q.text; const sp = [a, s.length]; s += ' '; return sp; });
+    const used = [];
+    for (const [type, re] of PATTERNS) {
+      re.lastIndex = 0;
+      for (let m; (m = re.exec(s));) {
+        const a = m.index, z = a + m[0].length;
+        if (used.some(([u, v]) => a < v && z > u)) continue;
+        const idx = words.map((q, i) => i).filter((i) => spans[i][0] < z && spans[i][1] > a);
+        if (!idx.length) continue;
+        used.push([a, z]);
+        const fi = idx[0], li = idx[idx.length - 1];
+        add(type, idx.map((i) => words[i]), m[0], [Math.max(0, a - spans[fi][0]), Math.max(0, spans[li][1] - z)]);
+      }
+    }
+  }
+  return found;
+}
+
+async function detect(kinds) {
+  if (!img) return;
+  const my = ++gen, t0 = performance.now();
+  kinds = kinds || ['face', 'pii', 'text'];
+  $('redetBtn').disabled = true;
+  try {
+    let add = [];
+    if (kinds.includes('face') && $('optFace').checked) {
+      const f = await detectFaces();
+      if (my !== gen) return;
+      add = add.concat(f);
+    }
+    const wantText = (kinds.includes('pii') && $('optPii').checked) || (kinds.includes('text') && $('optText').checked);
+    if (wantText) {
+      const f = await detectText($('optText').checked);
+      if (my !== gen) return;
+      add = add.concat(f);
+    }
+    const drop = new Set();
+    if (kinds.includes('face')) drop.add('face');
+    if (kinds.includes('pii') || kinds.includes('text')) ['rrn', 'card', 'phone', 'email', 'plate', 'num', 'text'].forEach((x) => drop.add(x));
+    regions = regions.filter((r) => !drop.has(r.type)).concat(add);
+    sel = -1;
+    refresh();
+    const n = regions.length;
+    if (n) status('found', { n, sec: ((performance.now() - t0) / 1000).toFixed(1) }); else status('noneFound');
+  } catch (e) {
+    if (my === gen) status('failed', { msg: e.message || String(e) }, 'err');
+  } finally {
+    if (my === gen) $('redetBtn').disabled = false;
+  }
+}
+
+async function setImage(blob) {
+  if (!blob || !/^image\//.test(blob.type)) { status('badImg', null, 'err'); return; }
+  let bmp;
+  try { bmp = await createImageBitmap(blob); } catch (e) { status('badImg', null, 'err'); return; }
+  if (img) img.close();
+  img = bmp;
+  const k = Math.min(1, MAX_SIDE / Math.max(img.width, img.height));
+  W = Math.round(img.width * k); H = Math.round(img.height * k);
+  out.width = ov.width = W; out.height = ov.height = H;
+  name = (blob.name || 'image').replace(/\.[^.]+$/, '');
+  regions = []; sel = -1;
+  $('outCard').hidden = false;
+  refresh();
+  detect();
+}
+
+const pt = (e) => { const r = ov.getBoundingClientRect(); return { x: ((e.clientX - r.left) / r.width) * W, y: ((e.clientY - r.top) / r.height) * H }; };
+const hit = (p) => { for (let i = regions.length - 1; i >= 0; i--) { const b = boxOf(regions[i]); if (p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h) return i; } return -1; };
+ov.addEventListener('pointerdown', (e) => {
+  if (!img) return;
+  const p = pt(e);
+  ov.setPointerCapture(e.pointerId);
+  drawing = { x0: p.x, y0: p.y, x1: p.x, y1: p.y, hit: hit(p) };
+});
+ov.addEventListener('pointermove', (e) => {
+  if (!drawing) return;
+  const p = pt(e);
+  drawing.x1 = p.x; drawing.y1 = p.y;
+  if (Math.abs(drawing.x1 - drawing.x0) + Math.abs(drawing.y1 - drawing.y0) > W / 100) drawOverlay();
+});
+ov.addEventListener('pointerup', () => {
+  if (!drawing) return;
+  const d = drawing, w = Math.abs(d.x1 - d.x0), h = Math.abs(d.y1 - d.y0);
+  drawing = null;
+  if (w > W / 100 && h > H / 100) {
+    regions.push({ type: 'manual', x: Math.min(d.x0, d.x1), y: Math.min(d.y0, d.y1), w, h, on: true });
+    sel = regions.length - 1;
+  } else if (d.hit >= 0) {
+    if (sel === d.hit) regions[d.hit].on = !regions[d.hit].on;
+    sel = d.hit;
+  } else sel = -1;
+  refresh();
+});
+$('chips').addEventListener('click', (e) => {
+  const del = e.target.closest('[data-del]');
+  if (del) { regions.splice(+del.dataset.del, 1); sel = -1; refresh(); return; }
+  const c = e.target.closest('.chip');
+  if (!c) return;
+  const i = +c.dataset.i;
+  regions[i].on = !regions[i].on; sel = i;
+  refresh();
+});
+$('delBtn').addEventListener('click', () => { if (sel >= 0) { regions.splice(sel, 1); sel = -1; refresh(); } });
+$('clearBtn').addEventListener('click', () => { regions = []; sel = -1; refresh(); });
+document.addEventListener('keydown', (e) => {
+  if ((e.key === 'Delete' || e.key === 'Backspace') && sel >= 0 && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) { e.preventDefault(); regions.splice(sel, 1); sel = -1; refresh(); }
+});
+const setPeek = (v) => { peek = v; render(); };
+$('peekBtn').addEventListener('pointerdown', () => setPeek(true));
+['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => $('peekBtn').addEventListener(ev, () => peek && setPeek(false)));
+
+function save(type) {
+  out.toBlob((blob) => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${name}-masked.${type === 'image/png' ? 'png' : 'jpg'}`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }, type, 0.92);
+}
+$('pngBtn').addEventListener('click', () => save('image/png'));
+$('jpgBtn').addEventListener('click', () => save('image/jpeg'));
+$('copyBtn').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': new Promise((r) => out.toBlob(r, 'image/png')) })]);
+    UI.toast(t('imgCopied'));
+  } catch (e) { UI.toast(t('copyFail')); }
+});
+
+$('style').addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  $('style').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+  render();
+});
+['strength', 'pad'].forEach((id) => $(id).addEventListener('input', () => { sliders(); render(); }));
+let sensT;
+$('sens').addEventListener('input', () => { sliders(); clearTimeout(sensT); sensT = setTimeout(() => img && $('optFace').checked && detect(['face']), 300); });
+$('optFace').addEventListener('change', () => detect(['face']));
+$('optPii').addEventListener('change', () => detect(['pii']));
+$('optText').addEventListener('change', () => detect(['text']));
+$('redetBtn').addEventListener('click', () => detect());
+
+const drop = $('drop');
+drop.addEventListener('click', () => $('file').click());
+$('file').addEventListener('change', (e) => { e.target.files[0] && setImage(e.target.files[0]); e.target.value = ''; });
+drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); e.dataTransfer.files[0] && setImage(e.dataTransfer.files[0]); });
+document.addEventListener('paste', (e) => {
+  const f = [...(e.clipboardData ? e.clipboardData.files : [])].find((x) => x.type.startsWith('image/'));
+  if (f) setImage(f);
+});
+$('sampleBtn').addEventListener('click', async () => {
+  try {
+    const r = await fetch('https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/football-match.jpg');
+    const b = await r.blob();
+    setImage(new File([b], 'football-match.jpg', { type: b.type || 'image/jpeg' }));
+  } catch (e) { status('failed', { msg: e.message }, 'err'); }
+});
+document.addEventListener('i18n:change', () => { renderList(); if (lastStatus) status(...lastStatus); });
+sliders();
+</script>
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: '개인정보 가리기 · 얼굴·번호판·전화번호 자동 모자이크 — tool.cocy.io',
+  description: '사진 속 얼굴, 전화번호, 주민번호, 카드번호, 이메일, 차량번호를 브라우저 AI로 자동 찾아 블러·모자이크·검은 박스로 가리기. 업로드 없음, 직접 영역 추가, 메타데이터 제거 저장',
+  url: 'https://tool.cocy.io/mask/'
+});
+</script>
+</body>
+</html>
