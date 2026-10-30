@@ -165,6 +165,21 @@
     "group": "ai"
   },
   {
+    "title": "개인정보 가리기 (얼굴·번호 자동 모자이크)",
+    "icon": "https://tool.cocy.io/mask/icon.svg",
+    "url": "https://tool.cocy.io/mask/",
+    "desc": "사진 속 얼굴·전화번호·주민번호·카드번호·이메일·차량번호를 브라우저 AI로 찾아 모자이크·블러·검은 박스로 가리기. 업로드 없음, 직접 영역 추가",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool",
+    "group": "ai"
+  },
+  {
     "title": "느낌가사 Feel Lyrics",
     "icon": "https://tool.cocy.io/feellyrics/icon.svg",
     "url": "https://tool.cocy.io/feellyrics/",
