@@ -27,7 +27,8 @@
 .stage .box:hover { background: rgba(56,189,248,.25); }
 .stage .hi { border-color: #10b981; } .stage .mid { border-color: #f59e0b; } .stage .lo { border-color: #ef4444; }
 .stage.noboxes .box { display: none; }
-.item textarea { min-height: 220px; height: 100%; }
+.item > div:last-child { display: flex; flex-direction: column; }
+.item textarea { min-height: 220px; flex: 1; }
 .meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 8px; }
 .meta b { color: var(--text); font-weight: 600; }
 .ihead { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
