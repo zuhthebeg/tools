@@ -8,6 +8,7 @@
 - [음성→텍스트·자막 (Whisper)](https://tool.cocy.io/stt/): 오디오·영상·녹음을 브라우저 안에서 Whisper로 받아쓰기. 업로드 없음. SRT·VTT·TXT 자막 내보내기, WebGPU 가속
 - [NVIDIA GTC 2026 세션 가이드](https://tool.cocy.io/gtc2026/): GTC 2026 (3/16-19, San Jose) 주요 트랙·세션·일정 정리. Agentic AI, 로보틱스, 추론, CUDA, 양자컴퓨팅 등 900+ 세션.
 - [배경 제거](https://tool.cocy.io/bgremove/): 사진 배경을 브라우저 안에서 AI로 지우기. 업로드 없음. 인물·사물 모델, 투명 PNG·배경색 합성, 전후 비교, WebGPU 가속
+- [의미 검색](https://tool.cocy.io/semsearch/): 단어가 달라도 뜻이 비슷한 문장을 브라우저 안에서 AI 임베딩(다국어 MiniLM/GTE, Transformers.js)으로 찾기. 텍스트·파일 붙여넣기, 유사·중복 문장 쌍 찾기, 업로드 없음
 - [유니코드 디코더](https://tool.cocy.io/unicodedec/): \uXXXX 유니코드 이스케이프, URL 인코딩(%XX), HTML 엔티티, Base64 실시간 디코딩/인코딩
 - [LLM 토크나이저](https://tool.cocy.io/tokenizer/): GPT-5, o3, o4-mini, Codex 등 최신 LLM 모델별 토큰 수 실시간 계산. 컨텍스트 사용률·비용 추정·토큰 시각화
 - [Chrome 내장 AI 플레이그라운드](https://tool.cocy.io/nano/): Chrome에 내장된 Gemini Nano로 채팅·요약·번역·언어 감지·글쓰기·다시 쓰기·맞춤법 검사. 오프라인, 서버 전송 없음

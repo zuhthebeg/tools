@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>의미 검색 · 비슷한 문장 찾기 (브라우저 AI) — tool.cocy.io</title>
+<meta name="description" content="단어가 달라도 뜻이 비슷한 문장을 찾아주는 의미 검색. 텍스트·파일을 붙여넣으면 브라우저 안에서 AI 임베딩으로 검색, 중복·유사 문장 찾기. 업로드 없음, 다국어">
+<link rel="canonical" href="https://tool.cocy.io/semsearch/">
+<link rel="icon" href="/semsearch/icon.svg">
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+.drop { border: 2px dashed var(--line); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; color: var(--muted); font-size: 13px; margin-top: 8px; }
+.drop.over, .drop:hover { border-color: #a78bfa; color: var(--text); }
+#docs { min-height: 180px; }
+.opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 99px; padding: 4px 6px 4px 10px; font-size: 12px; color: #cbd5e1; max-width: 100%; }
+.chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip button { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 0 4px; }
+.chip.q { cursor: pointer; padding: 5px 12px; }
+.chip.q:hover { border-color: #a78bfa; color: var(--text); }
+.bar { height: 8px; background: var(--panel-2); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #38bdf8, #a78bfa); transition: width .2s; }
+.qrow { display: flex; gap: 8px; margin-top: 12px; }
+.qrow { flex-wrap: wrap; }
+.qrow input { flex: 1 1 220px; min-width: 0; }
+.qrow select { flex: 0 0 auto; }
+.res { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-top: 8px; background: var(--panel-2); }
+.res .top { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
+.res .score { font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; min-width: 36px; }
+.res .meter { flex: 0 0 80px; height: 6px; background: var(--panel); border-radius: 99px; overflow: hidden; }
+.res .meter i { display: block; height: 100%; background: linear-gradient(90deg, #38bdf8, #a78bfa); }
+.res .src { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.res .cp { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 13px; }
+.res .txt { margin-top: 6px; line-height: 1.6; cursor: pointer; word-break: break-word; white-space: pre-wrap; }
+.res .ctx { color: var(--muted); font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+.res mark { background: rgba(167,139,250,.3); color: inherit; border-radius: 3px; padding: 0 1px; }
+.pair .txt + .txt { border-top: 1px dashed var(--line); padding-top: 6px; }
+.range { display: flex; align-items: center; gap: 8px; }
+.range input { flex: 1; accent-color: var(--primary); }
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>🔎 <span data-i18n="h1">의미 검색</span></h1>
+    <p data-i18n="sub">단어가 달라도 뜻이 비슷한 문장을 찾아요. AI가 브라우저 안에서 돌아가서 텍스트는 서버로 올라가지 않아요.</p>
+  </div>
+
+  <div class="card">
+    <label class="lbl" for="docs" data-i18n="docsLbl">검색할 텍스트</label>
+    <textarea id="docs" data-i18n-attr="placeholder:docsPh" placeholder="문서·메모·FAQ·회의록 등을 붙여넣으세요."></textarea>
+    <input type="file" id="file" accept=".txt,.md,.csv,.tsv,.json,.srt,.vtt,.log,.html,.htm,text/*" multiple hidden>
+    <div class="drop" id="drop" data-i18n="dropB">텍스트 파일 끌어다 놓기 또는 클릭 (.txt .md .csv .srt .json .html, 여러 개 가능)</div>
+    <div class="chips" id="docChips"></div>
+    <div class="opts">
+      <div><label class="lbl" for="split" data-i18n="splitLbl">나누는 단위</label>
+        <select id="split">
+          <option value="sentence" data-i18n="spSent">문장</option>
+          <option value="line" data-i18n="spLine">줄</option>
+          <option value="para" data-i18n="spPara">문단 (빈 줄 기준)</option>
+        </select></div>
+      <div><label class="lbl" for="model" data-i18n="model">모델</label><select id="model"></select></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="sampleBtn" data-i18n="sample">샘플 FAQ로 해보기</button>
+      <button class="btn primary" id="indexBtn" data-i18n="index">⚡ 색인 만들기</button>
+      <span class="muted grow" id="status"></span>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+  </div>
+
+  <div class="card">
+    <div class="seg" id="modeSeg"><button data-m="search" class="on" data-i18n="mSearch">🔎 검색</button><button data-m="pairs" data-i18n="mPairs">🔁 비슷한 문장 쌍 찾기</button></div>
+    <div id="searchBox">
+      <div class="qrow">
+        <input type="search" id="q" data-i18n-attr="placeholder:qPh" placeholder="찾고 싶은 내용을 자연스럽게 적어보세요" autocomplete="off">
+        <select id="topk" style="width:auto"><option>5</option><option selected>10</option><option>20</option><option>50</option></select>
+        <button class="btn primary" id="goBtn" data-i18n="go">검색</button>
+      </div>
+      <div class="chips" id="sampleQs"></div>
+    </div>
+    <div id="pairsBox" hidden>
+      <div class="row" style="margin-top:12px">
+        <div class="range grow"><span class="muted" data-i18n="thr">유사도 기준</span><input type="range" id="thr" min="0.5" max="0.99" step="0.01" value="0.8"><b id="thrV">0.80</b></div>
+        <button class="btn primary" id="pairsBtn" data-i18n="findPairs">쌍 찾기</button>
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px" id="resHead" hidden>
+      <span class="muted grow" id="resInfo"></span>
+      <button class="btn" id="copyAllBtn" data-i18n="copyAll">📋 결과 복사</button>
+    </div>
+    <div id="results"></div>
+  </div>
+
+  <p class="muted" style="font-size:13px" data-i18n="tip">처음 한 번은 모델(약 23~325MB)을 내려받고, 다음부터는 브라우저 캐시에서 바로 불러와요. 점수는 코사인 유사도(1에 가까울수록 비슷함)이고, 결과 문장을 누르면 앞뒤 문맥이 보여요.</p>
+  <footer class="site">© 2026 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+I18n.define({
+  pageTitle: ['의미 검색 · 비슷한 문장 찾기 (브라우저 AI) — tool.cocy.io', 'Semantic Search · find similar sentences in your browser — tool.cocy.io', '语义搜索 · 在浏览器内查找相似句子 — tool.cocy.io', '語意搜尋 · 在瀏覽器內尋找相似句子 — tool.cocy.io', 'Búsqueda semántica · frases similares en tu navegador — tool.cocy.io'],
+  h1: ['의미 검색', 'Semantic Search', '语义搜索', '語意搜尋', 'Búsqueda semántica'],
+  sub: ['단어가 달라도 뜻이 비슷한 문장을 찾아요. AI가 브라우저 안에서 돌아가서 텍스트는 서버로 올라가지 않아요.', 'Finds sentences with similar meaning, even when the words differ. The AI runs in your browser, so your text never leaves the device.', '即使用词不同，也能找到意思相近的句子。AI 在浏览器内运行，文本不会上传到服务器。', '即使用詞不同，也能找到意思相近的句子。AI 在瀏覽器內執行，文字不會上傳到伺服器。', 'Encuentra frases con significado parecido aunque usen otras palabras. La IA se ejecuta en tu navegador y el texto nunca sale del dispositivo.'],
+  docsLbl: ['검색할 텍스트', 'Text to search', '要搜索的文本', '要搜尋的文字', 'Texto donde buscar'],
+  docsPh: ['문서·메모·FAQ·회의록 등을 붙여넣으세요.', 'Paste documents, notes, FAQs, meeting minutes…', '粘贴文档、笔记、FAQ、会议记录等。', '貼上文件、筆記、FAQ、會議紀錄等。', 'Pega documentos, notas, preguntas frecuentes, actas…'],
+  dropB: ['텍스트 파일 끌어다 놓기 또는 클릭 (.txt .md .csv .srt .json .html, 여러 개 가능)', 'Drop text files or click (.txt .md .csv .srt .json .html, multiple allowed)', '拖入文本文件或点击选择（.txt .md .csv .srt .json .html，可多选）', '拖入文字檔或點擊選擇（.txt .md .csv .srt .json .html，可多選）', 'Suelta archivos de texto o haz clic (.txt .md .csv .srt .json .html, varios a la vez)'],
+  typed: ['입력한 텍스트', 'Typed text', '输入的文本', '輸入的文字', 'Texto escrito'],
+  chunksN: ['{n}개', '{n}', '{n} 段', '{n} 段', '{n}'],
+  splitLbl: ['나누는 단위', 'Split into', '切分单位', '切分單位', 'Dividir en'],
+  spSent: ['문장', 'Sentences', '句子', '句子', 'Frases'],
+  spLine: ['줄', 'Lines', '行', '行', 'Líneas'],
+  spPara: ['문단 (빈 줄 기준)', 'Paragraphs (blank line)', '段落（按空行）', '段落（依空行）', 'Párrafos (línea en blanco)'],
+  model: ['모델', 'Model', '模型', '模型', 'Modelo'],
+  mGte: ['GTE 다국어 · 가장 정확 (추천)', 'GTE multilingual · most accurate (recommended)', 'GTE 多语言 · 最准确（推荐）', 'GTE 多語言 · 最準確（推薦）', 'GTE multilingüe · el más preciso (recomendado)'],
+  mPara: ['MiniLM 다국어 · 빠름, 긴 글에 적합', 'MiniLM multilingual · faster, for long texts', 'MiniLM 多语言 · 更快，适合长文本', 'MiniLM 多語言 · 更快，適合長文字', 'MiniLM multilingüe · más rápido, para textos largos'],
+  mMini: ['MiniLM L6 · 영어 전용, 가장 가벼움', 'MiniLM L6 · English only, lightest', 'MiniLM L6 · 仅英语，最轻', 'MiniLM L6 · 僅英語，最輕', 'MiniLM L6 · solo inglés, el más ligero'],
+  sample: ['샘플 FAQ로 해보기', 'Try a sample FAQ', '用示例 FAQ 试试', '用範例 FAQ 試試', 'Probar con unas FAQ de ejemplo'],
+  index: ['⚡ 색인 만들기', '⚡ Build index', '⚡ 建立索引', '⚡ 建立索引', '⚡ Crear índice'],
+  loading: ['모델 불러오는 중… {p}', 'Loading model… {p}', '正在加载模型… {p}', '正在載入模型… {p}', 'Cargando modelo… {p}'],
+  initModel: ['모델 초기화 중…', 'Initializing model…', '正在初始化模型…', '正在初始化模型…', 'Inicializando modelo…'],
+  embedding: ['문장 분석 중… {done} / {total}', 'Embedding… {done} / {total}', '正在分析句子… {done} / {total}', '正在分析句子… {done} / {total}', 'Analizando frases… {done} / {total}'],
+  indexed: ['색인 완료 · {n}개 문장 · {sec}초', 'Indexed {n} chunks in {sec}s', '索引完成 · {n} 段 · {sec} 秒', '索引完成 · {n} 段 · {sec} 秒', 'Índice listo · {n} fragmentos · {sec} s'],
+  noText: ['먼저 검색할 텍스트를 넣어주세요', 'Add some text to search first', '请先添加要搜索的文本', '請先加入要搜尋的文字', 'Primero añade texto donde buscar'],
+  tooMany: ['문장이 너무 많아 앞의 {n}개만 색인했어요', 'Too many chunks; indexed the first {n}', '句子过多，仅索引前 {n} 段', '句子過多，僅索引前 {n} 段', 'Demasiados fragmentos; se indexaron los primeros {n}'],
+  failed: ['실패: {msg}', 'Failed: {msg}', '失败：{msg}', '失敗：{msg}', 'Error: {msg}'],
+  badFile: ['{name}: 읽을 수 없는 파일이에요', "{name}: can't read this file", '{name}：无法读取此文件', '{name}：無法讀取此檔案', '{name}: no se puede leer'],
+  mSearch: ['🔎 검색', '🔎 Search', '🔎 搜索', '🔎 搜尋', '🔎 Buscar'],
+  mPairs: ['🔁 비슷한 문장 쌍 찾기', '🔁 Find similar pairs', '🔁 查找相似句对', '🔁 尋找相似句對', '🔁 Pares similares'],
+  qPh: ['찾고 싶은 내용을 자연스럽게 적어보세요', 'Describe what you are looking for in your own words', '用自己的话描述要找的内容', '用自己的話描述要找的內容', 'Describe con tus palabras lo que buscas'],
+  go: ['검색', 'Search', '搜索', '搜尋', 'Buscar'],
+  tryQ: ['예시 질문:', 'Try:', '试试：', '試試：', 'Prueba:'],
+  thr: ['유사도 기준', 'Threshold', '相似度阈值', '相似度門檻', 'Umbral'],
+  findPairs: ['쌍 찾기', 'Find pairs', '查找', '尋找', 'Buscar pares'],
+  resInfo: ['"{q}" · 결과 {n}개 · {ms}ms', '"{q}" · {n} results · {ms} ms', '“{q}” · {n} 条结果 · {ms} 毫秒', '「{q}」 · {n} 筆結果 · {ms} 毫秒', '"{q}" · {n} resultados · {ms} ms'],
+  pairsInfo: ['유사도 {thr} 이상 쌍 {n}개 · {m}개 문장 비교', '{n} pairs ≥ {thr} · {m} chunks compared', '相似度 ≥ {thr} 的句对 {n} 组 · 比较 {m} 段', '相似度 ≥ {thr} 的句對 {n} 組 · 比較 {m} 段', '{n} pares ≥ {thr} · {m} fragmentos comparados'],
+  pairsCap: [' (최대 {n}개만 비교)', ' (first {n} only)', '（仅比较前 {n} 段）', '（僅比較前 {n} 段）', ' (solo los primeros {n})'],
+  noPairs: ['기준 이상인 쌍이 없어요. 기준을 낮춰보세요.', 'No pairs above the threshold. Try lowering it.', '没有超过阈值的句对，试着调低阈值。', '沒有超過門檻的句對，試著調低門檻。', 'No hay pares sobre el umbral. Prueba a bajarlo.'],
+  copyAll: ['📋 결과 복사', '📋 Copy results', '📋 复制结果', '📋 複製結果', '📋 Copiar resultados'],
+  copyOne: ['복사', 'Copy', '复制', '複製', 'Copiar'],
+  remove: ['빼기', 'Remove', '移除', '移除', 'Quitar'],
+  tip: ['처음 한 번은 모델(약 23~325MB)을 내려받고, 다음부터는 브라우저 캐시에서 바로 불러와요. 점수는 코사인 유사도(1에 가까울수록 비슷함)이고, 결과 문장을 누르면 앞뒤 문맥이 보여요.', 'The model (about 23–325 MB) downloads once, then loads from the browser cache. Scores are cosine similarity (closer to 1 = more similar). Click a result to see the surrounding context.', '模型（约 23~325 MB）首次下载后从浏览器缓存加载。分数为余弦相似度（越接近 1 越相似），点击结果可查看上下文。', '模型（約 23~325 MB）首次下載後從瀏覽器快取載入。分數為餘弦相似度（越接近 1 越相似），點擊結果可查看上下文。', 'El modelo (unos 23–325 MB) se descarga una vez y luego se carga de la caché. La puntuación es similitud coseno (más cerca de 1 = más parecido). Haz clic en un resultado para ver el contexto.'],
+  allTools: ['모든 도구', 'All tools', '全部工具', '全部工具', 'Todas las herramientas'],
+  sampleName: ['샘플 FAQ', 'Sample FAQ', '示例 FAQ', '範例 FAQ', 'FAQ de ejemplo'],
+  sampleDoc: [
+`비밀번호를 잊어버렸다면 로그인 화면의 '재설정' 링크를 눌러 이메일로 새 비밀번호를 받을 수 있어요.
+결제는 매달 1일에 등록된 카드로 자동 청구됩니다.
+구독은 설정 > 요금제에서 언제든 해지할 수 있고, 남은 기간까지는 계속 쓸 수 있어요.
+무료 요금제의 저장 공간은 5GB까지예요.
+업로드한 파일은 전송 중과 저장 시 모두 암호화됩니다.
+휴대폰을 잃어버렸다면 웹에서 해당 기기를 즉시 로그아웃시키세요.
+팀 요금제에서는 관리자가 구성원별 권한을 지정할 수 있어요.
+고객센터는 평일 오전 10시부터 오후 6시까지 채팅으로 운영해요.
+삭제한 파일은 휴지통에서 30일 동안 복구할 수 있어요.
+앱이 자꾸 멈추면 최신 버전으로 업데이트한 뒤 캐시를 지워 보세요.
+영수증과 세금계산서는 결제 내역 화면에서 PDF로 내려받을 수 있어요.
+두 단계 인증을 켜면 새 기기에서 로그인할 때 문자로 받은 코드를 한 번 더 입력해요.
+가족 요금제는 최대 6명이 저장 공간을 함께 쓸 수 있어요.
+지운 파일도 30일 안에는 휴지통에서 되살릴 수 있습니다.`,
+`If you forgot your password, tap the "Reset" link on the sign-in screen and we'll email you a new one.
+Payments are charged automatically to your saved card on the 1st of every month.
+You can cancel your subscription anytime in Settings > Plans and keep using it until the period ends.
+The free plan includes up to 5 GB of storage.
+Uploaded files are encrypted both in transit and at rest.
+If you lose your phone, sign that device out right away from the web.
+On team plans, admins can set permissions for each member.
+Our support team is available by chat on weekdays from 10 am to 6 pm.
+Deleted files can be restored from the trash for 30 days.
+If the app keeps freezing, update to the latest version and clear the cache.
+Receipts and invoices can be downloaded as PDF from the billing history page.
+With two-step verification on, you'll enter a code sent by text when signing in on a new device.
+The family plan lets up to 6 people share storage.
+Files you removed can still be recovered from the bin within 30 days.`,
+`如果忘记密码，请点击登录页面的“重置”链接，我们会通过邮件发送新密码。
+费用会在每月 1 日自动从已绑定的银行卡扣除。
+可以随时在“设置 > 套餐”中取消订阅，剩余期间内仍可继续使用。
+免费套餐提供最多 5GB 存储空间。
+上传的文件在传输和存储时都会加密。
+如果手机丢失，请立即在网页端将该设备退出登录。
+团队套餐中，管理员可以为每位成员设置权限。
+客服在工作日上午 10 点至下午 6 点通过在线聊天提供服务。
+已删除的文件可在回收站中保留 30 天并恢复。
+如果应用经常卡死，请更新到最新版本并清除缓存。
+收据和发票可以在账单记录页面下载为 PDF。
+开启两步验证后，在新设备登录时需要再输入短信验证码。
+家庭套餐最多可供 6 人共享存储空间。
+删掉的文件在 30 天内仍能从回收站找回。`,
+`如果忘記密碼，請點擊登入頁面的「重設」連結，我們會透過電子郵件寄送新密碼。
+費用會在每月 1 日自動從已綁定的信用卡扣款。
+可以隨時在「設定 > 方案」中取消訂閱，剩餘期間內仍可繼續使用。
+免費方案提供最多 5GB 儲存空間。
+上傳的檔案在傳輸與儲存時都會加密。
+如果手機遺失，請立即在網頁端將該裝置登出。
+團隊方案中，管理員可以為每位成員設定權限。
+客服在平日上午 10 點至下午 6 點透過線上聊天提供服務。
+已刪除的檔案可在垃圾桶中保留 30 天並還原。
+如果 App 經常當機，請更新到最新版本並清除快取。
+收據和發票可以在帳單紀錄頁面下載為 PDF。
+開啟兩步驟驗證後，在新裝置登入時需要再輸入簡訊驗證碼。
+家庭方案最多可供 6 人共用儲存空間。
+刪掉的檔案在 30 天內仍能從垃圾桶找回。`,
+`Si olvidaste tu contraseña, pulsa el enlace "Restablecer" en la pantalla de inicio de sesión y te enviaremos una nueva por correo.
+Los pagos se cargan automáticamente a tu tarjeta guardada el día 1 de cada mes.
+Puedes cancelar la suscripción cuando quieras en Ajustes > Planes y seguir usándola hasta que termine el periodo.
+El plan gratuito incluye hasta 5 GB de almacenamiento.
+Los archivos subidos se cifran tanto en tránsito como en reposo.
+Si pierdes el móvil, cierra la sesión de ese dispositivo desde la web de inmediato.
+En los planes de equipo, los administradores pueden asignar permisos a cada miembro.
+El soporte atiende por chat los días laborables de 10:00 a 18:00.
+Los archivos eliminados se pueden restaurar desde la papelera durante 30 días.
+Si la app se congela a menudo, actualízala a la última versión y borra la caché.
+Los recibos y facturas se pueden descargar en PDF desde el historial de pagos.
+Con la verificación en dos pasos activada, al entrar desde un dispositivo nuevo introducirás un código recibido por SMS.
+El plan familiar permite compartir el almacenamiento entre hasta 6 personas.
+Los archivos que borraste aún se pueden recuperar de la papelera durante 30 días.`],
+  sq1: ['계정에 못 들어가요', "I can't get into my account", '我登不进账号', '我登不進帳號', 'No puedo entrar en mi cuenta'],
+  sq2: ['돈은 언제 빠져나가나요?', 'When will I be billed?', '什么时候扣钱？', '什麼時候扣錢？', '¿Cuándo me cobran?'],
+  sq3: ['실수로 지운 사진 되살리기', 'Get back photos I deleted by mistake', '找回误删的照片', '找回誤刪的照片', 'Recuperar fotos que borré sin querer'],
+  sq4: ['도둑맞은 폰 보안', 'Stolen phone security', '手机被偷了怎么办', '手機被偷了怎麼辦', 'Me robaron el teléfono'],
+});
+I18n.init();
+
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const t = I18n.t;
+  const MODELS = [
+    { id: 'onnx-community/gte-multilingual-base', key: 'mGte', mb: 325, q: '', p: '', thr: 0.85, pooling: 'cls' },
+    { id: 'Xenova/paraphrase-multilingual-MiniLM-L12-v2', key: 'mPara', mb: 113, q: '', p: '', thr: 0.8 },
+    { id: 'Xenova/all-MiniLM-L6-v2', key: 'mMini', mb: 23, q: '', p: '', thr: 0.75 },
+  ];
+  const MAX_CHUNKS = 5000, MAX_PAIRS_N = 2000, MAX_PAIRS_OUT = 200, MAX_FILE = 5 * 2 ** 20;
+  let files = [], fseq = 0, worker = null, chain = Promise.resolve(), loadedKey = '';
+  let index = null, dirty = true, indexP = null, lastStatus = null, last = null, mode = 'search';
+  const cache = new Map();
+  const model = () => MODELS.find((m) => m.id === $('model').value) || MODELS[0];
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function status(key, vars, cls) {
+    lastStatus = key ? [key, vars, cls] : null;
+    $('status').className = 'grow ' + (cls || 'muted');
+    $('status').textContent = key ? t(key, vars) : '';
+  }
+
+  function renderModels() {
+    const cur = $('model').value || localStorage.getItem('semsearch_model') || MODELS[0].id;
+    $('model').innerHTML = MODELS.map((m) => `<option value="${m.id}">${t(m.key)} · ~${m.mb} MB</option>`).join('');
+    $('model').value = MODELS.some((m) => m.id === cur) ? cur : MODELS[0].id;
+  }
+  function setThr() { $('thr').value = model().thr; $('thrV').textContent = model().thr.toFixed(2); }
+
+  function renderChips() {
+    $('docChips').innerHTML = files.map((f) => `<span class="chip" data-id="${f.id}"><span title="${esc(f.name)}">📄 ${esc(f.sample ? t('sampleName') : f.name)} · ${t('chunksN', { n: split(f.text).length })}</span><button data-rm="${f.id}" title="${t('remove')}" aria-label="${t('remove')}">×</button></span>`).join('');
+    $('sampleQs').innerHTML = files.some((f) => f.sample)
+      ? `<span class="muted" style="font-size:12px;align-self:center">${t('tryQ')}</span>` + ['sq1', 'sq2', 'sq3', 'sq4'].map((k) => `<span class="chip q" data-q="${esc(t(k))}">${esc(t(k))}</span>`).join('')
+      : '';
+  }
+
+  const sentSeg = window.Intl && Intl.Segmenter ? new Intl.Segmenter(undefined, { granularity: 'sentence' }) : null;
+  function split(text) {
+    const how = $('split').value;
+    let parts;
+    if (how === 'para') parts = text.split(/\n\s*\n/).map((p) => p.replace(/\s*\n\s*/g, ' '));
+    else if (how === 'line') parts = text.split(/\n/);
+    else {
+      parts = [];
+      for (const line of text.split(/\n/)) {
+        if (!line.trim()) continue;
+        if (sentSeg) for (const s of sentSeg.segment(line)) parts.push(s.segment);
+        else parts.push(...(line.match(/[^.!?。！？]+[.!?。！？]*["')\]」』]*\s*/g) || [line]));
+      }
+    }
+    return parts.map((s) => s.trim()).filter((s) => s.length > 1);
+  }
+
+  function makeChunks() {
+    const docs = [];
+    const typed = $('docs').value;
+    if (typed.trim()) docs.push({ name: t('typed'), text: typed, id: 0 });
+    for (const f of files) docs.push(f);
+    const chunks = [];
+    for (const d of docs) split(d.text).forEach((text, i) => chunks.push({ doc: d.id, idx: i, text }));
+    return chunks;
+  }
+  const docName = (id) => { if (!id) return t('typed'); const f = files.find((x) => x.id === id); return f ? (f.sample ? t('sampleName') : f.name) : '?'; };
+
+  function call(msg, onEvent) {
+    const run = () => new Promise((resolve, reject) => {
+      if (!worker) { worker = new Worker('/semsearch/worker.js', { type: 'module' }); loadedKey = ''; }
+      worker.onmessage = ({ data }) => {
+        if (data.type === 'progress' || data.type === 'step') onEvent && onEvent(data);
+        else if (data.type === 'error') reject(new Error(data.message));
+        else resolve(data);
+      };
+      worker.onerror = (e) => reject(new Error(e.message || 'worker error'));
+      worker.postMessage(msg);
+    });
+    const p = chain.then(run, run);
+    chain = p.catch(() => {});
+    return p;
+  }
+
+  const dl = {};
+  function onLoadEvent({ p }) {
+    if (p.status === 'progress' && p.file && p.total) {
+      dl[p.file] = [p.loaded, p.total];
+      const v = Object.values(dl), l = v.reduce((a, x) => a + x[0], 0), tot = v.reduce((a, x) => a + x[1], 0);
+      $('bar').style.width = ((l / tot) * 100).toFixed(1) + '%';
+      status('loading', { p: `${Math.round(l / 2 ** 20)} / ${Math.round(tot / 2 ** 20)} MB` });
+    } else if (p.status === 'done' || p.status === 'ready') status('initModel');
+  }
+
+  async function ensureModel(m) {
+    if (loadedKey === m.id && worker) return;
+    for (const k in dl) delete dl[k];
+    status('initModel');
+    await call({ type: 'load', model: m.id, device: 'wasm', dtype: 'q8' }, onLoadEvent);
+    loadedKey = m.id;
+  }
+
+  async function embed(m, texts, prefix, onStep) {
+    const ck = (s) => m.id + '\n' + prefix + s;
+    const need = [...new Set(texts.filter((s) => !cache.has(ck(s))))];
+    if (need.length) {
+      await ensureModel(m);
+      const r = await call({ type: 'embed', texts: need.map((s) => prefix + s), pooling: m.pooling }, onStep);
+      need.forEach((s, i) => cache.set(ck(s), r.data.subarray(i * r.dim, (i + 1) * r.dim)));
+    }
+    return texts.map((s) => cache.get(ck(s)));
+  }
+
+  async function build() {
+    dirty = false;
+    let chunks = makeChunks();
+    if (!chunks.length) { index = null; status('noText', null, 'err'); return; }
+    const capped = chunks.length > MAX_CHUNKS;
+    if (capped) chunks = chunks.slice(0, MAX_CHUNKS);
+    const m = model(), t0 = performance.now();
+    $('indexBtn').disabled = true;
+    try {
+      const vecs = await embed(m, chunks.map((c) => c.text), m.p, (d) => {
+        $('bar').style.width = ((d.done / d.total) * 100).toFixed(1) + '%';
+        status('embedding', { done: d.done, total: d.total });
+      });
+      index = { chunks, vecs, model: m };
+      $('bar').style.width = '100%';
+      if (capped) status('tooMany', { n: MAX_CHUNKS }, 'err');
+      else status('indexed', { n: chunks.length, sec: ((performance.now() - t0) / 1000).toFixed(1) });
+    } catch (e) {
+      index = null;
+      dirty = true;
+      status('failed', { msg: e.message }, 'err');
+      if (worker) { worker.terminate(); worker = null; loadedKey = ''; }
+      throw e;
+    } finally {
+      $('indexBtn').disabled = false;
+    }
+  }
+
+  async function ensureIndex() {
+    for (;;) {
+      if (indexP) { await indexP; continue; }
+      if (!dirty) return !!index;
+      indexP = build().finally(() => { indexP = null; });
+      await indexP;
+    }
+  }
+
+  const dot = (a, b) => { let s = 0; for (let i = 0; i < a.length; i++) s += a[i] * b[i]; return s; };
+  const terms = (q) => [...new Set(q.toLowerCase().split(/[\s.,!?;:'"()\[\]{}<>/\\。，！？、]+/).filter((w) => w.length > 1))];
+  function hl(text, ws) {
+    const s = esc(text);
+    if (!ws.length) return s;
+    const re = new RegExp('(' + ws.map((w) => esc(w).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi');
+    return s.replace(re, '<mark>$1</mark>');
+  }
+
+  let searchSeq = 0;
+  async function search() {
+    const q = $('q').value.trim();
+    if (!q) return;
+    const my = ++searchSeq;
+    try {
+      if (!(await ensureIndex())) return;
+      const t0 = performance.now(), ix = index;
+      const [qv] = await embed(ix.model, [q], ix.model.q);
+      if (my !== searchSeq || ix !== index) return;
+      const k = +$('topk').value;
+      const scored = ix.vecs.map((v, i) => [dot(qv, v), i]).sort((a, b) => b[0] - a[0]).slice(0, k);
+      last = { type: 'search', q, ix, items: scored, ms: Math.round(performance.now() - t0), open: new Set() };
+      renderResults();
+    } catch (e) { /* status already shows the error */ }
+  }
+
+  async function findPairs() {
+    try {
+      if (!(await ensureIndex())) return;
+      const ix = index, thr = +$('thr').value, n = Math.min(ix.vecs.length, MAX_PAIRS_N), out = [];
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+        if (ix.chunks[i].text === ix.chunks[j].text) { out.push([1, i, j]); continue; }
+        const s = dot(ix.vecs[i], ix.vecs[j]);
+        if (s >= thr) out.push([s, i, j]);
+      }
+      out.sort((a, b) => b[0] - a[0]);
+      last = { type: 'pairs', ix, thr, n, capped: ix.vecs.length > n, total: out.length, items: out.slice(0, MAX_PAIRS_OUT) };
+      renderResults();
+    } catch (e) {}
+  }
+
+  function srcLabel(c) { return `${docName(c.doc)} · #${c.idx + 1}`; }
+  function context(ix, i) {
+    const c = ix.chunks[i], prev = ix.chunks[i - 1], next = ix.chunks[i + 1];
+    const same = (x) => x && x.doc === c.doc;
+    return [same(prev) ? `<div class="ctx">… ${esc(prev.text)}</div>` : '', same(next) ? `<div class="ctx" data-after>${esc(next.text)} …</div>` : ''];
+  }
+
+  function renderResults() {
+    const box = $('results');
+    if (!last || last.ix !== index) { box.innerHTML = ''; $('resHead').hidden = true; return; }
+    const ix = last.ix;
+    $('resHead').hidden = false;
+    if (last.type === 'search') {
+      const ws = terms(last.q), top = last.items.length ? Math.max(last.items[0][0], 1e-6) : 1;
+      $('resInfo').textContent = t('resInfo', { q: last.q, n: last.items.length, ms: last.ms });
+      box.innerHTML = last.items.map(([s, i], r) => {
+        const c = ix.chunks[i], open = last.open.has(i), [pv, nx] = open ? context(ix, i) : ['', ''];
+        return `<div class="res" data-i="${i}"><div class="top"><span class="score">${s.toFixed(2)}</span><span class="meter"><i style="width:${Math.max(4, (s / top) * 100).toFixed(0)}%"></i></span><span class="src">${r + 1}. ${esc(srcLabel(c))}</span><button class="cp" data-cp="${i}" title="${t('copyOne')}">📋</button></div>${pv}<div class="txt">${hl(c.text, ws)}</div>${nx}</div>`;
+      }).join('');
+    } else {
+      $('resInfo').textContent = t('pairsInfo', { n: last.total, thr: last.thr.toFixed(2), m: last.n }) + (last.capped ? t('pairsCap', { n: last.n }) : '');
+      box.innerHTML = last.items.length ? last.items.map(([s, i, j]) => `<div class="res pair"><div class="top"><span class="score">${s.toFixed(2)}</span><span class="src">${esc(srcLabel(ix.chunks[i]))} ↔ ${esc(srcLabel(ix.chunks[j]))}</span></div><div class="txt">${esc(ix.chunks[i].text)}</div><div class="txt">${esc(ix.chunks[j].text)}</div></div>`).join('')
+        : `<p class="muted">${t('noPairs')}</p>`;
+    }
+  }
+
+  function resultsText() {
+    if (!last) return '';
+    const ix = last.ix;
+    if (last.type === 'search') return last.items.map(([s, i], r) => `${r + 1}. [${s.toFixed(2)}] ${ix.chunks[i].text} (${srcLabel(ix.chunks[i])})`).join('\n');
+    return last.items.map(([s, i, j]) => `[${s.toFixed(2)}] ${ix.chunks[i].text}\n     ↔ ${ix.chunks[j].text}`).join('\n\n');
+  }
+
+  function markDirty() {
+    dirty = true;
+    if (last) { last = null; renderResults(); }
+  }
+
+  async function addFiles(list) {
+    for (const f of list) {
+      try {
+        if (f.size > MAX_FILE) throw new Error('size');
+        let text = await f.text();
+        if (/\.html?$/i.test(f.name) || f.type === 'text/html') text = new DOMParser().parseFromString(text, 'text/html').body.innerText || '';
+        if (/\u0000/.test(text.slice(0, 2000))) throw new Error('binary');
+        files.push({ id: ++fseq, name: f.name, text });
+      } catch (e) { UI.toast(t('badFile', { name: f.name })); }
+    }
+    renderChips();
+    markDirty();
+  }
+
+  $('results').addEventListener('click', (e) => {
+    const cp = e.target.closest('[data-cp]');
+    if (cp) { UI.copy(last.ix.chunks[+cp.dataset.cp].text); return; }
+    const res = e.target.closest('.res[data-i]');
+    if (res && last && last.type === 'search' && !getSelection().toString()) {
+      const i = +res.dataset.i;
+      last.open.has(i) ? last.open.delete(i) : last.open.add(i);
+      renderResults();
+    }
+  });
+  $('docChips').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-rm]');
+    if (!b) return;
+    files = files.filter((f) => f.id !== +b.dataset.rm);
+    renderChips();
+    markDirty();
+  });
+  $('sampleQs').addEventListener('click', (e) => {
+    const c = e.target.closest('[data-q]');
+    if (!c) return;
+    setMode('search');
+    $('q').value = c.dataset.q;
+    search();
+  });
+
+  const drop = $('drop');
+  drop.addEventListener('click', () => $('file').click());
+  $('file').addEventListener('change', (e) => { addFiles([...e.target.files]); e.target.value = ''; });
+  drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); addFiles([...e.dataTransfer.files]); });
+
+  $('docs').addEventListener('input', markDirty);
+  $('split').addEventListener('change', () => { try { localStorage.setItem('semsearch_split', $('split').value); } catch (e) {} renderChips(); markDirty(); });
+  $('model').addEventListener('change', () => { try { localStorage.setItem('semsearch_model', $('model').value); } catch (e) {} setThr(); markDirty(); });
+  $('indexBtn').addEventListener('click', () => { dirty = true; ensureIndex().catch(() => {}); });
+  $('sampleBtn').addEventListener('click', () => {
+    files = files.filter((f) => !f.sample);
+    files.unshift({ id: ++fseq, name: 'sample', text: t('sampleDoc'), sample: true });
+    $('split').value = 'line';
+    renderChips();
+    markDirty();
+    ensureIndex().catch(() => {});
+  });
+  $('goBtn').addEventListener('click', search);
+  let deb;
+  $('q').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) { clearTimeout(deb); search(); } });
+  $('q').addEventListener('input', () => { clearTimeout(deb); if (index && !dirty && $('q').value.trim().length > 1) deb = setTimeout(search, 450); });
+  $('topk').addEventListener('change', () => { if (last && last.type === 'search') search(); });
+
+  function setMode(m) {
+    mode = m;
+    $('modeSeg').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.m === m));
+    $('searchBox').hidden = m !== 'search';
+    $('pairsBox').hidden = m !== 'pairs';
+  }
+  $('modeSeg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setMode(b.dataset.m); });
+  $('thr').addEventListener('input', () => { $('thrV').textContent = (+$('thr').value).toFixed(2); });
+  $('thr').addEventListener('change', () => { if (last && last.type === 'pairs') findPairs(); });
+  $('pairsBtn').addEventListener('click', findPairs);
+  $('copyAllBtn').addEventListener('click', () => UI.copy(resultsText()));
+
+  document.addEventListener('i18n:change', () => {
+    renderModels();
+    const s = files.find((f) => f.sample);
+    if (s && s.text !== t('sampleDoc')) { s.text = t('sampleDoc'); markDirty(); }
+    renderChips();
+    renderResults();
+    if (lastStatus) status(...lastStatus);
+  });
+
+  try { const sp = localStorage.getItem('semsearch_split'); if (sp) $('split').value = sp; } catch (e) {}
+  renderModels();
+  setThr();
+  renderChips();
+})();
+</script>
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: '의미 검색 · 비슷한 문장 찾기 (브라우저 AI) — tool.cocy.io',
+  description: '단어가 달라도 뜻이 비슷한 문장을 찾아주는 의미 검색. 텍스트·파일을 붙여넣으면 브라우저 안에서 AI 임베딩으로 검색, 중복·유사 문장 찾기. 업로드 없음, 다국어',
+  url: 'https://tool.cocy.io/semsearch/'
+});
+</script>
+</body>
+</html>
