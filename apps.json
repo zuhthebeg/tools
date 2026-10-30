@@ -75,6 +75,21 @@
     "group": "ai"
   },
   {
+    "title": "의미 검색 (비슷한 문장 찾기)",
+    "icon": "https://tool.cocy.io/semsearch/icon.svg",
+    "url": "https://tool.cocy.io/semsearch/",
+    "desc": "단어가 달라도 뜻이 비슷한 문장을 브라우저 AI로 찾기. 텍스트·파일 붙여넣기, 중복·유사 문장 쌍 찾기, 업로드 없음, 다국어",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool",
+    "group": "ai"
+  },
+  {
     "title": "유니코드 디코더",
     "icon": "https://tool.cocy.io/unicodedec/icon.svg",
     "url": "https://tool.cocy.io/unicodedec/",
