@@ -120,6 +120,21 @@
     "group": "ai"
   },
   {
+    "title": "이미지 업스케일 (AI 2배·4배)",
+    "icon": "https://tool.cocy.io/upscale/icon.svg",
+    "url": "https://tool.cocy.io/upscale/",
+    "desc": "작은 사진을 AI 초해상도(Swin2SR)로 2배·4배 선명하게. 브라우저 안에서 처리, 업로드 없음. 실사·JPEG 복원 모델, 전후 비교, PNG·JPG 저장",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool",
+    "group": "ai"
+  },
+  {
     "title": "브라우저 LLM 채팅 · 툴 콜링",
     "icon": "https://tool.cocy.io/browserllm/icon.svg",
     "url": "https://tool.cocy.io/browserllm/",

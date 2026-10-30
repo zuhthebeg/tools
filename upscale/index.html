@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이미지 업스케일 · AI로 2배·4배 선명하게 (브라우저) — tool.cocy.io</title>
+<meta name="description" content="작은 사진을 AI 초해상도로 2배·4배 키우기. 브라우저 안에서 처리해 업로드 없음. 사진·JPEG 압축·일반 모델, 전후 비교 슬라이더, PNG·JPG 저장, WebGPU 가속">
+<link rel="canonical" href="https://tool.cocy.io/upscale/">
+<link rel="icon" href="/upscale/icon.svg">
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+.drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px 14px; text-align: center; cursor: pointer; color: var(--muted); }
+.drop.over, .drop:hover { border-color: #34d399; color: var(--text); }
+.drop b { color: var(--text); }
+.opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-top: 12px; }
+.bar { height: 8px; background: var(--panel-2); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #34d399, #38bdf8); transition: width .2s; }
+.view { margin-top: 12px; border-radius: 10px; overflow: auto; max-height: 75vh; background: var(--panel-2); }
+.stage { position: relative; line-height: 0; user-select: none; touch-action: none; width: 100%; }
+.stage canvas, .stage img { width: 100%; height: auto; display: block; }
+.stage .before { position: absolute; inset: 0; height: 100%; clip-path: inset(0 calc(100% - var(--x, 50%)) 0 0); }
+.stage.px .before { image-rendering: pixelated; }
+.stage .handle { position: absolute; top: 0; bottom: 0; left: var(--x, 50%); width: 2px; background: #fff; box-shadow: 0 0 4px #000; pointer-events: none; }
+.stage .handle::after { content: '⇆'; position: absolute; top: 50%; left: -14px; width: 28px; height: 28px; margin-top: -14px; border-radius: 50%; background: #fff; color: #000; font-size: 16px; line-height: 28px; text-align: center; }
+.tag { position: absolute; top: 8px; padding: 3px 8px; border-radius: 6px; background: rgba(0,0,0,.6); color: #fff; font-size: 12px; line-height: 1.4; pointer-events: none; }
+.tag.l { left: 8px; } .tag.r { right: 8px; }
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>🔍 <span data-i18n="h1">이미지 업스케일</span></h1>
+    <p data-i18n="sub">AI 초해상도로 작은 이미지를 2배·4배 선명하게 키워요. 브라우저 안에서 처리해서 사진은 서버로 올라가지 않아요.</p>
+  </div>
+
+  <div class="card">
+    <input type="file" id="file" accept="image/*" hidden>
+    <div class="drop" id="drop"><b data-i18n="dropB">이미지를 끌어다 놓거나 클릭 · 붙여넣기(Ctrl+V)</b><br><small>PNG · JPG · WebP</small></div>
+    <div class="opts">
+      <div><label class="lbl" for="model" data-i18n="model">모델</label><select id="model"></select></div>
+      <div><label class="lbl" data-i18n="device">실행</label>
+        <label class="chk" id="cpuWrap" hidden><input type="checkbox" id="forceCpu"> <span data-i18n="forceCpu">CPU(WASM)로 실행</span></label>
+        <div class="muted" style="font-size:13px" id="devInfo"></div></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="sampleBtn" data-i18n="sample">샘플 이미지로 해보기</button>
+      <button class="btn primary" id="runBtn" disabled data-i18n="run">🔍 다시 처리</button>
+      <button class="btn" id="stopBtn" hidden data-i18n="stop">■ 중지</button>
+      <span class="muted grow" id="status"></span>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+  </div>
+
+  <div class="card" id="outCard" hidden>
+    <div class="row">
+      <button class="btn primary" id="pngBtn" data-i18n="savePng">⬇ PNG</button>
+      <button class="btn" id="jpgBtn" data-i18n="saveJpg">⬇ JPG</button>
+      <button class="btn" id="copyBtn" data-i18n="copyImg">📋 이미지 복사</button>
+      <label class="chk"><input type="checkbox" id="zoom"> <span data-i18n="zoom">실제 크기로 보기</span></label>
+      <label class="chk"><input type="checkbox" id="pixel"> <span data-i18n="pixel">원본은 픽셀 그대로</span></label>
+      <span class="muted grow" id="dims"></span>
+    </div>
+    <div class="view" id="view">
+      <div class="stage" id="stage">
+        <canvas id="out"></canvas>
+        <img id="before" class="before" alt="">
+        <div class="handle"></div>
+        <span class="tag l" data-i18n="tagBefore">원본</span><span class="tag r" data-i18n="tagAfter">AI</span>
+      </div>
+    </div>
+    <p class="muted" style="font-size:12px;margin:8px 0 0" data-i18n="slideHint">이미지를 좌우로 끌면 단순 확대한 원본과 비교할 수 있어요.</p>
+  </div>
+
+  <p class="muted" style="font-size:13px" data-i18n="tip">처음 한 번은 모델(8~52MB)을 내려받고, 다음부터는 브라우저 캐시에서 바로 불러와요. 사진은 '실사 사진', 흐릿한 JPG·캡처는 'JPEG 압축 복원'이 잘 맞아요. 큰 이미지는 조각으로 나눠 처리해서 시간이 걸릴 수 있어요.</p>
+  <footer class="site">© 2026 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+I18n.define({
+  pageTitle: ['이미지 업스케일 · AI로 2배·4배 선명하게 (브라우저) — tool.cocy.io', 'Image Upscaler · 2x/4x AI super-resolution in your browser — tool.cocy.io', '图片放大 · 浏览器内 AI 2 倍/4 倍超分辨率 — tool.cocy.io', '圖片放大 · 瀏覽器內 AI 2 倍/4 倍超解析度 — tool.cocy.io', 'Ampliar imagen · superresolución IA 2x/4x en tu navegador — tool.cocy.io'],
+  h1: ['이미지 업스케일', 'Image Upscaler', '图片放大', '圖片放大', 'Ampliar imagen'],
+  sub: ['AI 초해상도로 작은 이미지를 2배·4배 선명하게 키워요. 브라우저 안에서 처리해서 사진은 서버로 올라가지 않아요.', 'Enlarge small images 2× or 4× with AI super-resolution. It runs in your browser, so your photo never leaves the device.', '用 AI 超分辨率把小图清晰放大 2 倍或 4 倍。在浏览器内处理，照片不会上传。', '用 AI 超解析度把小圖清晰放大 2 倍或 4 倍。在瀏覽器內處理，照片不會上傳。', 'Amplía imágenes pequeñas 2× o 4× con superresolución IA. Se ejecuta en tu navegador y la foto nunca sale del dispositivo.'],
+  dropB: ['이미지를 끌어다 놓거나 클릭 · 붙여넣기(Ctrl+V)', 'Drop an image, click, or paste (Ctrl+V)', '拖入图片、点击选择或粘贴 (Ctrl+V)', '拖入圖片、點擊選擇或貼上 (Ctrl+V)', 'Suelta una imagen, haz clic o pega (Ctrl+V)'],
+  model: ['모델', 'Model', '模型', '模型', 'Modelo'],
+  mLight: ['×2 · 경량, 가장 빠름', '×2 · lightweight, fastest', '×2 · 轻量，最快', '×2 · 輕量，最快', '×2 · ligero, el más rápido'],
+  mC2: ['×2 · 고화질', '×2 · high quality', '×2 · 高画质', '×2 · 高畫質', '×2 · alta calidad'],
+  mReal: ['×4 · 실사 사진 (노이즈·흐림)', '×4 · real-world photos (noise, blur)', '×4 · 真实照片（噪点/模糊）', '×4 · 真實照片（雜訊/模糊）', '×4 · fotos reales (ruido, desenfoque)'],
+  mJpeg: ['×4 · JPEG 압축 복원', '×4 · JPEG artifact repair', '×4 · JPEG 压缩修复', '×4 · JPEG 壓縮修復', '×4 · reparar compresión JPEG'],
+  mC4: ['×4 · 깨끗한 이미지·그래픽', '×4 · clean images & graphics', '×4 · 干净图片/图形', '×4 · 乾淨圖片/圖形', '×4 · imágenes limpias y gráficos'],
+  device: ['실행', 'Runs on', '运行', '執行', 'Ejecución'],
+  forceCpu: ['CPU(WASM)로 실행', 'Run on CPU (WASM)', '用 CPU(WASM) 运行', '用 CPU(WASM) 執行', 'Ejecutar en CPU (WASM)'],
+  devGpu: ['WebGPU 가속 사용', 'WebGPU acceleration', '使用 WebGPU 加速', '使用 WebGPU 加速', 'Aceleración WebGPU'],
+  devCpu: ['CPU(WASM) — 큰 이미지는 몇 분 걸릴 수 있어요', 'CPU (WASM) — large images can take minutes', 'CPU(WASM) — 大图可能需要几分钟', 'CPU(WASM) — 大圖可能需要幾分鐘', 'CPU (WASM): las imágenes grandes pueden tardar minutos'],
+  sample: ['샘플 이미지로 해보기', 'Try a sample image', '用示例图片试试', '用範例圖片試試', 'Probar con una imagen de ejemplo'],
+  run: ['🔍 다시 처리', '🔍 Process again', '🔍 重新处理', '🔍 重新處理', '🔍 Procesar de nuevo'],
+  stop: ['■ 중지', '■ Stop', '■ 停止', '■ 停止', '■ Detener'],
+  stopped: ['중지했어요', 'Stopped', '已停止', '已停止', 'Detenido'],
+  loading: ['모델 불러오는 중… {p}', 'Loading model… {p}', '正在加载模型… {p}', '正在載入模型… {p}', 'Cargando modelo… {p}'],
+  initModel: ['모델 초기화 중…', 'Initializing model…', '正在初始化模型…', '正在初始化模型…', 'Inicializando modelo…'],
+  working: ['업스케일 중… {done}/{total} 조각{eta}', 'Upscaling… tile {done}/{total}{eta}', '正在放大… {done}/{total} 块{eta}', '正在放大… {done}/{total} 塊{eta}', 'Ampliando… bloque {done}/{total}{eta}'],
+  eta: [' · 약 {s}초 남음', ' · ~{s}s left', ' · 约剩 {s} 秒', ' · 約剩 {s} 秒', ' · quedan ~{s} s'],
+  doneStat: ['완료 · {sec}초', 'Done in {sec}s', '完成 · {sec} 秒', '完成 · {sec} 秒', 'Listo en {sec} s'],
+  shrunk: ['결과가 너무 커서 입력을 {w}×{h}로 줄여 처리했어요', 'Output too large; input was reduced to {w}×{h} first', '结果过大，已先把输入缩小到 {w}×{h}', '結果過大，已先把輸入縮小到 {w}×{h}', 'Resultado demasiado grande; la entrada se redujo a {w}×{h}'],
+  failed: ['실패: {msg}', 'Failed: {msg}', '失败：{msg}', '失敗：{msg}', 'Error: {msg}'],
+  badImg: ['이미지를 읽지 못했어요', "Couldn't read this image", '无法读取此图片', '無法讀取此圖片', 'No se pudo leer la imagen'],
+  savePng: ['⬇ PNG', '⬇ PNG', '⬇ PNG', '⬇ PNG', '⬇ PNG'],
+  saveJpg: ['⬇ JPG', '⬇ JPG', '⬇ JPG', '⬇ JPG', '⬇ JPG'],
+  copyImg: ['📋 이미지 복사', '📋 Copy image', '📋 复制图片', '📋 複製圖片', '📋 Copiar imagen'],
+  imgCopied: ['이미지를 복사했어요', 'Image copied', '已复制图片', '已複製圖片', 'Imagen copiada'],
+  zoom: ['실제 크기로 보기', 'View at 100%', '按实际大小查看', '以實際大小檢視', 'Ver al 100%'],
+  pixel: ['원본은 픽셀 그대로', 'Show original as pixels', '原图按像素显示', '原圖以像素顯示', 'Original en píxeles'],
+  tagBefore: ['원본', 'Original', '原图', '原圖', 'Original'],
+  tagAfter: ['AI', 'AI', 'AI', 'AI', 'IA'],
+  slideHint: ['이미지를 좌우로 끌면 단순 확대한 원본과 비교할 수 있어요.', 'Drag across the image to compare with a plain resize of the original.', '左右拖动图片，可与普通放大的原图对比。', '左右拖曳圖片，可與一般放大的原圖比較。', 'Arrastra sobre la imagen para compararla con el original ampliado sin IA.'],
+  tip: ["처음 한 번은 모델(8~52MB)을 내려받고, 다음부터는 브라우저 캐시에서 바로 불러와요. 사진은 '실사 사진', 흐릿한 JPG·캡처는 'JPEG 압축 복원'이 잘 맞아요. 큰 이미지는 조각으로 나눠 처리해서 시간이 걸릴 수 있어요.", "The model (8–52 MB) downloads once, then loads from the browser cache. Use 'real-world photos' for photos and 'JPEG artifact repair' for blurry JPGs and screenshots. Large images are processed tile by tile and can take a while.", '模型（8~52 MB）首次下载后从浏览器缓存加载。照片用“真实照片”，模糊的 JPG 或截图用“JPEG 压缩修复”。大图会分块处理，可能需要一些时间。', '模型（8~52 MB）首次下載後從瀏覽器快取載入。照片用「真實照片」，模糊的 JPG 或截圖用「JPEG 壓縮修復」。大圖會分塊處理，可能需要一些時間。', "El modelo (8–52 MB) se descarga una vez y luego se carga de la caché. Usa 'fotos reales' para fotos y 'reparar compresión JPEG' para JPG borrosos y capturas. Las imágenes grandes se procesan por bloques y pueden tardar."],
+  allTools: ['모든 도구', 'All tools', '全部工具', '全部工具', 'Todas las herramientas'],
+});
+I18n.init();
+
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const t = I18n.t;
+  const MODELS = [
+    { id: 'Xenova/swin2SR-lightweight-x2-64', key: 'mLight', s: 2, mb: [8, 7] },
+    { id: 'Xenova/swin2SR-classical-sr-x2-64', key: 'mC2', s: 2, mb: [52, 31] },
+    { id: 'Xenova/swin2SR-realworld-sr-x4-64-bsrgan-psnr', key: 'mReal', s: 4, mb: [50, 31] },
+    { id: 'Xenova/swin2SR-compressed-sr-x4-48', key: 'mJpeg', s: 4, mb: [52, 31] },
+    { id: 'Xenova/swin2SR-classical-sr-x4-64', key: 'mC4', s: 4, mb: [52, 31] },
+  ];
+  const MAX_OUT = 16e6;
+  let gpu = { ok: false, f16: false }, worker = null, src = null, srcName = 'image', beforeUrl = null, busy = false, gen = 0, lastStatus = null, result = null;
+  const useGpu = () => gpu.ok && !$('forceCpu').checked;
+  const half = () => useGpu() && gpu.f16;
+  const model = () => MODELS.find((m) => m.id === $('model').value) || MODELS[0];
+
+  function status(key, vars, cls) {
+    lastStatus = key ? [key, vars, cls] : null;
+    $('status').className = 'grow ' + (cls || 'muted');
+    $('status').textContent = key ? t(key, vars) : '';
+  }
+  function renderSelect() {
+    const cur = $('model').value || localStorage.getItem('upscale_model') || MODELS[0].id;
+    $('model').innerHTML = MODELS.map((m) => `<option value="${m.id}">${t(m.key)} · ~${m.mb[half() ? 1 : 0]} MB</option>`).join('');
+    $('model').value = MODELS.some((m) => m.id === cur) ? cur : MODELS[0].id;
+    $('devInfo').textContent = useGpu() ? t('devGpu') : t('devCpu');
+    $('cpuWrap').hidden = !gpu.ok;
+  }
+
+  function newWorker() {
+    if (worker) worker.terminate();
+    worker = new Worker('/upscale/worker.js', { type: 'module' });
+  }
+  function call(msg, onEvent) {
+    if (!worker) newWorker();
+    const w = worker;
+    return new Promise((resolve, reject) => {
+      w.onmessage = ({ data }) => {
+        if (data.type === 'progress' || data.type === 'step') onEvent && onEvent(data);
+        else if (data.type === 'error') reject(new Error(data.message));
+        else resolve(data);
+      };
+      w.onerror = (e) => reject(new Error(e.message || 'worker error'));
+      w.postMessage(msg, msg.rgb ? [msg.rgb.buffer] : []);
+    });
+  }
+
+  const dl = {};
+  function onLoad({ p }) {
+    if (p.status === 'progress' && p.file && p.total) {
+      dl[p.file] = [p.loaded, p.total];
+      const v = Object.values(dl), l = v.reduce((a, x) => a + x[0], 0), tot = v.reduce((a, x) => a + x[1], 0);
+      $('bar').style.width = ((l / tot) * 100).toFixed(1) + '%';
+      status('loading', { p: `${Math.round(l / 2 ** 20)} / ${Math.round(tot / 2 ** 20)} MB` });
+    } else if (p.status === 'done' || p.status === 'ready') status('initModel');
+  }
+
+  async function setImage(blob, name) {
+    if (!blob || !/^image\//.test(blob.type)) { status('badImg', null, 'err'); return; }
+    let bmp;
+    try { bmp = await createImageBitmap(blob); } catch (e) { status('badImg', null, 'err'); return; }
+    if (src) src.close();
+    src = bmp;
+    srcName = (name || blob.name || 'image').replace(/\.[^.]+$/, '');
+    if (beforeUrl) URL.revokeObjectURL(beforeUrl);
+    beforeUrl = URL.createObjectURL(blob);
+    $('before').src = beforeUrl;
+    $('runBtn').disabled = false;
+    process();
+  }
+
+  async function process() {
+    if (!src) return;
+    if (busy) stop(true);
+    const my = ++gen, m = model(), s = m.s;
+    busy = true;
+    $('runBtn').disabled = true;
+    $('stopBtn').hidden = false;
+    $('bar').style.width = '0';
+    let w = src.width, h = src.height, shrunk = false;
+    if (w * h * s * s > MAX_OUT) {
+      const k = Math.sqrt(MAX_OUT / (w * h * s * s));
+      w = Math.max(1, Math.floor(w * k)); h = Math.max(1, Math.floor(h * k)); shrunk = true;
+    }
+    const cv = new OffscreenCanvas(w, h), ctx = cv.getContext('2d');
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(src, 0, 0, w, h);
+    const px = ctx.getImageData(0, 0, w, h).data, rgb = new Uint8ClampedArray(w * h * 3);
+    let alpha = false;
+    for (let i = 0, j = 0; i < px.length; i += 4, j += 3) {
+      rgb[j] = px[i]; rgb[j + 1] = px[i + 1]; rgb[j + 2] = px[i + 2];
+      if (px[i + 3] < 255) alpha = true;
+    }
+    try {
+      for (const k in dl) delete dl[k];
+      status('initModel');
+      await call({ type: 'load', model: m.id, device: useGpu() ? 'webgpu' : 'wasm', dtype: half() ? 'fp16' : 'fp32' }, onLoad);
+      if (my !== gen) return;
+      const t0 = performance.now();
+      $('bar').style.width = '0';
+      status('working', { done: 0, total: '…', eta: '' });
+      const r = await call({ type: 'run', rgb, w, h, s, tile: useGpu() ? 192 : 96, pad: 12 }, (d) => {
+        if (my !== gen) return;
+        const el = (performance.now() - t0) / 1000, left = Math.round((el / d.done) * (d.total - d.done));
+        $('bar').style.width = ((d.done / d.total) * 100).toFixed(1) + '%';
+        status('working', { done: d.done, total: d.total, eta: d.done < d.total && el > 2 ? t('eta', { s: left }) : '' });
+      });
+      if (my !== gen) return;
+      const data = new Uint8ClampedArray(r.data);
+      if (alpha) {
+        const ac = new OffscreenCanvas(r.w, r.h), actx = ac.getContext('2d');
+        actx.imageSmoothingQuality = 'high';
+        actx.drawImage(src, 0, 0, r.w, r.h);
+        const a = actx.getImageData(0, 0, r.w, r.h).data;
+        for (let i = 3; i < data.length; i += 4) data[i] = a[i];
+      }
+      result = { w: r.w, h: r.h, iw: w, ih: h, s };
+      const out = $('out');
+      out.width = r.w; out.height = r.h;
+      out.getContext('2d').putImageData(new ImageData(data, r.w, r.h), 0, 0);
+      $('outCard').hidden = false;
+      renderDims();
+      applyZoom();
+      const sec = ((performance.now() - t0) / 1000).toFixed(1);
+      if (shrunk) status('shrunk', { w, h }, 'err'); else status('doneStat', { sec });
+    } catch (e) {
+      if (my !== gen) return;
+      status('failed', { msg: e.message }, 'err');
+      if (worker) { worker.terminate(); worker = null; }
+    } finally {
+      if (my === gen) { busy = false; $('runBtn').disabled = false; $('stopBtn').hidden = true; }
+    }
+  }
+
+  function stop(silent) {
+    gen++;
+    if (worker) { worker.terminate(); worker = null; }
+    busy = false;
+    $('runBtn').disabled = !src;
+    $('stopBtn').hidden = true;
+    $('bar').style.width = '0';
+    if (!silent) status('stopped');
+  }
+
+  function renderDims() {
+    if (!result) return;
+    $('dims').textContent = `${src.width} × ${src.height} → ${result.w} × ${result.h} (×${result.s})`;
+  }
+  function applyZoom() {
+    if (!result) return;
+    $('stage').style.width = $('zoom').checked ? result.w / devicePixelRatio + 'px' : '100%';
+  }
+
+  function save(type) {
+    $('out').toBlob((blob) => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${srcName}-x${result.s}.${type === 'image/png' ? 'png' : 'jpg'}`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }, type, 0.92);
+  }
+  $('pngBtn').addEventListener('click', () => save('image/png'));
+  $('jpgBtn').addEventListener('click', () => save('image/jpeg'));
+  $('copyBtn').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': new Promise((r) => $('out').toBlob(r, 'image/png')) })]);
+      UI.toast(t('imgCopied'));
+    } catch (e) { UI.toast(t('copyFail')); }
+  });
+  $('zoom').addEventListener('change', applyZoom);
+  $('pixel').addEventListener('change', () => $('stage').classList.toggle('px', $('pixel').checked));
+
+  const stage = $('stage');
+  const slide = (e) => {
+    const r = stage.getBoundingClientRect();
+    stage.style.setProperty('--x', Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100)) + '%');
+  };
+  stage.addEventListener('pointerdown', (e) => { if ($('zoom').checked && e.pointerType !== 'mouse') return; stage.setPointerCapture(e.pointerId); slide(e); });
+  stage.addEventListener('pointermove', (e) => { if (e.buttons && stage.hasPointerCapture(e.pointerId)) slide(e); });
+
+  const drop = $('drop');
+  drop.addEventListener('click', () => $('file').click());
+  $('file').addEventListener('change', (e) => { e.target.files[0] && setImage(e.target.files[0]); e.target.value = ''; });
+  drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); e.dataTransfer.files[0] && setImage(e.dataTransfer.files[0]); });
+  document.addEventListener('paste', (e) => {
+    const f = [...(e.clipboardData ? e.clipboardData.files : [])].find((x) => x.type.startsWith('image/'));
+    if (f) setImage(f);
+  });
+  $('sampleBtn').addEventListener('click', async () => {
+    try {
+      const r = await fetch('https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/butterfly.jpg');
+      const b = await r.blob();
+      setImage(new File([b], 'butterfly.jpg', { type: b.type || 'image/jpeg' }));
+    } catch (e) { status('failed', { msg: e.message }, 'err'); }
+  });
+  $('runBtn').addEventListener('click', process);
+  $('stopBtn').addEventListener('click', () => stop(false));
+  $('model').addEventListener('change', () => { try { localStorage.setItem('upscale_model', $('model').value); } catch (e) {} if (src) process(); });
+  $('forceCpu').addEventListener('change', () => { renderSelect(); if (worker && !busy) { worker.terminate(); worker = null; } if (src) process(); });
+  document.addEventListener('i18n:change', () => { renderSelect(); if (lastStatus) status(...lastStatus); });
+
+  renderSelect();
+  (async () => {
+    try {
+      const ad = navigator.gpu && (await navigator.gpu.requestAdapter());
+      if (ad && !(ad.isFallbackAdapter || (ad.info && ad.info.isFallbackAdapter))) gpu = { ok: true, f16: ad.features.has('shader-f16') };
+    } catch (e) {}
+    renderSelect();
+  })();
+})();
+</script>
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: '이미지 업스케일 · AI로 2배·4배 선명하게 (브라우저) — tool.cocy.io',
+  description: '작은 사진을 AI 초해상도로 2배·4배 키우기. 브라우저 안에서 처리해 업로드 없음. 사진·JPEG 압축·일반 모델, 전후 비교 슬라이더, PNG·JPG 저장, WebGPU 가속',
+  url: 'https://tool.cocy.io/upscale/'
+});
+</script>
+</body>
+</html>
