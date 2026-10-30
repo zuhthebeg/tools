@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이미지 글자 추출 (OCR) · 브라우저에서 무료 — tool.cocy.io</title>
+<meta name="description" content="사진·스크린샷·문서 이미지에서 글자를 브라우저 안에서 추출. 업로드 없음. 한국어·영어·중국어·일본어 등 다국어, 여러 장 한 번에, 글자 위치 표시, 텍스트 복사·저장">
+<link rel="canonical" href="https://tool.cocy.io/ocr/">
+<link rel="icon" href="/ocr/icon.svg">
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+.drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px 14px; text-align: center; cursor: pointer; color: var(--muted); }
+.drop.over, .drop:hover { border-color: #38bdf8; color: var(--text); }
+.drop b { color: var(--text); }
+.langs { display: flex; flex-wrap: wrap; gap: 6px; }
+.langs button { border: 1px solid var(--line); background: var(--panel-2); color: var(--muted); border-radius: 99px; padding: 5px 11px; font: inherit; font-size: 13px; cursor: pointer; }
+.langs button.on { border-color: #38bdf8; color: var(--text); background: rgba(56,189,248,.15); }
+.opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 12px; align-items: end; }
+.bar { height: 8px; background: var(--panel-2); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #38bdf8, #a78bfa); transition: width .2s; }
+.item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+@media (max-width: 720px) { .item { grid-template-columns: 1fr; } }
+.stage { position: relative; line-height: 0; border-radius: 10px; overflow: hidden; background: var(--panel-2); align-self: start; }
+.stage img { width: 100%; height: auto; display: block; }
+.stage .box { position: absolute; border: 1.5px solid; border-radius: 2px; cursor: copy; }
+.stage .box:hover { background: rgba(56,189,248,.25); }
+.stage .hi { border-color: #10b981; } .stage .mid { border-color: #f59e0b; } .stage .lo { border-color: #ef4444; }
+.stage.noboxes .box { display: none; }
+.item textarea { min-height: 220px; height: 100%; }
+.meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 8px; }
+.meta b { color: var(--text); font-weight: 600; }
+.ihead { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+.ihead .name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>🔤 <span data-i18n="h1">이미지 글자 추출 (OCR)</span></h1>
+    <p data-i18n="sub">사진·스크린샷 속 글자를 브라우저 안에서 읽어 텍스트로 바꿔요. 이미지는 서버로 올라가지 않아요.</p>
+  </div>
+
+  <div class="card">
+    <input type="file" id="file" accept="image/*" multiple hidden>
+    <input type="file" id="cam" accept="image/*" capture="environment" hidden>
+    <div class="drop" id="drop"><b data-i18n="dropB">이미지를 끌어다 놓거나 클릭 · 붙여넣기(Ctrl+V)</b><br><small data-i18n="dropS">여러 장 가능 · PNG · JPG · WebP</small></div>
+    <div style="margin-top:12px">
+      <label class="lbl"><span data-i18n="langs">인식할 언어</span> <span class="muted" data-i18n="langsHint">(최대 3개 · 적을수록 빠르고 정확해요)</span></label>
+      <div class="langs" id="langs"></div>
+    </div>
+    <div class="opts">
+      <div><label class="lbl" for="psm" data-i18n="layout">글자 배치</label>
+        <select id="psm">
+          <option value="3" data-i18n="psm3">자동 (문서·여러 단락)</option>
+          <option value="6" data-i18n="psm6">한 덩어리 글</option>
+          <option value="11" data-i18n="psm11">흩어진 글자 (스크린샷·간판)</option>
+          <option value="7" data-i18n="psm7">한 줄</option>
+        </select></div>
+      <label class="chk"><input type="checkbox" id="prep" checked> <span data-i18n="prep">자동 보정 (흑백·대비·작은 글자 확대)</span></label>
+      <label class="chk"><input type="checkbox" id="merge"> <span data-i18n="merge">줄바꿈 합치기 (문단 단위)</span></label>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="camBtn" data-i18n="cam">📷 카메라</button>
+      <button class="btn" id="sampleBtn" data-i18n="sample">샘플로 해보기</button>
+      <button class="btn primary" id="rerunBtn" disabled data-i18n="rerun">↻ 다시 인식</button>
+      <span class="muted grow" id="status"></span>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+  </div>
+
+  <div class="row" id="allRow" hidden style="margin-bottom:14px">
+    <button class="btn" id="copyAll" data-i18n="copyAll">📋 전체 복사</button>
+    <button class="btn" id="dlAll" data-i18n="dlAll">⬇ 전체 .txt</button>
+    <label class="chk"><input type="checkbox" id="boxes" checked> <span data-i18n="boxes">글자 위치 표시</span></label>
+    <span class="grow"></span>
+    <button class="btn" id="clearBtn" data-i18n="clear">모두 지우기</button>
+  </div>
+  <div id="list"></div>
+
+  <p class="muted" style="font-size:13px" data-i18n="tip">처음 한 번은 언어 데이터(언어당 1~10MB)를 내려받고, 다음부터는 브라우저에 저장된 걸 써요. 상자를 누르면 그 줄만 복사돼요. 색은 인식 확신도예요(초록 높음 · 노랑 보통 · 빨강 낮음).</p>
+  <footer class="site">© 2026 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+I18n.define({
+  pageTitle: ['이미지 글자 추출 (OCR) · 브라우저에서 무료 — tool.cocy.io', 'Image to Text (OCR) · free, in your browser — tool.cocy.io', '图片文字识别 (OCR) · 浏览器内免费 — tool.cocy.io', '圖片文字辨識 (OCR) · 瀏覽器內免費 — tool.cocy.io', 'Imagen a texto (OCR) · gratis en tu navegador — tool.cocy.io'],
+  h1: ['이미지 글자 추출 (OCR)', 'Image to Text (OCR)', '图片文字识别 (OCR)', '圖片文字辨識 (OCR)', 'Imagen a texto (OCR)'],
+  sub: ['사진·스크린샷 속 글자를 브라우저 안에서 읽어 텍스트로 바꿔요. 이미지는 서버로 올라가지 않아요.', 'Reads the text in photos and screenshots right in your browser. Images never leave the device.', '在浏览器内识别照片和截图中的文字，图片不会上传到服务器。', '在瀏覽器內辨識照片和截圖中的文字，圖片不會上傳到伺服器。', 'Lee el texto de fotos y capturas en tu navegador. Las imágenes nunca salen del dispositivo.'],
+  dropB: ['이미지를 끌어다 놓거나 클릭 · 붙여넣기(Ctrl+V)', 'Drop images, click, or paste (Ctrl+V)', '拖入图片、点击选择或粘贴 (Ctrl+V)', '拖入圖片、點擊選擇或貼上 (Ctrl+V)', 'Suelta imágenes, haz clic o pega (Ctrl+V)'],
+  dropS: ['여러 장 가능 · PNG · JPG · WebP', 'Multiple files OK · PNG · JPG · WebP', '可多张 · PNG · JPG · WebP', '可多張 · PNG · JPG · WebP', 'Varias a la vez · PNG · JPG · WebP'],
+  langs: ['인식할 언어', 'Languages', '识别语言', '辨識語言', 'Idiomas'],
+  langsHint: ['(최대 3개 · 적을수록 빠르고 정확해요)', '(up to 3 · fewer is faster and more accurate)', '（最多 3 个 · 越少越快越准）', '（最多 3 個 · 越少越快越準）', '(hasta 3 · menos es más rápido y preciso)'],
+  maxLangs: ['언어는 3개까지 고를 수 있어요', 'You can pick up to 3 languages', '最多选择 3 种语言', '最多選擇 3 種語言', 'Puedes elegir hasta 3 idiomas'],
+  needLang: ['언어를 하나 이상 골라 주세요', 'Pick at least one language', '请至少选择一种语言', '請至少選擇一種語言', 'Elige al menos un idioma'],
+  layout: ['글자 배치', 'Text layout', '文字布局', '文字版面', 'Disposición del texto'],
+  psm3: ['자동 (문서·여러 단락)', 'Auto (documents, paragraphs)', '自动（文档、多段落）', '自動（文件、多段落）', 'Automático (documentos, párrafos)'],
+  psm6: ['한 덩어리 글', 'Single block of text', '单个文本块', '單一文字區塊', 'Un solo bloque de texto'],
+  psm11: ['흩어진 글자 (스크린샷·간판)', 'Sparse text (screenshots, signs)', '零散文字（截图、招牌）', '零散文字（截圖、招牌）', 'Texto disperso (capturas, carteles)'],
+  psm7: ['한 줄', 'Single line', '单行', '單行', 'Una sola línea'],
+  prep: ['자동 보정 (흑백·대비·작은 글자 확대)', 'Auto-enhance (grayscale, contrast, upscale small text)', '自动增强（灰度、对比度、放大小字）', '自動增強（灰階、對比、放大小字）', 'Mejora automática (grises, contraste, ampliar texto pequeño)'],
+  merge: ['줄바꿈 합치기 (문단 단위)', 'Join lines into paragraphs', '合并换行（按段落）', '合併換行（按段落）', 'Unir líneas en párrafos'],
+  cam: ['📷 카메라', '📷 Camera', '📷 相机', '📷 相機', '📷 Cámara'],
+  sample: ['샘플로 해보기', 'Try a sample', '用示例试试', '用範例試試', 'Probar un ejemplo'],
+  rerun: ['↻ 다시 인식', '↻ Run again', '↻ 重新识别', '↻ 重新辨識', '↻ Repetir'],
+  copyAll: ['📋 전체 복사', '📋 Copy all', '📋 全部复制', '📋 全部複製', '📋 Copiar todo'],
+  dlAll: ['⬇ 전체 .txt', '⬇ All as .txt', '⬇ 全部 .txt', '⬇ 全部 .txt', '⬇ Todo en .txt'],
+  boxes: ['글자 위치 표시', 'Show text boxes', '显示文字框', '顯示文字框', 'Mostrar cuadros'],
+  clear: ['모두 지우기', 'Clear all', '全部清除', '全部清除', 'Borrar todo'],
+  copy: ['📋 복사', '📋 Copy', '📋 复制', '📋 複製', '📋 Copiar'],
+  txt: ['⬇ .txt', '⬇ .txt', '⬇ .txt', '⬇ .txt', '⬇ .txt'],
+  remove: ['✕', '✕', '✕', '✕', '✕'],
+  removeT: ['이 이미지 빼기', 'Remove this image', '移除此图片', '移除此圖片', 'Quitar esta imagen'],
+  queued: ['대기 중', 'Queued', '排队中', '排隊中', 'En cola'],
+  loadEngine: ['OCR 엔진 불러오는 중…', 'Loading OCR engine…', '正在加载 OCR 引擎…', '正在載入 OCR 引擎…', 'Cargando motor OCR…'],
+  loadLang: ['언어 데이터 불러오는 중… {p}', 'Loading language data… {p}', '正在加载语言数据… {p}', '正在載入語言資料… {p}', 'Cargando datos de idioma… {p}'],
+  reading: ['글자 읽는 중… {n}/{total} · {p}', 'Reading text… {n}/{total} · {p}', '正在识别… {n}/{total} · {p}', '正在辨識… {n}/{total} · {p}', 'Leyendo texto… {n}/{total} · {p}'],
+  doneStat: ['완료 · {n}장 · {sec}초', 'Done · {n} image(s) · {sec}s', '完成 · {n} 张 · {sec} 秒', '完成 · {n} 張 · {sec} 秒', 'Listo · {n} imagen(es) · {sec} s'],
+  failed: ['실패: {msg}', 'Failed: {msg}', '失败：{msg}', '失敗：{msg}', 'Error: {msg}'],
+  badImg: ['이미지를 읽지 못했어요', "Couldn't read this image", '无法读取此图片', '無法讀取此圖片', 'No se pudo leer la imagen'],
+  noText: ['(글자를 찾지 못했어요. 언어나 글자 배치를 바꿔 보세요)', '(No text found. Try another language or layout.)', '（未找到文字，试试其他语言或布局）', '（未找到文字，試試其他語言或版面）', '(No se encontró texto. Prueba otro idioma o disposición.)'],
+  conf: ['확신도', 'Confidence', '置信度', '信心度', 'Confianza'],
+  chars: ['글자', 'Chars', '字符', '字元', 'Caracteres'],
+  lines: ['줄', 'Lines', '行', '行', 'Líneas'],
+  time: ['시간', 'Time', '耗时', '耗時', 'Tiempo'],
+  copied: ['복사했어요', 'Copied', '已复制', '已複製', 'Copiado'],
+  lineCopied: ['이 줄을 복사했어요: {s}', 'Copied line: {s}', '已复制此行：{s}', '已複製此行：{s}', 'Línea copiada: {s}'],
+  sampleText: ['카페 코시 영수증\n아메리카노 2잔 9,000원\n치즈케이크 1개 6,500원\n합계 15,500원\n2026-10-29 14:32', 'Cafe Cocy Receipt\nAmericano x2 $9.00\nCheesecake x1 $6.50\nTotal $15.50\n2026-10-29 14:32', 'Cocy 咖啡 收据\n美式咖啡 2杯 30元\n芝士蛋糕 1个 25元\n合计 55元\n2026-10-29 14:32', 'Cocy 咖啡 收據\n美式咖啡 2杯 120元\n起司蛋糕 1個 90元\n合計 210元\n2026-10-29 14:32', 'Recibo Café Cocy\nAmericano x2 6,00 €\nTarta de queso x1 4,50 €\nTotal 10,50 €\n2026-10-29 14:32'],
+  tip: ['처음 한 번은 언어 데이터(언어당 1~10MB)를 내려받고, 다음부터는 브라우저에 저장된 걸 써요. 상자를 누르면 그 줄만 복사돼요. 색은 인식 확신도예요(초록 높음 · 노랑 보통 · 빨강 낮음).', 'Language data (1–10 MB each) downloads once, then loads from the browser. Click a box to copy just that line. Box colour shows confidence (green high · yellow medium · red low).', '语言数据（每种 1–10 MB）首次下载后保存在浏览器中。点击框可只复制该行。颜色表示置信度（绿高 · 黄中 · 红低）。', '語言資料（每種 1–10 MB）首次下載後儲存在瀏覽器中。點擊框可只複製該行。顏色表示信心度（綠高 · 黃中 · 紅低）。', 'Los datos de idioma (1–10 MB cada uno) se descargan una vez y quedan en el navegador. Haz clic en un cuadro para copiar solo esa línea. El color indica la confianza (verde alta · amarillo media · rojo baja).'],
+  allTools: ['모든 도구', 'All tools', '全部工具', '全部工具', 'Todas las herramientas'],
+});
+I18n.init();
+
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const t = I18n.t;
+  const TESS = 'https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js';
+  const LANGS = [
+    ['kor', '한국어'], ['eng', 'English'], ['chi_sim', '简体中文'], ['chi_tra', '繁體中文'], ['jpn', '日本語'],
+    ['spa', 'Español'], ['fra', 'Français'], ['deu', 'Deutsch'], ['por', 'Português'], ['ita', 'Italiano'],
+    ['rus', 'Русский'], ['vie', 'Tiếng Việt'], ['tha', 'ไทย'], ['ara', 'العربية'], ['hin', 'हिन्दी'],
+  ];
+  const DEFAULT_LANGS = { ko: ['kor', 'eng'], en: ['eng'], 'zh-CN': ['chi_sim', 'eng'], 'zh-TW': ['chi_tra', 'eng'], es: ['spa', 'eng'] };
+  const CJK = '\\u3040-\\u30ff\\u3400-\\u4dbf\\u4e00-\\u9fff\\uf900-\\ufaff\\u3000-\\u303f\\uff00-\\uffef';
+  const CJK_GAP = new RegExp(`([${CJK}])\\s+(?=[${CJK}])`, 'g');
+
+  let langs;
+  try { langs = JSON.parse(localStorage.getItem('ocr_langs')); } catch (e) {}
+  if (!Array.isArray(langs) || !langs.length || !langs.every((l) => LANGS.some((x) => x[0] === l))) langs = (DEFAULT_LANGS[I18n.lang] || ['eng']).slice();
+
+  let items = [], seq = 0, busy = false, worker = null, workerLangs = '', job = null, lastStatus = null, gen = 0;
+
+  function status(key, vars, cls) {
+    lastStatus = key ? [key, vars, cls] : null;
+    $('status').className = cls || 'muted';
+    $('status').textContent = key ? t(key, vars) : '';
+  }
+
+  function renderLangs() {
+    $('langs').innerHTML = LANGS.map(([c, n]) => `<button type="button" data-l="${c}" class="${langs.includes(c) ? 'on' : ''}">${n}</button>`).join('');
+  }
+  $('langs').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    const c = b.dataset.l;
+    if (langs.includes(c)) {
+      if (langs.length === 1) { UI.toast(t('needLang')); return; }
+      langs = langs.filter((x) => x !== c);
+    } else {
+      if (langs.length >= 3) { UI.toast(t('maxLangs')); return; }
+      langs.push(c);
+    }
+    try { localStorage.setItem('ocr_langs', JSON.stringify(langs)); } catch (e) {}
+    renderLangs();
+  });
+
+  function loadScript(src) {
+    return new Promise((res, rej) => {
+      if (window.Tesseract) return res();
+      const s = document.createElement('script');
+      s.src = src; s.onload = res; s.onerror = () => rej(new Error('failed to load ' + src));
+      document.head.appendChild(s);
+    });
+  }
+
+  function onLog(m) {
+    const p = typeof m.progress === 'number' ? m.progress : 0;
+    if (/loading language/.test(m.status) || /loading tesseract core/.test(m.status) || /initializ/.test(m.status)) {
+      $('bar').style.width = (p * 100).toFixed(0) + '%';
+      status('loadLang', { p: Math.round(p * 100) + '%' });
+    } else if (m.status === 'recognizing text' && job) {
+      const frac = (job.n - 1 + p) / job.total;
+      $('bar').style.width = (frac * 100).toFixed(1) + '%';
+      status('reading', { n: job.n, total: job.total, p: Math.round(p * 100) + '%' });
+    }
+  }
+
+  async function ensureWorker() {
+    const key = langs.join('+');
+    if (worker && workerLangs === key) return;
+    status('loadEngine');
+    await loadScript(TESS);
+    if (!worker) worker = await Tesseract.createWorker(langs, 1, { logger: onLog });
+    else await worker.reinitialize(langs, 1);
+    workerLangs = key;
+  }
+
+  async function prepCanvas(file, enhance) {
+    const bmp = await createImageBitmap(file);
+    const max = Math.max(bmp.width, bmp.height);
+    let scale = max > 4000 ? 4000 / max : 1;
+    if (enhance && max < 1200) scale = Math.min(2.5, 1600 / max);
+    const w = Math.max(1, Math.round(bmp.width * scale)), h = Math.max(1, Math.round(bmp.height * scale));
+    const cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    const ctx = cv.getContext('2d', { willReadFrequently: true });
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(bmp, 0, 0, w, h);
+    const W = bmp.width, H = bmp.height;
+    bmp.close && bmp.close();
+    if (enhance) {
+      const img = ctx.getImageData(0, 0, w, h), d = img.data, hist = new Uint32Array(256);
+      for (let i = 0; i < d.length; i += 4) {
+        const y = (d[i] * 299 + d[i + 1] * 587 + d[i + 2] * 114) / 1000 | 0;
+        d[i] = y; hist[y]++;
+      }
+      const n = w * h;
+      let lo = 0, hi = 255, acc = 0, sum = 0;
+      for (let v = 0; v < 256; v++) sum += v * hist[v];
+      while (lo < 255 && (acc += hist[lo]) < n * 0.01) lo++;
+      acc = 0;
+      while (hi > 0 && (acc += hist[hi]) < n * 0.01) hi--;
+      const invert = sum / n < 110;
+      const span = Math.max(1, hi - lo);
+      for (let i = 0; i < d.length; i += 4) {
+        let v = ((d[i] - lo) * 255) / span;
+        v = v < 0 ? 0 : v > 255 ? 255 : v;
+        if (invert) v = 255 - v;
+        d[i] = d[i + 1] = d[i + 2] = v;
+        d[i + 3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+    }
+    return { cv, scale, W, H };
+  }
+
+  function buildText(lineGroups, merge) {
+    const paras = lineGroups.map((ls) => {
+      const parts = ls.map((l) => l.text.trim()).filter(Boolean);
+      if (!merge) return parts.join('\n');
+      return parts.reduce((a, s) => (!a ? s : /-$/.test(a) && /^[a-z]/.test(s) ? a.slice(0, -1) + s : new RegExp(`[${CJK}]$`).test(a) && new RegExp(`^[${CJK}]`).test(s) ? a + s : a + ' ' + s), '');
+    }).filter(Boolean);
+    return paras.join(merge ? '\n\n' : '\n').replace(CJK_GAP, '$1');
+  }
+
+  async function recognize(it, myGen) {
+    const { cv, scale, W, H } = await prepCanvas(it.file, $('prep').checked);
+    await worker.setParameters({ tessedit_pageseg_mode: $('psm').value, preserve_interword_spaces: '1' });
+    const t0 = performance.now();
+    const { data } = await worker.recognize(cv, {}, { text: true, blocks: true });
+    if (myGen !== gen) return;
+    const groups = [], lines = [];
+    for (const b of data.blocks || []) for (const p of b.paragraphs || []) {
+      const g = [];
+      for (const l of p.lines || []) {
+        const text = (l.text || '').replace(/\s+$/, '').replace(CJK_GAP, '$1');
+        if (!text.trim()) continue;
+        const bb = l.bbox;
+        const line = { text, conf: l.confidence, x: bb.x0 / scale / W, y: bb.y0 / scale / H, w: (bb.x1 - bb.x0) / scale / W, h: (bb.y1 - bb.y0) / scale / H };
+        g.push(line); lines.push(line);
+      }
+      if (g.length) groups.push(g);
+    }
+    Object.assign(it, { groups, lines, conf: Math.round(data.confidence || 0), ms: performance.now() - t0, state: 'done' });
+    it.text = buildText(groups, $('merge').checked);
+  }
+
+  function esc(s) { return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]); }
+
+  function renderItem(it) {
+    let el = $('it' + it.id);
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'card'; el.id = 'it' + it.id;
+      el.innerHTML = `<div class="ihead"><span class="name grow"></span><button class="btn sm" data-a="copy"></button><button class="btn sm" data-a="txt"></button><button class="btn sm" data-a="rm"></button></div>
+        <div class="item"><div class="stage"><img alt=""></div><div><textarea spellcheck="false"></textarea><div class="meta"></div></div></div>`;
+      el.querySelector('img').src = it.url;
+      el.querySelector('textarea').addEventListener('input', (e) => { it.text = e.target.value; it.edited = true; });
+      el.addEventListener('click', (e) => {
+        const a = e.target.closest('[data-a]');
+        const box = e.target.closest('.box');
+        if (box) { const l = it.lines[+box.dataset.i]; UI.copy(l.text, t('lineCopied', { s: l.text.slice(0, 40) })); return; }
+        if (!a) return;
+        if (a.dataset.a === 'copy') UI.copy(it.text || '', t('copied'));
+        else if (a.dataset.a === 'txt') download(baseName(it) + '.txt', it.text || '');
+        else if (a.dataset.a === 'rm') removeItem(it);
+      });
+      $('list').appendChild(el);
+    }
+    el.querySelector('.name').textContent = it.file.name || 'image';
+    el.querySelector('[data-a=copy]').textContent = t('copy');
+    el.querySelector('[data-a=txt]').textContent = t('txt');
+    el.querySelector('[data-a=rm]').textContent = t('remove');
+    el.querySelector('[data-a=rm]').title = t('removeT');
+    el.querySelector('[data-a=copy]').disabled = el.querySelector('[data-a=txt]').disabled = it.state !== 'done';
+    const stage = el.querySelector('.stage');
+    stage.classList.toggle('noboxes', !$('boxes').checked);
+    stage.querySelectorAll('.box').forEach((b) => b.remove());
+    (it.lines || []).forEach((l, i) => {
+      const b = document.createElement('div');
+      b.className = 'box ' + (l.conf >= 80 ? 'hi' : l.conf >= 60 ? 'mid' : 'lo');
+      b.dataset.i = i; b.title = l.text;
+      b.style.cssText = `left:${l.x * 100}%;top:${l.y * 100}%;width:${l.w * 100}%;height:${l.h * 100}%`;
+      stage.appendChild(b);
+    });
+    const ta = el.querySelector('textarea');
+    if (it.state === 'done') {
+      if (document.activeElement !== ta) ta.value = it.text || '';
+      ta.placeholder = t('noText');
+      ta.readOnly = false;
+      el.querySelector('.meta').innerHTML = `<span>${t('conf')} <b>${it.conf}%</b></span><span>${t('lines')} <b>${it.lines.length}</b></span><span>${t('chars')} <b>${(it.text || '').replace(/\s/g, '').length}</b></span><span>${t('time')} <b>${(it.ms / 1000).toFixed(1)}s</b></span>`;
+    } else {
+      ta.value = ''; ta.readOnly = true;
+      ta.placeholder = it.state === 'err' ? t('failed', { msg: it.err }) : t('queued');
+      el.querySelector('.meta').innerHTML = '';
+    }
+  }
+
+  function renderAll() {
+    items.forEach(renderItem);
+    $('allRow').hidden = !items.length;
+    $('rerunBtn').disabled = !items.length || busy;
+  }
+
+  function baseName(it) { return (it.file.name || 'image').replace(/\.[^.]+$/, ''); }
+  function download(name, text) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
+    a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  function allText() { return items.filter((x) => x.state === 'done').map((x) => (items.length > 1 ? `# ${x.file.name || 'image'}\n` : '') + x.text).join('\n\n'); }
+
+  function removeItem(it) {
+    items = items.filter((x) => x !== it);
+    URL.revokeObjectURL(it.url);
+    $('it' + it.id)?.remove();
+    renderAll();
+  }
+
+  async function addFiles(list) {
+    const imgs = [...list].filter((f) => f && /^image\//.test(f.type));
+    if (!imgs.length) { status('badImg', null, 'err'); return; }
+    for (const f of imgs) items.push({ id: ++seq, file: f, url: URL.createObjectURL(f), state: 'queued' });
+    renderAll();
+    runQueue();
+  }
+
+  async function runQueue(all) {
+    if (busy) return;
+    if (all) items.forEach((x) => { x.state = 'queued'; x.lines = []; x.edited = false; });
+    const todo = items.filter((x) => x.state === 'queued');
+    if (!todo.length) return;
+    busy = true;
+    const myGen = gen;
+    renderAll();
+    $('bar').style.width = '0';
+    const t0 = performance.now();
+    let n = 0;
+    try {
+      await ensureWorker();
+      for (const it of todo) {
+        if (myGen !== gen) return;
+        if (!items.includes(it)) continue;
+        job = { n: ++n, total: todo.length };
+        try { await recognize(it, myGen); }
+        catch (e) { it.state = 'err'; it.err = e.message || String(e); if (/createImageBitmap|decode|source/i.test(it.err)) it.err = t('badImg'); }
+        renderItem(it);
+      }
+      if (myGen !== gen) return;
+      $('bar').style.width = '100%';
+      status('doneStat', { n, sec: ((performance.now() - t0) / 1000).toFixed(1) });
+    } catch (e) {
+      status('failed', { msg: e.message || String(e) }, 'err');
+      todo.forEach((x) => { if (x.state === 'queued') { x.state = 'err'; x.err = e.message || String(e); } });
+      try { worker && (await worker.terminate()); } catch (_) {}
+      worker = null; workerLangs = '';
+    } finally {
+      job = null;
+      if (myGen === gen) {
+        busy = false;
+        renderAll();
+        if (items.some((x) => x.state === 'queued')) runQueue();
+      }
+    }
+  }
+
+  function reset() {
+    gen++;
+    if (busy && worker) { worker.terminate().catch(() => {}); worker = null; workerLangs = ''; }
+    busy = false; job = null;
+    items.forEach((x) => URL.revokeObjectURL(x.url));
+    items = [];
+    $('list').innerHTML = '';
+    $('bar').style.width = '0';
+    status(null);
+    renderAll();
+  }
+
+  async function sample() {
+    const cv = document.createElement('canvas');
+    const lines = t('sampleText').split('\n');
+    cv.width = 900; cv.height = 90 + lines.length * 70;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = '#fbfaf6'; ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.fillStyle = '#1f2937';
+    lines.forEach((s, i) => {
+      ctx.font = `${i === 0 ? 'bold 46px' : '40px'} "Noto Sans KR","Noto Sans CJK KR","Noto Sans CJK SC","Malgun Gothic","PingFang SC","Microsoft YaHei",sans-serif`;
+      ctx.fillText(s, 48, 80 + i * 70);
+    });
+    const b = await new Promise((r) => cv.toBlob(r, 'image/png'));
+    addFiles([new File([b], 'sample.png', { type: 'image/png' })]);
+  }
+
+  const drop = $('drop');
+  drop.addEventListener('click', () => $('file').click());
+  $('file').addEventListener('change', (e) => { addFiles(e.target.files); e.target.value = ''; });
+  $('cam').addEventListener('change', (e) => { addFiles(e.target.files); e.target.value = ''; });
+  $('camBtn').addEventListener('click', () => $('cam').click());
+  drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); addFiles(e.dataTransfer.files); });
+  document.addEventListener('paste', (e) => {
+    if (e.target.closest && e.target.closest('textarea,input')) return;
+    const fs = [...(e.clipboardData ? e.clipboardData.files : [])].filter((x) => x.type.startsWith('image/'));
+    if (fs.length) addFiles(fs);
+  });
+  $('sampleBtn').addEventListener('click', sample);
+  $('rerunBtn').addEventListener('click', () => runQueue(true));
+  $('clearBtn').addEventListener('click', reset);
+  $('copyAll').addEventListener('click', () => UI.copy(allText(), t('copied')));
+  $('dlAll').addEventListener('click', () => download(items.length === 1 ? baseName(items[0]) + '.txt' : 'ocr.txt', allText()));
+  $('boxes').addEventListener('change', renderAll);
+  $('merge').addEventListener('change', () => { items.forEach((x) => { if (x.state === 'done' && !x.edited) x.text = buildText(x.groups, $('merge').checked); }); renderAll(); });
+  document.addEventListener('i18n:change', () => { renderAll(); if (lastStatus) status(...lastStatus); });
+
+  renderLangs();
+  renderAll();
+})();
+</script>
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: '이미지 글자 추출 (OCR) · 브라우저에서 무료 — tool.cocy.io',
+  description: '사진·스크린샷·문서 이미지에서 글자를 브라우저 안에서 추출. 업로드 없음. 한국어·영어·중국어·일본어 등 다국어, 여러 장 한 번에, 글자 위치 표시, 텍스트 복사·저장',
+  url: 'https://tool.cocy.io/ocr/'
+});
+</script>
+</body>
+</html>

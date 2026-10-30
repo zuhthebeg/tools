@@ -135,6 +135,21 @@
     "group": "ai"
   },
   {
+    "title": "이미지 글자 추출 (OCR)",
+    "icon": "https://tool.cocy.io/ocr/icon.svg",
+    "url": "https://tool.cocy.io/ocr/",
+    "desc": "사진·스크린샷 속 글자를 브라우저 안에서 텍스트로. 업로드 없음, 한국어·영어·중국어·일본어 등 다국어, 여러 장 한 번에",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool",
+    "group": "ai"
+  },
+  {
     "title": "느낌가사 Feel Lyrics",
     "icon": "https://tool.cocy.io/feellyrics/icon.svg",
     "url": "https://tool.cocy.io/feellyrics/",
