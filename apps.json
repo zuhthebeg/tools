@@ -120,6 +120,21 @@
     "group": "ai"
   },
   {
+    "title": "브라우저 LLM 채팅 · 툴 콜링",
+    "icon": "https://tool.cocy.io/browserllm/icon.svg",
+    "url": "https://tool.cocy.io/browserllm/",
+    "desc": "WebGPU로 Qwen·Llama·Gemma를 브라우저에서 실행. 채팅과 툴 콜링(위키·날씨·계산) 데모, 대화는 서버 전송 없음",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool",
+    "group": "ai"
+  },
+  {
     "title": "느낌가사 Feel Lyrics",
     "icon": "https://tool.cocy.io/feellyrics/icon.svg",
     "url": "https://tool.cocy.io/feellyrics/",
