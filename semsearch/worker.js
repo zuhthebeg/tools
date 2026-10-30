@@ -21,7 +21,7 @@ self.onmessage = async ({ data: m }) => {
       const B = 16, out = [];
       let dim = 0;
       for (let i = 0; i < m.texts.length; i += B) {
-        const t = await embed(m.texts.slice(i, i + B), { pooling: 'mean', normalize: true });
+        const t = await embed(m.texts.slice(i, i + B), { pooling: m.pooling || 'mean', normalize: true });
         dim = t.dims[t.dims.length - 1];
         out.push(t.data);
         self.postMessage({ type: 'step', done: Math.min(i + B, m.texts.length), total: m.texts.length });

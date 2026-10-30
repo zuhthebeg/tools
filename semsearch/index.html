@@ -23,7 +23,9 @@
 .bar { height: 8px; background: var(--panel-2); border-radius: 99px; overflow: hidden; margin-top: 10px; }
 .bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #38bdf8, #a78bfa); transition: width .2s; }
 .qrow { display: flex; gap: 8px; margin-top: 12px; }
-.qrow input { flex: 1; min-width: 0; }
+.qrow { flex-wrap: wrap; }
+.qrow input { flex: 1 1 220px; min-width: 0; }
+.qrow select { flex: 0 0 auto; }
 .res { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-top: 8px; background: var(--panel-2); }
 .res .top { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
 .res .score { font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; min-width: 36px; }
@@ -93,7 +95,7 @@
     <div id="results"></div>
   </div>
 
-  <p class="muted" style="font-size:13px" data-i18n="tip">처음 한 번은 모델(약 23~113MB)을 내려받고, 다음부터는 브라우저 캐시에서 바로 불러와요. 점수는 코사인 유사도(1에 가까울수록 비슷함)이고, 결과 문장을 누르면 앞뒤 문맥이 보여요.</p>
+  <p class="muted" style="font-size:13px" data-i18n="tip">처음 한 번은 모델(약 23~325MB)을 내려받고, 다음부터는 브라우저 캐시에서 바로 불러와요. 점수는 코사인 유사도(1에 가까울수록 비슷함)이고, 결과 문장을 누르면 앞뒤 문맥이 보여요.</p>
   <footer class="site">© 2026 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
 </div>
 <script src="/lib/ui.js"></script>
@@ -113,8 +115,8 @@ I18n.define({
   spLine: ['줄', 'Lines', '行', '行', 'Líneas'],
   spPara: ['문단 (빈 줄 기준)', 'Paragraphs (blank line)', '段落（按空行）', '段落（依空行）', 'Párrafos (línea en blanco)'],
   model: ['모델', 'Model', '模型', '模型', 'Modelo'],
-  mE5: ['E5 small · 다국어, 긴 문서 검색', 'E5 small · multilingual, longer passages', 'E5 small · 多语言，适合长段落', 'E5 small · 多語言，適合長段落', 'E5 small · multilingüe, pasajes largos'],
-  mPara: ['MiniLM 다국어 · 문장·질문 유사도 (추천)', 'MiniLM multilingual · sentences & questions (recommended)', 'MiniLM 多语言 · 句子/问题相似度（推荐）', 'MiniLM 多語言 · 句子/問題相似度（推薦）', 'MiniLM multilingüe · frases y preguntas (recomendado)'],
+  mGte: ['GTE 다국어 · 가장 정확 (추천)', 'GTE multilingual · most accurate (recommended)', 'GTE 多语言 · 最准确（推荐）', 'GTE 多語言 · 最準確（推薦）', 'GTE multilingüe · el más preciso (recomendado)'],
+  mPara: ['MiniLM 다국어 · 빠름, 긴 글에 적합', 'MiniLM multilingual · faster, for long texts', 'MiniLM 多语言 · 更快，适合长文本', 'MiniLM 多語言 · 更快，適合長文字', 'MiniLM multilingüe · más rápido, para textos largos'],
   mMini: ['MiniLM L6 · 영어 전용, 가장 가벼움', 'MiniLM L6 · English only, lightest', 'MiniLM L6 · 仅英语，最轻', 'MiniLM L6 · 僅英語，最輕', 'MiniLM L6 · solo inglés, el más ligero'],
   sample: ['샘플 FAQ로 해보기', 'Try a sample FAQ', '用示例 FAQ 试试', '用範例 FAQ 試試', 'Probar con unas FAQ de ejemplo'],
   index: ['⚡ 색인 만들기', '⚡ Build index', '⚡ 建立索引', '⚡ 建立索引', '⚡ Crear índice'],
@@ -140,7 +142,7 @@ I18n.define({
   copyAll: ['📋 결과 복사', '📋 Copy results', '📋 复制结果', '📋 複製結果', '📋 Copiar resultados'],
   copyOne: ['복사', 'Copy', '复制', '複製', 'Copiar'],
   remove: ['빼기', 'Remove', '移除', '移除', 'Quitar'],
-  tip: ['처음 한 번은 모델(약 23~113MB)을 내려받고, 다음부터는 브라우저 캐시에서 바로 불러와요. 점수는 코사인 유사도(1에 가까울수록 비슷함)이고, 결과 문장을 누르면 앞뒤 문맥이 보여요.', 'The model (about 23–113 MB) downloads once, then loads from the browser cache. Scores are cosine similarity (closer to 1 = more similar). Click a result to see the surrounding context.', '模型（约 23~113 MB）首次下载后从浏览器缓存加载。分数为余弦相似度（越接近 1 越相似），点击结果可查看上下文。', '模型（約 23~113 MB）首次下載後從瀏覽器快取載入。分數為餘弦相似度（越接近 1 越相似），點擊結果可查看上下文。', 'El modelo (unos 23–113 MB) se descarga una vez y luego se carga de la caché. La puntuación es similitud coseno (más cerca de 1 = más parecido). Haz clic en un resultado para ver el contexto.'],
+  tip: ['처음 한 번은 모델(약 23~325MB)을 내려받고, 다음부터는 브라우저 캐시에서 바로 불러와요. 점수는 코사인 유사도(1에 가까울수록 비슷함)이고, 결과 문장을 누르면 앞뒤 문맥이 보여요.', 'The model (about 23–325 MB) downloads once, then loads from the browser cache. Scores are cosine similarity (closer to 1 = more similar). Click a result to see the surrounding context.', '模型（约 23~325 MB）首次下载后从浏览器缓存加载。分数为余弦相似度（越接近 1 越相似），点击结果可查看上下文。', '模型（約 23~325 MB）首次下載後從瀏覽器快取載入。分數為餘弦相似度（越接近 1 越相似），點擊結果可查看上下文。', 'El modelo (unos 23–325 MB) se descarga una vez y luego se carga de la caché. La puntuación es similitud coseno (más cerca de 1 = más parecido). Haz clic en un resultado para ver el contexto.'],
   allTools: ['모든 도구', 'All tools', '全部工具', '全部工具', 'Todas las herramientas'],
   sampleName: ['샘플 FAQ', 'Sample FAQ', '示例 FAQ', '範例 FAQ', 'FAQ de ejemplo'],
   sampleDoc: [
@@ -225,8 +227,8 @@ I18n.init();
   const $ = (id) => document.getElementById(id);
   const t = I18n.t;
   const MODELS = [
+    { id: 'onnx-community/gte-multilingual-base', key: 'mGte', mb: 325, q: '', p: '', thr: 0.85, pooling: 'cls' },
     { id: 'Xenova/paraphrase-multilingual-MiniLM-L12-v2', key: 'mPara', mb: 113, q: '', p: '', thr: 0.8 },
-    { id: 'Xenova/multilingual-e5-small', key: 'mE5', mb: 113, q: 'query: ', p: 'passage: ', thr: 0.92 },
     { id: 'Xenova/all-MiniLM-L6-v2', key: 'mMini', mb: 23, q: '', p: '', thr: 0.75 },
   ];
   const MAX_CHUNKS = 5000, MAX_PAIRS_N = 2000, MAX_PAIRS_OUT = 200, MAX_FILE = 5 * 2 ** 20;
@@ -323,7 +325,7 @@ I18n.init();
     const need = [...new Set(texts.filter((s) => !cache.has(ck(s))))];
     if (need.length) {
       await ensureModel(m);
-      const r = await call({ type: 'embed', texts: need.map((s) => prefix + s) }, onStep);
+      const r = await call({ type: 'embed', texts: need.map((s) => prefix + s), pooling: m.pooling }, onStep);
       need.forEach((s, i) => cache.set(ck(s), r.data.subarray(i * r.dim, (i + 1) * r.dim)));
     }
     return texts.map((s) => cache.get(ck(s)));
