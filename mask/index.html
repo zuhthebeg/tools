@@ -388,7 +388,7 @@ ov.addEventListener('pointerup', () => {
     regions.push({ type: 'manual', x: Math.min(d.x0, d.x1), y: Math.min(d.y0, d.y1), w, h, on: true });
     sel = regions.length - 1;
   } else if (d.hit >= 0) {
-    if (sel === d.hit) regions[d.hit].on = !regions[d.hit].on;
+    regions[d.hit].on = !regions[d.hit].on;
     sel = d.hit;
   } else sel = -1;
   refresh();
