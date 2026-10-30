@@ -272,7 +272,7 @@ I18n.init();
         else parts.push(...(line.match(/[^.!?。！？]+[.!?。！？]*["')\]」』]*\s*/g) || [line]));
       }
     }
-    return parts.map((s) => s.trim()).filter((s) => s.length > 1);
+    return parts.map((s) => s.trim()).filter(Boolean);
   }
 
   function makeChunks() {
@@ -394,19 +394,21 @@ I18n.init();
     } catch (e) { /* status already shows the error */ }
   }
 
+  let pairSeq = 0;
   async function findPairs() {
     try {
       if (!(await ensureIndex())) return;
-      const ix = index, thr = +$('thr').value, n = Math.min(ix.vecs.length, MAX_PAIRS_N), out = [];
-      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
-        if (ix.chunks[i].text === ix.chunks[j].text) { out.push([1, i, j]); continue; }
-        const s = dot(ix.vecs[i], ix.vecs[j]);
-        if (s >= thr) out.push([s, i, j]);
-      }
-      out.sort((a, b) => b[0] - a[0]);
-      last = { type: 'pairs', ix, thr, n, capped: ix.vecs.length > n, total: out.length, items: out.slice(0, MAX_PAIRS_OUT) };
+      const ix = index, thr = +$('thr').value, n = Math.min(ix.vecs.length, MAX_PAIRS_N), my = ++pairSeq;
+      const dim = ix.vecs[0].length, vecs = new Float32Array(n * dim);
+      for (let i = 0; i < n; i++) vecs.set(ix.vecs[i], i * dim);
+      $('pairsBtn').disabled = true;
+      const r = await call({ type: 'pairs', vecs, dim, n, thr, max: MAX_PAIRS_OUT, texts: ix.chunks.slice(0, n).map((c) => c.text) },
+        (d) => { if (d.type === 'step') $('bar').style.width = ((d.done / d.total) * 100).toFixed(1) + '%'; });
+      $('bar').style.width = '100%';
+      if (my !== pairSeq || ix !== index) return;
+      last = { type: 'pairs', ix, thr, n, capped: ix.vecs.length > n, total: r.total, items: r.items };
       renderResults();
-    } catch (e) {}
+    } catch (e) {} finally { $('pairsBtn').disabled = false; }
   }
 
   function srcLabel(c) { return `${docName(c.doc)} · #${c.idx + 1}`; }
@@ -418,7 +420,7 @@ I18n.init();
 
   function renderResults() {
     const box = $('results');
-    if (!last || last.ix !== index) { box.innerHTML = ''; $('resHead').hidden = true; return; }
+    if (!last || last.ix !== index || last.type !== mode) { box.innerHTML = ''; $('resHead').hidden = true; return; }
     const ix = last.ix;
     $('resHead').hidden = false;
     if (last.type === 'search') {
@@ -508,7 +510,7 @@ I18n.init();
   $('goBtn').addEventListener('click', search);
   let deb;
   $('q').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) { clearTimeout(deb); search(); } });
-  $('q').addEventListener('input', () => { clearTimeout(deb); if (index && !dirty && $('q').value.trim().length > 1) deb = setTimeout(search, 450); });
+  $('q').addEventListener('input', () => { clearTimeout(deb); if (index && !dirty && $('q').value.trim()) deb = setTimeout(search, 450); });
   $('topk').addEventListener('change', () => { if (last && last.type === 'search') search(); });
 
   function setMode(m) {
@@ -516,6 +518,7 @@ I18n.init();
     $('modeSeg').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.m === m));
     $('searchBox').hidden = m !== 'search';
     $('pairsBox').hidden = m !== 'pairs';
+    renderResults();
   }
   $('modeSeg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setMode(b.dataset.m); });
   $('thr').addEventListener('input', () => { $('thrV').textContent = (+$('thr').value).toFixed(2); });
