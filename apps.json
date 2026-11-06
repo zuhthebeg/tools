@@ -165,6 +165,21 @@
     "group": "ai"
   },
   {
+    "title": "3D 사진 · AI 깊이 지도",
+    "icon": "https://tool.cocy.io/depth/icon.svg",
+    "url": "https://tool.cocy.io/depth/",
+    "desc": "사진 한 장으로 AI 깊이 지도(Depth Anything V2)를 만들고 움직이는 3D 사진으로. 마우스·기울기·자동 회전, 3D 영상·깊이 PNG 저장. 업로드 없음",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool",
+    "group": "ai"
+  },
+  {
     "title": "브라우저 LLM 채팅 · 툴 콜링",
     "icon": "https://tool.cocy.io/browserllm/icon.svg",
     "url": "https://tool.cocy.io/browserllm/",
