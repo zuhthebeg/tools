@@ -118,11 +118,22 @@ I18n.init();
   const UI_LANG = { ko: 'ko', en: 'en', es: 'es' };
   let gpu = false, worker = null, busy = false, gen = 0, lastStatus = null, wavBlob = null, audioUrl = null, wavName = '';
 
-  const word = (w) => new RegExp(`(?<!\\p{L})(${w})(?!\\p{L})`, 'iu');
-  const detect = (s) => /[\uac00-\ud7a3]/.test(s) ? 'ko'
-    : /[ãõ]/.test(s) || word('você|não|obrigad[oa]|está|olá').test(s) ? 'pt'
-    : /[ñ¿¡]/.test(s) || word('hola|gracias|qué|está|usted').test(s) ? 'es'
-    : /[èêëàùœçé]/.test(s) || word('bonjour|merci|vous|est|une').test(s) ? 'fr' : 'en';
+  const HINTS = {
+    pt: [/[ãõ]/g, 3, /(?<!\p{L})(você|não|obrigad[oa]|olá|faça|isso|também|muito)(?!\p{L})/gu, 2, /ç/g, 1, /(?<!\p{L})está(?!\p{L})/gu, 1],
+    es: [/[ñ¿¡]/g, 3, /(?<!\p{L})(hola|gracias|qué|usted|bien|muy|señor[a]?)(?!\p{L})/gu, 2, /(?<!\p{L})está(?!\p{L})/gu, 1],
+    fr: [/[èëùœî]/g, 3, /(?<!\p{L})(bonjour|merci|vous|est|une|je|très|demain|avec)(?!\p{L})/gu, 2, /ç/g, 1],
+  };
+  const detect = (s) => {
+    if (/[\uac00-\ud7a3]/.test(s)) return 'ko';
+    const low = s.toLowerCase();
+    let best = 'en', top = 0;
+    for (const [l, h] of Object.entries(HINTS)) {
+      let sc = 0;
+      for (let k = 0; k < h.length; k += 2) sc += (low.match(h[k]) || []).length * h[k + 1];
+      if (sc > top) { top = sc; best = l; }
+    }
+    return best;
+  };
   const lang = () => $('lang').value === 'auto' ? detect($('text').value) : $('lang').value;
 
   function status(key, vars, cls) {
