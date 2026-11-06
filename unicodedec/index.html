@@ -143,7 +143,15 @@ I18n.init();
   function decUrl(s) {
     if ($('oPlus').checked) s = s.replace(/\+/g, ' ');
     try { return decodeURIComponent(s); } catch (e) {
-      return s.replace(/(?:%[0-9a-fA-F]{2})+/g, (m) => new TextDecoder().decode(Uint8Array.from(m.match(/[0-9a-fA-F]{2}/g), (h) => parseInt(h, 16))));
+      return s.replace(/(?:%[0-9a-fA-F]{2})+/g, (m) => {
+        const e = m.match(/%[0-9a-fA-F]{2}/g);
+        let out = '';
+        for (let i = 0; i < e.length;) {
+          const b = parseInt(e[i].slice(1), 16), n = b < 0x80 ? 1 : b >= 0xF0 ? 4 : b >= 0xE0 ? 3 : b >= 0xC0 ? 2 : 1;
+          try { out += decodeURIComponent(e.slice(i, i + n).join('')); i += n; } catch (e2) { out += e[i]; i++; }
+        }
+        return out;
+      });
     }
   }
   function decHtml(s) { const d = new DOMParser().parseFromString('<!doctype html><textarea>' + s.replace(/<\/textarea/gi, '&lt;/textarea') + '</textarea>', 'text/html'); return d.querySelector('textarea').value; }
