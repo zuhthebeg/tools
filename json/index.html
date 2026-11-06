@@ -144,6 +144,7 @@ I18n.init();
         if (c === '\\') {
           const e = s[i++];
           if (e === 'u' && /^[0-9a-fA-F]{4}$/.test(s.substr(i, 4))) { o += String.fromCharCode(parseInt(s.substr(i, 4), 16)); i += 4; }
+          else if (e === 'x' && /^[0-9a-fA-F]{2}$/.test(s.substr(i, 2))) { o += String.fromCharCode(parseInt(s.substr(i, 2), 16)); i += 2; }
           else if (e === '\n') {}
           else o += MAP[e] ?? e;
         } else o += c;
@@ -164,7 +165,7 @@ I18n.init();
           if (s[i] === '}') { i++; return o; }
           const k = s[i] === '"' || s[i] === "'" ? str() : word();
           ws(); if (s[i] !== ':') fail("':' expected"); i++;
-          o[k] = val(depth + 1); ws();
+          Object.defineProperty(o, k, { value: val(depth + 1), enumerable: true, writable: true, configurable: true }); ws();
           if (s[i] === ',') { i++; continue; }
           if (s[i] === '}') { i++; return o; }
           fail("',' or '}' expected");
