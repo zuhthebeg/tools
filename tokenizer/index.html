@@ -597,7 +597,7 @@ const TK = [
 ];
 TK.forEach(t => { t.tok = null; t.state = t.builtin ? 'ready' : 'idle'; t.count = null; });
 let tfP = null;
-const tf = () => tfP || (tfP = import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1').then(m => { m.env.allowLocalModels = false; return m; }));
+const tf = () => tfP || (tfP = import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1').then(m => { m.env.allowLocalModels = false; return m; }).catch(e => { tfP = null; throw e; }));
 async function loadTk(t) {
   if (t.state === 'ready' || t.state === 'loading') return;
   t.state = 'loading'; renderTk();
