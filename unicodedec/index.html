@@ -132,7 +132,7 @@ I18n.init();
       const b = Uint8Array.from(m.match(/[0-9a-fA-F]{2}/g), (h) => parseInt(h, 16));
       try { return new TextDecoder('utf-8', { fatal: true }).decode(b); } catch (e) { return String.fromCharCode(...b); }
     });
-    s = s.replace(/\\u\{([0-9a-fA-F]{1,6})\}|\\U([0-9a-fA-F]{8})|\\u([0-9a-fA-F]{4})|U\+([0-9a-fA-F]{4,6})\b/g, (m, a, b, c, d) => {
+    s = s.replace(/\\u\{([0-9a-fA-F]{1,6})\}|\\U([0-9a-fA-F]{8})|\\u([0-9a-fA-F]{4})|(?<![A-Za-z0-9])U\+([0-9a-fA-F]{4,6})\b/g, (m, a, b, c, d) => {
       const cp = parseInt(a || b || c || d, 16);
       if (cp > 0x10FFFF) return m;
       return c ? String.fromCharCode(cp) : String.fromCodePoint(cp);
@@ -163,7 +163,7 @@ I18n.init();
     try { return new TextDecoder('utf-8', { fatal: true }).decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))); } catch (e) { throw new Error(t('errUtf8')); }
   }
   function detect(s) {
-    if (/\\u\{?[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8}|\\x[0-9a-fA-F]{2}|U\+[0-9a-fA-F]{4,6}\b/.test(s)) return 'unicode';
+    if (/\\u\{?[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8}|\\x[0-9a-fA-F]{2}|(?<![A-Za-z0-9])U\+[0-9a-fA-F]{4,6}\b/.test(s)) return 'unicode';
     if (/%[0-9a-fA-F]{2}/.test(s)) return 'url';
     if (/&(?:#\d+|#x[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]{1,31});/.test(s)) return 'html';
     const n = s.trim();
