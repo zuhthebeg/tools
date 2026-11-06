@@ -212,7 +212,7 @@ I18n.init();
   }
 
   function reset() {
-    cur = null;
+    cur = null; verSeq++;
     $('tokView').hidden = true;
     $('hdrOut').textContent = ''; $('payOut').textContent = ''; $('claims').innerHTML = '';
     $('verStatus').textContent = '';
