@@ -116,12 +116,13 @@ I18n.init();
     fr: 'Bonjour ! Cette voix est générée directement dans votre navigateur. Rien de ce que vous tapez n’est envoyé à un serveur.',
   };
   const UI_LANG = { ko: 'ko', en: 'en', es: 'es' };
-  let gpu = false, worker = null, busy = false, gen = 0, lastStatus = null, wavBlob = null, audioUrl = null;
+  let gpu = false, worker = null, busy = false, gen = 0, lastStatus = null, wavBlob = null, audioUrl = null, wavName = '';
 
+  const word = (w) => new RegExp(`(?<!\\p{L})(${w})(?!\\p{L})`, 'iu');
   const detect = (s) => /[\uac00-\ud7a3]/.test(s) ? 'ko'
-    : /[ãõ]|\b(você|não|obrigad[oa])\b/i.test(s) ? 'pt'
-    : /[ñ¿¡]|\b(hola|gracias)\b/i.test(s) ? 'es'
-    : /[èêëàùœ]|\b(bonjour|merci|vous)\b/i.test(s) ? 'fr' : 'en';
+    : /[ãõ]/.test(s) || word('você|não|obrigad[oa]|está|olá').test(s) ? 'pt'
+    : /[ñ¿¡]/.test(s) || word('hola|gracias|qué|está|usted').test(s) ? 'es'
+    : /[èêëàùœçé]/.test(s) || word('bonjour|merci|vous|est|une').test(s) ? 'fr' : 'en';
   const lang = () => $('lang').value === 'auto' ? detect($('text').value) : $('lang').value;
 
   function status(key, vars, cls) {
@@ -133,7 +134,9 @@ I18n.init();
     const cur = $('lang').value || 'auto';
     $('lang').innerHTML = `<option value="auto">${t('auto', { l: t(detect($('text').value)) })}</option>` + LANGS.map((l) => `<option value="${l}">${t(l)}</option>`).join('');
     $('lang').value = cur;
-    const v = $('voice').value || localStorage.getItem('tts_voice') || 'F1';
+    let saved = null;
+    try { saved = localStorage.getItem('tts_voice'); } catch (e) {}
+    const v = $('voice').value || (VOICES.includes(saved) ? saved : 'F1');
     $('voice').innerHTML = VOICES.map((x) => `<option value="${x}">${t(x[0] === 'F' ? 'female' : 'male', { n: x[1] })}</option>`).join('');
     $('voice').value = v;
     const s = $('steps').value || '5';
@@ -191,7 +194,7 @@ I18n.init();
     const text = $('text').value.trim();
     if (!text) { status('empty', null, 'err'); return; }
     if (busy) stop(true);
-    const my = ++gen, chunks = split(text), pcm = [];
+    const my = ++gen, chunks = split(text), pcm = [], runLang = lang(), runVoice = $('voice').value;
     let sr = 44100;
     busy = true;
     $('runBtn').disabled = true; $('stopBtn').hidden = false; $('bar').style.width = '0';
@@ -210,7 +213,7 @@ I18n.init();
             loaded = true;
             $('bar').style.width = '0';
             status('working', { done: 0, total: chunks.length });
-            w.postMessage({ type: 'run', chunks, lang: lang(), voice: $('voice').value, steps: +$('steps').value, speed: +$('speed').value });
+            w.postMessage({ type: 'run', chunks, lang: runLang, voice: runVoice, steps: +$('steps').value, speed: +$('speed').value });
           } else if (d.type === 'chunk') {
             sr = d.sr; pcm[d.i] = d.audio;
             $('bar').style.width = (((d.i + 1) / d.total) * 100).toFixed(1) + '%';
@@ -224,6 +227,7 @@ I18n.init();
       if (my !== gen) return;
       const r = wav(pcm, sr);
       wavBlob = r.blob;
+      wavName = `tts-${runLang}-${runVoice}.wav`;
       if (audioUrl) URL.revokeObjectURL(audioUrl);
       audioUrl = URL.createObjectURL(wavBlob);
       $('audio').src = audioUrl;
@@ -264,7 +268,7 @@ I18n.init();
   $('wavBtn').addEventListener('click', () => {
     if (!wavBlob) return;
     const a = document.createElement('a');
-    a.href = audioUrl; a.download = `tts-${lang()}-${$('voice').value}.wav`; a.click();
+    a.href = audioUrl; a.download = wavName; a.click();
   });
   document.addEventListener('i18n:change', () => { render(); renderDur(); if (lastStatus) status(...lastStatus); });
 
