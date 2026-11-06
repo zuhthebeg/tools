@@ -90,6 +90,21 @@
     "group": "ai"
   },
   {
+    "title": "AI 사진 검색 · 비슷한 사진 찾기",
+    "icon": "https://tool.cocy.io/photofind/icon.svg",
+    "url": "https://tool.cocy.io/photofind/",
+    "desc": "'바다 노을', '강아지'처럼 말로 내 사진 찾기, 비슷한·중복 사진 묶기. SigLIP 2가 브라우저 안에서 동작, 사진 업로드 없음",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool",
+    "group": "ai"
+  },
+  {
     "title": "유니코드 디코더",
     "icon": "https://tool.cocy.io/unicodedec/icon.svg",
     "url": "https://tool.cocy.io/unicodedec/",
