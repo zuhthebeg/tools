@@ -119,9 +119,9 @@ I18n.init();
   let gpu = false, worker = null, busy = false, gen = 0, lastStatus = null, wavBlob = null, audioUrl = null, wavName = '';
 
   const HINTS = {
-    pt: [/[ãõ]/g, 3, /(?<!\p{L})(você|não|obrigad[oa]|olá|faça|isso|também|muito)(?!\p{L})/gu, 2, /ç/g, 1, /(?<!\p{L})está(?!\p{L})/gu, 1],
+    pt: [/[ãõ]/g, 3, /(?<!\p{L})(você|não|obrigad[oa]|olá|faça|isso|também|muito)(?!\p{L})/gu, 2, /[çêô]/g, 1, /(?<!\p{L})está(?!\p{L})/gu, 1],
     es: [/[ñ¿¡]/g, 3, /(?<!\p{L})(hola|gracias|qué|usted|bien|muy|señor[a]?)(?!\p{L})/gu, 2, /(?<!\p{L})está(?!\p{L})/gu, 1],
-    fr: [/[èëùœî]/g, 3, /(?<!\p{L})(bonjour|merci|vous|est|une|je|très|demain|avec)(?!\p{L})/gu, 2, /ç/g, 1],
+    fr: [/[èëùœî]/g, 3, /(?<!\p{L})(bonjour|merci|vous|est|une|je|très|demain|avec|ça|va|être|bientôt|oui|c'est)(?!\p{L})/gu, 2, /[çàêô]/g, 1],
   };
   const detect = (s) => {
     if (/[\uac00-\ud7a3]/.test(s)) return 'ko';
