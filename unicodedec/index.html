@@ -143,7 +143,7 @@ I18n.init();
   function decUrl(s) {
     if ($('oPlus').checked) s = s.replace(/\+/g, ' ');
     try { return decodeURIComponent(s); } catch (e) {
-      return s.replace(/(?:%[0-9a-fA-F]{2})+/g, (m) => { try { return decodeURIComponent(m); } catch (e2) { return m; } });
+      return s.replace(/(?:%[0-9a-fA-F]{2})+/g, (m) => new TextDecoder().decode(Uint8Array.from(m.match(/[0-9a-fA-F]{2}/g), (h) => parseInt(h, 16))));
     }
   }
   function decHtml(s) { const d = new DOMParser().parseFromString('<!doctype html><textarea>' + s.replace(/<\/textarea/gi, '&lt;/textarea') + '</textarea>', 'text/html'); return d.querySelector('textarea').value; }
@@ -155,7 +155,7 @@ I18n.init();
     try { return new TextDecoder('utf-8', { fatal: true }).decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))); } catch (e) { throw new Error(t('errUtf8')); }
   }
   function detect(s) {
-    if (/\\u\{?[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8}|\\x[0-9a-fA-F]{2}/.test(s)) return 'unicode';
+    if (/\\u\{?[0-9a-fA-F]{4}|\\U[0-9a-fA-F]{8}|\\x[0-9a-fA-F]{2}|U\+[0-9a-fA-F]{4,6}\b/.test(s)) return 'unicode';
     if (/%[0-9a-fA-F]{2}/.test(s)) return 'url';
     if (/&(?:#\d+|#x[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]{1,31});/.test(s)) return 'html';
     const n = s.trim();
