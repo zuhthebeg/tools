@@ -157,11 +157,10 @@ I18n.init();
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(bmp, 0, 0, w, h);
     bmp.close();
-    srcName = (name || blob.name || 'photo').replace(/\.[^.]+$/, '');
-    process(cv, w, h);
+    process(cv, w, h, (name || blob.name || 'photo').replace(/\.[^.]+$/, ''));
   }
 
-  async function process(cv, w, h) {
+  async function process(cv, w, h, name) {
     if (busy) stop(true);
     const my = ++gen;
     busy = true;
@@ -179,12 +178,13 @@ I18n.init();
       const t0 = performance.now();
       const r = await call({ type: 'run', rgb, w, h });
       if (my !== gen) return;
-      img = cv; depth = r;
+      img = cv; depth = r; srcName = name;
       $('bar').style.width = '100%';
       $('outCard').hidden = false;
       $('dims').textContent = `${w} × ${h}`;
-      setupGl();
-      status('doneStat', { sec: ((performance.now() - t0) / 1000).toFixed(1) });
+      const glOk = setupGl();
+      $('vidBtn').hidden = !glOk;
+      if (glOk) status('doneStat', { sec: ((performance.now() - t0) / 1000).toFixed(1) });
     } catch (e) {
       if (my !== gen) return;
       status('failed', { msg: e.message }, 'err');
@@ -219,7 +219,7 @@ gl_FragColor=texture2D(img,clamp(q,0.,1.));}`;
     c.width = img.width; c.height = img.height;
     if (!gl) {
       gl = c.getContext('webgl', { preserveDrawingBuffer: true });
-      if (!gl) { status('noGl', null, 'err'); return; }
+      if (!gl) { status('noGl', null, 'err'); return false; }
       const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
       prog = gl.createProgram();
       gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
@@ -243,6 +243,7 @@ gl_FragColor=texture2D(img,clamp(q,0.,1.));}`;
     tex(0, gl.RGBA, img.width, img.height, img.transferToImageBitmap ? img.transferToImageBitmap() : img);
     tex(1, gl.LUMINANCE, depth.w, depth.h, new Uint8Array(depth.data));
     if (!raf) raf = requestAnimationFrame(draw);
+    return true;
   }
 
   function draw(ts) {
