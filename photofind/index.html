@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 사진 검색 · 비슷한 사진 찾기 (브라우저) — tool.cocy.io</title>
+<meta name="description" content="내 사진을 '바다 노을', '강아지' 같은 말로 찾고, 비슷하거나 중복된 사진을 묶어 보기. SigLIP 2 AI가 브라우저 안에서 동작해 사진은 업로드되지 않아요">
+<link rel="canonical" href="https://tool.cocy.io/photofind/">
+<link rel="icon" href="/photofind/icon.svg">
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+.drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px 14px; text-align: center; cursor: pointer; color: var(--muted); }
+.drop.over, .drop:hover { border-color: #38bdf8; color: var(--text); }
+.drop b { color: var(--text); }
+.bar { height: 8px; background: var(--panel-2); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #34d399, #38bdf8); transition: width .2s; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin-top: 12px; }
+.ph { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--panel-2); border: 1px solid var(--line); }
+.ph img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: zoom-in; }
+.ph .sc { position: absolute; left: 6px; top: 6px; background: rgba(15,23,42,.8); border-radius: 6px; padding: 1px 6px; font-size: 11px; font-family: var(--mono); }
+.ph .sim { position: absolute; right: 6px; bottom: 6px; padding: 3px 8px; font-size: 12px; border-radius: 8px; border: 0; background: rgba(15,23,42,.85); color: #e2e8f0; cursor: pointer; }
+.ph .sim:hover { background: var(--primary); }
+.ph.q { outline: 3px solid #38bdf8; }
+.ph.pending img { opacity: .45; }
+.grp { margin-top: 14px; }
+.grp h3 { margin: 0; font-size: 14px; color: #cbd5e1; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chips button { border: 1px solid var(--line); background: var(--panel-2); color: #cbd5e1; border-radius: 99px; padding: 4px 10px; font-size: 13px; cursor: pointer; }
+input[type=range] { width: 100%; }
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>🖼️ <span data-i18n="h1">AI 사진 검색</span></h1>
+    <p data-i18n="sub">'바다 노을', '생일 케이크'처럼 말로 내 사진을 찾고, 비슷하거나 중복된 사진을 묶어 보여줘요. 브라우저 안에서 처리해서 사진은 업로드되지 않아요.</p>
+  </div>
+
+  <div class="card">
+    <input type="file" id="file" accept="image/*" multiple hidden>
+    <input type="file" id="dir" webkitdirectory multiple hidden>
+    <div class="drop" id="drop"><b data-i18n="dropB">사진을 여러 장 끌어다 놓거나 클릭해서 선택</b><br><small data-i18n="dropS">JPG · PNG · WebP · 최대 2,000장</small></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="dirBtn" data-i18n="pickDir">📁 폴더 선택</button>
+      <button class="btn" id="sampleBtn" data-i18n="sample">샘플 사진으로 해보기</button>
+      <button class="btn danger" id="clearBtn" hidden data-i18n="clear">모두 지우기</button>
+      <span class="muted grow" id="status"></span>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="muted" style="font-size:13px;margin-top:8px" id="devInfo"></div>
+  </div>
+
+  <div class="card" id="workCard" hidden>
+    <div class="seg" id="modeSeg"><button data-m="search" class="on" data-i18n="mSearch">🔎 말로 찾기</button><button data-m="groups" data-i18n="mGroups">🧩 비슷한 사진 묶기</button></div>
+    <div id="searchPane" style="margin-top:12px">
+      <div class="row">
+        <input type="search" id="q" class="grow" data-i18n-attr="placeholder:qPh" placeholder="예: 바다 노을, 강아지, 음식 사진">
+        <button class="btn primary" id="goBtn" data-i18n="go">찾기</button>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div id="groupPane" hidden style="margin-top:12px">
+      <label class="lbl" for="thr"><span data-i18n="thr">얼마나 비슷해야 묶을까요</span> <b id="thrV"></b></label>
+      <input type="range" id="thr" min="0.70" max="0.98" step="0.01" value="0.88">
+      <div class="row" style="margin-top:8px"><button class="btn primary" id="grpBtn" data-i18n="grpGo">묶어 보기</button><span class="muted grow" id="grpInfo"></span></div>
+    </div>
+    <div class="muted" id="resInfo" style="margin-top:12px"></div>
+    <div id="results"></div>
+  </div>
+
+  <p class="muted" style="font-size:13px" data-i18n="tip">처음 한 번은 모델(SigLIP 2, 사진용 약 95MB + 검색어용 약 285MB)을 내려받고, 다음부터는 브라우저 캐시에서 불러와요. 한국어·영어 등 여러 언어 검색어를 이해해요. 색인은 이 탭에만 있고 닫으면 사라져요.</p>
+  <footer class="site">© 2026 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+I18n.define({
+  pageTitle: ['AI 사진 검색 · 비슷한 사진 찾기 (브라우저) — tool.cocy.io', 'AI photo search · find similar photos in your browser — tool.cocy.io', 'AI 照片搜索 · 查找相似照片 — tool.cocy.io', 'AI 照片搜尋 · 尋找相似照片 — tool.cocy.io', 'Búsqueda de fotos con IA · fotos similares — tool.cocy.io'],
+  h1: ['AI 사진 검색', 'AI Photo Search', 'AI 照片搜索', 'AI 照片搜尋', 'Búsqueda de fotos con IA'],
+  sub: ["'바다 노을', '생일 케이크'처럼 말로 내 사진을 찾고, 비슷하거나 중복된 사진을 묶어 보여줘요. 브라우저 안에서 처리해서 사진은 업로드되지 않아요.", "Find your photos by describing them, like 'sunset at the beach' or 'birthday cake', and group similar or duplicate shots. It runs in your browser, so photos are never uploaded.", '用“海边日落”“生日蛋糕”这样的描述查找照片，并把相似或重复的照片归组。在浏览器内处理，照片不会上传。', '用「海邊日落」「生日蛋糕」這樣的描述尋找照片，並把相似或重複的照片歸組。在瀏覽器內處理，照片不會上傳。', "Encuentra tus fotos describiéndolas, como 'atardecer en la playa' o 'pastel de cumpleaños', y agrupa las similares o duplicadas. Funciona en tu navegador: las fotos no se suben."],
+  dropB: ['사진을 여러 장 끌어다 놓거나 클릭해서 선택', 'Drop photos here or click to choose', '拖入多张照片或点击选择', '拖入多張照片或點擊選擇', 'Suelta fotos aquí o haz clic para elegir'],
+  dropS: ['JPG · PNG · WebP · 최대 2,000장', 'JPG · PNG · WebP · up to 2,000 photos', 'JPG · PNG · WebP · 最多 2,000 张', 'JPG · PNG · WebP · 最多 2,000 張', 'JPG · PNG · WebP · hasta 2.000 fotos'],
+  pickDir: ['📁 폴더 선택', '📁 Choose folder', '📁 选择文件夹', '📁 選擇資料夾', '📁 Elegir carpeta'],
+  sample: ['샘플 사진으로 해보기', 'Try sample photos', '用示例照片试试', '用範例照片試試', 'Probar con fotos de ejemplo'],
+  clear: ['모두 지우기', 'Clear all', '全部清除', '全部清除', 'Borrar todo'],
+  loading: ['모델 불러오는 중… {p}', 'Loading model… {p}', '正在加载模型… {p}', '正在載入模型… {p}', 'Cargando modelo… {p}'],
+  initModel: ['모델 초기화 중…', 'Initializing model…', '正在初始化模型…', '正在初始化模型…', 'Inicializando modelo…'],
+  indexing: ['사진 분석 중… {n} / {total}', 'Analyzing photos… {n} / {total}', '正在分析照片… {n} / {total}', '正在分析照片… {n} / {total}', 'Analizando fotos… {n} / {total}'],
+  indexed: ['사진 {n}장 준비 완료', '{n} photos ready', '{n} 张照片已就绪', '{n} 張照片已就緒', '{n} fotos listas'],
+  skipped: ['{n}장은 읽지 못해 건너뛰었어요', "Skipped {n} that couldn't be read", '已跳过 {n} 张无法读取的照片', '已略過 {n} 張無法讀取的照片', 'Se omitieron {n} que no se pudieron leer'],
+  limit: ['최대 2,000장까지 넣을 수 있어요', 'You can add up to 2,000 photos', '最多可添加 2,000 张', '最多可加入 2,000 張', 'Puedes añadir hasta 2.000 fotos'],
+  failed: ['실패: {msg}', 'Failed: {msg}', '失败：{msg}', '失敗：{msg}', 'Error: {msg}'],
+  devGpu: ['WebGPU 가속 사용', 'Using WebGPU acceleration', '使用 WebGPU 加速', '使用 WebGPU 加速', 'Usando aceleración WebGPU'],
+  devCpu: ['CPU(WASM)로 실행 — 사진 한 장에 0.5초 안팎 걸려요', 'Running on CPU (WASM): about 0.5 s per photo', '在 CPU(WASM) 上运行 — 每张约 0.5 秒', '在 CPU(WASM) 上執行 — 每張約 0.5 秒', 'En CPU (WASM): unos 0,5 s por foto'],
+  mSearch: ['🔎 말로 찾기', '🔎 Search by words', '🔎 用文字搜索', '🔎 用文字搜尋', '🔎 Buscar con palabras'],
+  mGroups: ['🧩 비슷한 사진 묶기', '🧩 Group similar photos', '🧩 相似照片归组', '🧩 相似照片歸組', '🧩 Agrupar fotos similares'],
+  qPh: ['예: 바다 노을, 강아지, 음식 사진', 'e.g. sunset at the beach, a dog, food', '例如：海边日落、小狗、美食', '例如：海邊日落、小狗、美食', 'p. ej.: atardecer en la playa, un perro, comida'],
+  go: ['찾기', 'Search', '搜索', '搜尋', 'Buscar'],
+  ex: ['고양이|강아지|음식|바다|도시 야경|사람들|자동차|꽃', 'cat|dog|food|beach|city at night|people|car|flowers', '猫|狗|美食|海边|城市夜景|人群|汽车|花', '貓|狗|美食|海邊|城市夜景|人群|汽車|花', 'gato|perro|comida|playa|ciudad de noche|personas|coche|flores'],
+  searching: ['찾는 중…', 'Searching…', '搜索中…', '搜尋中…', 'Buscando…'],
+  resQ: ["'{q}'와 가까운 순서", "Closest matches for '{q}'", '与“{q}”最接近的照片', '與「{q}」最接近的照片', "Más parecidas a '{q}'"],
+  resSim: ['선택한 사진과 비슷한 순서', 'Most similar to the selected photo', '与所选照片最相似', '與所選照片最相似', 'Más parecidas a la foto elegida'],
+  simBtn: ['비슷한 사진', 'Similar', '相似', '相似', 'Similares'],
+  thr: ['얼마나 비슷해야 묶을까요', 'How similar to group', '归组的相似度', '歸組的相似度', 'Similitud para agrupar'],
+  grpGo: ['묶어 보기', 'Group', '归组', '歸組', 'Agrupar'],
+  grpRes: ['{g}개 묶음 · 사진 {n}장', '{g} groups · {n} photos', '{g} 组 · {n} 张照片', '{g} 組 · {n} 張照片', '{g} grupos · {n} fotos'],
+  grpNone: ['이 기준으로 묶이는 사진이 없어요. 슬라이더를 왼쪽으로 옮겨 보세요', 'No groups at this level. Move the slider left', '此标准下没有可归组的照片，请把滑块往左移', '此標準下沒有可歸組的照片，請把滑桿往左移', 'No hay grupos con este nivel. Mueve el control a la izquierda'],
+  grpN: ['묶음 {i} · {n}장', 'Group {i} · {n} photos', '第 {i} 组 · {n} 张', '第 {i} 組 · {n} 張', 'Grupo {i} · {n} fotos'],
+  wait: ['사진 분석이 끝난 뒤에 할 수 있어요', 'Available once photo analysis finishes', '照片分析完成后可用', '照片分析完成後可用', 'Disponible al terminar el análisis'],
+  tip: ['처음 한 번은 모델(SigLIP 2, 사진용 약 95MB + 검색어용 약 285MB)을 내려받고, 다음부터는 브라우저 캐시에서 불러와요. 한국어·영어 등 여러 언어 검색어를 이해해요. 색인은 이 탭에만 있고 닫으면 사라져요.', 'The model (SigLIP 2: about 95 MB for photos + 285 MB for search text) downloads once, then loads from the browser cache. It understands queries in Korean, English and many other languages. The index lives only in this tab and is gone when you close it.', '模型（SigLIP 2：照片约 95 MB + 搜索词约 285 MB）首次下载后从浏览器缓存加载。支持中文、英文等多种语言的搜索词。索引只保存在此标签页，关闭即消失。', '模型（SigLIP 2：照片約 95 MB + 搜尋詞約 285 MB）首次下載後從瀏覽器快取載入。支援中文、英文等多種語言的搜尋詞。索引只保存在此分頁，關閉即消失。', 'El modelo (SigLIP 2: unos 95 MB para fotos + 285 MB para el texto) se descarga una vez y luego se carga de la caché. Entiende búsquedas en español, inglés y muchos otros idiomas. El índice solo existe en esta pestaña y desaparece al cerrarla.'],
+  allTools: ['모든 도구', 'All tools', '全部工具', '全部工具', 'Todas las herramientas'],
+});
+I18n.init();
+
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const t = I18n.t;
+  const MAX = 2000, THUMB = 320, EMB_SIDE = 256;
+  let gpu = { ok: false, f16: false }, worker = null, chain = Promise.resolve(), lastStatus = null, gen = 0;
+  let photos = [], queue = [], indexing = false, skipped = 0, view = null, nextId = 1;
+  const byId = new Map();
+
+  function status(key, vars, cls) {
+    lastStatus = key ? [key, vars, cls] : null;
+    $('status').className = 'grow ' + (cls || 'muted');
+    $('status').textContent = key ? t(key, vars) : '';
+  }
+  const ready = () => photos.filter((p) => p.done);
+
+  function getWorker() {
+    if (!worker) worker = new Worker('/photofind/worker.js', { type: 'module' });
+    return worker;
+  }
+  function call(msg, transfer, onMsg) {
+    const run = () => new Promise((resolve, reject) => {
+      const w = getWorker();
+      w.onmessage = ({ data }) => {
+        if (data.type === 'progress' || data.type === 'gprogress') onMsg && onMsg(data);
+        else if (data.type === 'error') reject(new Error(data.message));
+        else resolve(data);
+      };
+      w.onerror = (e) => reject(new Error(e.message || 'worker error'));
+      w.postMessage(msg, transfer || []);
+    });
+    const p = chain.then(run, run);
+    chain = p.catch(() => {});
+    return p;
+  }
+  const dl = {};
+  function onLoad(d) {
+    const p = d.p;
+    if (!p) return;
+    if (p.status === 'progress' && p.file && p.total) {
+      dl[p.file] = [p.loaded, p.total];
+      const v = Object.values(dl), l = v.reduce((a, x) => a + x[0], 0), tot = v.reduce((a, x) => a + x[1], 0);
+      $('bar').style.width = ((l / tot) * 100).toFixed(1) + '%';
+      status('loading', { p: `${Math.round(l / 2 ** 20)} / ${Math.round(tot / 2 ** 20)} MB` });
+    } else if (p.status === 'done' || p.status === 'ready') status('initModel');
+  }
+
+  async function addFiles(files) {
+    const imgs = [...files].filter((f) => /^image\//.test(f.type) || /\.(jpe?g|png|webp|gif|bmp|avif)$/i.test(f.name));
+    if (!imgs.length) return;
+    const room = MAX - photos.length;
+    if (imgs.length > room) status('limit', null, 'err');
+    for (const f of imgs.slice(0, Math.max(0, room))) {
+      const p = { id: nextId++, name: f.webkitRelativePath || f.name, file: f, url: '', done: false };
+      photos.push(p); byId.set(p.id, p); queue.push(p);
+    }
+    $('workCard').hidden = false; $('clearBtn').hidden = false;
+    renderAll();
+    runQueue();
+  }
+
+  async function decode(p) {
+    const bmp = await createImageBitmap(p.file);
+    const k = (side) => Math.min(1, side / Math.max(bmp.width, bmp.height));
+    const tw = Math.max(1, Math.round(bmp.width * k(THUMB))), th = Math.max(1, Math.round(bmp.height * k(THUMB)));
+    const tc = new OffscreenCanvas(tw, th); tc.getContext('2d').drawImage(bmp, 0, 0, tw, th);
+    p.url = URL.createObjectURL(await tc.convertToBlob({ type: 'image/jpeg', quality: 0.82 }));
+    const ew = Math.max(1, Math.round(bmp.width * k(EMB_SIDE))), eh = Math.max(1, Math.round(bmp.height * k(EMB_SIDE)));
+    const ec = new OffscreenCanvas(ew, eh), ctx = ec.getContext('2d');
+    ctx.drawImage(bmp, 0, 0, ew, eh); bmp.close();
+    return { rgba: new Uint8ClampedArray(ctx.getImageData(0, 0, ew, eh).data.buffer), w: ew, h: eh };
+  }
+
+  async function runQueue() {
+    if (indexing) return;
+    indexing = true;
+    const my = gen;
+    try {
+      for (const k in dl) delete dl[k];
+      status('initModel');
+      await call({ type: 'loadVision', device: gpu.f16 ? 'webgpu' : 'wasm', dtype: gpu.f16 ? 'fp16' : 'q8' }, null, onLoad);
+      while (queue.length && my === gen) {
+        const p = queue.shift();
+        let px;
+        try { px = await decode(p); } catch (e) { skipped++; dropPhoto(p); continue; }
+        if (my !== gen) break;
+        const total = photos.length, n = photos.filter((x) => x.done).length + 1;
+        status('indexing', { n, total });
+        $('bar').style.width = ((n / total) * 100).toFixed(1) + '%';
+        await call({ type: 'embed', id: p.id, rgba: px.rgba, w: px.w, h: px.h }, [px.rgba.buffer]);
+        if (my !== gen) break;
+        p.done = true;
+        updateTile(p);
+      }
+      if (my === gen) {
+        status('indexed', { n: ready().length });
+        if (skipped) $('status').textContent += ' · ' + t('skipped', { n: skipped });
+      }
+    } catch (e) {
+      if (my === gen) status('failed', { msg: e.message }, 'err');
+    } finally {
+      if (my === gen) indexing = false;
+    }
+  }
+  function dropPhoto(p) {
+    photos = photos.filter((x) => x !== p); byId.delete(p.id);
+    if (p.url) URL.revokeObjectURL(p.url);
+    renderAll();
+  }
+
+  function tile(p, score) {
+    const el = document.createElement('div');
+    el.className = 'ph' + (p.done ? '' : ' pending') + (view && view.q === p.id ? ' q' : '');
+    el.dataset.id = p.id;
+    el.innerHTML = (p.url ? `<img loading="lazy" alt="">` : '') + (score != null ? `<span class="sc">${score.toFixed(3)}</span>` : '') + (p.done ? `<button class="sim">${t('simBtn')}</button>` : '');
+    if (p.url) { el.querySelector('img').src = p.url; el.querySelector('img').title = p.name; }
+    return el;
+  }
+  function updateTile(p) {
+    if (view) return;
+    const old = $('results').querySelector(`.ph[data-id="${p.id}"]`);
+    if (old) old.replaceWith(tile(p));
+  }
+  function renderGrid(items) {
+    const g = document.createElement('div'); g.className = 'grid';
+    items.forEach(([p, s]) => g.appendChild(tile(p, s)));
+    return g;
+  }
+  function renderAll() {
+    $('results').innerHTML = '';
+    if (!view) { $('resInfo').textContent = ''; $('results').appendChild(renderGrid(photos.map((p) => [p]))); return; }
+    if (view.type === 'rank') {
+      $('resInfo').textContent = view.query != null ? t('resQ', { q: view.query }) : t('resSim');
+      const top = view.list.slice(0, 60).map(([id, s]) => [byId.get(id), s]).filter((x) => x[0]);
+      $('results').appendChild(renderGrid(top));
+    } else {
+      const n = view.groups.reduce((a, g) => a + g.length, 0);
+      $('resInfo').textContent = view.groups.length ? t('grpRes', { g: view.groups.length, n }) : t('grpNone');
+      view.groups.slice(0, 100).forEach((ids, i) => {
+        const d = document.createElement('div'); d.className = 'grp';
+        d.innerHTML = `<h3>${t('grpN', { i: i + 1, n: ids.length })}</h3>`;
+        d.appendChild(renderGrid(ids.map((id) => [byId.get(id)]).filter((x) => x[0])));
+        $('results').appendChild(d);
+      });
+    }
+  }
+
+  async function search(query) {
+    query = (query || '').trim();
+    if (!query) { view = null; renderAll(); return; }
+    if (!ready().length) { status('wait', null, 'err'); return; }
+    const my = gen;
+    status('searching');
+    try {
+      for (const k in dl) delete dl[k];
+      const r = await call({ type: 'text', query }, null, onLoad);
+      if (my !== gen) return;
+      view = { type: 'rank', query, list: r.list };
+      renderAll();
+      status('indexed', { n: ready().length });
+    } catch (e) { if (my === gen) status('failed', { msg: e.message }, 'err'); }
+  }
+  async function similar(id) {
+    const my = gen;
+    const r = await call({ type: 'similar', id });
+    if (my !== gen) return;
+    setMode('search');
+    view = { type: 'rank', query: null, q: id, list: r.list };
+    renderAll();
+    window.scrollTo({ top: $('workCard').offsetTop - 8, behavior: 'smooth' });
+  }
+  async function groups() {
+    if (indexing || !ready().length) { status('wait', null, 'err'); return; }
+    const my = gen;
+    try {
+      const r = await call({ type: 'groups', threshold: +$('thr').value }, null, (d) => { $('grpInfo').textContent = `${d.done} / ${d.total}`; });
+      if (my !== gen) return;
+      $('grpInfo').textContent = '';
+      view = { type: 'groups', groups: r.groups };
+      renderAll();
+    } catch (e) { if (my === gen) status('failed', { msg: e.message }, 'err'); }
+  }
+
+  function setMode(m) {
+    [...$('modeSeg').children].forEach((b) => b.classList.toggle('on', b.dataset.m === m));
+    $('searchPane').hidden = m !== 'search'; $('groupPane').hidden = m !== 'groups';
+  }
+  function renderChips() {
+    $('chips').innerHTML = t('ex').split('|').map((w) => `<button>${w}</button>`).join('');
+  }
+  function render() {
+    $('devInfo').textContent = gpu.f16 ? t('devGpu') : t('devCpu');
+    $('thrV').textContent = (+$('thr').value).toFixed(2);
+    renderChips();
+    renderAll();
+  }
+
+  function clearAll() {
+    gen++;
+    if (worker) { worker.terminate(); worker = null; chain = Promise.resolve(); }
+    photos.forEach((p) => p.url && URL.revokeObjectURL(p.url));
+    photos = []; queue = []; byId.clear(); view = null; indexing = false; skipped = 0;
+    $('workCard').hidden = true; $('clearBtn').hidden = true; $('bar').style.width = '0';
+    status(null);
+    renderAll();
+  }
+
+  $('modeSeg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setMode(b.dataset.m); });
+  $('goBtn').addEventListener('click', () => search($('q').value));
+  $('q').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) search($('q').value); });
+  $('q').addEventListener('input', () => { if (!$('q').value.trim() && view && view.type === 'rank') { view = null; renderAll(); } });
+  $('chips').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { $('q').value = b.textContent; search(b.textContent); } });
+  $('thr').addEventListener('input', () => { $('thrV').textContent = (+$('thr').value).toFixed(2); });
+  $('grpBtn').addEventListener('click', groups);
+  $('results').addEventListener('click', (e) => {
+    const ph = e.target.closest('.ph'); if (!ph) return;
+    const p = byId.get(+ph.dataset.id); if (!p) return;
+    if (e.target.closest('.sim')) similar(p.id);
+    else if (e.target.tagName === 'IMG') { const u = URL.createObjectURL(p.file); window.open(u, '_blank'); setTimeout(() => URL.revokeObjectURL(u), 60000); }
+  });
+  $('clearBtn').addEventListener('click', clearAll);
+
+  const drop = $('drop');
+  drop.addEventListener('click', () => $('file').click());
+  $('dirBtn').addEventListener('click', () => $('dir').click());
+  $('file').addEventListener('change', (e) => { addFiles(e.target.files); e.target.value = ''; });
+  $('dir').addEventListener('change', (e) => { addFiles(e.target.files); e.target.value = ''; });
+  drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); addFiles(e.dataTransfer.files); });
+  document.addEventListener('paste', (e) => { if (e.clipboardData && e.clipboardData.files.length) addFiles(e.clipboardData.files); });
+  $('sampleBtn').addEventListener('click', async () => {
+    const base = 'https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/';
+    const names = ['cats.jpg', 'tiger.jpg', 'football-match.jpg', 'city-streets.jpg', 'corgi.jpg', 'bread_small.png', 'beetle.png', 'airport.jpg', 'butterfly.jpg', 'pikachu.png'];
+    $('sampleBtn').disabled = true;
+    try {
+      const files = await Promise.all(names.map(async (n) => {
+        const r = await fetch(base + n); if (!r.ok) return null;
+        const b = await r.blob(); return new File([b], n, { type: b.type || 'image/jpeg' });
+      }));
+      addFiles(files.filter(Boolean));
+    } catch (e) { status('failed', { msg: e.message }, 'err'); }
+    finally { $('sampleBtn').disabled = false; }
+  });
+  document.addEventListener('i18n:change', () => { render(); if (lastStatus) status(...lastStatus); });
+
+  render();
+  (async () => {
+    try {
+      const ad = navigator.gpu && (await navigator.gpu.requestAdapter());
+      if (ad && !(ad.isFallbackAdapter || (ad.info && ad.info.isFallbackAdapter))) gpu = { ok: true, f16: ad.features.has('shader-f16') };
+    } catch (e) {}
+    render();
+  })();
+})();
+</script>
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: 'AI 사진 검색 · 비슷한 사진 찾기 (브라우저) — tool.cocy.io',
+  description: "내 사진을 '바다 노을', '강아지' 같은 말로 찾고, 비슷하거나 중복된 사진을 묶어 보기. SigLIP 2 AI가 브라우저 안에서 동작해 사진은 업로드되지 않아요",
+  url: 'https://tool.cocy.io/photofind/'
+});
+</script>
+</body>
+</html>
