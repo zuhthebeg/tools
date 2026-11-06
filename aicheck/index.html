@@ -109,8 +109,10 @@ I18n.define({
   vNo: ['불가', 'No', '不可', '不可', 'No'],
   uLLM: ['채팅 LLM', 'Chat LLM', '聊天 LLM', '聊天 LLM', 'LLM de chat'],
   uSTT: ['음성→텍스트', 'Speech to text', '语音转文字', '語音轉文字', 'Voz a texto'],
+  uDepth: ['깊이 추정·3D 사진', 'Depth / 3D photo', '深度估计/3D 照片', '深度估計/3D 照片', 'Profundidad / foto 3D'],
   uTTS: ['텍스트→음성', 'Text to speech', '文字转语音', '文字轉語音', 'Texto a voz'],
   uBg: ['배경 제거', 'Background removal', '背景移除', '背景移除', 'Quitar fondo'],
+  uPhoto: ['사진 검색', 'Photo search', '照片搜索', '照片搜尋', 'Búsqueda de fotos'],
   uEmb: ['문장 임베딩·검색', 'Embeddings / search', '句向量/检索', '句向量/檢索', 'Embeddings / búsqueda'],
   uVLM: ['이미지 이해', 'Image understanding', '图像理解', '圖像理解', 'Comprensión de imágenes'],
   uNano: ['요약·번역·프롬프트', 'Summarize / translate / prompt', '摘要/翻译/提示', '摘要/翻譯/提示', 'Resumir / traducir / prompt'],
@@ -248,9 +250,11 @@ I18n.init();
 
   const MODELS = [
     { name: 'all-MiniLM-L6-v2', use: 'uEmb', size: '25 MB', need: 'wasm' },
+    { name: 'SigLIP 2 base', use: 'uPhoto', size: '380 MB', need: 'wasm', link: '/photofind/' },
     { name: 'MODNet', use: 'uBg', size: '24 MB', need: 'wasm', link: '/bgremove/' },
     { name: 'BiRefNet lite', use: 'uBg', size: '110 MB', need: 'gpu', link: '/bgremove/' },
     { name: 'Whisper base', use: 'uSTT', size: '80 MB', need: 'wasm' },
+    { name: 'Depth Anything V2 S', use: 'uDepth', size: '27 MB', need: 'wasm', link: '/depth/' },
     { name: 'Supertonic 2', use: 'uTTS', size: '260 MB', need: 'wasm', link: '/tts/' },
     { name: 'SmolVLM-256M', use: 'uVLM', size: '300 MB', need: 'wasmSlow', link: '/vtest/' },
     { name: 'Whisper large-v3 turbo', use: 'uSTT', size: '600 MB', need: 'gpu' },

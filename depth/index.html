@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D 사진 · AI 깊이 지도 (브라우저) — tool.cocy.io</title>
+<meta name="description" content="사진 한 장으로 AI 깊이 지도를 만들고 움직이는 3D 사진으로. 마우스·기울기·자동 회전, 깊이 지도 PNG·3D 영상(WebM) 저장. 브라우저 안에서 처리해 업로드 없음">
+<link rel="canonical" href="https://tool.cocy.io/depth/">
+<link rel="icon" href="/depth/icon.svg">
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+.drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px 14px; text-align: center; cursor: pointer; color: var(--muted); }
+.drop.over, .drop:hover { border-color: #fbbf24; color: var(--text); }
+.drop b { color: var(--text); }
+.opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; margin-top: 12px; }
+.bar { height: 8px; background: var(--panel-2); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #fbbf24, #38bdf8); transition: width .2s; }
+.view { margin-top: 12px; border-radius: 10px; overflow: hidden; background: var(--panel-2); text-align: center; line-height: 0; }
+#gl { max-width: 100%; max-height: 75vh; touch-action: none; }
+input[type=range] { width: 100%; }
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>🧊 <span data-i18n="h1">3D 사진 · 깊이 지도</span></h1>
+    <p data-i18n="sub">AI가 사진 속 거리(깊이)를 읽어 움직이는 3D 사진으로 만들어요. 브라우저 안에서 처리해서 사진은 서버로 올라가지 않아요.</p>
+  </div>
+
+  <div class="card">
+    <input type="file" id="file" accept="image/*" hidden>
+    <div class="drop" id="drop"><b data-i18n="dropB">이미지를 끌어다 놓거나 클릭 · 붙여넣기(Ctrl+V)</b><br><small>PNG · JPG · WebP</small></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="sampleBtn" data-i18n="sample">샘플 사진으로 해보기</button>
+      <button class="btn" id="stopBtn" hidden data-i18n="stop">■ 중지</button>
+      <span class="muted grow" id="status"></span>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="muted" style="font-size:13px;margin-top:8px" id="devInfo"></div>
+  </div>
+
+  <div class="card" id="outCard" hidden>
+    <div class="opts">
+      <div><label class="lbl" for="mode" data-i18n="mode">보기</label><select id="mode"></select></div>
+      <div><label class="lbl" for="motion" data-i18n="motion">움직임</label><select id="motion"></select></div>
+      <div><label class="lbl" for="strength"><span data-i18n="strength">입체감</span></label><input type="range" id="strength" min="0" max="0.08" step="0.002" value="0.03"></div>
+      <div><label class="lbl" for="focus"><span data-i18n="focus">초점 (가까이 ↔멀리)</span></label><input type="range" id="focus" min="0" max="1" step="0.01" value="0.5"></div>
+    </div>
+    <div class="view"><canvas id="gl"></canvas></div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn primary" id="vidBtn" data-i18n="saveVid">🎬 3D 영상 저장 (WebM)</button>
+      <button class="btn" id="depthBtn" data-i18n="saveDepth">⬇ 깊이 지도 PNG</button>
+      <span class="muted grow" id="dims"></span>
+    </div>
+    <p class="muted" style="font-size:12px;margin:8px 0 0" data-i18n="hint">사진 위에서 마우스를 움직이거나 휴대폰을 기울여 보세요. 밝을수록 가까운 곳이에요.</p>
+  </div>
+
+  <p class="muted" style="font-size:13px" data-i18n="tip">처음 한 번은 모델(Depth Anything V2 Small, 약 27MB)을 내려받고, 다음부터는 브라우저 캐시에서 바로 불러와요. 인물·풍경처럼 앞뒤 거리가 분명한 사진일수록 입체감이 좋아요.</p>
+  <footer class="site">© 2026 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+I18n.define({
+  pageTitle: ['3D 사진 · AI 깊이 지도 (브라우저) — tool.cocy.io', '3D Photo · AI depth map in your browser — tool.cocy.io', '3D 照片 · 浏览器内 AI 深度图 — tool.cocy.io', '3D 照片 · 瀏覽器內 AI 深度圖 — tool.cocy.io', 'Foto 3D · mapa de profundidad IA en tu navegador — tool.cocy.io'],
+  h1: ['3D 사진 · 깊이 지도', '3D Photo · Depth Map', '3D 照片 · 深度图', '3D 照片 · 深度圖', 'Foto 3D · mapa de profundidad'],
+  sub: ['AI가 사진 속 거리(깊이)를 읽어 움직이는 3D 사진으로 만들어요. 브라우저 안에서 처리해서 사진은 서버로 올라가지 않아요.', 'AI estimates how far away everything in a photo is and turns it into a moving 3D photo. It runs in your browser, so your photo never leaves the device.', 'AI 估算照片中各处的远近（深度），做成会动的 3D 照片。在浏览器内处理，照片不会上传。', 'AI 估算照片中各處的遠近（深度），做成會動的 3D 照片。在瀏覽器內處理，照片不會上傳。', 'La IA estima la distancia de cada parte de la foto y la convierte en una foto 3D animada. Funciona en tu navegador, así que la foto no sale del dispositivo.'],
+  dropB: ['이미지를 끌어다 놓거나 클릭 · 붙여넣기(Ctrl+V)', 'Drop an image, click, or paste (Ctrl+V)', '拖入图片、点击选择或粘贴 (Ctrl+V)', '拖入圖片、點擊選擇或貼上 (Ctrl+V)', 'Suelta una imagen, haz clic o pega (Ctrl+V)'],
+  sample: ['샘플 사진으로 해보기', 'Try a sample photo', '用示例照片试试', '用範例照片試試', 'Probar con una foto de ejemplo'],
+  stop: ['■ 중지', '■ Stop', '■ 停止', '■ 停止', '■ Detener'],
+  stopped: ['중지했어요', 'Stopped', '已停止', '已停止', 'Detenido'],
+  loading: ['모델 불러오는 중… {p}', 'Loading model… {p}', '正在加载模型… {p}', '正在載入模型… {p}', 'Cargando modelo… {p}'],
+  initModel: ['모델 초기화 중…', 'Initializing model…', '正在初始化模型…', '正在初始化模型…', 'Inicializando modelo…'],
+  working: ['깊이 계산 중…', 'Estimating depth…', '正在估算深度…', '正在估算深度…', 'Calculando profundidad…'],
+  doneStat: ['완료 · {sec}초', 'Done in {sec}s', '完成 · {sec} 秒', '完成 · {sec} 秒', 'Listo en {sec} s'],
+  failed: ['실패: {msg}', 'Failed: {msg}', '失败：{msg}', '失敗：{msg}', 'Error: {msg}'],
+  badImg: ['이미지를 읽지 못했어요', "Couldn't read this image", '无法读取此图片', '無法讀取此圖片', 'No se pudo leer la imagen'],
+  noGl: ['이 브라우저는 WebGL을 지원하지 않아 3D 보기를 쓸 수 없어요', "This browser doesn't support WebGL, so the 3D view is unavailable", '此浏览器不支持 WebGL，无法使用 3D 视图', '此瀏覽器不支援 WebGL，無法使用 3D 檢視', 'Este navegador no admite WebGL; la vista 3D no está disponible'],
+  devGpu: ['WebGPU 가속 사용', 'Using WebGPU acceleration', '使用 WebGPU 加速', '使用 WebGPU 加速', 'Usando aceleración WebGPU'],
+  devCpu: ['CPU(WASM)로 실행 — 사진 한 장에 몇 초 걸려요', 'Running on CPU (WASM): a few seconds per photo', '在 CPU(WASM) 上运行 — 每张几秒', '在 CPU(WASM) 上執行 — 每張幾秒', 'En CPU (WASM): unos segundos por foto'],
+  mode: ['보기', 'View', '视图', '檢視', 'Vista'],
+  m3d: ['3D 사진', '3D photo', '3D 照片', '3D 照片', 'Foto 3D'],
+  mGray: ['깊이 지도 (흑백)', 'Depth map (gray)', '深度图（灰度）', '深度圖（灰階）', 'Mapa de profundidad (gris)'],
+  mColor: ['깊이 지도 (컬러)', 'Depth map (color)', '深度图（彩色）', '深度圖（彩色）', 'Mapa de profundidad (color)'],
+  motion: ['움직임', 'Motion', '运动', '運動', 'Movimiento'],
+  mAuto: ['자동 회전', 'Auto orbit', '自动环绕', '自動環繞', 'Órbita automática'],
+  mMouse: ['마우스·터치', 'Mouse / touch', '鼠标/触摸', '滑鼠/觸控', 'Ratón / táctil'],
+  mTilt: ['휴대폰 기울기', 'Phone tilt', '手机倾斜', '手機傾斜', 'Inclinar el móvil'],
+  strength: ['입체감', 'Depth strength', '立体感', '立體感', 'Intensidad 3D'],
+  focus: ['초점 (가까이 ↔ 멀리)', 'Focus (near ↔ far)', '焦点（近 ↔ 远）', '焦點（近 ↔ 遠）', 'Enfoque (cerca ↔ lejos)'],
+  saveVid: ['🎬 3D 영상 저장 (WebM)', '🎬 Save 3D video (WebM)', '🎬 保存 3D 视频 (WebM)', '🎬 儲存 3D 影片 (WebM)', '🎬 Guardar vídeo 3D (WebM)'],
+  recording: ['녹화 중… {s}초', 'Recording… {s}s', '录制中… {s} 秒', '錄製中… {s} 秒', 'Grabando… {s} s'],
+  noRec: ['이 브라우저는 영상 녹화를 지원하지 않아요', "This browser can't record video", '此浏览器不支持录制视频', '此瀏覽器不支援錄製影片', 'Este navegador no puede grabar vídeo'],
+  saveDepth: ['⬇ 깊이 지도 PNG', '⬇ Depth map PNG', '⬇ 深度图 PNG', '⬇ 深度圖 PNG', '⬇ Mapa de profundidad PNG'],
+  hint: ['사진 위에서 마우스를 움직이거나 휴대폰을 기울여 보세요. 밝을수록 가까운 곳이에요.', 'Move the mouse over the photo or tilt your phone. Brighter means closer.', '在照片上移动鼠标或倾斜手机试试。越亮表示越近。', '在照片上移動滑鼠或傾斜手機試試。越亮表示越近。', 'Mueve el ratón sobre la foto o inclina el móvil. Más claro significa más cerca.'],
+  tip: ['처음 한 번은 모델(Depth Anything V2 Small, 약 27MB)을 내려받고, 다음부터는 브라우저 캐시에서 바로 불러와요. 인물·풍경처럼 앞뒤 거리가 분명한 사진일수록 입체감이 좋아요.', 'The model (Depth Anything V2 Small, about 27 MB) downloads once, then loads from the browser cache. Photos with a clear foreground and background, like portraits and landscapes, work best.', '模型（Depth Anything V2 Small，约 27 MB）首次下载后从浏览器缓存加载。人像、风景等前后景分明的照片效果最好。', '模型（Depth Anything V2 Small，約 27 MB）首次下載後從瀏覽器快取載入。人像、風景等前後景分明的照片效果最好。', 'El modelo (Depth Anything V2 Small, unos 27 MB) se descarga una vez y luego se carga de la caché. Funcionan mejor las fotos con primer plano y fondo claros, como retratos y paisajes.'],
+  allTools: ['모든 도구', 'All tools', '全部工具', '全部工具', 'Todas las herramientas'],
+});
+I18n.init();
+
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const t = I18n.t;
+  const MAX_SIDE = 1280;
+  let gpu = { ok: false, f16: false }, worker = null, busy = false, gen = 0, lastStatus = null;
+  let img = null, depth = null, srcName = 'photo', gl = null, prog = null, texs = [], raf = 0;
+  const target = { x: 0, y: 0 }, cur = { x: 0, y: 0 };
+
+  function status(key, vars, cls) {
+    lastStatus = key ? [key, vars, cls] : null;
+    $('status').className = 'grow ' + (cls || 'muted');
+    $('status').textContent = key ? t(key, vars) : '';
+  }
+  function opt(id, list) {
+    const v = $(id).value || list[0];
+    $(id).innerHTML = list.map((k) => `<option value="${k}">${t(k)}</option>`).join('');
+    $(id).value = v;
+  }
+  function render() {
+    opt('mode', ['m3d', 'mGray', 'mColor']);
+    opt('motion', ['mAuto', 'mMouse', 'mTilt']);
+    $('devInfo').textContent = gpu.ok ? t('devGpu') : t('devCpu');
+  }
+
+  function call(msg, onProgress) {
+    if (!worker) worker = new Worker('/depth/worker.js', { type: 'module' });
+    const w = worker;
+    return new Promise((resolve, reject) => {
+      w.onmessage = ({ data }) => {
+        if (data.type === 'progress') onProgress && onProgress(data.p);
+        else if (data.type === 'error') reject(new Error(data.message));
+        else resolve(data);
+      };
+      w.onerror = (e) => reject(new Error(e.message || 'worker error'));
+      w.postMessage(msg, msg.rgb ? [msg.rgb.buffer] : []);
+    });
+  }
+  const dl = {};
+  function onLoad(p) {
+    if (p.status === 'progress' && p.file && p.total) {
+      dl[p.file] = [p.loaded, p.total];
+      const v = Object.values(dl), l = v.reduce((a, x) => a + x[0], 0), tot = v.reduce((a, x) => a + x[1], 0);
+      $('bar').style.width = ((l / tot) * 100).toFixed(1) + '%';
+      status('loading', { p: `${Math.round(l / 2 ** 20)} / ${Math.round(tot / 2 ** 20)} MB` });
+    } else if (p.status === 'done' || p.status === 'ready') status('initModel');
+  }
+
+  async function setImage(blob, name) {
+    if (!blob || !/^image\//.test(blob.type)) { status('badImg', null, 'err'); return; }
+    let bmp;
+    try { bmp = await createImageBitmap(blob); } catch (e) { status('badImg', null, 'err'); return; }
+    const k = Math.min(1, MAX_SIDE / Math.max(bmp.width, bmp.height));
+    const w = Math.max(1, Math.round(bmp.width * k)), h = Math.max(1, Math.round(bmp.height * k));
+    const cv = new OffscreenCanvas(w, h), ctx = cv.getContext('2d');
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(bmp, 0, 0, w, h);
+    bmp.close();
+    process(cv, w, h, (name || blob.name || 'photo').replace(/\.[^.]+$/, ''));
+  }
+
+  async function process(cv, w, h, name) {
+    if (busy) stop(true);
+    const my = ++gen;
+    busy = true;
+    $('stopBtn').hidden = false;
+    $('bar').style.width = '0';
+    const px = cv.getContext('2d').getImageData(0, 0, w, h).data, rgb = new Uint8ClampedArray(w * h * 3);
+    for (let i = 0, j = 0; i < px.length; i += 4, j += 3) { rgb[j] = px[i]; rgb[j + 1] = px[i + 1]; rgb[j + 2] = px[i + 2]; }
+    try {
+      for (const k in dl) delete dl[k];
+      status('initModel');
+      await call({ type: 'load', device: gpu.ok ? 'webgpu' : 'wasm', dtype: gpu.ok ? (gpu.f16 ? 'fp16' : 'fp32') : 'q8' }, onLoad);
+      if (my !== gen) return;
+      status('working');
+      $('bar').style.width = '60%';
+      const t0 = performance.now();
+      const r = await call({ type: 'run', rgb, w, h });
+      if (my !== gen) return;
+      img = cv; depth = r; srcName = name;
+      $('bar').style.width = '100%';
+      $('outCard').hidden = false;
+      $('dims').textContent = `${w} × ${h}`;
+      const glOk = setupGl();
+      $('vidBtn').hidden = !glOk;
+      if (glOk) status('doneStat', { sec: ((performance.now() - t0) / 1000).toFixed(1) });
+    } catch (e) {
+      if (my !== gen) return;
+      status('failed', { msg: e.message }, 'err');
+      if (worker) { worker.terminate(); worker = null; }
+    } finally {
+      if (my === gen) { busy = false; $('stopBtn').hidden = true; }
+    }
+  }
+  function stop(silent) {
+    gen++;
+    if (worker) { worker.terminate(); worker = null; }
+    busy = false;
+    $('stopBtn').hidden = true;
+    $('bar').style.width = '0';
+    if (!silent) status('stopped');
+  }
+
+  const VS = 'attribute vec2 p;varying vec2 uv;void main(){uv=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}';
+  const FS = `precision mediump float;varying vec2 uv;uniform sampler2D img,dep;uniform vec2 off;uniform float focus;uniform int mode;
+vec3 turbo(float x){x=clamp(x,0.,1.);vec4 v4=vec4(1.,x,x*x,x*x*x);vec2 v2=v4.zw*v4.z;
+return vec3(dot(v4,vec4(.13572138,4.6153926,-42.66032258,132.13108234))+dot(v2,vec2(-152.94239396,59.28637943)),
+dot(v4,vec4(.09140261,2.19418839,4.84296658,-14.18503333))+dot(v2,vec2(4.27729857,2.82956604)),
+dot(v4,vec4(.1066733,12.64194608,-60.58204836,110.36276771))+dot(v2,vec2(-89.90310912,27.34824973)));}
+void main(){float d=texture2D(dep,uv).r;
+if(mode==1){gl_FragColor=vec4(vec3(d),1.);return;}
+if(mode==2){gl_FragColor=vec4(turbo(d),1.);return;}
+vec2 q=uv;for(int i=0;i<3;i++){float dd=texture2D(dep,q).r;q=uv-off*(dd-focus);}
+gl_FragColor=texture2D(img,clamp(q,0.,1.));}`;
+
+  function setupGl() {
+    const c = $('gl');
+    c.width = img.width; c.height = img.height;
+    if (!gl) {
+      gl = c.getContext('webgl', { preserveDrawingBuffer: true });
+      if (!gl) { status('noGl', null, 'err'); return false; }
+      const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+      prog = gl.createProgram();
+      gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS));
+      gl.linkProgram(prog); gl.useProgram(prog);
+      gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+      const loc = gl.getAttribLocation(prog, 'p');
+      gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      texs = [gl.createTexture(), gl.createTexture()];
+      gl.uniform1i(gl.getUniformLocation(prog, 'img'), 0); gl.uniform1i(gl.getUniformLocation(prog, 'dep'), 1);
+    }
+    gl.viewport(0, 0, c.width, c.height);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    const tex = (unit, fmt, w, h, data) => {
+      gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, texs[unit]);
+      if (data instanceof Uint8Array) gl.texImage2D(gl.TEXTURE_2D, 0, fmt, w, h, 0, fmt, gl.UNSIGNED_BYTE, data);
+      else gl.texImage2D(gl.TEXTURE_2D, 0, fmt, fmt, gl.UNSIGNED_BYTE, data);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    };
+    tex(0, gl.RGBA, img.width, img.height, img.transferToImageBitmap ? img.transferToImageBitmap() : img);
+    tex(1, gl.LUMINANCE, depth.w, depth.h, new Uint8Array(depth.data));
+    if (!raf) raf = requestAnimationFrame(draw);
+    return true;
+  }
+
+  function draw(ts) {
+    raf = requestAnimationFrame(draw);
+    if (!gl || !prog) return;
+    const motion = $('motion').value;
+    if (motion === 'mAuto') { const a = ts / 1000 * 1.6; target.x = Math.cos(a); target.y = Math.sin(a) * 0.6; }
+    cur.x += (target.x - cur.x) * 0.12; cur.y += (target.y - cur.y) * 0.12;
+    const s = +$('strength').value, ar = $('gl').width / $('gl').height;
+    gl.uniform2f(gl.getUniformLocation(prog, 'off'), cur.x * s / Math.max(1, ar), cur.y * s * Math.min(1, ar));
+    gl.uniform1f(gl.getUniformLocation(prog, 'focus'), 1 - +$('focus').value);
+    gl.uniform1i(gl.getUniformLocation(prog, 'mode'), ['m3d', 'mGray', 'mColor'].indexOf($('mode').value));
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+
+  const c = $('gl');
+  c.addEventListener('pointermove', (e) => {
+    if ($('motion').value !== 'mMouse') return;
+    const r = c.getBoundingClientRect();
+    target.x = ((e.clientX - r.left) / r.width) * 2 - 1; target.y = ((e.clientY - r.top) / r.height) * 2 - 1;
+  });
+  c.addEventListener('pointerleave', () => { if ($('motion').value === 'mMouse') target.x = target.y = 0; });
+  window.addEventListener('deviceorientation', (e) => {
+    if ($('motion').value !== 'mTilt' || e.gamma == null) return;
+    target.x = Math.max(-1, Math.min(1, e.gamma / 30)); target.y = Math.max(-1, Math.min(1, (e.beta - 45) / 30));
+  });
+  $('motion').addEventListener('change', async () => {
+    target.x = target.y = 0;
+    if ($('motion').value === 'mTilt' && typeof DeviceOrientationEvent !== 'undefined' && DeviceOrientationEvent.requestPermission) {
+      try { await DeviceOrientationEvent.requestPermission(); } catch (e) {}
+    }
+  });
+
+  $('depthBtn').addEventListener('click', () => {
+    const cv = document.createElement('canvas'); cv.width = depth.w; cv.height = depth.h;
+    const ctx = cv.getContext('2d'), id = ctx.createImageData(depth.w, depth.h);
+    for (let i = 0; i < depth.data.length; i++) { const v = depth.data[i]; id.data.set([v, v, v, 255], i * 4); }
+    ctx.putImageData(id, 0, 0);
+    cv.toBlob((b) => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `${srcName}-depth.png`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }, 'image/png');
+  });
+  $('vidBtn').addEventListener('click', () => {
+    if (!c.captureStream || typeof MediaRecorder === 'undefined') { status('noRec', null, 'err'); return; }
+    const type = ['video/webm;codecs=vp9', 'video/webm'].find((x) => MediaRecorder.isTypeSupported(x));
+    if (!type) { status('noRec', null, 'err'); return; }
+    const prevMode = $('mode').value, prevMotion = $('motion').value;
+    $('mode').value = 'm3d'; $('motion').value = 'mAuto';
+    const rec = new MediaRecorder(c.captureStream(30), { mimeType: type, videoBitsPerSecond: 8e6 }), parts = [];
+    rec.ondataavailable = (e) => e.data.size && parts.push(e.data);
+    rec.onstop = () => {
+      $('mode').value = prevMode; $('motion').value = prevMotion; $('vidBtn').disabled = false;
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(parts, { type: 'video/webm' })); a.download = `${srcName}-3d.webm`; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      status('doneStat', { sec: 4 });
+    };
+    $('vidBtn').disabled = true;
+    rec.start();
+    let s = 4; status('recording', { s });
+    const iv = setInterval(() => { s--; if (s > 0) status('recording', { s }); else { clearInterval(iv); rec.stop(); } }, 1000);
+  });
+
+  const drop = $('drop');
+  drop.addEventListener('click', () => $('file').click());
+  $('file').addEventListener('change', (e) => { e.target.files[0] && setImage(e.target.files[0]); e.target.value = ''; });
+  drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); e.dataTransfer.files[0] && setImage(e.dataTransfer.files[0]); });
+  document.addEventListener('paste', (e) => {
+    const f = [...(e.clipboardData ? e.clipboardData.files : [])].find((x) => x.type.startsWith('image/'));
+    if (f) setImage(f);
+  });
+  $('sampleBtn').addEventListener('click', async () => {
+    try {
+      const r = await fetch('https://huggingface.co/datasets/Xenova/transformers.js-docs/resolve/main/cats.jpg');
+      const b = await r.blob();
+      setImage(new File([b], 'cats.jpg', { type: b.type || 'image/jpeg' }));
+    } catch (e) { status('failed', { msg: e.message }, 'err'); }
+  });
+  $('stopBtn').addEventListener('click', () => stop(false));
+  document.addEventListener('i18n:change', () => { render(); if (lastStatus) status(...lastStatus); });
+
+  render();
+  (async () => {
+    try {
+      const ad = navigator.gpu && (await navigator.gpu.requestAdapter());
+      if (ad && !(ad.isFallbackAdapter || (ad.info && ad.info.isFallbackAdapter))) gpu = { ok: true, f16: ad.features.has('shader-f16') };
+    } catch (e) {}
+    render();
+  })();
+})();
+</script>
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: '3D 사진 · AI 깊이 지도 (브라우저) — tool.cocy.io',
+  description: '사진 한 장으로 AI 깊이 지도를 만들고 움직이는 3D 사진으로. 마우스·기울기·자동 회전, 깊이 지도 PNG·3D 영상(WebM) 저장. 브라우저 안에서 처리해 업로드 없음',
+  url: 'https://tool.cocy.io/depth/'
+});
+</script>
+</body>
+</html>

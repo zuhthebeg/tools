@@ -10,10 +10,12 @@
 - [NVIDIA GTC 2026 세션 가이드](https://tool.cocy.io/gtc2026/): GTC 2026 (3/16-19, San Jose) 주요 트랙·세션·일정 정리. Agentic AI, 로보틱스, 추론, CUDA, 양자컴퓨팅 등 900+ 세션.
 - [배경 제거](https://tool.cocy.io/bgremove/): 사진 배경을 브라우저 안에서 AI로 지우기. 업로드 없음. 인물·사물 모델, 투명 PNG·배경색 합성, 전후 비교, WebGPU 가속
 - [의미 검색](https://tool.cocy.io/semsearch/): 단어가 달라도 뜻이 비슷한 문장을 브라우저 안에서 AI 임베딩(다국어 MiniLM/GTE, Transformers.js)으로 찾기. 텍스트·파일 붙여넣기, 유사·중복 문장 쌍 찾기, 업로드 없음
+- [AI 사진 검색](https://tool.cocy.io/photofind/): 내 사진을 '바다 노을', '강아지' 같은 말(한국어·영어 등 다국어)로 찾고, 비슷한 사진·중복 사진을 묶어 보기(SigLIP 2, Transformers.js). 최대 2,000장, 브라우저 안에서 처리, 업로드 없음.
 - [유니코드 디코더](https://tool.cocy.io/unicodedec/): \uXXXX 유니코드 이스케이프, URL 인코딩(%XX), HTML 엔티티, Base64 실시간 디코딩/인코딩
 - [LLM 토크나이저](https://tool.cocy.io/tokenizer/): GPT-5, o3, o4-mini, Codex 등 최신 LLM 모델별 토큰 수 실시간 계산. 컨텍스트 사용률·비용 추정·토큰 시각화
 - [Chrome 내장 AI 플레이그라운드](https://tool.cocy.io/nano/): Chrome에 내장된 Gemini Nano로 채팅·요약·번역·언어 감지·글쓰기·다시 쓰기·맞춤법 검사. 오프라인, 서버 전송 없음
 - [이미지 업스케일](https://tool.cocy.io/upscale/): 작은 이미지를 AI 초해상도(Swin2SR, Transformers.js)로 2배·4배 키우기. 브라우저 안에서 처리, 업로드 없음. 실사 사진·JPEG 압축 복원 모델, 전후 비교, PNG·JPG 저장
+- [3D 사진 · AI 깊이 지도](https://tool.cocy.io/depth/): 사진 한 장으로 깊이 지도(Depth Anything V2 Small, Transformers.js)를 만들고 WebGL 시차 효과로 움직이는 3D 사진 만들기. 마우스·기울기·자동 회전, 3D 영상(WebM)·깊이 PNG 저장. 업로드 없음.
 - [브라우저 LLM 채팅 · 툴 콜링](https://tool.cocy.io/browserllm/): WebGPU(WebLLM)나 Chrome 내장 Gemini Nano로 브라우저 안에서 LLM 채팅, 위키·날씨·계산·시간 툴 콜링 데모. 대화는 서버 전송 없음
 - [이미지 글자 추출 (OCR)](https://tool.cocy.io/ocr/): 사진·스크린샷·문서 이미지의 글자를 브라우저 안에서 텍스트로 추출(Tesseract.js). 업로드 없음, 다국어, 여러 장 일괄 처리, 줄 위치 표시
 - [개인정보 가리기](https://tool.cocy.io/mask/): 사진 속 얼굴(MediaPipe)과 전화번호·주민번호·카드번호·이메일·차량번호(Tesseract OCR)를 브라우저 안에서 찾아 모자이크·블러·검은 박스로 가리기. 업로드 없음, 직접 영역 추가, 메타데이터 제거 저장

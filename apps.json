@@ -105,6 +105,21 @@
     "group": "ai"
   },
   {
+    "title": "AI 사진 검색 · 비슷한 사진 찾기",
+    "icon": "https://tool.cocy.io/photofind/icon.svg",
+    "url": "https://tool.cocy.io/photofind/",
+    "desc": "'바다 노을', '강아지'처럼 말로 내 사진 찾기, 비슷한·중복 사진 묶기. SigLIP 2가 브라우저 안에서 동작, 사진 업로드 없음",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool",
+    "group": "ai"
+  },
+  {
     "title": "유니코드 디코더",
     "icon": "https://tool.cocy.io/unicodedec/icon.svg",
     "url": "https://tool.cocy.io/unicodedec/",
@@ -154,6 +169,21 @@
     "icon": "https://tool.cocy.io/upscale/icon.svg",
     "url": "https://tool.cocy.io/upscale/",
     "desc": "작은 사진을 AI 초해상도(Swin2SR)로 2배·4배 선명하게. 브라우저 안에서 처리, 업로드 없음. 실사·JPEG 복원 모델, 전후 비교, PNG·JPG 저장",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool",
+    "group": "ai"
+  },
+  {
+    "title": "3D 사진 · AI 깊이 지도",
+    "icon": "https://tool.cocy.io/depth/icon.svg",
+    "url": "https://tool.cocy.io/depth/",
+    "desc": "사진 한 장으로 AI 깊이 지도(Depth Anything V2)를 만들고 움직이는 3D 사진으로. 마우스·기울기·자동 회전, 3D 영상·깊이 PNG 저장. 업로드 없음",
     "badge": "NEW",
     "platforms": [
       "WEB"
