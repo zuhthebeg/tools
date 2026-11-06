@@ -404,6 +404,19 @@ footer a { color: var(--muted); }
   </div>
 
   <div class="card">
+    <h3>🔬 실제 토크나이저로 비교 <small>(브라우저에서 각 모델의 공개 토크나이저를 받아 정확히 셉니다 · 텍스트는 전송되지 않음)</small></h3>
+    <div class="table-scroll">
+      <table class="cost-table" id="tk-table">
+        <thead><tr><th>토크나이저</th><th>사용 모델</th><th>토큰</th><th>글자/토큰</th><th>o200k 대비</th><th></th></tr></thead>
+        <tbody id="tk-tbody"></tbody>
+      </table>
+    </div>
+    <div class="calc-actions" style="margin-top:8px"><button class="btn-clear" id="tk-all">전체 측정 (약 70MB, 한 번 받으면 캐시)</button></div>
+    <p class="hint">Gemma 3 토크나이저를 불러오면 Gemini 모델의 토큰 수·비용도 이 값으로 계산합니다(Gemini와 같은 SentencePiece 어휘 계열 · 근사).
+      Claude 3 이후 토크나이저는 공개되지 않아, Claude 2 토크나이저는 참고용으로만 보여줍니다.</p>
+  </div>
+
+  <div class="card">
     <h3>💰 모델별 비용 비교 <small>($/1M tok · 위에 입력한 사용량을 각 모델 단가로 환산)</small></h3>
     <div class="table-scroll">
       <table class="cost-table">
@@ -425,13 +438,13 @@ footer a { color: var(--muted); }
     <a href="https://platform.claude.com/docs/en/about-claude/pricing" target="_blank" rel="noopener">Anthropic</a> ·
     <a href="https://developers.openai.com/api/docs/pricing" target="_blank" rel="noopener">OpenAI</a> ·
     <a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener">Google</a><br>
-    토큰 수는 o200k 토크나이저 기준이며 Claude·Gemini는 근사치입니다(공개 토크나이저 없음). 정확한 과금 토큰은 각 사 count_tokens API 기준.
+    토큰 수는 o200k 토크나이저 기준이며, Gemini는 Gemma 3 토크나이저를 불러오면 그 값을 씁니다. Claude는 공개 토크나이저가 없어 근사치입니다. 정확한 과금 토큰은 각 사 count_tokens API 기준.
   </footer>
 </div>
 
 <!-- gpt-tokenizer: pure JS, no WASM -->
 <script type="module">
-import { encode, decode } from 'https://esm.sh/gpt-tokenizer@2.8.0';
+import { encode, decode } from 'https://esm.sh/gpt-tokenizer@2.8.0/encoding/o200k_base';
 
 /* =========================================================================
  * 모델 정의 — $/1M tokens, 2026-09-16 공식 단가
@@ -569,7 +582,56 @@ function tokenize(text) {
   try { return encode(text); }
   catch (e) { return text.split(/\s+/).filter(Boolean); }
 }
-const modelTokens = () => Math.round(baseTokens.length * selectedModel.tokMult);
+const useGemma = () => selectedModel.group === 'Google' && TK.find(t => t.key === 'gemma').count != null;
+const modelTokens = () => useGemma() ? TK.find(t => t.key === 'gemma').count : Math.round(baseTokens.length * selectedModel.tokMult);
+
+/* ===== 실제 토크나이저 (Transformers.js) ===== */
+const TK = [
+  { key:'o200k', name:'o200k_base', use:'GPT-4o · GPT-5 · GPT-6', builtin:true },
+  { key:'gemma', name:'Gemma 3', use:'Gemini (근사) · Gemma', repo:'onnx-community/gemma-3-1b-it-ONNX', mb:20 },
+  { key:'llama', name:'Llama 3', use:'Llama 3.x · 4', repo:'Xenova/Meta-Llama-3.1-Tokenizer', mb:9 },
+  { key:'qwen', name:'Qwen3', use:'Qwen3 · Qwen3.5', repo:'onnx-community/Qwen3-0.6B-ONNX', mb:9 },
+  { key:'deepseek', name:'DeepSeek V3', use:'DeepSeek V3 · R1', repo:'deepseek-ai/DeepSeek-V3', mb:8 },
+  { key:'mistral', name:'Tekken', use:'Mistral Nemo · Large 2+', repo:'mistralai/Mistral-Nemo-Instruct-2407', mb:9 },
+  { key:'claude', name:'Claude 2 (참고)', use:'Claude 2 시절 · 현행 아님', repo:'Xenova/claude-tokenizer', mb:2 },
+];
+TK.forEach(t => { t.tok = null; t.state = t.builtin ? 'ready' : 'idle'; t.count = null; });
+let tfP = null;
+const tf = () => tfP || (tfP = import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1').then(m => { m.env.allowLocalModels = false; return m; }));
+async function loadTk(t) {
+  if (t.state === 'ready' || t.state === 'loading') return;
+  t.state = 'loading'; renderTk();
+  try {
+    const { AutoTokenizer } = await tf();
+    t.tok = await AutoTokenizer.from_pretrained(t.repo);
+    t.state = 'ready';
+  } catch (e) { console.warn(t.repo, e); t.state = 'error'; }
+  countTk(); update();
+}
+function countTk() {
+  const text = $('input-text').value;
+  for (const t of TK) {
+    if (t.builtin) t.count = baseTokens.length;
+    else if (t.state === 'ready') t.count = text ? t.tok.encode(text, { add_special_tokens: false }).length : 0;
+  }
+}
+function renderTk() {
+  const chars = [...$('input-text').value].length, base = baseTokens.length;
+  $('tk-tbody').innerHTML = TK.map(t => {
+    const ready = t.state === 'ready', c = t.count;
+    const btn = t.builtin ? '<span style="color:var(--muted)">기본</span>'
+      : t.state === 'loading' ? '<span style="color:var(--muted)">받는 중…</span>'
+      : t.state === 'error' ? `<button class="btn-clear" data-tk="${t.key}">재시도</button>`
+      : ready ? '<span style="color:var(--success)">✓</span>' : `<button class="btn-clear" data-tk="${t.key}">측정 · ${t.mb}MB</button>`;
+    const sel = (t.key === 'o200k' && selectedModel.group === 'OpenAI') || (t.key === 'gemma' && useGemma());
+    return `<tr${sel ? ' class="highlight"' : ''}><td>${t.name}</td><td style="text-align:left;color:var(--muted)">${t.use}</td>`
+      + `<td>${ready && c != null ? c.toLocaleString() : '—'}</td>`
+      + `<td>${ready && c ? (chars / c).toFixed(2) : '—'}</td>`
+      + `<td>${ready && c != null && base ? Math.round((c / base) * 100) + '%' : '—'}</td><td>${btn}</td></tr>`;
+  }).join('');
+}
+$('tk-tbody').addEventListener('click', e => { const b = e.target.closest('[data-tk]'); if (b) loadTk(TK.find(t => t.key === b.dataset.tk)); });
+$('tk-all').addEventListener('click', () => TK.forEach(loadTk));
 
 /* ===== 요금 계산 ===== */
 // 사용량(토큰)으로 적용 단가 테이블을 구한다. 장문 할증은 "입력 계열 토큰 합계" 기준.
@@ -723,13 +785,14 @@ function renderCompare(usage, reqs) {
 function update() {
   const text = $('input-text').value;
   baseTokens = tokenize(text);
+  countTk();
   const tokenCount = modelTokens();
   const charCount = text.length;
   const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
   const ctxPct = selectedModel.ctx ? Math.min(100, tokenCount / selectedModel.ctx * 100) : 0;
 
   $('stat-tokens').textContent = tokenCount.toLocaleString();
-  $('stat-tokens-lbl').textContent = selectedModel.tokMult === 1 ? '토큰' : `토큰 (×${selectedModel.tokMult} 보정)`;
+  $('stat-tokens-lbl').textContent = useGemma() ? '토큰 (Gemma 3 토크나이저)' : selectedModel.tokMult === 1 ? '토큰' : `토큰 (×${selectedModel.tokMult} 보정)`;
   $('stat-chars').textContent = charCount.toLocaleString();
   $('stat-words').textContent = wordCount.toLocaleString();
   $('stat-ctx-pct').textContent = ctxPct.toFixed(1) + '%';
@@ -755,6 +818,7 @@ function update() {
   $('ttl-label').style.opacity = hasTtl ? '1' : '0.4';
 
   recalc();
+  renderTk();
   renderTokenViz(text, baseTokens);
 }
 
