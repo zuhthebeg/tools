@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>텍스트 음성 변환 (TTS) · 브라우저 AI 음성 합성 — tool.cocy.io</title>
+<meta name="description" content="글을 자연스러운 목소리로 읽어주는 AI 음성 합성. 한국어·영어·스페인어·포르투갈어·프랑스어, 목소리 10종, 속도 조절, WAV 저장. 브라우저 안에서 처리해 업로드 없음">
+<link rel="canonical" href="https://tool.cocy.io/tts/">
+<link rel="icon" href="/tts/icon.svg">
+<link rel="stylesheet" href="/lib/ui.css">
+<style>
+textarea#text { min-height: 180px; }
+.opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; margin-top: 12px; }
+.bar { height: 8px; background: var(--panel-2); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #f472b6, #a78bfa); transition: width .2s; }
+audio { width: 100%; margin-top: 10px; }
+.cnt { font-size: 12px; text-align: right; margin-top: 4px; }
+input[type=range] { width: 100%; }
+</style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>🔊 <span data-i18n="h1">텍스트 음성 변환</span></h1>
+    <p data-i18n="sub">글을 자연스러운 목소리로 읽어줘요. AI가 브라우저 안에서 음성을 만들어서 글이 서버로 올라가지 않아요.</p>
+  </div>
+
+  <div class="card">
+    <textarea id="text" maxlength="5000" data-i18n-attr="placeholder:ph"></textarea>
+    <div class="cnt muted" id="cnt"></div>
+    <div class="opts">
+      <div><label class="lbl" for="lang" data-i18n="lang">언어</label><select id="lang"></select></div>
+      <div><label class="lbl" for="voice" data-i18n="voice">목소리</label><select id="voice"></select></div>
+      <div><label class="lbl" for="speed"><span data-i18n="speed">속도</span> <b id="speedV"></b></label><input type="range" id="speed" min="0.8" max="1.4" step="0.05" value="1.05"></div>
+      <div><label class="lbl" for="steps" data-i18n="quality">품질</label><select id="steps"></select></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" id="runBtn" data-i18n="run">▶ 음성 만들기</button>
+      <button class="btn" id="stopBtn" hidden data-i18n="stop">■ 중지</button>
+      <button class="btn" id="sampleBtn" data-i18n="sample">예시 문장</button>
+      <span class="muted grow" id="status"></span>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="muted" style="font-size:13px;margin-top:8px" id="devInfo"></div>
+  </div>
+
+  <div class="card" id="outCard" hidden>
+    <audio id="audio" controls></audio>
+    <div class="row" style="margin-top:10px">
+      <button class="btn primary" id="wavBtn" data-i18n="wav">⬇ WAV 저장</button>
+      <span class="muted grow" id="dur"></span>
+    </div>
+  </div>
+
+  <p class="muted" style="font-size:13px" data-i18n="tip">처음 한 번은 음성 모델(약 260MB)을 내려받고, 다음부터는 브라우저 캐시에서 바로 불러와요. 긴 글은 문장 단위로 나눠 차례로 만들어요.</p>
+  <p class="muted" style="font-size:12px"><span data-i18n="license">모델: Supertone Supertonic 2 (OpenRAIL-M). 다른 사람을 사칭하거나 속이는 용도로 쓰면 안 돼요.</span> <a href="https://huggingface.co/Supertone/supertonic-2" target="_blank" rel="noopener">Hugging Face</a></p>
+  <footer class="site">© 2026 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
+<script>
+I18n.define({
+  pageTitle: ['텍스트 음성 변환 (TTS) · 브라우저 AI 음성 합성 — tool.cocy.io', 'Text to Speech · AI voices in your browser — tool.cocy.io', '文字转语音 · 浏览器内 AI 语音合成 — tool.cocy.io', '文字轉語音 · 瀏覽器內 AI 語音合成 — tool.cocy.io', 'Texto a voz · voces IA en tu navegador — tool.cocy.io'],
+  h1: ['텍스트 음성 변환', 'Text to Speech', '文字转语音', '文字轉語音', 'Texto a voz'],
+  sub: ['글을 자연스러운 목소리로 읽어줘요. AI가 브라우저 안에서 음성을 만들어서 글이 서버로 올라가지 않아요.', 'Turn text into natural speech. The AI runs in your browser, so your text never leaves the device.', '把文字读成自然的语音。AI 在浏览器内生成语音，文字不会上传。', '把文字讀成自然的語音。AI 在瀏覽器內產生語音，文字不會上傳。', 'Convierte texto en voz natural. La IA funciona en tu navegador, así que el texto no sale del dispositivo.'],
+  ph: ['읽어줄 글을 입력하세요 (최대 5,000자)', 'Type the text to read aloud (up to 5,000 characters)', '输入要朗读的文字（最多 5,000 字）', '輸入要朗讀的文字（最多 5,000 字）', 'Escribe el texto para leer en voz alta (hasta 5.000 caracteres)'],
+  chars: ['{n} / 5,000자', '{n} / 5,000 chars', '{n} / 5,000 字', '{n} / 5,000 字', '{n} / 5.000 caracteres'],
+  lang: ['언어', 'Language', '语言', '語言', 'Idioma'],
+  auto: ['자동 ({l})', 'Auto ({l})', '自动（{l}）', '自動（{l}）', 'Automático ({l})'],
+  ko: ['한국어', 'Korean', '韩语', '韓語', 'Coreano'],
+  en: ['영어', 'English', '英语', '英語', 'Inglés'],
+  es: ['스페인어', 'Spanish', '西班牙语', '西班牙語', 'Español'],
+  pt: ['포르투갈어', 'Portuguese', '葡萄牙语', '葡萄牙語', 'Portugués'],
+  fr: ['프랑스어', 'French', '法语', '法語', 'Francés'],
+  voice: ['목소리', 'Voice', '声音', '聲音', 'Voz'],
+  female: ['여성 {n}', 'Female {n}', '女声 {n}', '女聲 {n}', 'Mujer {n}'],
+  male: ['남성 {n}', 'Male {n}', '男声 {n}', '男聲 {n}', 'Hombre {n}'],
+  speed: ['속도', 'Speed', '语速', '語速', 'Velocidad'],
+  quality: ['품질', 'Quality', '质量', '品質', 'Calidad'],
+  q2: ['빠르게', 'Fast', '快速', '快速', 'Rápida'],
+  q5: ['보통 (추천)', 'Normal (recommended)', '标准（推荐）', '標準（推薦）', 'Normal (recomendada)'],
+  q10: ['높음', 'High', '高', '高', 'Alta'],
+  q20: ['최고 · 느림', 'Best · slow', '最佳 · 较慢', '最佳 · 較慢', 'Máxima · lenta'],
+  run: ['▶ 음성 만들기', '▶ Generate speech', '▶ 生成语音', '▶ 產生語音', '▶ Generar voz'],
+  stop: ['■ 중지', '■ Stop', '■ 停止', '■ 停止', '■ Detener'],
+  stopped: ['중지했어요', 'Stopped', '已停止', '已停止', 'Detenido'],
+  sample: ['예시 문장', 'Sample text', '示例文字', '範例文字', 'Texto de ejemplo'],
+  empty: ['읽어줄 글을 입력하세요', 'Enter some text first', '请先输入文字', '請先輸入文字', 'Escribe un texto primero'],
+  loading: ['모델 불러오는 중… {p}', 'Loading model… {p}', '正在加载模型… {p}', '正在載入模型… {p}', 'Cargando modelo… {p}'],
+  initModel: ['모델 초기화 중…', 'Initializing model…', '正在初始化模型…', '正在初始化模型…', 'Inicializando modelo…'],
+  working: ['음성 만드는 중… {done}/{total} 문장', 'Generating… sentence {done}/{total}', '正在生成… 第 {done}/{total} 句', '正在產生… 第 {done}/{total} 句', 'Generando… frase {done}/{total}'],
+  doneStat: ['완료 · {sec}초 걸림', 'Done in {sec}s', '完成 · 用时 {sec} 秒', '完成 · 用時 {sec} 秒', 'Listo en {sec} s'],
+  failed: ['실패: {msg}', 'Failed: {msg}', '失败：{msg}', '失敗：{msg}', 'Error: {msg}'],
+  devGpu: ['WebGPU 가속 사용', 'Using WebGPU acceleration', '使用 WebGPU 加速', '使用 WebGPU 加速', 'Usando aceleración WebGPU'],
+  devCpu: ['CPU(WASM)로 실행 — 짧은 문장은 몇 초면 돼요', 'Running on CPU (WASM): short sentences take a few seconds', '在 CPU(WASM) 上运行 — 短句只需几秒', '在 CPU(WASM) 上執行 — 短句只需幾秒', 'En CPU (WASM): las frases cortas tardan unos segundos'],
+  wav: ['⬇ WAV 저장', '⬇ Save WAV', '⬇ 保存 WAV', '⬇ 儲存 WAV', '⬇ Guardar WAV'],
+  durInfo: ['{sec}초 분량 · {sr} Hz', '{sec}s of audio · {sr} Hz', '音频 {sec} 秒 · {sr} Hz', '音訊 {sec} 秒 · {sr} Hz', '{sec} s de audio · {sr} Hz'],
+  tip: ['처음 한 번은 음성 모델(약 260MB)을 내려받고, 다음부터는 브라우저 캐시에서 바로 불러와요. 긴 글은 문장 단위로 나눠 차례로 만들어요.', 'The voice model (about 260 MB) downloads once, then loads from the browser cache. Long text is split into sentences and generated in order.', '语音模型（约 260 MB）首次下载后从浏览器缓存加载。长文本会按句子拆分依次生成。', '語音模型（約 260 MB）首次下載後從瀏覽器快取載入。長文字會按句子拆分依序產生。', 'El modelo de voz (unos 260 MB) se descarga una vez y luego se carga de la caché. Los textos largos se dividen en frases y se generan en orden.'],
+  license: ['모델: Supertone Supertonic 2 (OpenRAIL-M). 다른 사람을 사칭하거나 속이는 용도로 쓰면 안 돼요.', 'Model: Supertone Supertonic 2 (OpenRAIL-M). Do not use it to impersonate or deceive people.', '模型：Supertone Supertonic 2（OpenRAIL-M）。请勿用于冒充或欺骗他人。', '模型：Supertone Supertonic 2（OpenRAIL-M）。請勿用於冒充或欺騙他人。', 'Modelo: Supertone Supertonic 2 (OpenRAIL-M). No lo uses para suplantar ni engañar a nadie.'],
+  allTools: ['모든 도구', 'All tools', '全部工具', '全部工具', 'Todas las herramientas'],
+});
+I18n.init();
+
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const t = I18n.t;
+  const LANGS = ['ko', 'en', 'es', 'pt', 'fr'];
+  const VOICES = ['F1', 'F2', 'F3', 'F4', 'F5', 'M1', 'M2', 'M3', 'M4', 'M5'];
+  const SAMPLES = {
+    ko: '안녕하세요. 이 목소리는 지금 여러분의 브라우저 안에서 만들어지고 있어요. 입력한 글은 어디에도 전송되지 않아요.',
+    en: 'Hello! This voice is being generated right inside your browser. Nothing you type is ever sent to a server.',
+    es: '¡Hola! Esta voz se está generando dentro de tu navegador. Nada de lo que escribes se envía a un servidor.',
+    pt: 'Olá! Esta voz está sendo gerada dentro do seu navegador. Nada do que você digita é enviado a um servidor.',
+    fr: 'Bonjour ! Cette voix est générée directement dans votre navigateur. Rien de ce que vous tapez n’est envoyé à un serveur.',
+  };
+  const UI_LANG = { ko: 'ko', en: 'en', es: 'es' };
+  let gpu = false, worker = null, busy = false, gen = 0, lastStatus = null, wavBlob = null, audioUrl = null;
+
+  const detect = (s) => /[\uac00-\ud7a3]/.test(s) ? 'ko'
+    : /[ãõ]|\b(você|não|obrigad[oa])\b/i.test(s) ? 'pt'
+    : /[ñ¿¡]|\b(hola|gracias)\b/i.test(s) ? 'es'
+    : /[èêëàùœ]|\b(bonjour|merci|vous)\b/i.test(s) ? 'fr' : 'en';
+  const lang = () => $('lang').value === 'auto' ? detect($('text').value) : $('lang').value;
+
+  function status(key, vars, cls) {
+    lastStatus = key ? [key, vars, cls] : null;
+    $('status').className = 'grow ' + (cls || 'muted');
+    $('status').textContent = key ? t(key, vars) : '';
+  }
+  function render() {
+    const cur = $('lang').value || 'auto';
+    $('lang').innerHTML = `<option value="auto">${t('auto', { l: t(detect($('text').value)) })}</option>` + LANGS.map((l) => `<option value="${l}">${t(l)}</option>`).join('');
+    $('lang').value = cur;
+    const v = $('voice').value || localStorage.getItem('tts_voice') || 'F1';
+    $('voice').innerHTML = VOICES.map((x) => `<option value="${x}">${t(x[0] === 'F' ? 'female' : 'male', { n: x[1] })}</option>`).join('');
+    $('voice').value = v;
+    const s = $('steps').value || '5';
+    $('steps').innerHTML = [2, 5, 10, 20].map((n) => `<option value="${n}">${t('q' + n)}</option>`).join('');
+    $('steps').value = s;
+    $('speedV').textContent = '×' + Number($('speed').value).toFixed(2);
+    $('cnt').textContent = t('chars', { n: $('text').value.length.toLocaleString() });
+    $('devInfo').textContent = gpu ? t('devGpu') : t('devCpu');
+  }
+
+  function split(text) {
+    const parts = text.replace(/\r/g, '').split(/(?<=[.!?。！？…])\s+|\n+/).map((s) => s.trim()).filter(Boolean);
+    const out = [];
+    for (let p of parts) {
+      while (p.length > 300) {
+        let cut = Math.max(p.lastIndexOf(', ', 300), p.lastIndexOf(' ', 300));
+        if (cut < 100) cut = 300;
+        out.push(p.slice(0, cut).trim()); p = p.slice(cut).trim();
+      }
+      if (!p) continue;
+      if (out.length && out[out.length - 1].length + p.length < 120) out[out.length - 1] += ' ' + p;
+      else out.push(p);
+    }
+    return out;
+  }
+
+  function wav(chunks, sr) {
+    const gap = Math.round(sr * 0.18);
+    const n = chunks.reduce((a, c) => a + c.length, 0) + gap * Math.max(0, chunks.length - 1);
+    const buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+    const str = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    str(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); str(8, 'WAVE'); str(12, 'fmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    str(36, 'data'); v.setUint32(40, n * 2, true);
+    let o = 44;
+    chunks.forEach((c, i) => {
+      if (i) o += gap * 2;
+      for (let k = 0; k < c.length; k++, o += 2) { const x = Math.max(-1, Math.min(1, c[k])); v.setInt16(o, x < 0 ? x * 0x8000 : x * 0x7fff, true); }
+    });
+    return { blob: new Blob([buf], { type: 'audio/wav' }), sec: n / sr };
+  }
+
+  const dl = {};
+  function onLoad(p) {
+    if (p.status === 'progress' && p.file && p.total) {
+      dl[p.file] = [p.loaded, p.total];
+      const v = Object.values(dl), l = v.reduce((a, x) => a + x[0], 0), tot = v.reduce((a, x) => a + x[1], 0);
+      $('bar').style.width = ((l / tot) * 100).toFixed(1) + '%';
+      status('loading', { p: `${Math.round(l / 2 ** 20)} / ${Math.round(tot / 2 ** 20)} MB` });
+    } else if (p.status === 'done' || p.status === 'ready') status('initModel');
+  }
+
+  async function run() {
+    const text = $('text').value.trim();
+    if (!text) { status('empty', null, 'err'); return; }
+    if (busy) stop(true);
+    const my = ++gen, chunks = split(text), pcm = [];
+    let sr = 44100;
+    busy = true;
+    $('runBtn').disabled = true; $('stopBtn').hidden = false; $('bar').style.width = '0';
+    if (!worker) worker = new Worker('/tts/worker.js', { type: 'module' });
+    const w = worker;
+    try {
+      for (const k in dl) delete dl[k];
+      status('initModel');
+      const t0 = performance.now();
+      await new Promise((resolve, reject) => {
+        let loaded = false;
+        w.onmessage = ({ data: d }) => {
+          if (my !== gen) return;
+          if (d.type === 'progress') onLoad(d.p);
+          else if (d.type === 'ready' && !loaded) {
+            loaded = true;
+            $('bar').style.width = '0';
+            status('working', { done: 0, total: chunks.length });
+            w.postMessage({ type: 'run', chunks, lang: lang(), voice: $('voice').value, steps: +$('steps').value, speed: +$('speed').value });
+          } else if (d.type === 'chunk') {
+            sr = d.sr; pcm[d.i] = d.audio;
+            $('bar').style.width = (((d.i + 1) / d.total) * 100).toFixed(1) + '%';
+            status('working', { done: d.i + 1, total: d.total });
+          } else if (d.type === 'done') resolve();
+          else if (d.type === 'error') reject(new Error(d.message));
+        };
+        w.onerror = (e) => reject(new Error(e.message || 'worker error'));
+        w.postMessage({ type: 'load', device: gpu ? 'webgpu' : 'wasm' });
+      });
+      if (my !== gen) return;
+      const r = wav(pcm, sr);
+      wavBlob = r.blob;
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
+      audioUrl = URL.createObjectURL(wavBlob);
+      $('audio').src = audioUrl;
+      $('outCard').hidden = false;
+      $('dur').dataset.sec = r.sec.toFixed(1); $('dur').dataset.sr = sr;
+      renderDur();
+      $('audio').play().catch(() => {});
+      status('doneStat', { sec: ((performance.now() - t0) / 1000).toFixed(1) });
+    } catch (e) {
+      if (my !== gen) return;
+      status('failed', { msg: e.message }, 'err');
+      if (worker) { worker.terminate(); worker = null; }
+    } finally {
+      if (my === gen) { busy = false; $('runBtn').disabled = false; $('stopBtn').hidden = true; }
+    }
+  }
+  function renderDur() { const d = $('dur').dataset; if (d.sec) $('dur').textContent = t('durInfo', { sec: d.sec, sr: d.sr }); }
+
+  function stop(silent) {
+    gen++;
+    if (worker) { worker.terminate(); worker = null; }
+    busy = false;
+    $('runBtn').disabled = false; $('stopBtn').hidden = true; $('bar').style.width = '0';
+    if (!silent) status('stopped');
+  }
+
+  $('runBtn').addEventListener('click', run);
+  $('stopBtn').addEventListener('click', () => stop(false));
+  $('text').addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) run(); });
+  $('text').addEventListener('input', render);
+  $('speed').addEventListener('input', render);
+  $('voice').addEventListener('change', () => { try { localStorage.setItem('tts_voice', $('voice').value); } catch (e) {} });
+  $('sampleBtn').addEventListener('click', () => {
+    const l = $('lang').value !== 'auto' ? $('lang').value : UI_LANG[(I18n.lang || 'ko').slice(0, 2)] || 'en';
+    $('text').value = SAMPLES[l];
+    render();
+  });
+  $('wavBtn').addEventListener('click', () => {
+    if (!wavBlob) return;
+    const a = document.createElement('a');
+    a.href = audioUrl; a.download = `tts-${lang()}-${$('voice').value}.wav`; a.click();
+  });
+  document.addEventListener('i18n:change', () => { render(); renderDur(); if (lastStatus) status(...lastStatus); });
+
+  render();
+  (async () => {
+    try {
+      const ad = navigator.gpu && (await navigator.gpu.requestAdapter());
+      if (ad && !(ad.isFallbackAdapter || (ad.info && ad.info.isFallbackAdapter))) gpu = true;
+    } catch (e) {}
+    render();
+  })();
+})();
+</script>
+<script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({
+  title: '텍스트 음성 변환 (TTS) · 브라우저 AI 음성 합성 — tool.cocy.io',
+  description: '글을 자연스러운 목소리로 읽어주는 AI 음성 합성. 한국어·영어·스페인어·포르투갈어·프랑스어, 목소리 10종, 속도 조절, WAV 저장. 브라우저 안에서 처리해 업로드 없음',
+  url: 'https://tool.cocy.io/tts/'
+});
+</script>
+</body>
+</html>

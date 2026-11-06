@@ -45,6 +45,21 @@
     "group": "ai"
   },
   {
+    "title": "텍스트 음성 변환 (TTS)",
+    "icon": "https://tool.cocy.io/tts/icon.svg",
+    "url": "https://tool.cocy.io/tts/",
+    "desc": "글을 자연스러운 AI 목소리로 읽어주기. 한국어·영어·스페인어·포르투갈어·프랑스어, 목소리 10종, WAV 저장. 브라우저 안에서 처리, 업로드 없음",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool",
+    "group": "ai"
+  },
+  {
     "title": "NVIDIA GTC 2026 세션 가이드",
     "icon": "https://tool.cocy.io/gtc2026/icon.svg",
     "url": "https://tool.cocy.io/gtc2026/",
