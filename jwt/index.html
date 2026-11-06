@@ -1,276 +1,358 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
-new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
-"https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-MV8KQGJF');</script>
-<!-- End Google Tag Manager -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JWT 디코더 | tool.cocy.io</title>
-  <style>
-    :root {
-      --bg: #070b14;
-      --panel: #0f1629;
-      --panel-2: #151f37;
-      --line: #2a365d;
-      --text: #ecf2ff;
-      --muted: #93a3c8;
-      --accent: #66d9ff;
-      --good: #45d483;
-      --warn: #ffb84d;
-      --bad: #ff6b7d;
-    }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; background: radial-gradient(circle at 80% -10%, #213169 0%, var(--bg) 38%, #04060b 100%); color: var(--text); font-family: "Pretendard", "Segoe UI", sans-serif; }
-    .wrap { max-width: 1120px; margin: 0 auto; padding: 20px 14px 34px; }
-    .hero { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; margin-bottom: 14px; }
-    h1 { margin: 0; font-size: clamp(22px, 4vw, 30px); letter-spacing: -0.02em; }
-    .desc { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
-    .pill { border: 1px solid #33517b; background: rgba(40,72,116,.33); color: #afe9ff; border-radius: 999px; padding: 7px 12px; font-size: 12px; }
-
-    .grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 12px; }
-    @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
-
-    .card { background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0)), var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-    .card .hd { padding: 12px 14px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.02); font-size: 13px; color: #b6d3ff; display: flex; justify-content: space-between; align-items: center; }
-    .card .bd { padding: 12px; }
-
-    textarea { width: 100%; min-height: 160px; resize: vertical; border: 1px solid var(--line); border-radius: 10px; padding: 11px; background: var(--panel-2); color: var(--text); font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    .row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; margin-top: 10px; }
-    input[type="text"] { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px 11px; background: var(--panel-2); color: var(--text); font-size: 13px; }
-    button { border: 1px solid #3a4f80; background: #1b2b4a; color: #d9e8ff; border-radius: 10px; padding: 10px 12px; cursor: pointer; font-weight: 600; }
-    button:hover { background: #22355a; }
-
-    .token-bits { margin-top: 10px; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
-    .bit { border: 1px dashed #41598f; border-radius: 10px; padding: 8px; font-family: ui-monospace, monospace; font-size: 12px; color: #c8d8ff; background: #101a30; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-    .status { margin-top: 9px; border-radius: 10px; padding: 9px 10px; font-size: 13px; border: 1px solid var(--line); background: #11182b; color: #c8d4ef; }
-    .status.good { border-color: rgba(69,212,131,.35); color: #9df1c0; background: rgba(69,212,131,.08); }
-    .status.warn { border-color: rgba(255,184,77,.4); color: #ffd499; background: rgba(255,184,77,.1); }
-    .status.bad { border-color: rgba(255,107,125,.45); color: #ffb7c0; background: rgba(255,107,125,.1); }
-
-    pre { margin: 0; max-height: 300px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; padding: 11px; background: #0d1427; color: #dce7ff; font: 12px/1.52 ui-monospace, monospace; }
-    .mini { color: var(--muted); font-size: 12px; }
-
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th, td { border-bottom: 1px solid #223053; padding: 8px 6px; text-align: left; vertical-align: top; }
-    th { color: #9ec0ff; font-size: 12px; }
-    .claim { font-family: ui-monospace, monospace; color: #d8e7ff; }
-
-    .footer-note { margin-top: 12px; color: #8ea3cf; font-size: 12px; }
-  </style>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f)})(window,document,"script","dataLayer","GTM-MV8KQGJF");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JWT 디코더 · 서명 검증 · 생성 — tool.cocy.io</title>
+<meta name="description" content="JWT 토큰 디코드, 만료 확인, HS/RS/PS/ES 서명 검증(비밀키·PEM·JWK), HS256 토큰 생성. 브라우저에서만 처리돼요">
 <link rel="canonical" href="https://tool.cocy.io/jwt/">
-<meta name="description" content="JWT 토큰 디코드/만료확인/HS256 검증">
-<meta property="og:url" content="https://tool.cocy.io/jwt/">
-<meta property="og:title" content="JWT 디코더">
-<meta property="og:description" content="JWT 토큰 디코드/만료확인/HS256 검증">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "JWT 디코더", "description": "JWT 토큰 디코드/만료확인/HS256 검증", "url": "https://tool.cocy.io/jwt/", "applicationCategory": "UtilityApplication", "operatingSystem": "Any", "browserRequirements": "Requires JavaScript", "inLanguage": "ko", "author": {"@type": "Person", "name": "cocy", "url": "https://cocy.io"}, "publisher": {"@type": "Organization", "name": "cocy.io", "url": "https://cocy.io"}, "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}, "image": "https://tool.cocy.io/jwt/icon.svg"}</script>
+<link rel="icon" href="/jwt/icon.svg">
+<link rel="stylesheet" href="/lib/ui.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "JWT 디코더", "description": "JWT 토큰 디코드/만료확인/서명 검증/생성", "url": "https://tool.cocy.io/jwt/", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any", "browserRequirements": "Requires JavaScript", "author": {"@type": "Person", "name": "cocy", "url": "https://cocy.io"}, "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}, "image": "https://tool.cocy.io/jwt/icon.svg"}</script>
+<style>
+.grow { flex: 1; min-width: 0; }
+.io { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 860px) { .io { grid-template-columns: 1fr 1fr; } }
+.tok { font-family: var(--mono); font-size: 13px; word-break: break-all; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-top: 10px; line-height: 1.6; }
+.th { color: #fb7185; } .tp { color: #c084fc; } .ts { color: #22d3ee; } .td { color: var(--muted); }
+pre.json { margin: 0; font-family: var(--mono); font-size: 13px; white-space: pre-wrap; word-break: break-all; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 60px; }
+.k { color: #7dd3fc; } .s { color: #86efac; } .d { color: #fdba74; } .b { color: #c4b5fd; } .n { color: #fca5a5; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { border-bottom: 1px solid var(--line); padding: 7px 6px; text-align: left; vertical-align: top; word-break: break-all; }
+th { color: var(--muted); font-weight: 600; white-space: nowrap; }
+.pill { display: inline-block; border-radius: 99px; padding: 1px 8px; font-size: 12px; font-weight: 600; }
+.pill.ok { background: rgba(52,211,153,.15); } .pill.err { background: rgba(248,113,113,.15); } .pill.warn { background: rgba(251,191,36,.15); color: #fcd34d; }
+#status { margin-top: 8px; }
+h2 { font-size: 15px; margin: 0 0 10px; }
+</style>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-  <div class="wrap">
-    <div class="hero">
-      <div>
-        <h1>JWT 디코더</h1>
-        <p class="desc">토큰 붙여넣으면 Header/Payload를 즉시 디코드하고 만료 상태를 확인해줘.</p>
-      </div>
-      <div class="pill">Decode First · Local Only</div>
-    </div>
-
-    <div class="grid">
-      <section class="card">
-        <div class="hd">JWT 입력 <span class="mini">jwt.io 스타일 빠른 디버깅</span></div>
-        <div class="bd">
-          <textarea id="jwtInput" placeholder="eyJhbGciOi... 형태의 JWT를 붙여넣어"></textarea>
-          <div class="row">
-            <input id="secretInput" type="text" placeholder="(선택) HS256 검증용 secret" />
-            <button id="decodeBtn">디코드</button>
-            <button id="sampleBtn">샘플</button>
-            <button id="clearBtn">초기화</button>
-          </div>
-          <div class="token-bits">
-            <div class="bit" id="partHeader">header.part</div>
-            <div class="bit" id="partPayload">payload.part</div>
-            <div class="bit" id="partSig">signature.part</div>
-          </div>
-          <div id="status" class="status">토큰을 입력해줘.</div>
-        </div>
-      </section>
-
-      <section class="card">
-        <div class="hd">토큰 상태 요약</div>
-        <div class="bd">
-          <table>
-            <tbody id="summary"></tbody>
-          </table>
-          <div class="footer-note">주의: 민감한 토큰은 공유하지 마. 이 페이지는 서버 전송 없이 브라우저에서만 처리해.</div>
-        </div>
-      </section>
-    </div>
-
-    <div class="grid" style="margin-top:12px;">
-      <section class="card">
-        <div class="hd">Header (Decoded JSON)</div>
-        <div class="bd"><pre id="headerOut">{}</pre></div>
-      </section>
-      <section class="card">
-        <div class="hd">Payload (Decoded JSON)</div>
-        <div class="bd"><pre id="payloadOut">{}</pre></div>
-      </section>
-    </div>
-
-    <section class="card" style="margin-top:12px;">
-      <div class="hd">시간형 클레임 해석 (exp / nbf / iat)</div>
-      <div class="bd">
-        <table>
-          <thead><tr><th>Claim</th><th>Raw</th><th>KST</th><th>상태</th></tr></thead>
-          <tbody id="claimsTime"></tbody>
-        </table>
-      </div>
-    </section>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV8KQGJF" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<div class="wrap">
+  <div class="hero">
+    <h1>🔑 <span data-i18n="h1">JWT 디코더</span></h1>
+    <p data-i18n="sub">토큰을 붙여넣으면 바로 디코드하고 만료 여부와 서명을 확인해요. 서버로 전송하지 않고 브라우저에서만 처리해요.</p>
   </div>
 
+  <div class="seg" id="tabSeg" style="margin-bottom:12px"><button data-t="dec" class="on" data-i18n="tDec">디코드 · 검증</button><button data-t="enc" data-i18n="tEnc">토큰 만들기</button></div>
+
+  <div id="decPane">
+    <div class="card">
+      <label class="lbl" for="jwtIn" data-i18n="tokLbl">JWT</label>
+      <textarea id="jwtIn" class="mono" spellcheck="false" data-i18n-attr="placeholder:tokPh" placeholder="eyJhbGciOi… 형태의 토큰을 붙여넣으세요 (Bearer 접두어 OK)"></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="sampleBtn" data-i18n="sample">샘플</button>
+        <button class="btn" id="clearBtn" data-i18n="clear">지우기</button>
+      </div>
+      <div class="tok" id="tokView" hidden></div>
+      <div id="status" class="muted"></div>
+    </div>
+
+    <div class="io">
+      <div class="card"><div class="row" style="justify-content:space-between"><h2>Header</h2><button class="btn sm" data-copy="hdrOut" data-i18n="copy">복사</button></div><pre class="json" id="hdrOut"></pre></div>
+      <div class="card"><div class="row" style="justify-content:space-between"><h2>Payload</h2><button class="btn sm" data-copy="payOut" data-i18n="copy">복사</button></div><pre class="json" id="payOut"></pre></div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="claimsH">클레임</h2>
+      <table><tbody id="claims"></tbody></table>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="verH">서명 검증</h2>
+      <div id="hsBox">
+        <label class="lbl" for="secret" data-i18n="secretLbl">비밀키 (HS256/384/512)</label>
+        <input type="text" id="secret" class="mono" spellcheck="false" autocomplete="off">
+        <label class="chk" style="margin-top:6px"><input type="checkbox" id="secretB64"> <span data-i18n="secretB64">비밀키가 Base64로 인코딩돼 있어요</span></label>
+      </div>
+      <div id="pkBox" hidden>
+        <label class="lbl" for="pubKey" data-i18n="pkLbl">공개키 (PEM 또는 JWK/JWKS)</label>
+        <textarea id="pubKey" class="mono" spellcheck="false" style="min-height:110px" placeholder="-----BEGIN PUBLIC KEY-----&#10;…&#10;-----END PUBLIC KEY-----"></textarea>
+      </div>
+      <div id="verStatus" class="muted" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <div id="encPane" hidden>
+    <div class="card">
+      <div class="io">
+        <div><label class="lbl" for="encHdr">Header</label><textarea id="encHdr" class="mono" spellcheck="false"></textarea></div>
+        <div><label class="lbl" for="encPay">Payload</label><textarea id="encPay" class="mono" spellcheck="false"></textarea></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn sm" id="addIat" data-i18n="addIat">iat = 지금</button>
+        <button class="btn sm" id="addExp" data-i18n="addExp">exp = 1시간 뒤</button>
+        <select id="encAlg"><option>HS256</option><option>HS384</option><option>HS512</option></select>
+        <input type="text" id="encSecret" class="mono grow" spellcheck="false" autocomplete="off" data-i18n-attr="placeholder:encSecretPh" placeholder="서명용 비밀키">
+      </div>
+      <label class="lbl" for="encOut" style="margin-top:12px" data-i18n="encOut">생성된 토큰</label>
+      <textarea id="encOut" class="mono" readonly spellcheck="false" style="min-height:90px"></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="encCopy" data-i18n="copy">복사</button>
+        <button class="btn" id="encToDec" data-i18n="toDec">디코더로 보내기</button>
+        <span id="encStatus" class="muted grow"></span>
+      </div>
+    </div>
+  </div>
+
+  <p class="muted" data-i18n="warn">주의: 운영 환경 토큰과 비밀키는 다른 곳에 공유하지 마세요. 이 페이지는 아무것도 전송하거나 저장하지 않아요.</p>
+  <footer class="site">© 2026 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
+</div>
+<script src="/lib/ui.js"></script>
+<script src="/lib/i18n.js"></script>
 <script>
-const $ = (id) => document.getElementById(id);
-const jwtInput = $('jwtInput');
-const secretInput = $('secretInput');
-const statusEl = $('status');
+I18n.define({
+  pageTitle: ['JWT 디코더 · 서명 검증 · 생성 — tool.cocy.io', 'JWT decoder · signature verify · generator — tool.cocy.io', 'JWT 解码 · 签名验证 · 生成 — tool.cocy.io', 'JWT 解碼 · 簽章驗證 · 產生 — tool.cocy.io', 'Decodificador JWT · verificar firma · generar — tool.cocy.io'],
+  h1: ['JWT 디코더', 'JWT Decoder', 'JWT 解码器', 'JWT 解碼器', 'Decodificador JWT'],
+  sub: ['토큰을 붙여넣으면 바로 디코드하고 만료 여부와 서명을 확인해요. 서버로 전송하지 않고 브라우저에서만 처리해요.', 'Paste a token to decode it instantly and check expiry and signature. Nothing is sent to a server; it all runs in your browser.', '粘贴令牌即可立即解码，并检查是否过期和签名。不会发送到服务器，仅在浏览器中处理。', '貼上權杖即可立即解碼，並檢查是否過期與簽章。不會傳送到伺服器，僅在瀏覽器中處理。', 'Pega un token para decodificarlo al instante y comprobar caducidad y firma. No se envía nada a ningún servidor.'],
+  tDec: ['디코드 · 검증', 'Decode · verify', '解码 · 验证', '解碼 · 驗證', 'Decodificar · verificar'],
+  tEnc: ['토큰 만들기', 'Create token', '生成令牌', '產生權杖', 'Crear token'],
+  tokLbl: ['JWT', 'JWT', 'JWT', 'JWT', 'JWT'],
+  tokPh: ['eyJhbGciOi… 형태의 토큰을 붙여넣으세요 (Bearer 접두어 OK)', 'Paste a token like eyJhbGciOi… ("Bearer " prefix is fine)', '粘贴 eyJhbGciOi… 形式的令牌（可带 Bearer 前缀）', '貼上 eyJhbGciOi… 形式的權杖（可帶 Bearer 前綴）', 'Pega un token tipo eyJhbGciOi… (el prefijo Bearer está bien)'],
+  sample: ['샘플', 'Sample', '示例', '範例', 'Ejemplo'],
+  clear: ['지우기', 'Clear', '清除', '清除', 'Borrar'],
+  copy: ['복사', 'Copy', '复制', '複製', 'Copiar'],
+  claimsH: ['클레임', 'Claims', '声明', '聲明', 'Claims'],
+  verH: ['서명 검증', 'Signature verification', '签名验证', '簽章驗證', 'Verificación de firma'],
+  secretLbl: ['비밀키 (HS256/384/512)', 'Secret (HS256/384/512)', '密钥 (HS256/384/512)', '密鑰 (HS256/384/512)', 'Secreto (HS256/384/512)'],
+  secretB64: ['비밀키가 Base64로 인코딩돼 있어요', 'Secret is Base64-encoded', '密钥为 Base64 编码', '密鑰為 Base64 編碼', 'El secreto está en Base64'],
+  pkLbl: ['공개키 (PEM 또는 JWK/JWKS)', 'Public key (PEM or JWK/JWKS)', '公钥（PEM 或 JWK/JWKS）', '公鑰（PEM 或 JWK/JWKS）', 'Clave pública (PEM o JWK/JWKS)'],
+  empty: ['토큰을 입력하세요', 'Enter a token', '请输入令牌', '請輸入權杖', 'Introduce un token'],
+  badParts: ['JWT 형식이 아니에요 (점으로 나뉜 3부분 필요)', 'Not a JWT (needs 3 dot-separated parts)', '不是 JWT 格式（需要用点分隔的 3 部分）', '不是 JWT 格式（需要用點分隔的 3 部分）', 'No es un JWT (necesita 3 partes separadas por puntos)'],
+  jwe: ['5부분 토큰은 암호화된 JWE라 내용을 볼 수 없어요', 'A 5-part token is an encrypted JWE; its contents cannot be read', '5 部分的令牌是加密的 JWE，无法查看内容', '5 部分的權杖是加密的 JWE，無法檢視內容', 'Un token de 5 partes es un JWE cifrado; no se puede leer'],
+  badHdr: ['Header를 디코드하지 못했어요 (Base64URL/JSON 확인)', "Couldn't decode the header (check Base64URL/JSON)", '无法解码 Header（请检查 Base64URL/JSON）', '無法解碼 Header（請檢查 Base64URL/JSON）', 'No se pudo decodificar el header (revisa Base64URL/JSON)'],
+  badPay: ['Payload를 디코드하지 못했어요 (Base64URL/JSON 확인)', "Couldn't decode the payload (check Base64URL/JSON)", '无法解码 Payload（请检查 Base64URL/JSON）', '無法解碼 Payload（請檢查 Base64URL/JSON）', 'No se pudo decodificar el payload (revisa Base64URL/JSON)'],
+  okDec: ['디코드 완료', 'Decoded', '解码完成', '解碼完成', 'Decodificado'],
+  expired: ['만료됨', 'Expired', '已过期', '已過期', 'Caducado'],
+  notYet: ['아직 유효하지 않음', 'Not yet valid', '尚未生效', '尚未生效', 'Aún no válido'],
+  valid: ['유효', 'Valid', '有效', '有效', 'Válido'],
+  future: ['미래 시각', 'In the future', '未来时间', '未來時間', 'En el futuro'],
+  algNone: ['alg가 none이에요. 서명이 없는 토큰이라 신뢰하면 안 돼요', 'alg is "none": the token is unsigned and must not be trusted', 'alg 为 none：令牌未签名，不应信任', 'alg 為 none：權杖未簽章，不應信任', 'alg es "none": el token no está firmado y no es fiable'],
+  algUnsup: ['{alg} 서명은 브라우저에서 검증할 수 없어요', '{alg} signatures cannot be verified in the browser', '浏览器无法验证 {alg} 签名', '瀏覽器無法驗證 {alg} 簽章', 'Las firmas {alg} no se pueden verificar en el navegador'],
+  needSecret: ['비밀키를 넣으면 서명을 확인해요', 'Enter the secret to verify the signature', '输入密钥即可验证签名', '輸入密鑰即可驗證簽章', 'Introduce el secreto para verificar la firma'],
+  needKey: ['공개키를 넣으면 서명을 확인해요', 'Enter the public key to verify the signature', '输入公钥即可验证签名', '輸入公鑰即可驗證簽章', 'Introduce la clave pública para verificar la firma'],
+  sigOk: ['✅ 서명 일치 ({alg})', '✅ Signature verified ({alg})', '✅ 签名一致（{alg}）', '✅ 簽章一致（{alg}）', '✅ Firma verificada ({alg})'],
+  sigBad: ['❌ 서명 불일치 ({alg})', '❌ Invalid signature ({alg})', '❌ 签名不一致（{alg}）', '❌ 簽章不一致（{alg}）', '❌ Firma no válida ({alg})'],
+  keyErr: ['키를 읽지 못했어요: {msg}', "Couldn't read the key: {msg}", '无法读取密钥：{msg}', '無法讀取密鑰：{msg}', 'No se pudo leer la clave: {msg}'],
+  addIat: ['iat = 지금', 'iat = now', 'iat = 现在', 'iat = 現在', 'iat = ahora'],
+  addExp: ['exp = 1시간 뒤', 'exp = +1 hour', 'exp = 1 小时后', 'exp = 1 小時後', 'exp = +1 hora'],
+  encSecretPh: ['서명용 비밀키', 'Signing secret', '签名密钥', '簽章密鑰', 'Secreto de firma'],
+  encOut: ['생성된 토큰', 'Generated token', '生成的令牌', '產生的權杖', 'Token generado'],
+  toDec: ['디코더로 보내기', 'Open in decoder', '发送到解码器', '傳送到解碼器', 'Abrir en el decodificador'],
+  encNeedSecret: ['비밀키를 입력하세요', 'Enter a secret', '请输入密钥', '請輸入密鑰', 'Introduce un secreto'],
+  encBadJson: ['{part} JSON 오류: {msg}', '{part} JSON error: {msg}', '{part} JSON 错误：{msg}', '{part} JSON 錯誤：{msg}', 'Error JSON en {part}: {msg}'],
+  encOk: ['{alg}로 서명했어요', 'Signed with {alg}', '已用 {alg} 签名', '已用 {alg} 簽章', 'Firmado con {alg}'],
+  warn: ['주의: 운영 환경 토큰과 비밀키는 다른 곳에 공유하지 마세요. 이 페이지는 아무것도 전송하거나 저장하지 않아요.', 'Note: never share production tokens or secrets elsewhere. This page sends and stores nothing.', '注意：请勿在别处分享生产环境的令牌和密钥。本页面不发送也不保存任何内容。', '注意：請勿在別處分享正式環境的權杖與密鑰。本頁面不傳送也不儲存任何內容。', 'Aviso: no compartas tokens ni secretos de producción. Esta página no envía ni guarda nada.'],
+  allTools: ['모든 도구', 'All tools', '全部工具', '全部工具', 'Todas las herramientas'],
+});
+I18n.init();
 
-function setStatus(text, type='') {
-  statusEl.className = 'status' + (type ? ' ' + type : '');
-  statusEl.textContent = text;
-}
-
-function b64urlToUtf8(str) {
-  const norm = str.replace(/-/g, '+').replace(/_/g, '/');
-  const pad = norm.length % 4 ? '='.repeat(4 - (norm.length % 4)) : '';
-  const bytes = Uint8Array.from(atob(norm + pad), c => c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
-}
-
-function tryJsonDecode(part) {
-  try { return JSON.parse(b64urlToUtf8(part)); } catch { return null; }
-}
-
-function formatDate(sec) {
-  if (!Number.isFinite(sec)) return '-';
-  const d = new Date(sec * 1000);
-  return d.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', hour12: false });
-}
-
-function toPre(obj) {
-  return JSON.stringify(obj ?? {}, null, 2);
-}
-
-async function verifyHs256(jwt, secret) {
-  const [h,p,sig] = jwt.split('.');
-  if (!h || !p || !sig || !secret) return null;
-
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const t = I18n.t;
   const enc = new TextEncoder();
-  const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-  const signed = await crypto.subtle.sign('HMAC', key, enc.encode(`${h}.${p}`));
-  const calc = btoa(String.fromCharCode(...new Uint8Array(signed))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-  return calc === sig;
-}
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const SAMPLE_SECRET = 'your-256-bit-secret';
+  const SAMPLE = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImNvY3kiLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6NDEwMjQ0NDgwMH0.';
+  const ALGS = {
+    HS256: { name: 'HMAC', hash: 'SHA-256' }, HS384: { name: 'HMAC', hash: 'SHA-384' }, HS512: { name: 'HMAC', hash: 'SHA-512' },
+    RS256: { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, RS384: { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-384' }, RS512: { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-512' },
+    PS256: { name: 'RSA-PSS', hash: 'SHA-256', saltLength: 32 }, PS384: { name: 'RSA-PSS', hash: 'SHA-384', saltLength: 48 }, PS512: { name: 'RSA-PSS', hash: 'SHA-512', saltLength: 64 },
+    ES256: { name: 'ECDSA', hash: 'SHA-256', namedCurve: 'P-256' }, ES384: { name: 'ECDSA', hash: 'SHA-384', namedCurve: 'P-384' }, ES512: { name: 'ECDSA', hash: 'SHA-512', namedCurve: 'P-521' },
+  };
+  const TIME_CLAIMS = ['exp', 'nbf', 'iat', 'auth_time'];
+  let lastStatus = null, cur = null, verSeq = 0;
 
-function renderSummary(header, payload, token) {
-  const rows = [];
-  rows.push(['alg', header?.alg || '-']);
-  rows.push(['typ', header?.typ || '-']);
-  rows.push(['iss', payload?.iss || '-']);
-  rows.push(['sub', payload?.sub || '-']);
-  rows.push(['aud', Array.isArray(payload?.aud) ? payload.aud.join(', ') : (payload?.aud || '-')]);
-  rows.push(['length', token.length + ' chars']);
-  $('summary').innerHTML = rows.map(([k,v]) => `<tr><th>${k}</th><td>${String(v)}</td></tr>`).join('');
-}
+  function b64urlBytes(s) {
+    const n = s.replace(/-/g, '+').replace(/_/g, '/').replace(/\s/g, '');
+    if (/[^A-Za-z0-9+/=]/.test(n)) throw new Error('base64');
+    return Uint8Array.from(atob(n + '='.repeat((4 - (n.length % 4)) % 4)), (c) => c.charCodeAt(0));
+  }
+  const bytesB64url = (b) => { let s = ''; for (const x of new Uint8Array(b)) s += String.fromCharCode(x); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+  const jsonPart = (p) => JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(b64urlBytes(p)));
 
-function renderTimeClaims(payload) {
-  const keys = ['exp','nbf','iat'];
-  const now = Math.floor(Date.now()/1000);
-  const rows = keys.map((k) => {
-    const v = Number(payload?.[k]);
-    if (!Number.isFinite(v)) return `<tr><td class="claim">${k}</td><td>-</td><td>-</td><td>-</td></tr>`;
-    let st = '정상';
-    if (k === 'exp' && v < now) st = '만료';
-    if (k === 'nbf' && v > now) st = '아직 유효 아님';
-    return `<tr><td class="claim">${k}</td><td>${v}</td><td>${formatDate(v)}</td><td>${st}</td></tr>`;
+  function hl(json) {
+    let out = '', last = 0;
+    json.replace(/("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g, (m, str, colon, kw, off) => {
+      out += esc(json.slice(last, off));
+      const cls = str ? (colon ? 'k' : 's') : kw ? (kw === 'null' ? 'n' : 'b') : 'd';
+      out += `<span class="${cls}">${esc(str || m)}</span>` + (colon ? esc(colon) : '');
+      last = off + m.length;
+    });
+    return out + esc(json.slice(last));
+  }
+
+  function status(key, vars, cls) {
+    lastStatus = key ? [key, vars, cls] : null;
+    $('status').className = cls || 'muted';
+    $('status').textContent = key ? t(key, vars) : '';
+  }
+  const fmtTime = (sec) => new Date(sec * 1000).toLocaleString(I18n.lang, { dateStyle: 'medium', timeStyle: 'medium' });
+  function rel(sec) {
+    const d = sec - Date.now() / 1000, a = Math.abs(d);
+    const [v, u] = a < 60 ? [d, 'second'] : a < 3600 ? [d / 60, 'minute'] : a < 86400 ? [d / 3600, 'hour'] : a < 86400 * 365 ? [d / 86400, 'day'] : [d / 86400 / 365, 'year'];
+    return new Intl.RelativeTimeFormat(I18n.lang, { numeric: 'auto' }).format(Math.round(v), u);
+  }
+
+  function renderClaims(h, p) {
+    const now = Date.now() / 1000, rows = [];
+    for (const k of ['alg', 'typ', 'kid']) if (h[k] != null) rows.push([k, esc(typeof h[k] === 'string' ? h[k] : JSON.stringify(h[k]))]);
+    for (const k of ['iss', 'sub', 'aud', 'jti', 'scope']) if (p[k] != null) rows.push([k, esc(Array.isArray(p[k]) ? p[k].join(', ') : typeof p[k] === 'string' ? p[k] : JSON.stringify(p[k]))]);
+    for (const k of TIME_CLAIMS) {
+      const v = Number(p[k]);
+      if (p[k] == null || !Number.isFinite(v)) continue;
+      let pill = '';
+      if (k === 'exp') pill = v < now ? `<span class="pill err">${t('expired')}</span>` : `<span class="pill ok">${t('valid')}</span>`;
+      else if (k === 'nbf' && v > now) pill = `<span class="pill warn">${t('notYet')}</span>`;
+      else if (k !== 'nbf' && v > now + 60) pill = `<span class="pill warn">${t('future')}</span>`;
+      rows.push([k, `<span class="mono">${esc(v)}</span> · ${esc(fmtTime(v))} · ${esc(rel(v))} ${pill}`]);
+    }
+    $('claims').innerHTML = rows.map(([k, v]) => `<tr><th class="mono">${k}</th><td>${v}</td></tr>`).join('');
+  }
+
+  function reset() {
+    cur = null; verSeq++;
+    $('tokView').hidden = true;
+    $('hdrOut').textContent = ''; $('payOut').textContent = ''; $('claims').innerHTML = '';
+    $('verStatus').textContent = '';
+  }
+
+  function decode() {
+    const raw = $('jwtIn').value.trim().replace(/^Bearer\s+/i, '').replace(/^["']|["']$/g, '').replace(/\s+/g, '');
+    reset();
+    if (!raw) { status('empty'); return; }
+    const parts = raw.split('.');
+    if (parts.length === 5) { status('jwe', null, 'err'); return; }
+    if (parts.length !== 3) { status('badParts', null, 'err'); return; }
+    $('tokView').hidden = false;
+    $('tokView').innerHTML = `<span class="th">${esc(parts[0])}</span><span class="td">.</span><span class="tp">${esc(parts[1])}</span><span class="td">.</span><span class="ts">${esc(parts[2])}</span>`;
+    let h, p;
+    try { h = jsonPart(parts[0]); if (!h || typeof h !== 'object') throw 0; } catch (e) { status('badHdr', null, 'err'); return; }
+    try { p = jsonPart(parts[1]); if (!p || typeof p !== 'object') throw 0; } catch (e) { status('badPay', null, 'err'); return; }
+    $('hdrOut').innerHTML = hl(JSON.stringify(h, null, 2));
+    $('payOut').innerHTML = hl(JSON.stringify(p, null, 2));
+    renderClaims(h, p);
+    cur = { parts, h, p };
+    const exp = Number(p.exp), nbf = Number(p.nbf), now = Date.now() / 1000;
+    if (Number.isFinite(exp) && exp < now) status('expired', null, 'err');
+    else if (Number.isFinite(nbf) && nbf > now) status('notYet', null, 'err');
+    else status('okDec', null, 'ok');
+    verify();
+  }
+
+  function pemToDer(pem) {
+    const m = pem.match(/-----BEGIN ([A-Z ]+)-----([\s\S]+?)-----END \1-----/);
+    if (!m) throw new Error('PEM');
+    if (m[1] !== 'PUBLIC KEY') throw new Error(`${m[1]} → PUBLIC KEY (SPKI)`);
+    return Uint8Array.from(atob(m[2].replace(/\s/g, '')), (c) => c.charCodeAt(0));
+  }
+  async function importPublic(text, alg, kid) {
+    const a = ALGS[alg];
+    const params = a.name === 'ECDSA' ? { name: a.name, namedCurve: a.namedCurve } : { name: a.name, hash: a.hash };
+    text = text.trim();
+    if (text.startsWith('{')) {
+      let jwk = JSON.parse(text);
+      if (Array.isArray(jwk.keys)) jwk = jwk.keys.find((k) => kid && k.kid === kid) || jwk.keys.find((k) => !k.alg || k.alg === alg) || jwk.keys[0];
+      if (!jwk) throw new Error('JWKS');
+      const { kty, n, e, crv, x, y } = jwk;
+      return crypto.subtle.importKey('jwk', { kty, n, e, crv, x, y, ext: true }, params, false, ['verify']);
+    }
+    return crypto.subtle.importKey('spki', pemToDer(text), params, false, ['verify']);
+  }
+
+  async function verify() {
+    const seq = ++verSeq, v = $('verStatus');
+    const setV = (key, vars, cls) => { if (seq === verSeq) { v.className = cls || 'muted'; v.textContent = t(key, vars); } };
+    if (!cur) { v.textContent = ''; return; }
+    const alg = String(cur.h.alg || '');
+    const isHs = /^HS/.test(alg);
+    $('hsBox').hidden = !isHs && alg in ALGS; $('pkBox').hidden = isHs || !(alg in ALGS);
+    if (alg.toLowerCase() === 'none') return setV('algNone', null, 'err');
+    if (!(alg in ALGS)) return setV('algUnsup', { alg }, 'err');
+    const data = enc.encode(cur.parts[0] + '.' + cur.parts[1]);
+    let sig;
+    try { sig = b64urlBytes(cur.parts[2]); } catch (e) { return setV('sigBad', { alg }, 'err'); }
+    const a = ALGS[alg];
+    let key;
+    try {
+      if (isHs) {
+        const s = $('secret').value;
+        if (!s) return setV('needSecret');
+        const raw = $('secretB64').checked ? b64urlBytes(s.trim()) : enc.encode(s);
+        key = await crypto.subtle.importKey('raw', raw, { name: 'HMAC', hash: a.hash }, false, ['verify']);
+      } else {
+        const s = $('pubKey').value;
+        if (!s.trim()) return setV('needKey');
+        key = await importPublic(s, alg, cur.h.kid);
+      }
+    } catch (e) { return setV('keyErr', { msg: (e && e.message) || String(e) }, 'err'); }
+    let ok = false;
+    try { ok = await crypto.subtle.verify(a.name === 'ECDSA' ? { name: a.name, hash: a.hash } : a.name === 'RSA-PSS' ? { name: a.name, saltLength: a.saltLength } : { name: a.name }, key, sig, data); } catch (e) { ok = false; }
+    setV(ok ? 'sigOk' : 'sigBad', { alg }, ok ? 'ok' : 'err');
+  }
+
+  async function sign() {
+    const alg = $('encAlg').value, out = $('encOut'), st = $('encStatus');
+    const parse = (id, part) => { try { const o = JSON.parse($(id).value || '{}'); if (!o || typeof o !== 'object' || Array.isArray(o)) throw new Error('object'); return o; } catch (e) { throw new Error(t('encBadJson', { part, msg: e.message })); } };
+    try {
+      const h = parse('encHdr', 'Header'), p = parse('encPay', 'Payload');
+      h.alg = alg;
+      $('encHdr').value = JSON.stringify(h, null, 2);
+      if (!$('encSecret').value) { out.value = ''; st.className = 'muted grow'; st.textContent = t('encNeedSecret'); return; }
+      const body = bytesB64url(enc.encode(JSON.stringify(h))) + '.' + bytesB64url(enc.encode(JSON.stringify(p)));
+      const key = await crypto.subtle.importKey('raw', enc.encode($('encSecret').value), { name: 'HMAC', hash: ALGS[alg].hash }, false, ['sign']);
+      out.value = body + '.' + bytesB64url(await crypto.subtle.sign('HMAC', key, enc.encode(body)));
+      st.className = 'ok grow'; st.textContent = t('encOk', { alg });
+    } catch (e) { out.value = ''; st.className = 'err grow'; st.textContent = e.message; }
+  }
+  function setClaim(k, v) {
+    let o; try { o = JSON.parse($('encPay').value || '{}'); } catch (e) { return; }
+    o[k] = v; $('encPay').value = JSON.stringify(o, null, 2); sign();
+  }
+
+  $('tabSeg').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    [...$('tabSeg').children].forEach((x) => x.classList.toggle('on', x === b));
+    $('decPane').hidden = b.dataset.t !== 'dec'; $('encPane').hidden = b.dataset.t !== 'enc';
+    if (b.dataset.t === 'enc') sign();
   });
-  $('claimsTime').innerHTML = rows.join('');
-}
+  $('jwtIn').addEventListener('input', decode);
+  $('secret').addEventListener('input', verify);
+  $('secretB64').addEventListener('change', verify);
+  $('pubKey').addEventListener('input', verify);
+  $('sampleBtn').addEventListener('click', async () => {
+    const body = SAMPLE.slice(0, -1);
+    const key = await crypto.subtle.importKey('raw', enc.encode(SAMPLE_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    $('jwtIn').value = body + '.' + bytesB64url(await crypto.subtle.sign('HMAC', key, enc.encode(body)));
+    $('secret').value = SAMPLE_SECRET; $('secretB64').checked = false;
+    decode();
+  });
+  $('clearBtn').addEventListener('click', () => { $('jwtIn').value = ''; $('secret').value = ''; $('pubKey').value = ''; decode(); });
+  document.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', () => { const s = $(b.dataset.copy).textContent; if (s) UI.copy(s); }));
+  ['encHdr', 'encPay', 'encSecret'].forEach((id) => $(id).addEventListener('input', sign));
+  $('encAlg').addEventListener('change', sign);
+  $('addIat').addEventListener('click', () => setClaim('iat', Math.floor(Date.now() / 1000)));
+  $('addExp').addEventListener('click', () => setClaim('exp', Math.floor(Date.now() / 1000) + 3600));
+  $('encCopy').addEventListener('click', () => { if ($('encOut').value) UI.copy($('encOut').value); });
+  $('encToDec').addEventListener('click', () => {
+    if (!$('encOut').value) return;
+    $('jwtIn').value = $('encOut').value; $('secret').value = $('encSecret').value; $('secretB64').checked = false;
+    $('tabSeg').children[0].click(); decode();
+  });
+  document.addEventListener('i18n:change', () => { if (lastStatus) status(...lastStatus); if (cur) { renderClaims(cur.h, cur.p); verify(); } });
 
-async function decodeJWT() {
-  const token = jwtInput.value.trim();
-  if (!token) { setStatus('토큰을 입력해줘.', 'warn'); return; }
-
-  const parts = token.split('.');
-  $('partHeader').textContent = parts[0] || 'header.part';
-  $('partPayload').textContent = parts[1] || 'payload.part';
-  $('partSig').textContent = parts[2] || 'signature.part';
-
-  if (parts.length < 2) {
-    setStatus('JWT 형식이 아님 (점으로 2~3개 파트 필요).', 'bad');
-    return;
-  }
-
-  const header = tryJsonDecode(parts[0]);
-  const payload = tryJsonDecode(parts[1]);
-
-  if (!header || !payload) {
-    setStatus('디코드 실패: Base64URL 또는 JSON 형식 확인 필요.', 'bad');
-    return;
-  }
-
-  $('headerOut').textContent = toPre(header);
-  $('payloadOut').textContent = toPre(payload);
-  renderSummary(header, payload, token);
-  renderTimeClaims(payload);
-
-  let msg = '디코드 성공';
-  let type = 'good';
-
-  const now = Math.floor(Date.now()/1000);
-  if (Number.isFinite(Number(payload.exp)) && Number(payload.exp) < now) {
-    msg += ' · 토큰 만료됨';
-    type = 'warn';
-  }
-
-  if (header.alg === 'HS256' && secretInput.value.trim()) {
-    const ok = await verifyHs256(token, secretInput.value.trim());
-    msg += ok ? ' · HS256 서명 일치' : ' · HS256 서명 불일치';
-    type = ok ? type : 'bad';
-  }
-
-  setStatus(msg, type);
-}
-
-$('decodeBtn').addEventListener('click', decodeJWT);
-jwtInput.addEventListener('input', () => { if (jwtInput.value.trim()) decodeJWT(); });
-secretInput.addEventListener('input', () => { if (jwtInput.value.trim()) decodeJWT(); });
-
-$('sampleBtn').addEventListener('click', () => {
-  jwtInput.value = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImNvY3kiLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6NDEwMjQ0NDgwMH0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
-  decodeJWT();
-});
-$('clearBtn').addEventListener('click', () => {
-  jwtInput.value = '';
-  secretInput.value = '';
-  $('headerOut').textContent = '{}';
-  $('payloadOut').textContent = '{}';
-  $('summary').innerHTML = '';
-  $('claimsTime').innerHTML = '';
-  $('partHeader').textContent = 'header.part';
-  $('partPayload').textContent = 'payload.part';
-  $('partSig').textContent = 'signature.part';
-  setStatus('토큰을 입력해줘.');
-});
+  $('encHdr').value = JSON.stringify({ alg: 'HS256', typ: 'JWT' }, null, 2);
+  $('encPay').value = JSON.stringify({ sub: '1234567890', name: 'cocy', iat: Math.floor(Date.now() / 1000) }, null, 2);
+  const q = new URLSearchParams(location.hash.slice(1)).get('token');
+  if (q) $('jwtIn').value = q;
+  decode();
+})();
 </script>
 <script src="/lib/tool-nav.js"></script>
+<script src="/lib/site-meta.js"></script>
+<script>
+SiteMeta.init({ title: 'JWT 디코더 · 서명 검증 · 생성 — tool.cocy.io', description: 'JWT 토큰 디코드, 만료 확인, HS/RS/PS/ES 서명 검증(비밀키·PEM·JWK), HS256 토큰 생성. 브라우저에서만 처리돼요', url: 'https://tool.cocy.io/jwt/' });
+</script>
 </body>
 </html>
