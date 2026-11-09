@@ -1,5 +1,20 @@
 [
   {
+    "title": "로컬 위키 메모장",
+    "icon": "https://tool.cocy.io/wiki/icon.svg",
+    "url": "https://tool.cocy.io/wiki/",
+    "desc": "브라우저에 저장하는 위키 메모장. 페이지 트리, 마크다운 노트와 칸반 보드, 사진·음성 메모 첨부, [[위키 링크]], 백업. 가입·서버 없이 기기에만 저장",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool",
+    "group": "ai"
+  },
+  {
     "title": "내 기기 AI 체커",
     "icon": "https://tool.cocy.io/aicheck/icon.svg",
     "url": "https://tool.cocy.io/aicheck/",
