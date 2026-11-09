@@ -138,6 +138,18 @@ dialog::backdrop { background: #000a; }
 #lightbox { width: auto; max-width: 96vw; background: #000; border: 0; }
 #lightbox img { display: block; max-width: 96vw; max-height: 92vh; }
 #storeInfo { font-size: 13px; }
+.searchrow { display: flex; gap: 6px; }
+.searchrow input { flex: 1; min-width: 0; }
+#aiSearchBtn.on { background: var(--primary); color: #fff; border-radius: 8px; }
+.sres .score { float: right; color: var(--muted); font-size: 11px; margin-left: 6px; }
+.att-imgw { position: relative; display: block; width: fit-content; max-width: 100%; }
+.att-imgw .aib { position: absolute; top: 8px; right: 8px; }
+.aib { background: #0f172add; color: var(--text); border: 1px solid var(--line); border-radius: 99px; padding: 3px 10px; font: inherit; font-size: 12px; cursor: pointer; }
+.aib:hover { border-color: var(--primary); }
+.aib:disabled { cursor: progress; }
+.att-audio .aib { align-self: flex-start; }
+#aiOut { max-height: 300px; overflow: auto; border-top: 1px solid var(--line); padding-top: 4px; }
+#aiOut:empty { display: none; }
 @media (max-width: 760px) {
   .app { grid-template-columns: 1fr; }
   #sideBtn { display: inline-block; }
@@ -167,7 +179,10 @@ dialog::backdrop { background: #000a; }
 
   <aside id="side">
     <div class="sidetop">
-      <input type="search" id="q" data-i18n-attr="placeholder:searchPh">
+      <div class="searchrow">
+        <input type="search" id="q" data-i18n-attr="placeholder:searchPh">
+        <button class="ibtn" id="aiSearchBtn" data-i18n-attr="title:aiSearchTip">🧠</button>
+      </div>
       <div class="row">
         <button class="btn" id="newNote" data-i18n="newNote">＋ 노트</button>
         <button class="btn" id="newBoard" data-i18n="newBoard">＋ 보드</button>
@@ -210,6 +225,7 @@ dialog::backdrop { background: #000a; }
           <button class="ibtn" data-att="image" data-i18n-attr="title:tImage">🖼</button>
           <button class="ibtn" data-att="rec" data-i18n-attr="title:tRec" id="recBtn">🎙</button>
           <button class="ibtn" data-att="file" data-i18n-attr="title:tFile">📎</button>
+          <button class="ibtn" id="aiBtn" data-i18n-attr="title:aiBtn">✨</button>
           <span class="grow"></span>
           <div class="seg" id="modeSeg">
             <button data-m="edit" data-i18n="mEdit">편집</button>
@@ -281,7 +297,36 @@ dialog::backdrop { background: #000a; }
       <button class="btn" id="impBtn" data-i18n="importAll">⬆ 백업 가져오기</button>
       <button class="btn" id="gcBtn" data-i18n="gc">🧹 안 쓰는 첨부 정리</button>
     </div>
+    <h3 data-i18n="aiSection">로컬 AI</h3>
+    <label class="row" style="gap:8px;font-size:14px;flex-wrap:nowrap"><input type="checkbox" id="autoStt" style="width:auto"><span data-i18n="autoStt">음성 메모 녹음이 끝나면 자동으로 받아쓰기</span></label>
     <div class="row"><span class="grow"></span><button class="btn" id="menuClose" data-i18n="close">닫기</button></div>
+  </div>
+</dialog>
+
+<dialog id="aiDlg">
+  <div class="dlg">
+    <h3 data-i18n="aiTitle">✨ AI 도우미</h3>
+    <div class="row"><label class="muted" for="aiEng" data-i18n="aiEngine">모델</label><select id="aiEng" style="flex:1"></select></div>
+    <p id="aiNote" class="muted" style="margin:0;font-size:13px"></p>
+    <div class="seg" id="aiActs">
+      <button data-a="sum" data-i18n="aiSum">📝 요약</button>
+      <button data-a="tags" data-i18n="aiTags">🏷 태그</button>
+      <button data-a="tasks" data-i18n="aiTasks">✅ 할 일 → 카드</button>
+      <button data-a="ask" data-i18n="aiAsk">💬 질문</button>
+    </div>
+    <input type="text" id="aiQ" data-i18n-attr="placeholder:aiAskPh" hidden>
+    <div class="row">
+      <button class="btn primary" id="aiRun" data-i18n="aiRun">실행</button>
+      <button class="btn" id="aiStop" data-i18n="aiStopBtn" hidden>중지</button>
+      <span id="aiSt" class="muted" style="font-size:13px"></span>
+    </div>
+    <div id="aiOut" class="md"></div>
+    <div class="row" id="aiApplyRow" hidden>
+      <select id="aiBoard" style="width:auto;max-width:60%" hidden></select>
+      <span class="grow"></span>
+      <button class="btn primary" id="aiApply"></button>
+    </div>
+    <div class="row"><span class="grow"></span><button class="btn" id="aiClose" data-i18n="close">닫기</button></div>
   </div>
 </dialog>
 
@@ -291,6 +336,7 @@ dialog::backdrop { background: #000a; }
 <script src="/lib/i18n.js"></script>
 <script src="/wiki/md.js"></script>
 <script src="/wiki/store.js"></script>
+<script src="/wiki/ai.js"></script>
 <script src="/wiki/app.js"></script>
 <script src="/lib/tool-nav.js"></script>
 <script src="/lib/site-meta.js"></script>
