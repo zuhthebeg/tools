@@ -10,7 +10,7 @@
     { id: 'Qwen3.5-0.8B', name: 'Qwen3.5 0.8B', f16: 'Qwen3.5-0.8B-q4f16_1-MLC', f32: 'Qwen3.5-0.8B-q4f32_1-MLC', gb: 1.6 },
   ];
   const OCR_LANGS = { ko: ['kor', 'eng'], en: ['eng'], 'zh-CN': ['chi_sim', 'eng'], 'zh-TW': ['chi_tra', 'eng'], es: ['spa', 'eng'] };
-  const CJK = '\\u3040-\\u30ff\\u3400-\\u4dbf\\u4e00-\\u9fff\\uf900-\\ufaff\\u3000-\\u303f\\uff00-\\uffef\\uac00-\\ud7af';
+  const CJK = '\\u3040-\\u30ff\\u3400-\\u4dbf\\u4e00-\\u9fff\\uf900-\\ufaff\\u3000-\\u303f\\uff00-\\uffef';
   const CJK_GAP = new RegExp(`([${CJK}])[ \\t]+(?=[${CJK}])`, 'g');
 
   let gpuP = null;
