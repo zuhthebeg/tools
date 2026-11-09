@@ -3,6 +3,7 @@
 > 설치·로그인 없이 브라우저에서 바로 쓰는 무료 웹 도구 모음. 개발자 유틸리티(인코딩·토크나이저·네트워크)부터 생활 도구(로또·D-Day·QR)까지 전부 클라이언트 사이드로 동작해 데이터가 서버로 전송되지 않는다.
 
 ## tool
+- [로컬 위키 메모장](https://tool.cocy.io/wiki/): 브라우저(IndexedDB)에 저장하는 위키 메모장. 페이지 트리, 마크다운 노트, 칸반 보드, 사진 붙여넣기·음성 메모 녹음, [[위키 링크]], 체크리스트, 검색, JSON 백업. 서버 전송 없음.
 - [내 기기 AI 체커](https://tool.cocy.io/aicheck/): 이 브라우저에서 AI 모델을 돌릴 수 있는지 확인. WebGPU·GPU 정보, Chrome 내장 AI(Gemini Nano), WASM, 벤치마크, 모델별 실행 가능 여부
 - [온디바이스 AI 비전](https://tool.cocy.io/vtest/): 서버 없이 브라우저에서 100% 실행되는 AI 비전. 사진 속 물건·텍스트를 WebGPU로 즉시 인식 (SmolVLM). 이미지가 외부로 안 나감.
 - [음성→텍스트·자막 (Whisper)](https://tool.cocy.io/stt/): 오디오·영상·녹음을 브라우저 안에서 Whisper로 받아쓰기. 업로드 없음. SRT·VTT·TXT 자막 내보내기, WebGPU 가속
