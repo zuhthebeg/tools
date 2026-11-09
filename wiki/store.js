@@ -7,15 +7,17 @@
   function open() {
     if (!dbp) {
       dbp = new Promise((res, rej) => {
-        const r = indexedDB.open(DB, 1);
-        r.onupgradeneeded = () => {
+        const r = indexedDB.open(DB, 2);
+        r.onupgradeneeded = (e) => {
           const db = r.result;
-          db.createObjectStore('pages', { keyPath: 'id' });
-          db.createObjectStore('files', { keyPath: 'id' }).createIndex('pageId', 'pageId');
+          if (e.oldVersion < 1) {
+            db.createObjectStore('pages', { keyPath: 'id' });
+            db.createObjectStore('files', { keyPath: 'id' }).createIndex('pageId', 'pageId');
+          }
+          if (!db.objectStoreNames.contains('vecs')) db.createObjectStore('vecs');
         };
-        r.onsuccess = () => res(r.result);
+        r.onsuccess = () => { const db = r.result; db.onversionchange = () => { db.close(); dbp = null; }; res(db); };
         r.onerror = () => rej(r.error);
-        r.onblocked = () => rej(new Error('IndexedDB blocked'));
       });
       dbp.catch(() => { dbp = null; });
     }
@@ -48,6 +50,10 @@
     putFile: (f) => tx('files', 'readwrite', (t) => { t.objectStore('files').put(f); }),
     getFile: (id) => tx('files', 'readonly', (t) => t.objectStore('files').get(id)),
     allFiles: () => tx('files', 'readonly', (t) => t.objectStore('files').getAll()),
+    /* embedding cache for AI search: key = model|textHash -> Float32Array */
+    getVecs: (keys) => { const out = new Array(keys.length); return tx('vecs', 'readonly', (t) => { const st = t.objectStore('vecs'); keys.forEach((k, i) => { st.get(k).onsuccess = (e) => { out[i] = e.target.result; }; }); }).then(() => out); },
+    putVecs: (entries) => tx('vecs', 'readwrite', (t) => { const st = t.objectStore('vecs'); entries.forEach(([k, v]) => st.put(v, k)); }),
+    clearVecs: () => tx('vecs', 'readwrite', (t) => { t.objectStore('vecs').clear(); }),
     deleteFiles: (ids) => tx('files', 'readwrite', (t) => { const s = t.objectStore('files'); ids.forEach((id) => s.delete(id)); }),
   };
 })(window);

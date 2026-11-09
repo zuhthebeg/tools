@@ -73,6 +73,42 @@
     voiceMemo: ['음성 메모', 'Voice memo', '语音备忘', '語音備忘', 'Nota de voz'],
     recUnsupported: ['이 브라우저는 녹음을 지원하지 않아요', "This browser can't record audio", '此浏览器不支持录音', '此瀏覽器不支援錄音', 'Este navegador no puede grabar audio'],
     micDenied: ['마이크 권한이 필요해요', 'Microphone permission is needed', '需要麦克风权限', '需要麥克風權限', 'Se necesita permiso del micrófono'],
+    aiStt: ['📝 텍스트로', '📝 Transcribe', '📝 转文字', '📝 轉文字', '📝 Transcribir'],
+    aiOcr: ['🔤 글자 추출', '🔤 Extract text', '🔤 提取文字', '🔤 擷取文字', '🔤 Extraer texto'],
+    aiLoading: ['AI 모델 준비 중 {p}', 'Loading AI model {p}', '正在加载 AI 模型 {p}', '正在載入 AI 模型 {p}', 'Cargando modelo de IA {p}'],
+    aiTranscribing: ['받아쓰는 중 {p}', 'Transcribing {p}', '转写中 {p}', '轉寫中 {p}', 'Transcribiendo {p}'],
+    aiReading: ['글자 읽는 중 {p}', 'Reading text {p}', '识别中 {p}', '辨識中 {p}', 'Leyendo texto {p}'],
+    aiIndexing: ['AI 검색 색인 중 {p}', 'Indexing for AI search {p}', '正在建立 AI 搜索索引 {p}', '正在建立 AI 搜尋索引 {p}', 'Indexando para búsqueda IA {p}'],
+    aiEmpty: ['결과가 비어 있어요', 'Nothing found', '没有结果', '沒有結果', 'No se encontró nada'],
+    aiInserted: ['노트에 넣었어요', 'Added to the note', '已添加到笔记', '已加入筆記', 'Añadido a la nota'],
+    aiFail: ['AI 처리 실패: {e}', 'AI failed: {e}', 'AI 处理失败：{e}', 'AI 處理失敗：{e}', 'Error de IA: {e}'],
+    aiSearchTip: ['AI 의미 검색 (단어가 달라도 뜻으로 찾기)', 'AI semantic search (find by meaning)', 'AI 语义搜索（按含义查找）', 'AI 語意搜尋（依意思尋找）', 'Búsqueda semántica IA (por significado)'],
+    searchPhAi: ['뜻으로 검색 (예: 지난 회의 결정)', 'Search by meaning (e.g. meeting decisions)', '按含义搜索（如：会议决定）', '依意思搜尋（如：會議決定）', 'Buscar por significado (p. ej. decisiones)'],
+    aiBtn: ['AI 도우미 (요약·태그·할 일→카드)', 'AI helper (summary, tags, to-dos → cards)', 'AI 助手（摘要、标签、待办→卡片）', 'AI 助手（摘要、標籤、待辦→卡片）', 'Asistente IA (resumen, etiquetas, tareas → tarjetas)'],
+    aiTitle: ['✨ AI 도우미', '✨ AI helper', '✨ AI 助手', '✨ AI 助手', '✨ Asistente IA'],
+    aiEngine: ['모델', 'Model', '模型', '模型', 'Modelo'],
+    aiChecking: ['이 기기에서 쓸 수 있는 모델 확인 중…', 'Checking which models this device can run…', '正在检查此设备可用的模型…', '正在檢查此裝置可用的模型…', 'Comprobando qué modelos puede usar este dispositivo…'],
+    aiLocal: ['모델은 이 기기에서만 실행되고 노트는 밖으로 나가지 않아요. 처음 한 번 모델을 내려받아요.', 'The model runs on this device and your note never leaves it. It downloads once on first use.', '模型在本设备上运行，笔记不会外传。首次使用时下载一次模型。', '模型在本裝置上執行，筆記不會外傳。首次使用時下載一次模型。', 'El modelo se ejecuta en este dispositivo y tu nota no sale de él. Se descarga una vez.'],
+    aiNoEngine: ['이 브라우저에선 쓸 수 있는 AI 모델이 없어요. Chrome 내장 AI(Gemini Nano)나 WebGPU가 필요해요. 기기 확인:', 'No AI model is available in this browser. You need Chrome built-in AI (Gemini Nano) or WebGPU. Check your device:', '此浏览器没有可用的 AI 模型。需要 Chrome 内置 AI（Gemini Nano）或 WebGPU。检查设备：', '此瀏覽器沒有可用的 AI 模型。需要 Chrome 內建 AI（Gemini Nano）或 WebGPU。檢查裝置：', 'No hay modelos de IA en este navegador. Necesitas la IA integrada de Chrome (Gemini Nano) o WebGPU. Revisa tu dispositivo:'],
+    aiSum: ['📝 요약', '📝 Summary', '📝 摘要', '📝 摘要', '📝 Resumen'],
+    aiTags: ['🏷 태그', '🏷 Tags', '🏷 标签', '🏷 標籤', '🏷 Etiquetas'],
+    aiTasks: ['✅ 할 일 → 카드', '✅ To-dos → cards', '✅ 待办 → 卡片', '✅ 待辦 → 卡片', '✅ Tareas → tarjetas'],
+    aiAsk: ['💬 질문', '💬 Ask', '💬 提问', '💬 提問', '💬 Preguntar'],
+    aiAskPh: ['이 노트에 대해 물어보세요', 'Ask about this note', '就这篇笔记提问', '針對這篇筆記提問', 'Pregunta sobre esta nota'],
+    aiRun: ['실행', 'Run', '运行', '執行', 'Ejecutar'],
+    aiStopBtn: ['중지', 'Stop', '停止', '停止', 'Detener'],
+    aiPreparing: ['준비 중…', 'Preparing…', '准备中…', '準備中…', 'Preparando…'],
+    aiThinking: ['생성 중…', 'Generating…', '生成中…', '生成中…', 'Generando…'],
+    aiApplySum: ['노트 맨 위에 넣기', 'Insert at top of note', '插入笔记顶部', '插入筆記頂部', 'Insertar al inicio'],
+    aiApplyTags: ['태그 줄 추가', 'Add tag line', '添加标签行', '加入標籤列', 'Añadir etiquetas'],
+    aiApplyTasks: ['카드 만들기', 'Create cards', '创建卡片', '建立卡片', 'Crear tarjetas'],
+    aiApplyAsk: ['노트 끝에 추가', 'Append to note', '追加到笔记末尾', '附加到筆記末尾', 'Añadir al final'],
+    aiNewBoard: ['＋ 새 보드 (하위 페이지)', '＋ New board (sub-page)', '＋ 新看板（子页面）', '＋ 新看板（子頁面）', '＋ Nuevo tablero (subpágina)'],
+    aiTasksBoard: ['할 일', 'To-dos', '待办', '待辦', 'Tareas'],
+    aiCardsMade: ['카드 {n}개를 "{b}"에 만들었어요', 'Created {n} cards in "{b}"', '已在“{b}”创建 {n} 张卡片', '已在「{b}」建立 {n} 張卡片', '{n} tarjetas creadas en «{b}»'],
+    aiSumHead: ['AI 요약', 'AI summary', 'AI 摘要', 'AI 摘要', 'Resumen IA'],
+    aiSection: ['로컬 AI', 'Local AI', '本地 AI', '本地 AI', 'IA local'],
+    autoStt: ['음성 메모 녹음이 끝나면 자동으로 받아쓰기 (Whisper, 처음 한 번 약 75MB 다운로드)', 'Auto-transcribe voice memos after recording (Whisper, ~75 MB one-time download)', '录音结束后自动转写语音备忘（Whisper，首次下载约 75 MB）', '錄音結束後自動轉寫語音備忘（Whisper，首次下載約 75 MB）', 'Transcribir notas de voz al terminar (Whisper, descarga única de ~75 MB)'],
     attached: ['첨부했어요: {n}개', 'Attached {n} file(s)', '已附加 {n} 个文件', '已附加 {n} 個檔案', 'Adjuntado(s): {n}'],
     bigFile: ['큰 파일({s})은 저장 공간을 많이 차지해요', 'Large file ({s}) uses a lot of storage', '大文件（{s}）会占用较多空间', '大檔案（{s}）會佔用較多空間', 'Un archivo grande ({s}) ocupa mucho espacio'],
     missingFile: ['첨부를 찾을 수 없어요', 'Attachment not found', '找不到附件', '找不到附件', 'Adjunto no encontrado'],
@@ -191,7 +227,7 @@
     const box = $('tree');
     const q = $('q').value.trim();
     box.innerHTML = '';
-    if (q) return renderSearch(q, box);
+    if (q) return aiMode ? aiSearchSoon(q, box) : renderSearch(q, box);
     const walk = (pid, depth) => {
       for (const p of children(pid)) {
         const kids = children(p.id).length > 0;
@@ -529,7 +565,10 @@
         if (!f.type.startsWith('image/')) { sp.remove(); return; }
         n = new Image(); n.src = f.url; n.alt = label;
       } else if (f.type.startsWith('image/')) {
-        n = new Image(); n.src = f.url; n.alt = label; n.className = 'att-img'; n.loading = 'lazy';
+        n = document.createElement('span');
+        n.className = 'att-imgw';
+        const im = new Image(); im.src = f.url; im.alt = label; im.className = 'att-img'; im.loading = 'lazy';
+        n.append(im, aiButton(sp.dataset.file, 'ocr'));
       } else if (f.type.startsWith('audio/')) {
         n = document.createElement('span');
         n.className = 'att-audio';
@@ -538,7 +577,7 @@
         cap.textContent = '🎙 ' + label;
         const a = document.createElement('audio');
         a.controls = true; a.preload = 'metadata'; a.src = f.url;
-        n.append(cap, a);
+        n.append(cap, a, aiButton(sp.dataset.file, 'stt'));
       } else if (f.type.startsWith('video/')) {
         n = document.createElement('video');
         n.controls = true; n.preload = 'metadata'; n.src = f.url;
@@ -552,7 +591,7 @@
   }
   const mdName = (s) => s.replace(/[[\]()\n]/g, ' ').trim() || 'file';
   async function attachFiles(files, ta, pageId) {
-    const parts = [];
+    const parts = [], ids = [];
     for (const f of files) {
       if (f.size > 50 * 1048576) UI.toast(t('bigFile', { s: fmtSize(f.size) }));
       const id = uid();
@@ -561,12 +600,14 @@
         await S.putFile({ id, pageId, name, type: f.type || 'application/octet-stream', size: f.size, blob: f, created: Date.now() });
       } catch (e) { UI.toast(t('saveFail')); continue; }
       parts.push((f.type.startsWith('image/') ? '!' : '') + `[${mdName(name)}](file:${id})`);
+      ids.push(id);
     }
-    if (!parts.length) return;
+    if (!parts.length) return ids;
     const before = ta.value.slice(0, ta.selectionStart);
     insertAt(ta, (before && !before.endsWith('\n') ? '\n' : '') + parts.join('\n') + '\n');
     UI.toast(t('attached', { n: parts.length }));
     askPersist();
+    return ids;
   }
   let attachTarget = null;
   function pickFiles(kind, ta) {
@@ -638,9 +679,11 @@
         p.body += (p.body && !p.body.endsWith('\n') ? '\n' : '') + `[${mdName(file.name)}](file:${id})\n`;
         touch(p);
         UI.toast(t('attached', { n: 1 }));
+        if (LS.get('wiki_autostt', false)) runAiOnFile(id, 'stt');
         return;
       }
-      await attachFiles([file], ta, pageId);
+      const ids = await attachFiles([file], ta, pageId);
+      if (ids[0] && LS.get('wiki_autostt', false)) runAiOnFile(ids[0], 'stt');
     };
     const tick = () => { const s = Math.floor((Date.now() - r.start) / 1000); $('recTime').textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
     r.timer = setInterval(tick, 250);
@@ -929,8 +972,278 @@
     if (!unused.length) { UI.toast(t('gcNone')); return; }
     if (!confirm(t('gcConfirm', { n: unused.length, s: fmtSize(unused.reduce((a, f) => a + (f.size || 0), 0)) }))) return;
     await S.deleteFiles(unused.map((f) => f.id));
+    S.clearVecs().catch(() => {});
     unused.forEach((f) => { const u = urls.get(f.id); if (u) { URL.revokeObjectURL(u.url); urls.delete(f.id); } });
     showStorage();
+  };
+
+  /* ---------- local AI: transcribe / OCR attachments, semantic search, Nano/WebLLM helper ---------- */
+  const pct = (p) => (p && p.frac != null ? Math.round(p.frac * 100) + '%' : '');
+  const aiBusy = new Set();
+  function aiButton(id, kind) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'aib';
+    b.dataset.ai = kind;
+    b.dataset.file = id;
+    const busy = aiBusy.has(kind + ':' + id);
+    b.disabled = busy;
+    b.textContent = busy ? '⏳' : t(kind === 'stt' ? 'aiStt' : 'aiOcr');
+    return b;
+  }
+  const setAiBtns = (id, kind, text, dis) => document.querySelectorAll(`button.aib[data-ai="${kind}"][data-file="${id}"]`).forEach((b) => { b.textContent = text; b.disabled = dis; });
+  function insertAfterFile(id, block) {
+    const needle = `(file:${id})`;
+    const add = (src) => {
+      const lines = src.split('\n');
+      const i = lines.findIndex((l) => l.includes(needle));
+      if (i < 0) return null;
+      const at = lines.slice(0, i + 1).join('\n').length;
+      lines.splice(i + 1, 0, block);
+      return { text: lines.join('\n'), at, len: block.length + 1 };
+    };
+    const syncTa = (ta, r) => {
+      const s0 = ta.selectionStart, e0 = ta.selectionEnd;
+      ta.value = r.text;
+      ta.setSelectionRange(s0 > r.at ? s0 + r.len : s0, e0 > r.at ? e0 + r.len : e0);
+    };
+    for (const p of pages.values()) {
+      const r = add(p.body);
+      if (r) {
+        p.body = r.text;
+        touch(p);
+        if (p.id === cur && p.type === 'note') { syncTa($('ed'), r); renderPreview(); }
+        return true;
+      }
+      for (const c of p.columns) for (const k of c.cards) {
+        const r2 = add(k.body);
+        if (!r2) continue;
+        k.body = r2.text;
+        touch(p);
+        if (open_card && open_card.id === k.id) { syncTa($('cBody'), r2); renderCardPv(); }
+        else if (p.id === cur && p.type === 'board') renderBoard();
+        return true;
+      }
+    }
+    return false;
+  }
+  async function runAiOnFile(id, kind) {
+    const key = kind + ':' + id;
+    if (aiBusy.has(key)) return;
+    aiBusy.add(key);
+    const prog = (p) => setAiBtns(id, kind, '⏳ ' + (p && p.stage === 'download' ? t('aiLoading', { p: pct(p) }) : t(kind === 'stt' ? 'aiTranscribing' : 'aiReading', { p: pct(p) })), true);
+    prog(null);
+    try {
+      const f = await S.getFile(id);
+      if (!f) throw new Error(t('missingFile'));
+      const text = kind === 'stt' ? await WikiAI.transcribe(f.blob, prog) : await WikiAI.ocr(f.blob, prog);
+      if (!text.trim()) { UI.toast(t('aiEmpty')); return; }
+      const icon = kind === 'stt' ? '🎙' : '🔤';
+      const block = text.split('\n').filter((l) => l.trim()).map((l, i) => '> ' + (i ? '' : icon + ' ') + l).join('\n');
+      if (insertAfterFile(id, block)) UI.toast(t('aiInserted')); else UI.copy(text);
+    } catch (e) {
+      UI.toast(t('aiFail', { e: (e && e.message) || e }));
+    } finally {
+      aiBusy.delete(key);
+      setAiBtns(id, kind, t(kind === 'stt' ? 'aiStt' : 'aiOcr'), false);
+    }
+  }
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('button.aib[data-ai]');
+    if (!b) return;
+    e.preventDefault();
+    e.stopPropagation();
+    runAiOnFile(b.dataset.file, b.dataset.ai);
+  }, true);
+
+  /* semantic search */
+  let aiMode = LS.get('wiki_aisearch', false), aiGen = 0, aiT = null;
+  const hash = (str) => {
+    let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (let i = 0; i < str.length; i++) { const ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36) + str.length.toString(36);
+  };
+  function chunksOf(p) {
+    const clean = (s) => s.replace(/!?\[([^\]]*)\]\(file:[\w-]+\)/g, '$1').replace(/[#>*`_~|]+/g, ' ').replace(/\s+/g, ' ').trim();
+    const title = titleOf(p), out = [];
+    const push = (raw) => { const s = clean(raw); for (let i = 0; i < s.length; i += 400) { const part = s.slice(i, i + 400); if (part.length > 1) out.push({ text: title + ' · ' + part, snip: part }); } };
+    if (p.title) out.push({ text: p.title, snip: '' });
+    p.body.split(/\n\s*\n|\n(?=#)/).forEach(push);
+    p.columns.forEach((c) => c.cards.forEach((k) => push(c.title + ': ' + k.title + '\n' + k.body)));
+    return out;
+  }
+  function aiSearchSoon(q, box) {
+    clearTimeout(aiT);
+    const gen = ++aiGen;
+    box.innerHTML = '<p class="muted empty">…</p>';
+    aiT = setTimeout(() => renderAiSearch(q, box, gen), 350);
+  }
+  async function renderAiSearch(q, box, gen) {
+    const status = (s) => { if (gen === aiGen) box.innerHTML = `<p class="muted empty">${esc(s)}</p>`; };
+    const prog = (p) => status(p.stage === 'download' ? t('aiLoading', { p: pct(p) }) : t('aiIndexing', { p: pct(p) }));
+    try {
+      const chunks = [];
+      for (const p of pages.values()) for (const c of chunksOf(p)) chunks.push({ ...c, id: p.id });
+      if (!chunks.length) { status(t('noResults')); return; }
+      const keys = chunks.map((c) => WikiAI.EMB + '|' + hash(c.text));
+      const vecs = await S.getVecs(keys).catch(() => keys.map(() => undefined));
+      const need = [];
+      vecs.forEach((v, i) => { if (!v) need.push(i); });
+      if (need.length) {
+        status(t('aiIndexing', { p: '' }));
+        const got = await WikiAI.embed(need.map((i) => chunks[i].text), prog);
+        need.forEach((i, j) => { vecs[i] = got[j]; });
+        S.putVecs(need.map((i) => [keys[i], vecs[i]])).catch(() => {});
+      }
+      if (gen !== aiGen) return;
+      const [qv] = await WikiAI.embed([q], prog);
+      if (gen !== aiGen) return;
+      const best = new Map();
+      chunks.forEach((c, i) => {
+        const v = vecs[i];
+        let sc = 0;
+        for (let k = 0; k < v.length; k++) sc += v[k] * qv[k];
+        const b = best.get(c.id);
+        if (!b || sc > b.sc) best.set(c.id, { sc, c });
+      });
+      const res = [...best.values()].filter((r) => r.sc > 0.25).sort((a, b) => b.sc - a.sc).slice(0, 20);
+      box.innerHTML = '';
+      if (!res.length) { status(t('noResults')); return; }
+      res.forEach(({ sc, c }) => {
+        const p = pages.get(c.id);
+        const d = document.createElement('div');
+        d.className = 'sres';
+        d.dataset.id = p.id;
+        d.innerHTML = `<span class="score">${Math.round(sc * 100)}</span>${esc(iconOf(p))} ${esc(titleOf(p))}<small>${esc(c.snip)}</small>`;
+        box.appendChild(d);
+      });
+    } catch (e) { status(t('aiFail', { e: (e && e.message) || e })); }
+  }
+  function applyAiMode() {
+    $('aiSearchBtn').classList.toggle('on', aiMode);
+    $('q').placeholder = t(aiMode ? 'searchPhAi' : 'searchPh');
+  }
+  $('aiSearchBtn').onclick = () => { aiMode = !aiMode; LS.set('wiki_aisearch', aiMode); applyAiMode(); renderTree(); $('q').focus(); };
+  applyAiMode();
+  $('autoStt').checked = LS.get('wiki_autostt', false);
+  $('autoStt').onchange = () => LS.set('wiki_autostt', $('autoStt').checked);
+
+  /* AI helper dialog */
+  let aiAct = 'sum', aiAbort = null, aiResult = '', aiQ = '';
+  const PROMPTS = {
+    sum: 'Summarize the note in 3-5 short bullet points. Reply in the same language as the note. Output only the bullets, each starting with "- ".',
+    tags: 'Suggest 3-6 short topic tags for the note. Reply in the same language as the note. Output only the tags on one line, separated by commas, without # or numbering.',
+    tasks: 'Extract concrete action items (to-dos) from the note. Reply in the same language as the note. Output one task per line starting with "- ". If there are none, output nothing.',
+    ask: 'Answer the question using the note. Reply in the same language as the question. Be concise.',
+  };
+  function setAiAct(a) {
+    aiAct = a;
+    document.querySelectorAll('#aiActs button').forEach((b) => b.classList.toggle('on', b.dataset.a === a));
+    $('aiQ').hidden = a !== 'ask';
+    $('aiApplyRow').hidden = true;
+  }
+  $('aiActs').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setAiAct(b.dataset.a); });
+  $('aiBtn').onclick = async () => {
+    if (!pages.get(cur)) return;
+    setAiAct(aiAct);
+    $('aiOut').innerHTML = '';
+    $('aiSt').textContent = '';
+    $('aiRun').disabled = true;
+    $('aiNote').textContent = t('aiChecking');
+    $('aiDlg').showModal();
+    const opts = await WikiAI.llmOptions().catch(() => []);
+    const sel = $('aiEng');
+    sel.innerHTML = '';
+    opts.forEach((o) => sel.add(new Option(o.name, o.id)));
+    const last = LS.get('wiki_aieng', '');
+    if (opts.some((o) => o.id === last)) sel.value = last;
+    $('aiRun').disabled = !opts.length;
+    $('aiNote').innerHTML = opts.length ? esc(t('aiLocal')) : esc(t('aiNoEngine')) + ' <a href="/aicheck/" target="_blank" rel="noopener">/aicheck/</a>';
+  };
+  $('aiStop').onclick = () => aiAbort && aiAbort.abort();
+  $('aiClose').onclick = () => $('aiDlg').close();
+  $('aiDlg').addEventListener('close', () => aiAbort && aiAbort.abort());
+  $('aiQ').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); $('aiRun').click(); } });
+  $('aiRun').onclick = async () => {
+    const p = pages.get(cur);
+    const id = $('aiEng').value;
+    if (!p || !id || aiAbort) return;
+    const act = aiAct;
+    aiQ = $('aiQ').value.trim();
+    if (act === 'ask' && !aiQ) { $('aiQ').focus(); return; }
+    LS.set('wiki_aieng', id);
+    const note = (titleOf(p) + '\n\n' + p.body.replace(/!?\[([^\]]*)\]\(file:[\w-]+\)/g, '[$1]')).slice(0, 6000);
+    const messages = [
+      { role: 'system', content: PROMPTS[act] },
+      { role: 'user', content: (act === 'ask' ? 'Question: ' + aiQ + '\n\n' : '') + 'Note:\n<note>\n' + note + '\n</note>' },
+    ];
+    aiAbort = new AbortController();
+    const sig = aiAbort.signal;
+    aiResult = '';
+    $('aiRun').hidden = true; $('aiStop').hidden = false; $('aiApplyRow').hidden = true; $('aiOut').innerHTML = '';
+    try {
+      $('aiSt').textContent = t('aiPreparing');
+      const eng = await WikiAI.engine(id, (pr) => { $('aiSt').textContent = t('aiLoading', { p: pct(pr) }); });
+      if (sig.aborted) throw Object.assign(new Error('aborted'), { name: 'AbortError' });
+      $('aiSt').textContent = t('aiThinking');
+      aiResult = await eng.gen(messages, { signal: sig, onText: (s) => { aiResult = s; $('aiOut').innerHTML = WikiMd.render(s); } });
+      $('aiOut').innerHTML = WikiMd.render(aiResult);
+      $('aiSt').textContent = '';
+    } catch (e) {
+      $('aiSt').textContent = e && e.name === 'AbortError' ? '' : t('aiFail', { e: (e && e.message) || e });
+    } finally {
+      aiAbort = null;
+      $('aiRun').hidden = false; $('aiStop').hidden = true;
+      if (aiResult.trim() && $('aiDlg').open && aiAct === act) showApply(act);
+    }
+  };
+  const listItems = (s) => s.split('\n').map((l) => l.replace(/^\s*(?:[-*+•]|\d+[.)])\s*(?:\[[ xX]\]\s*)?/, '').replace(/\*\*/g, '').trim()).filter((l) => l && !/^(none|없음|无|無)\.?$/i.test(l));
+  const parseTags = (s) => [...new Set(s.split(/[,，、\n]/).map((x) => x.replace(/^[\s\-*#\d.)]+/, '').trim().replace(/\s+/g, '_')).filter((x) => x && x.length <= 30))].slice(0, 8);
+  function showApply(act) {
+    $('aiApplyRow').hidden = false;
+    $('aiBoard').hidden = act !== 'tasks';
+    $('aiApply').textContent = t({ sum: 'aiApplySum', tags: 'aiApplyTags', tasks: 'aiApplyTasks', ask: 'aiApplyAsk' }[act]);
+    $('aiApply').dataset.act = act;
+    if (act === 'tasks') {
+      const sel = $('aiBoard');
+      sel.innerHTML = '';
+      sel.add(new Option(t('aiNewBoard'), ''));
+      [...pages.values()].filter((x) => x.type === 'board').sort((a, b) => b.updated - a.updated).forEach((b) => sel.add(new Option(iconOf(b) + ' ' + titleOf(b), b.id)));
+    }
+  }
+  $('aiApply').onclick = () => {
+    const p = pages.get(cur);
+    if (!p) return;
+    const act = $('aiApply').dataset.act;
+    if (act === 'tasks') {
+      const items = listItems(aiResult);
+      if (!items.length) { UI.toast(t('aiEmpty')); return; }
+      let b = pages.get($('aiBoard').value);
+      if (!b) b = newPage({ type: 'board', parentId: p.id, title: titleOf(p) + ' · ' + t('aiTasksBoard') });
+      if (!b.columns.length) b.columns = defaultCols();
+      const link = p.title ? `[[${p.title.replace(/\]\]/g, '')}]]` : '';
+      items.forEach((x) => b.columns[0].cards.push({ id: uid(), title: x.slice(0, 200), body: link, color: '' }));
+      touch(b);
+      renderTree();
+      UI.toast(t('aiCardsMade', { n: items.length, b: titleOf(b) }));
+      $('aiDlg').close();
+      open(b.id);
+      return;
+    }
+    const quote = (s) => s.trim().split('\n').map((l) => '> ' + l).join('\n');
+    if (act === 'sum') p.body = `> ✨ **${t('aiSumHead')}**\n${quote(aiResult)}\n\n` + p.body;
+    else if (act === 'tags') {
+      const tags = parseTags(aiResult);
+      if (!tags.length) { UI.toast(t('aiEmpty')); return; }
+      p.body = p.body.replace(/\s*$/, '') + '\n\n🏷 ' + tags.map((x) => '#' + x).join(' ') + '\n';
+    } else p.body = p.body.replace(/\s*$/, '') + `\n\n> 💬 **${aiQ.replace(/\n/g, ' ')}**\n${quote(aiResult)}\n`;
+    touch(p);
+    $('ed').value = p.body;
+    renderPreview();
+    UI.toast(t('aiInserted'));
+    $('aiDlg').close();
   };
 
   /* ---------- other tabs ---------- */
@@ -946,7 +1259,7 @@
     else if (!editing) renderMain(true);
   };
 
-  document.addEventListener('i18n:change', () => { renderTree(); renderMain(); setSaved(!dirty.size); });
+  document.addEventListener('i18n:change', () => { applyAiMode(); renderTree(); renderMain(); setSaved(!dirty.size); });
 
   /* ---------- boot ---------- */
   (async () => {
