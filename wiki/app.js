@@ -1102,8 +1102,9 @@
         status(t('aiIndexing', { p: '' }));
         const got = await WikiAI.embed(need.map((i) => chunks[i].text), prog);
         need.forEach((i, j) => { vecs[i] = got[j]; });
-        S.putVecs(need.map((i) => [keys[i], vecs[i]])).then(() => S.pruneVecs(new Set(keys))).catch(() => {});
+        await S.putVecs(need.map((i) => [keys[i], vecs[i]])).catch(() => {});
       }
+      S.pruneVecs(new Set(keys)).catch(() => {});
       if (gen !== aiGen) return;
       const [qv] = await WikiAI.embed([q], prog);
       if (gen !== aiGen) return;
