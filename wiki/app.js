@@ -527,6 +527,13 @@
         open(p.id);
         return;
       }
+      const pl = e.target.closest('a[href^="#"]');
+      if (pl && pages.has(pl.getAttribute('href').slice(1))) {
+        e.preventDefault();
+        if ($('cardDlg').open) $('cardDlg').close();
+        open(pl.getAttribute('href').slice(1));
+        return;
+      }
       const img = e.target.closest('img');
       if (img) { $('lbImg').src = img.src; $('lightbox').showModal(); }
     });
@@ -1095,7 +1102,7 @@
         status(t('aiIndexing', { p: '' }));
         const got = await WikiAI.embed(need.map((i) => chunks[i].text), prog);
         need.forEach((i, j) => { vecs[i] = got[j]; });
-        S.putVecs(need.map((i) => [keys[i], vecs[i]])).catch(() => {});
+        S.putVecs(need.map((i) => [keys[i], vecs[i]])).then(() => S.pruneVecs(new Set(keys))).catch(() => {});
       }
       if (gen !== aiGen) return;
       const [qv] = await WikiAI.embed([q], prog);
@@ -1223,7 +1230,7 @@
       let b = pages.get($('aiBoard').value);
       if (!b) b = newPage({ type: 'board', parentId: p.id, title: titleOf(p) + ' · ' + t('aiTasksBoard') });
       if (!b.columns.length) b.columns = defaultCols();
-      const link = p.title ? `[[${p.title.replace(/\]\]/g, '')}]]` : '';
+      const link = `[${mdName(titleOf(p))}](#${p.id})`;
       items.forEach((x) => b.columns[0].cards.push({ id: uid(), title: x.slice(0, 200), body: link, color: '' }));
       touch(b);
       renderTree();

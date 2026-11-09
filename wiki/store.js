@@ -53,6 +53,7 @@
     /* embedding cache for AI search: key = model|textHash -> Float32Array */
     getVecs: (keys) => { const out = new Array(keys.length); return tx('vecs', 'readonly', (t) => { const st = t.objectStore('vecs'); keys.forEach((k, i) => { st.get(k).onsuccess = (e) => { out[i] = e.target.result; }; }); }).then(() => out); },
     putVecs: (entries) => tx('vecs', 'readwrite', (t) => { const st = t.objectStore('vecs'); entries.forEach(([k, v]) => st.put(v, k)); }),
+    pruneVecs: (keep) => tx('vecs', 'readwrite', (t) => { const st = t.objectStore('vecs'); st.getAllKeys().onsuccess = (e) => e.target.result.forEach((k) => { if (!keep.has(k)) st.delete(k); }); }),
     clearVecs: () => tx('vecs', 'readwrite', (t) => { t.objectStore('vecs').clear(); }),
     deleteFiles: (ids) => tx('files', 'readwrite', (t) => { const s = t.objectStore('files'); ids.forEach((id) => s.delete(id)); }),
   };

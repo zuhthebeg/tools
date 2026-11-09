@@ -12,6 +12,7 @@
     if (f) return `<span class="att" data-file="${f[1]}" data-alt="${label}"></span>`;
     if (!okUrl(url)) return null;
     if (isImg) return `<img src="${url}" alt="${label}" loading="lazy">`;
+    if (url[0] === '#') return `<a href="${url}">${label}</a>`;
     return `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`;
   }
 
