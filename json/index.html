@@ -297,10 +297,13 @@ I18n.init();
   function looksJsonl(s) {
     const ls = jsonlLines(s);
     if (ls.length < 2) return false;
-    if (ls.some(({ l }) => /^\s*[\[\]{}],?\s*$/.test(l) || /,\s*$/.test(l))) return false;
+    const lone = (l) => /^\s*[\[\]{}],?\s*$/.test(l);
+    if (lone(ls[0].l) || lone(ls[ls.length - 1].l)) return false;
     const head = ls.slice(0, 20);
-    let ok = 0;
-    for (const { l } of head) { try { JSON.parse(l); ok++; } catch (e) {} }
+    let ok = 0, obj = 0;
+    for (const { l } of head) { try { const v = JSON.parse(l); ok++; if (v && typeof v === 'object') obj++; } catch (e) {} }
+    if (obj >= 2 && obj * 2 >= head.length) return true;
+    if (ls.some(({ l }) => lone(l) || /,\s*$/.test(l))) return false;
     return ok >= 2 && ok * 2 >= head.length;
   }
   function parseJsonl(s) {
