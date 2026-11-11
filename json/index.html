@@ -297,6 +297,7 @@ I18n.init();
   function looksJsonl(s) {
     const ls = jsonlLines(s);
     if (ls.length < 2) return false;
+    if (ls.some(({ l }) => /^\s*[\[\]{}],?\s*$/.test(l) || /,\s*$/.test(l))) return false;
     const head = ls.slice(0, 20);
     let ok = 0;
     for (const { l } of head) { try { JSON.parse(l); ok++; } catch (e) {} }
