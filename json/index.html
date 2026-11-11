@@ -33,20 +33,22 @@ pre.out { margin: 0; font-family: var(--mono); font-size: 13px; white-space: pre
   </div>
   <div class="card">
     <div class="row">
+      <div class="seg" id="fmtSeg" data-i18n-attr="title:fmtTip"><button data-f="json" class="on">JSON</button><button data-f="jsonl">JSONL</button></div>
       <div class="seg" id="outSeg"><button data-o="pretty" class="on" data-i18n="pretty">정렬</button><button data-o="min" data-i18n="minify">압축</button><button data-o="str" data-i18n="asStr">문자열로</button></div>
       <select id="indent" aria-label="indent"><option value="2">2 spaces</option><option value="4">4 spaces</option><option value="tab">Tab</option></select>
       <label class="chk"><input type="checkbox" id="sortKeys"> <span data-i18n="sortKeys">키 정렬</span></label>
       <span class="grow"></span>
       <button class="btn sm" id="openBtn" data-i18n="open">📁 파일</button>
       <button class="btn sm" id="sampleBtn" data-i18n="sample">샘플</button>
+      <button class="btn sm" id="sampleLBtn" data-i18n="sampleL">JSONL 샘플</button>
       <button class="btn sm" id="clearBtn" data-i18n="clear">지우기</button>
-      <input type="file" id="file" accept=".json,.txt,.log,application/json,text/plain" hidden>
+      <input type="file" id="file" accept=".json,.jsonl,.ndjson,.txt,.log,application/json,application/x-ndjson,text/plain" hidden>
     </div>
     <div class="io" style="margin-top:12px">
       <div>
         <label class="lbl" for="input" data-i18n="input">입력</label>
         <textarea id="input" class="mono" spellcheck="false" data-i18n-attr="placeholder:ph" placeholder="JSON을 붙여넣거나 파일을 끌어다 놓으세요"></textarea>
-        <div id="errBox" class="errbox" hidden><div id="errMsg" class="err"></div><pre id="errCtx"></pre><div class="row" style="margin-top:8px" id="fixRow" hidden><button class="btn sm primary" id="fixBtn" data-i18n="fix">자동으로 고치기</button><span class="muted" id="fixHint"></span></div></div>
+        <div id="errBox" class="errbox" hidden><div id="errMsg" class="err"></div><pre id="errCtx"></pre><div class="row" style="margin-top:8px" id="fixRow" hidden><button class="btn sm primary" id="fixBtn" data-i18n="fix">자동으로 고치기</button><span class="muted" id="fixHint"></span></div><label class="chk" id="skipRow" style="margin-top:8px" hidden><input type="checkbox" id="skipBad"> <span data-i18n="skipBad">오류 줄 빼고 보기</span></label></div>
       </div>
       <div>
         <label class="lbl" data-i18n="output">결과</label>
@@ -73,9 +75,9 @@ pre.out { margin: 0; font-family: var(--mono); font-size: 13px; white-space: pre
 <script src="/lib/i18n.js"></script>
 <script>
 I18n.define({
-  pageTitle: ['JSON 포맷터 · 검증 · 고치기 · 경로 조회 — tool.cocy.io', 'JSON formatter · validator · fixer · path query — tool.cocy.io', 'JSON 格式化 · 校验 · 修复 · 路径查询 — tool.cocy.io', 'JSON 格式化 · 驗證 · 修復 · 路徑查詢 — tool.cocy.io', 'Formateador JSON · validar · reparar · consultar ruta — tool.cocy.io'],
-  h1: ['JSON 포맷터', 'JSON Formatter', 'JSON 格式化', 'JSON 格式化', 'Formateador JSON'],
-  sub: ['붙여넣으면 바로 정렬·검증해요. 오류 위치를 짚어 주고, 작은따옴표·끝 쉼표·주석 같은 흔한 실수는 자동으로 고쳐요. 브라우저에서만 처리돼요.', 'Paste to format and validate instantly. It pinpoints errors and auto-fixes common mistakes like single quotes, trailing commas and comments. Everything stays in your browser.', '粘贴即可格式化并校验。会指出错误位置，并自动修复单引号、末尾逗号、注释等常见错误。仅在浏览器中处理。', '貼上即可格式化並驗證。會指出錯誤位置，並自動修復單引號、結尾逗號、註解等常見錯誤。僅在瀏覽器中處理。', 'Pega para formatear y validar al instante. Señala errores y repara fallos comunes como comillas simples, comas finales y comentarios. Todo queda en tu navegador.'],
+  pageTitle: ['JSON·JSONL 포맷터 · 검증 · 고치기 · 경로 조회 — tool.cocy.io', 'JSON/JSONL formatter · validator · fixer · path query — tool.cocy.io', 'JSON 格式化 · 校验 · 修复 · 路径查询 — tool.cocy.io', 'JSON 格式化 · 驗證 · 修復 · 路徑查詢 — tool.cocy.io', 'Formateador JSON · validar · reparar · consultar ruta — tool.cocy.io'],
+  h1: ['JSON · JSONL 포맷터', 'JSON · JSONL Formatter', 'JSON · JSONL 格式化', 'JSON · JSONL 格式化', 'Formateador JSON · JSONL'],
+  sub: ['붙여넣으면 바로 정렬·검증해요. JSONL(한 줄에 JSON 하나)도 줄마다 검사하고 JSON 배열과 서로 바꿀 수 있어요. 오류 위치를 짚어 주고, 작은따옴표·끝 쉼표·주석 같은 흔한 실수는 자동으로 고쳐요. 브라우저에서만 처리돼요.', 'Paste to format and validate instantly. JSONL (one JSON per line) is checked line by line and converts to and from a JSON array. It pinpoints errors and auto-fixes common mistakes like single quotes, trailing commas and comments. Everything stays in your browser.', '粘贴即可格式化并校验。JSONL（每行一个 JSON）逐行校验，并可与 JSON 数组互转。会指出错误位置，并自动修复单引号、末尾逗号、注释等常见错误。仅在浏览器中处理。', '貼上即可格式化並驗證。JSONL（每行一個 JSON）逐行驗證，並可與 JSON 陣列互轉。會指出錯誤位置，並自動修復單引號、結尾逗號、註解等常見錯誤。僅在瀏覽器中處理。', 'Pega para formatear y validar al instante. JSONL (un JSON por línea) se valida línea a línea y se convierte a/desde un array JSON. Señala errores y repara fallos comunes como comillas simples, comas finales y comentarios. Todo queda en tu navegador.'],
   pretty: ['정렬', 'Pretty', '格式化', '格式化', 'Formatear'],
   minify: ['압축', 'Minify', '压缩', '壓縮', 'Minificar'],
   asStr: ['문자열로', 'As string', '转为字符串', '轉為字串', 'Como cadena'],
@@ -85,7 +87,7 @@ I18n.define({
   clear: ['지우기', 'Clear', '清除', '清除', 'Borrar'],
   input: ['입력', 'Input', '输入', '輸入', 'Entrada'],
   output: ['결과', 'Result', '结果', '結果', 'Resultado'],
-  ph: ['JSON을 붙여넣거나 파일을 끌어다 놓으세요', 'Paste JSON or drop a file', '粘贴 JSON 或拖入文件', '貼上 JSON 或拖入檔案', 'Pega JSON o suelta un archivo'],
+  ph: ['JSON·JSONL을 붙여넣거나 파일을 끌어다 놓으세요', 'Paste JSON / JSONL or drop a file', '粘贴 JSON / JSONL 或拖入文件', '貼上 JSON / JSONL 或拖入檔案', 'Pega JSON / JSONL o suelta un archivo'],
   fix: ['자동으로 고치기', 'Auto-fix', '自动修复', '自動修復', 'Reparar'],
   fixable: ['표준 JSON은 아니지만 고칠 수 있어요 (따옴표·끝 쉼표·주석·True/None 등)', "Not standard JSON, but it can be fixed (quotes, trailing commas, comments, True/None…)", '不是标准 JSON，但可以修复（引号、末尾逗号、注释、True/None 等）', '不是標準 JSON，但可以修復（引號、結尾逗號、註解、True/None 等）', 'No es JSON estándar, pero se puede reparar (comillas, comas finales, comentarios, True/None…)'],
   errAt: ['{line}번째 줄 {col}번째 칸: {msg}', 'Line {line}, column {col}: {msg}', '第 {line} 行第 {col} 列：{msg}', '第 {line} 行第 {col} 欄：{msg}', 'Línea {line}, columna {col}: {msg}'],
@@ -100,6 +102,13 @@ I18n.define({
   pathBad: ['경로 형식이 올바르지 않아요 (예: $.a.b[0]["키"])', 'Invalid path (e.g. $.a.b[0]["key"])', '路径格式不正确（例：$.a.b[0]["键"]）', '路徑格式不正確（例：$.a.b[0]["鍵"]）', 'Ruta no válida (p. ej. $.a.b[0]["clave"])'],
   pathNeed: ['먼저 올바른 JSON을 입력하세요', 'Enter valid JSON first', '请先输入有效的 JSON', '請先輸入有效的 JSON', 'Primero introduce JSON válido'],
   tip: ['단축키: Ctrl/⌘+Enter 정렬 · Ctrl/⌘+Shift+C 결과 복사. 입력은 이 브라우저에만 자동 저장돼요.', 'Shortcuts: Ctrl/⌘+Enter to format · Ctrl/⌘+Shift+C to copy the result. Input is autosaved in this browser only.', '快捷键：Ctrl/⌘+Enter 格式化 · Ctrl/⌘+Shift+C 复制结果。输入仅自动保存在此浏览器中。', '快捷鍵：Ctrl/⌘+Enter 格式化 · Ctrl/⌘+Shift+C 複製結果。輸入僅自動儲存在此瀏覽器中。', 'Atajos: Ctrl/⌘+Enter formatear · Ctrl/⌘+Shift+C copiar. La entrada se guarda solo en este navegador.'],
+  fmtTip: ['JSONL은 한 줄에 JSON 하나씩이에요. JSON 배열 ↔ JSONL로 바꿀 수 있어요', 'JSONL is one JSON value per line. Convert between a JSON array and JSONL', 'JSONL 每行一个 JSON。可在 JSON 数组与 JSONL 之间转换', 'JSONL 每行一個 JSON。可在 JSON 陣列與 JSONL 之間轉換', 'JSONL es un JSON por línea. Convierte entre un array JSON y JSONL'],
+  sampleL: ['JSONL 샘플', 'JSONL sample', 'JSONL 示例', 'JSONL 範例', 'Ejemplo JSONL'],
+  jsonlValid: ['✅ 올바른 JSONL · {n}줄', '✅ Valid JSONL · {n} lines', '✅ 有效 JSONL · {n} 行', '✅ 有效 JSONL · {n} 行', '✅ JSONL válido · {n} líneas'],
+  jsonlBad: ['JSONL {n}개 줄에 오류가 있어요 ({lines})', 'JSONL has errors on {n} line(s) ({lines})', 'JSONL 有 {n} 行出错（{lines}）', 'JSONL 有 {n} 行出錯（{lines}）', 'JSONL tiene errores en {n} línea(s) ({lines})'],
+  skipBad: ['오류 줄 빼고 보기', 'Skip bad lines', '跳过错误行', '略過錯誤行', 'Omitir líneas con error'],
+  skipped: ['⚠ {n}줄 건너뜀', '⚠ {n} lines skipped', '⚠ 已跳过 {n} 行', '⚠ 已略過 {n} 行', '⚠ {n} líneas omitidas'],
+  stRecs: ['레코드', 'Records', '记录', '記錄', 'Registros'],
   allTools: ['모든 도구', 'All tools', '全部工具', '全部工具', 'Todas las herramientas'],
 });
 I18n.init();
@@ -109,7 +118,7 @@ I18n.init();
   const t = I18n.t;
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const KEY = 'json_formatter_input', HL_MAX = 1e6;
-  let mode = 'pretty', parsed, hasValue = false, outText = '', timer = 0;
+  let mode = 'pretty', fmt = 'json', kind = 'json', lastKind = 'json', parsed, hasValue = false, outText = '', timer = 0, skippedN = 0;
 
   function hl(json) {
     if (json.length > HL_MAX) return esc(json);
@@ -206,8 +215,8 @@ I18n.init();
     if (/end of (JSON|data) input|Unexpected end/i.test(e.message)) return s.length;
     return null;
   }
-  function showErr(e, s, alt) {
-    const pos = errPos(e, s) ?? alt;
+  function showErr(e, s, alt, at) {
+    const pos = at ?? errPos(e, s) ?? alt;
     const msg = e.message.replace(/^JSON\.parse: /, '').replace(/\s*(in JSON )?at position \d+.*$/, '').replace(/\s*\(line \d+ column \d+\)/, '');
     $('errBox').hidden = false;
     if (pos == null) { $('errMsg').textContent = msg; $('errCtx').textContent = ''; return; }
@@ -237,27 +246,76 @@ I18n.init();
     if (!hasValue) { $('output').textContent = ''; $('stats').textContent = ''; outText = ''; runPath(); return; }
     const v = $('sortKeys').checked ? sortDeep(parsed) : parsed;
     const min = JSON.stringify(v);
-    outText = mode === 'min' ? min : mode === 'str' ? JSON.stringify(min) : JSON.stringify(v, null, indent());
+    const recs = kind === 'jsonl' ? v : Array.isArray(v) ? v : [v];
+    if (fmt === 'jsonl') outText = recs.map((x) => JSON.stringify(x)).join('\n');
+    else outText = mode === 'min' ? min : mode === 'str' ? JSON.stringify(min) : JSON.stringify(v, null, indent());
     $('output').innerHTML = hl(outText);
-    if (typeof parsed === 'string' && mode !== 'str') { try { JSON.parse(parsed); $('unstrBtn').hidden = false; } catch (e) {} }
+    if (fmt === 'json' && kind === 'json' && typeof parsed === 'string' && mode !== 'str') { try { JSON.parse(parsed); $('unstrBtn').hidden = false; } catch (e) {} }
     const st = stats(v);
-    $('stats').innerHTML = `<span class="ok">${t('valid')}</span><span>${t('stSize')} <b>${fmtB(bytes($('input').value))}</b></span><span>${t('stMin')} <b>${fmtB(bytes(min))}</b></span><span>${t('stKeys')} <b>${st.keys.toLocaleString()}</b></span><span>${t('stDepth')} <b>${st.depth}</b></span><span>${t('stLines')} <b>${outText.split('\n').length.toLocaleString()}</b></span>`;
+    const ok = kind === 'jsonl' ? t('jsonlValid', { n: v.length.toLocaleString() }) : t('valid');
+    $('stats').innerHTML = `<span class="ok">${esc(ok)}</span>${skippedN ? `<span class="err">${esc(t('skipped', { n: skippedN }))}</span>` : ''}${kind === 'jsonl' || fmt === 'jsonl' ? `<span>${t('stRecs')} <b>${recs.length.toLocaleString()}</b></span>` : ''}<span>${t('stSize')} <b>${fmtB(bytes($('input').value))}</b></span><span>${t('stMin')} <b>${fmtB(bytes(min))}</b></span><span>${t('stKeys')} <b>${st.keys.toLocaleString()}</b></span><span>${t('stDepth')} <b>${st.depth}</b></span><span>${t('stLines')} <b>${outText.split('\n').length.toLocaleString()}</b></span>`;
     runPath();
   }
 
   function parse() {
     const s = $('input').value;
     try { localStorage.setItem(KEY, s.length < 200000 ? s : ''); } catch (e) {}
-    $('errBox').hidden = true; $('fixRow').hidden = true;
+    $('errBox').hidden = true; $('fixRow').hidden = true; $('skipRow').hidden = true;
+    skippedN = 0;
     if (!s.trim()) { hasValue = false; render(); return; }
-    try { parsed = JSON.parse(s); hasValue = true; }
+    try { parsed = JSON.parse(s); hasValue = true; setKind('json'); }
     catch (e) {
       hasValue = false;
+      if (looksJsonl(s)) { setKind('jsonl'); parseJsonl(s); render(); return; }
+      setKind('json');
       let alt = null;
       try { loose(s); $('fixRow').hidden = false; $('fixHint').textContent = t('fixable'); } catch (e2) { alt = e2.pos ?? null; }
       showErr(e, s, alt);
     }
     render();
+  }
+  function setKind(k) {
+    kind = k;
+    if (k !== lastKind) { lastKind = k; setFmt(k); }
+  }
+  function setFmt(f) {
+    fmt = f;
+    [...$('fmtSeg').children].forEach((x) => x.classList.toggle('on', x.dataset.f === f));
+    $('outSeg').hidden = f === 'jsonl';
+    $('indent').hidden = f === 'jsonl';
+  }
+  function jsonlLines(s) {
+    const out = [];
+    let off = 0;
+    for (const raw of s.split('\n')) {
+      const l = raw.replace(/\r$/, '');
+      if (l.trim()) out.push({ l, start: off, n: out.length });
+      off += raw.length + 1;
+    }
+    return out;
+  }
+  function looksJsonl(s) {
+    const ls = jsonlLines(s);
+    if (ls.length < 2) return false;
+    const head = ls.slice(0, 20);
+    let ok = 0;
+    for (const { l } of head) { try { const v = JSON.parse(l); if (v && typeof v === 'object') ok++; } catch (e) {} }
+    return ok >= 2 && ok * 2 >= head.length;
+  }
+  function parseJsonl(s) {
+    const recs = [], bad = [];
+    for (const x of jsonlLines(s)) { try { recs.push(JSON.parse(x.l)); } catch (e) { bad.push({ ...x, e }); } }
+    if (!bad.length) { parsed = recs; hasValue = true; return; }
+    const first = bad[0];
+    const lineNo = (x) => s.slice(0, x.start).split('\n').length;
+    let alt = null;
+    try { loose(first.l); } catch (e2) { alt = e2.pos ?? null; }
+    const p = errPos(first.e, first.l) ?? alt;
+    showErr(first.e, s, null, first.start + Math.min(p ?? 0, first.l.length));
+    $('errMsg').textContent = t('jsonlBad', { n: bad.length, lines: bad.slice(0, 5).map(lineNo).join(', ') + (bad.length > 5 ? '…' : '') }) + ' — ' + $('errMsg').textContent;
+    if (bad.every((x) => { try { loose(x.l); return true; } catch (e) { return false; } })) { $('fixRow').hidden = false; $('fixHint').textContent = t('fixable'); }
+    $('skipRow').hidden = false;
+    if ($('skipBad').checked && recs.length) { parsed = recs; hasValue = true; skippedN = bad.length; }
   }
   const schedule = () => { clearTimeout(timer); timer = setTimeout(parse, $('input').value.length > 200000 ? 400 : 120); };
 
@@ -292,19 +350,30 @@ I18n.init();
 
   $('input').addEventListener('input', schedule);
   $('outSeg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; mode = b.dataset.o; [...$('outSeg').children].forEach((x) => x.classList.toggle('on', x === b)); render(); });
+  $('fmtSeg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; setFmt(b.dataset.f); render(); });
+  $('skipBad').addEventListener('change', parse);
+  $('sampleLBtn').addEventListener('click', () => {
+    $('input').value = '{"id":1,"name":"사과","price":1200,"tags":["fruit"]}\n{"id":2,"name":"banana","price":800,"tags":[]}\n{"id":3,"name":"체리","price":3000,"tags":["fruit","red"]}\n';
+    parse();
+  });
   $('indent').addEventListener('change', render);
   $('sortKeys').addEventListener('change', render);
   $('path').addEventListener('input', runPath);
   $('fixBtn').addEventListener('click', () => {
-    try { const v = loose($('input').value); $('input').value = JSON.stringify(v, null, indent()); parse(); } catch (e) {}
+    const s = $('input').value;
+    if (kind === 'jsonl') {
+      try { $('input').value = s.split('\n').map((raw) => { const l = raw.replace(/\r$/, ''); if (!l.trim()) return l; try { JSON.parse(l); return l; } catch (e) { return JSON.stringify(loose(l)); } }).join('\n'); parse(); } catch (e) {}
+      return;
+    }
+    try { const v = loose(s); $('input').value = JSON.stringify(v, null, indent()); parse(); } catch (e) {}
   });
   $('unstrBtn').addEventListener('click', () => { $('input').value = JSON.stringify(JSON.parse(parsed), null, indent()); parse(); });
   $('copyBtn').addEventListener('click', () => { if (outText) UI.copy(outText); });
   $('dlBtn').addEventListener('click', () => {
     if (!outText) return;
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([outText], { type: 'application/json' }));
-    a.download = mode === 'min' ? 'data.min.json' : 'data.json';
+    a.href = URL.createObjectURL(new Blob([outText + (fmt === 'jsonl' ? '\n' : '')], { type: fmt === 'jsonl' ? 'application/x-ndjson' : 'application/json' }));
+    a.download = fmt === 'jsonl' ? 'data.jsonl' : mode === 'min' ? 'data.min.json' : 'data.json';
     a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   });
   $('openBtn').addEventListener('click', () => $('file').click());
@@ -330,7 +399,7 @@ I18n.init();
 <script src="/lib/tool-nav.js"></script>
 <script src="/lib/site-meta.js"></script>
 <script>
-SiteMeta.init({ title: 'JSON 포맷터 · 검증 · 고치기 · 경로 조회 — tool.cocy.io', description: 'JSON 정렬(들여쓰기)·압축·검증, 오류 위치 표시, 따옴표·쉼표·주석이 틀린 JSON 자동 고치기, 키 정렬, 경로 조회, 문자열 이스케이프. 브라우저에서만 처리', url: 'https://tool.cocy.io/json/' });
+SiteMeta.init({ title: 'JSON·JSONL 포맷터 · 검증 · 고치기 · 경로 조회 — tool.cocy.io', description: 'JSON·JSONL 정렬(들여쓰기)·압축·검증, JSONL ↔ JSON 배열 변환, 오류 위치 표시, 따옴표·쉼표·주석이 틀린 JSON 자동 고치기, 키 정렬, 경로 조회, 문자열 이스케이프. 브라우저에서만 처리', url: 'https://tool.cocy.io/json/' });
 </script>
 </body>
 </html>

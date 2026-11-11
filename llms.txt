@@ -26,7 +26,7 @@
 - [색상 코드 · 팔레트](https://tool.cocy.io/color/): HEX/RGB/HSL 변환 · 팔레트 생성 · 명도 대비(WCAG) 체크
 - [CIDR 서브넷](https://tool.cocy.io/cidr/): CIDR 서브넷 계산기
 - [Base64 인코더](https://tool.cocy.io/base64/): 텍스트 인코딩/디코딩 도구
-- [JSON 포맷터](https://tool.cocy.io/json/): JSON 정렬 및 검증 도구
+- [JSON 포맷터](https://tool.cocy.io/json/): JSON·JSONL 정렬·압축·검증, 오류 위치 표시, 자동 고치기, JSONL ↔ JSON 배열 변환, 경로 조회
 - [QR 코드 생성기](https://tool.cocy.io/qr/): QR 코드 생성 및 스캐너
 - [URL 인코더](https://tool.cocy.io/url/): URL 인코딩/디코딩 도구
 - [IP/DNS Lookup](https://tool.cocy.io/net/): IP/DNS Lookup

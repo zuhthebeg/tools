@@ -348,7 +348,7 @@
     "title": "JSON 포맷터",
     "icon": "https://tool.cocy.io/json/icon.svg",
     "url": "https://tool.cocy.io/json/",
-    "desc": "JSON 정렬 및 검증 도구",
+    "desc": "JSON·JSONL 정렬·압축·검증, 오류 위치 표시와 자동 고치기, JSONL ↔ JSON 배열 변환, 경로 조회",
     "badge": "TOOL",
     "platforms": [
       "WEB"
