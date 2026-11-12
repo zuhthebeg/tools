@@ -35,5 +35,6 @@
 - [Neon Sign](https://tool.cocy.io/neon/): Web Neon Sign
 - [Word Counter](https://tool.cocy.io/count/): Word Counter
 - [캘린더](https://tool.cocy.io/calendar/): 간단한 월간 캘린더
+- [LLM 스마트 라우터 데모](https://tool.cocy.io/router/): Bedrock GPT-6 / Claude 5.5 계열별 라우팅 시뮬레이터 (워크플로 하한, 캐시, 상향, 비용 비교)
 - [JWT 디코더](https://tool.cocy.io/jwt/): JWT 토큰 디코드/만료확인/HS256 검증
 - [💇 AI 헤어 분석기](https://tool.cocy.io/hair/): 사진으로 헤어스타일 분석 + 관리법 + 비용 + 꾸안꾸지수

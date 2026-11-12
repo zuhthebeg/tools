@@ -527,6 +527,21 @@
     "group": "life"
   },
   {
+    "title": "LLM 스마트 라우터 데모",
+    "icon": "https://tool.cocy.io/router/icon.svg",
+    "url": "https://tool.cocy.io/router/",
+    "desc": "Bedrock GPT-6 / Claude 5.5 계열별 퓨전 라우팅 시뮬레이터. 에이전트 워크플로가 어떤 모델로 라우팅되는지 목업 Converse/Responses API로 시각화 (워크플로 하한, 캐시, 실패·거절 시 상향, 고정 모델 비용 비교)",
+    "badge": "NEW",
+    "platforms": [
+      "WEB"
+    ],
+    "languages": [
+      "🌍"
+    ],
+    "category": "tool",
+    "group": "dev"
+  },
+  {
     "title": "JWT 디코더",
     "icon": "https://tool.cocy.io/jwt/icon.svg",
     "url": "https://tool.cocy.io/jwt/",
