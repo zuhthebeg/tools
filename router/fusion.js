@@ -8,11 +8,11 @@ const price = (input, cacheWrite, cacheRead, output, assumed = false) => ({ inpu
 const tier = (name, rank, modelId, label, efforts, defaultEffort, cacheTtlS, p) =>
   Object.freeze({ name, rank, modelId, label, efforts, defaultEffort, cacheTtlS, price: p });
 
-// Claude 5.5 prices are not on the Bedrock model cards; these are placeholders for the demo.
+// Claude 5.5 prices: Anthropic API list prices (Bedrock model cards don't list them; Bedrock may differ).
 export const CLAUDE_TIERS = Object.freeze([
-  tier('small', 0, 'global.anthropic.claude-haiku-5-5', 'Haiku 5.5', EFFORTS.slice(1), 'medium', 300, price(1, 1.25, 0.1, 5, true)),
-  tier('medium', 1, 'global.anthropic.claude-sonnet-5-5', 'Sonnet 5.5', EFFORTS.slice(1), 'high', 300, price(3, 3.75, 0.3, 15, true)),
-  tier('large', 2, 'global.anthropic.claude-opus-5-5', 'Opus 5.5', EFFORTS.slice(1), 'medium', 300, price(5, 6.25, 0.5, 25, true)),
+  tier('small', 0, 'global.anthropic.claude-haiku-5-5', 'Haiku 5.5', EFFORTS.slice(1), 'medium', 300, price(0.1, 0.125, 0.01, 0.5, true)),
+  tier('medium', 1, 'global.anthropic.claude-sonnet-5-5', 'Sonnet 5.5', EFFORTS.slice(1), 'high', 300, price(2, 2.5, 0.2, 10, true)),
+  tier('large', 2, 'global.anthropic.claude-opus-5-5', 'Opus 5.5', EFFORTS.slice(1), 'medium', 300, price(4, 5, 0.4, 20, true)),
 ]);
 
 export const GPT_TIERS = Object.freeze([
