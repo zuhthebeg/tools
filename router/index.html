@@ -44,6 +44,17 @@ textarea.mono { width: 100%; min-height: 260px; font-size: 12px; }
 details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
 .note { font-size: 12px; color: var(--muted); } .note li { margin: 3px 0; }
 .best { color: var(--accent); font-weight: 600; }
+.rpt-btn { margin-top: 10px; }
+dialog.rpt { width: min(920px, 96vw); max-height: 92vh; padding: 0; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 14px; }
+dialog.rpt::backdrop { background: rgba(2,6,23,.72); }
+.rpt-head { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 16px; background: var(--panel); border-bottom: 1px solid var(--line); z-index: 1; }
+.rpt-head b { font-size: 14px; }
+.rpt-body { padding: 4px 20px 20px; font-size: 14px; line-height: 1.65; }
+.rpt-body h1 { font-size: 22px; margin: 16px 0 6px; } .rpt-body h2 { font-size: 17px; margin: 26px 0 8px; padding-top: 10px; border-top: 1px solid var(--line); } .rpt-body h3 { font-size: 15px; margin: 18px 0 6px; }
+.rpt-body table { margin: 8px 0; display: block; overflow-x: auto; } .rpt-body td, .rpt-body th { white-space: normal; min-width: 70px; }
+.rpt-body code { font-family: var(--mono); font-size: 12px; background: var(--panel-2); border-radius: 4px; padding: 1px 4px; }
+.rpt-body a { color: var(--accent); } .rpt-body ul, .rpt-body ol { padding-left: 22px; } .rpt-body li { margin: 3px 0; }
+.rpt-body blockquote { margin: 8px 0; padding: 4px 12px; border-left: 3px solid var(--line); color: var(--muted); }
 </style>
 </head>
 <body>
@@ -52,6 +63,7 @@ details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
   <div class="hero">
     <h1>🔀 <span data-i18n="h1">LLM 스마트 라우터 데모</span></h1>
     <p data-i18n="sub">Bedrock GPT-6 · Claude 5.5를 계열별 퓨전 모델로 라우팅하는 과정을 목업 Converse/Responses API로 시뮬레이션해요. 실제 API는 호출하지 않아요.</p>
+    <button type="button" class="btn sm rpt-btn" id="rptBtn" aria-haspopup="dialog" data-i18n="rptBtn">📄 임원 보고서 보기</button>
   </div>
 
   <div class="card">
@@ -105,13 +117,19 @@ details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
       <li data-i18n="r1">작업 시작 때 한 번 티어·effort를 정하고 작업 동안 고정해요. 워크플로 하한(minTier, 계획·고위험 단계는 effort ≥ medium) 아래로는 내려가지 않아요.</li>
       <li data-i18n="r2">캐시가 살아 있으면(Claude 5분, GPT 30분) 다음 작업에서도 하위 티어로 내리지 않아요. 프롬프트 캐시는 모델별이라 바꾸면 다시 써야 해요.</li>
       <li data-i18n="r3">도구 오류 2회 연속 또는 거절(content_filtered / refusal)이면 effort는 그대로 두고 한 단계 위 티어로 올려요. 이미 최상위면 effort를 high로 올려요.</li>
-      <li data-i18n="r4">Claude 5.5 가격은 Bedrock 모델 카드에 없어 가정값($1/$3/$5 입력, $5/$15/$25 출력)이에요. 캐시 규칙·토큰 수(글자/3)도 단순화한 시뮬레이션이에요.</li>
+      <li data-i18n="r4">Claude 5.5 가격은 Bedrock 모델 카드에 없어 Anthropic API 정가(입력 $0.1/$2/$4, 출력 $0.5/$10/$20)를 썼어요. Bedrock 실제 단가는 다를 수 있어요. 캐시 규칙·토큰 수(글자/3)도 단순화한 시뮬레이션이에요.</li>
     </ul>
   </div>
 
   <footer class="site">© 2025 <a href="https://cocy.io">COCY.IO</a> · <a href="/" data-i18n="allTools">모든 도구</a></footer>
 </div>
+<dialog class="rpt" id="rptDlg" aria-labelledby="rptTitle">
+  <div class="rpt-head"><b id="rptTitle" data-i18n="rptTitle">임원 보고서 · 일반 에이전트용 스마트 라우팅</b>
+    <span><a class="btn sm" href="/router/REPORT.md" download data-i18n="rptMd">MD 받기</a> <button type="button" class="btn sm" id="rptClose" data-i18n="rptClose">닫기</button></span></div>
+  <div class="rpt-body" id="rptBody"></div>
+</dialog>
 <script src="/lib/ui.js"></script>
+<script src="/wiki/md.js"></script>
 <script src="/lib/i18n.js"></script>
 <script type="module">
 import { runScenario, requestToolErrors, isRefusal, wfFloor } from './fusion.js';
@@ -119,6 +137,13 @@ import { SCENARIOS } from './scenarios.js';
 
 I18n.define({
   pageTitle: ['LLM 스마트 라우터 데모 — tool.cocy.io', 'LLM Smart Router Demo — tool.cocy.io', 'LLM 智能路由演示 — tool.cocy.io', 'LLM 智慧路由示範 — tool.cocy.io', 'Demo de enrutador LLM — tool.cocy.io'],
+  rptBtn: ['📄 임원 보고서 보기', '📄 Executive report', '📄 管理层报告', '📄 管理層報告', '📄 Informe ejecutivo'],
+  rptTitle: ['임원 보고서 · 일반 에이전트용 스마트 라우팅', 'Executive report · Smart routing for general agents', '管理层报告 · 通用智能体的智能路由', '管理層報告 · 通用智慧代理的智慧路由', 'Informe ejecutivo · Enrutamiento para agentes generales'],
+  rptMd: ['MD 받기', 'Download MD', '下载 MD', '下載 MD', 'Descargar MD'],
+  rptClose: ['닫기', 'Close', '关闭', '關閉', 'Cerrar'],
+  rptLoading: ['불러오는 중…', 'Loading…', '加载中…', '載入中…', 'Cargando…'],
+  rptFail: ['보고서를 불러오지 못했어요.', 'Could not load the report.', '无法加载报告。', '無法載入報告。', 'No se pudo cargar el informe.'],
+  rptLangNote: ['', 'This report is written in Korean.', '本报告以韩语撰写。', '本報告以韓語撰寫。', 'Este informe está escrito en coreano.'],
   h1: ['LLM 스마트 라우터 데모', 'LLM Smart Router Demo', 'LLM 智能路由演示', 'LLM 智慧路由示範', 'Demo de enrutador LLM'],
   sub: ['Bedrock GPT-6 · Claude 5.5를 계열별 퓨전 모델로 라우팅하는 과정을 목업 Converse/Responses API로 시뮬레이션해요. 실제 API는 호출하지 않아요.', 'Simulates per-family fusion routing for Bedrock GPT-6 and Claude 5.5 against mock Converse/Responses APIs. No real API calls.', '使用模拟的 Converse/Responses API 演示 Bedrock GPT-6 与 Claude 5.5 的分系列融合路由，不调用真实 API。', '使用模擬的 Converse/Responses API 示範 Bedrock GPT-6 與 Claude 5.5 的分系列融合路由，不呼叫真實 API。', 'Simula el enrutamiento por familia de Bedrock GPT-6 y Claude 5.5 con APIs Converse/Responses simuladas. Sin llamadas reales.'],
   decH: ['규칙 판단', 'Rule decider', '规则判定', '規則判定', 'Reglas'],
@@ -153,7 +178,7 @@ I18n.define({
   r1: ['작업 시작 때 한 번 티어·effort를 정하고 작업 동안 고정해요. 워크플로 하한(minTier, 계획·고위험 단계는 effort ≥ medium) 아래로는 내려가지 않아요.', 'Tier and effort are picked once per task and pinned. Never below the workflow floor (minTier; plan/high-risk steps force effort ≥ medium).', '每个任务开始时决定一次层级与 effort 并固定，不低于工作流下限（minTier；计划/高风险步骤 effort ≥ medium）。', '每個任務開始時決定一次層級與 effort 並固定，不低於工作流程下限（minTier；規劃/高風險步驟 effort ≥ medium）。', 'Nivel y esfuerzo se eligen una vez por tarea y se fijan; nunca por debajo del mínimo del flujo.'],
   r2: ['캐시가 살아 있으면(Claude 5분, GPT 30분) 다음 작업에서도 하위 티어로 내리지 않아요. 프롬프트 캐시는 모델별이라 바꾸면 다시 써야 해요.', 'While the cache is warm (Claude 5 min, GPT 30 min) the next task never downgrades. Prompt caches are per model, so switching rewrites them.', '缓存有效期内（Claude 5 分钟，GPT 30 分钟）下一个任务不会降级。提示缓存按模型区分，切换需重写。', '快取有效期間（Claude 5 分鐘，GPT 30 分鐘）下一個任務不會降級。提示快取依模型區分，切換需重寫。', 'Con la caché activa (Claude 5 min, GPT 30 min) no se baja de nivel; la caché es por modelo.'],
   r3: ['도구 오류 2회 연속 또는 거절(content_filtered / refusal)이면 effort는 그대로 두고 한 단계 위 티어로 올려요. 이미 최상위면 effort를 high로 올려요.', 'Two consecutive tool errors or a refusal (content_filtered / refusal) move one tier up keeping effort; at the top tier, effort goes to high.', '连续 2 次工具错误或拒绝时保持 effort 升一级；已是最高层级则将 effort 提到 high。', '連續 2 次工具錯誤或拒絕時保持 effort 升一級；已是最高層級則將 effort 提到 high。', 'Dos errores seguidos o un rechazo suben un nivel manteniendo el esfuerzo; en el nivel máximo, esfuerzo high.'],
-  r4: ['Claude 5.5 가격은 Bedrock 모델 카드에 없어 가정값($1/$3/$5 입력, $5/$15/$25 출력)이에요. 캐시 규칙·토큰 수(글자/3)도 단순화한 시뮬레이션이에요.', 'Claude 5.5 prices are not on the Bedrock model cards, so placeholders are used ($1/$3/$5 in, $5/$15/$25 out). Cache rules and token counts (chars/3) are simplified.', 'Claude 5.5 价格未在 Bedrock 模型卡中公布，此处为假设值。缓存规则与 token 数（字符/3）均为简化模拟。', 'Claude 5.5 價格未在 Bedrock 模型卡公布，此處為假設值。快取規則與 token 數（字元/3）皆為簡化模擬。', 'Los precios de Claude 5.5 son supuestos; la caché y los tokens (caracteres/3) están simplificados.'],
+  r4: ['Claude 5.5 가격은 Bedrock 모델 카드에 없어 Anthropic API 정가(입력 $0.1/$2/$4, 출력 $0.5/$10/$20)를 썼어요. Bedrock 실제 단가는 다를 수 있어요. 캐시 규칙·토큰 수(글자/3)도 단순화한 시뮬레이션이에요.', 'Claude 5.5 prices are not on the Bedrock model cards, so Anthropic API list prices are used (input $0.1/$2/$4, output $0.5/$10/$20); Bedrock may differ. Cache rules and token counts (chars/3) are simplified.', 'Claude 5.5 价格未列于 Bedrock 模型卡，采用 Anthropic API 标价（输入 $0.1/$2/$4，输出 $0.5/$10/$20），Bedrock 实际价格可能不同。缓存规则与 token 数（字符/3）均为简化模拟。', 'Claude 5.5 價格未列於 Bedrock 模型卡，採用 Anthropic API 標價（輸入 $0.1/$2/$4，輸出 $0.5/$10/$20），Bedrock 實際價格可能不同。快取規則與 token 數（字元/3）皆為簡化模擬。', 'Los precios de Claude 5.5 no figuran en Bedrock; se usan los de la API de Anthropic (entrada $0.1/$2/$4, salida $0.5/$10/$20). Bedrock puede variar. Reglas de caché y tokens (caracteres/3) simplificados.'],
   router: ['스마트 라우터', 'Smart router', '智能路由', '智慧路由', 'Enrutador'],
   fixed: ['{m} 고정', 'Fixed {m}', '固定 {m}', '固定 {m}', '{m} fijo'],
   sCost: ['추정 비용', 'Est. cost', '估算成本', '估算成本', 'Coste est.'],
@@ -362,6 +387,26 @@ $('applyJson').addEventListener('click', () => {
   } catch (e) { UI.toast(t('badJson', { e: e.message })); }
 });
 $('resetJson').addEventListener('click', () => { st.custom = null; st.sel = 0; run(); });
+const rptDlg = $('rptDlg');
+let rptLoaded = false;
+async function openReport() {
+  if (!rptLoaded) {
+    $('rptBody').textContent = t('rptLoading');
+    try {
+      const r = await fetch('/router/REPORT.md', { cache: 'no-cache' });
+      if (!r.ok) throw new Error(r.status);
+      const note = t('rptLangNote');
+      $('rptBody').innerHTML = (note ? `<p class="note">${WikiMd.esc(note)}</p>` : '') + WikiMd.render(await r.text());
+      rptLoaded = true;
+    } catch { $('rptBody').textContent = t('rptFail'); }
+  }
+  if (!rptDlg.open) rptDlg.showModal();
+}
+$('rptBtn').addEventListener('click', openReport);
+$('rptClose').addEventListener('click', () => rptDlg.close());
+rptDlg.addEventListener('click', (e) => { if (e.target === rptDlg) rptDlg.close(); });
+document.addEventListener('i18n:change', () => { rptLoaded = false; if (rptDlg.open) openReport(); });
+if (params.get('report') === '1') openReport();
 document.addEventListener('i18n:change', renderAll);
 run();
 </script>
