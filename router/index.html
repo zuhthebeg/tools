@@ -59,6 +59,10 @@ dialog.rpt::backdrop { background: rgba(2,6,23,.72); }
 .verdict.bad { border-color: rgba(239,68,68,.5); background: rgba(239,68,68,.08); } .verdict.good { border-color: rgba(16,185,129,.45); background: rgba(16,185,129,.08); }
 .verdict small { display: block; color: var(--muted); font-size: 12px; margin-top: 4px; }
 td.loss { color: #fca5a5; } #cmp tr.on { background: rgba(59,130,246,.12); } tr.strat td:first-child { white-space: nowrap; }
+.blm { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; font-size: 13px; }
+.blm select { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font: inherit; }
+.blm .bar { width: 160px; height: 6px; border-radius: 99px; background: var(--panel-2); overflow: hidden; } .blm .bar i { display: block; height: 100%; width: 0; background: var(--accent); }
+.blm .st.bad { color: #fca5a5; } .blm .st.ok { color: #6ee7b7; }
 </style>
 </head>
 <body>
@@ -75,8 +79,15 @@ td.loss { color: #fca5a5; } #cmp tr.on { background: rgba(59,130,246,.12); } tr.
       <div class="seg" id="famSeg"><button data-v="claude" class="on">Claude · Converse</button><button data-v="gpt">GPT · Responses</button></div>
       <select id="scSel" aria-label="workflow"></select>
       <div class="seg" id="modeSeg"><button data-v="session" class="on" data-i18n="modeS">세션 고정·상향만</button><button data-v="turn" data-i18n="modeT">턴마다 라우팅</button><button data-v="random" data-i18n="modeR">임의 전환</button></div>
-      <div class="seg" id="decSeg"><button data-v="heuristic" class="on" data-i18n="decH">규칙 판단</button><button data-v="llm" data-i18n="decL">LLM 판단 (목업)</button></div>
+      <div class="seg" id="decSeg"><button data-v="heuristic" class="on" data-i18n="decH">규칙 판단</button><button data-v="llm" data-i18n="decL">LLM 판단 (목업)</button><button data-v="browser" data-i18n="decB">브라우저 LLM 판단</button></div>
       <label class="chk"><input type="checkbox" id="useWf" checked> <span data-i18n="useWf">워크플로 하한 적용</span></label>
+    </div>
+    <div class="blm" id="blmBox" hidden>
+      <select id="blmSel" aria-label="browser model"></select>
+      <button type="button" class="btn sm" id="blmLoad" data-i18n="blmLoad">모델 불러오기</button>
+      <span class="bar" id="blmBarWrap" hidden><i id="blmBar"></i></span>
+      <span class="st" id="blmState"></span>
+      <span class="note" style="flex-basis:100%" data-i18n="blmNote">브라우저에서 실제 소형 모델(Gemini Nano 또는 WebLLM)이 워크플로와 첫 요청을 읽고 티어를 골라요. 판단 비용은 Haiku/Luna 단가로 환산하고, JSON을 못 내면 규칙 판단으로 대체해요. 모델은 첫 사용 때 한 번 내려받아요.</span>
     </div>
     <div id="wfView"></div>
   </div>
@@ -140,8 +151,8 @@ td.loss { color: #fca5a5; } #cmp tr.on { background: rgba(59,130,246,.12); } tr.
 <script src="/wiki/md.js"></script>
 <script src="/lib/i18n.js"></script>
 <script type="module">
-import { runScenario, requestToolErrors, isRefusal, wfFloor } from './fusion.js';
-import { SCENARIOS } from './scenarios.js';
+import { runScenario, requestToolErrors, isRefusal, wfFloor } from './fusion.js?v=20261119b';
+import { SCENARIOS } from './scenarios.js?v=20261119b';
 
 I18n.define({
   pageTitle: ['LLM 스마트 라우터 데모 — tool.cocy.io', 'LLM Smart Router Demo — tool.cocy.io', 'LLM 智能路由演示 — tool.cocy.io', 'LLM 智慧路由示範 — tool.cocy.io', 'Demo de enrutador LLM — tool.cocy.io'],
@@ -175,6 +186,16 @@ I18n.define({
   lgRewrite: ['전환 후 캐시 재작성', 'cache rewrite after switch', '切换后缓存重写', '切換後快取重寫', 'reescritura tras cambio'],
   lgDropped: ['유실된 thinking', 'dropped thinking', '丢失的 thinking', '遺失的 thinking', 'thinking perdido'],
   lgRedo: ['↺ 맥락 유실로 재호출(가정)', '↺ redo after context loss (assumed)', '↺ 上下文丢失后重调（假设）', '↺ 脈絡遺失後重呼叫（假設）', '↺ repetición (supuesto)'],
+  decB: ['브라우저 LLM 판단', 'Browser LLM decider', '浏览器 LLM 判定', '瀏覽器 LLM 判定', 'LLM en el navegador'],
+  blmLoad: ['모델 불러오기', 'Load model', '加载模型', '載入模型', 'Cargar modelo'],
+  blmNeed: ['아직 모델을 불러오지 않아 목업 판단으로 보여주고 있어요.', 'No model loaded yet — showing the mock decider.', '尚未加载模型，暂以模拟判定显示。', '尚未載入模型，暫以模擬判定顯示。', 'Sin modelo: se muestra el decisor simulado.'],
+  blmLoading: ['불러오는 중… {p}%', 'Loading… {p}%', '加载中… {p}%', '載入中… {p}%', 'Cargando… {p}%'],
+  blmDeciding: ['{m} 판단 중…', '{m} deciding…', '{m} 判定中…', '{m} 判定中…', '{m} decidiendo…'],
+  blmReady: ['{m} · 실제 모델 호출 {n}회 · 이번 실행 판단 {d}회 중 규칙 대체 {f}회', '{m} · {n} real model calls · {f} of {d} decisions fell back to rules', '{m} · 实际调用 {n} 次 · 本次 {d} 次判定中 {f} 次回退规则', '{m} · 實際呼叫 {n} 次 · 本次 {d} 次判定中 {f} 次退回規則', '{m} · {n} llamadas · {f} de {d} con reglas'],
+  blmErr: ['불러오지 못했어요: {e}', 'Could not load: {e}', '加载失败：{e}', '載入失敗：{e}', 'No se pudo cargar: {e}'],
+  blmNoGpu: ['WebGPU를 쓸 수 없어요. Chrome/Edge 최신 데스크톱에서 열거나 Gemini Nano를 골라보세요.', 'WebGPU is unavailable. Use a recent desktop Chrome/Edge or pick Gemini Nano.', '无法使用 WebGPU。请用新版桌面 Chrome/Edge 或选择 Gemini Nano。', '無法使用 WebGPU。請用新版桌面 Chrome/Edge 或選擇 Gemini Nano。', 'WebGPU no disponible.'],
+  blmNoNano: ['이 브라우저에는 Gemini Nano(Prompt API)가 없어요. 데스크톱 Chrome 138+에서 열어보세요.', 'No Gemini Nano (Prompt API) here. Try desktop Chrome 138+.', '此浏览器没有 Gemini Nano（Prompt API）。', '此瀏覽器沒有 Gemini Nano（Prompt API）。', 'Sin Gemini Nano (Prompt API).'],
+  blmNote: ['브라우저에서 실제 소형 모델(Gemini Nano 또는 WebLLM)이 워크플로와 첫 요청을 읽고 티어를 골라요. 판단 비용은 Haiku/Luna 단가로 환산하고, JSON을 못 내면 규칙 판단으로 대체해요. 모델은 첫 사용 때 한 번 내려받아요.', 'A real small model in your browser (Gemini Nano or WebLLM) reads the workflow and first request and picks the tier. Its cost is charged at Haiku/Luna prices; if it fails to return JSON the rule decider is used. The model downloads once.', '浏览器中的真实小模型（Gemini Nano 或 WebLLM）读取工作流与首个请求并选择档位。判定成本按 Haiku/Luna 价格计；无法输出 JSON 时回退规则判定。', '瀏覽器中的真實小模型（Gemini Nano 或 WebLLM）讀取工作流程與第一個請求並選擇檔位。判定成本按 Haiku/Luna 價格計；無法輸出 JSON 時退回規則判定。', 'Un modelo pequeño real en el navegador elige el nivel; se cobra a precio Haiku/Luna y si no devuelve JSON se usan reglas.'],
   h1: ['LLM 스마트 라우터 데모', 'LLM Smart Router Demo', 'LLM 智能路由演示', 'LLM 智慧路由示範', 'Demo de enrutador LLM'],
   sub: ['Bedrock GPT-6 · Claude 5.5에서 모델을 바꿀 때 생기는 손실(캐시 재작성, thinking·툴 맥락 유실)을 목업 Converse/Responses API로 보여주고, 라우팅이 고정 모델보다 실제로 나은지 냉정하게 비교해요. 실제 API는 호출하지 않아요.', 'Shows what switching models costs on Bedrock GPT-6 / Claude 5.5 (cache rewrites, lost thinking and tool context) with mock Converse/Responses APIs, and compares routing against fixed models without spin. No real API calls.', '用模拟 Converse/Responses API 展示 Bedrock GPT-6 / Claude 5.5 切换模型的损失（缓存重写、thinking 与工具上下文丢失），并冷静对比路由与固定模型。不调用真实 API。', '用模擬 Converse/Responses API 展示 Bedrock GPT-6 / Claude 5.5 切換模型的損失（快取重寫、thinking 與工具脈絡遺失），並冷靜比較路由與固定模型。不呼叫真實 API。', 'Muestra el coste de cambiar de modelo en Bedrock GPT-6 / Claude 5.5 (caché reescrita, thinking y contexto perdidos) con APIs simuladas y compara el enrutamiento con modelos fijos. Sin llamadas reales.'],
   decH: ['규칙 판단', 'Rule decider', '规则判定', '規則判定', 'Reglas'],
@@ -244,7 +265,7 @@ const COLORS = { turn: '#f97316', random: '#e11d48', heuristic: '#3b82f6', llm: 
 const params = new URLSearchParams(location.search);
 const st = {
   family: params.get('family') === 'gpt' ? 'gpt' : 'claude',
-  decider: params.get('decider') === 'llm' ? 'llm' : 'heuristic',
+  decider: ['llm', 'browser'].includes(params.get('decider')) ? params.get('decider') : 'heuristic',
   mode: ['turn', 'random'].includes(params.get('mode')) ? params.get('mode') : 'session',
   useWf: params.get('wf') !== '0',
   scId: SCENARIOS.some((s) => s.id === params.get('sc')) ? params.get('sc') : SCENARIOS[0].id,
@@ -345,9 +366,9 @@ function renderStats(run) {
   const assumed = run.tiers[0].price.assumed;
   const total = (x) => x.cost + x.deciderCost;
   const items = [
-    [t('sCost'), usd(total(sm)), assumed ? t('sAssumed') : (st.decider === 'llm' ? t('sDecider') : '')],
+    [t('sCost'), usd(total(sm)), assumed ? t('sAssumed') : (['llm', 'browser'].includes(st.decider) ? t('sDecider') : '')],
     [t('tasksOk'), `${sm.tasksOk} / ${sm.tasks}`, ''],
-    [t('nCalls'), sm.calls, [st.decider === 'llm' ? `+${run.overhead.calls} decider` : '', sm.redoCalls ? t('sRedo', { n: sm.redoCalls }) : ''].filter(Boolean).join(' · ')],
+    [t('nCalls'), sm.calls, [['llm', 'browser'].includes(st.decider) ? `+${run.overhead.calls} decider` : '', sm.redoCalls ? t('sRedo', { n: sm.redoCalls }) : ''].filter(Boolean).join(' · ')],
     [t('cacheHit'), `${Math.round(sm.cacheHit * 100)}%`, ''],
     [t('sSw'), `${sm.switches} / ${sm.effortChanges}`, 'model / effort'],
     [t('sRw'), num(sm.rewriteTokens), ''],
@@ -408,6 +429,7 @@ function renderDetail(run) {
 }
 
 function renderAll() {
+  renderBlm();
   if (!st.run) return;
   renderScenarioSelect();
   renderWorkflow(st.run.tiers);
@@ -417,11 +439,121 @@ function renderAll() {
   renderDetail(st.run);
 }
 
+const WEBLLM = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.85/lib/index.js';
+const BLM = [
+  { id: 'nano', name: 'Gemini Nano (Chrome)' },
+  { id: 'Qwen3.5-0.8B', name: 'Qwen3.5 0.8B', f16: 'Qwen3.5-0.8B-q4f16_1-MLC', f32: 'Qwen3.5-0.8B-q4f32_1-MLC', gb: 1.6 },
+  { id: 'Qwen3.5-2B', name: 'Qwen3.5 2B', f16: 'Qwen3.5-2B-q4f16_1-MLC', f32: 'Qwen3.5-2B-q4f32_1-MLC', gb: 2.2 },
+  { id: 'Llama-3.2-1B', name: 'Llama 3.2 1B', f16: 'Llama-3.2-1B-Instruct-q4f16_1-MLC', f32: 'Llama-3.2-1B-Instruct-q4f32_1-MLC', gb: 0.9 },
+];
+const DECISION_SCHEMA = { type: 'object', properties: { tier: { type: 'integer' }, effort: { type: 'string', enum: ['low', 'medium', 'high'] }, reason: { type: 'string' } }, required: ['tier', 'effort', 'reason'] };
+const blm = { engine: null, loading: false, busy: false, memo: new Map(), calls: 0, msg: null };
+$('blmSel').innerHTML = BLM.map((m) => `<option value="${m.id}">${esc(m.name)}${m.gb ? ` · ${m.gb} GB` : ''}</option>`).join('');
+$('blmSel').value = self.LanguageModel ? 'nano' : 'Qwen3.5-0.8B';
+
+function blmProgress(frac) {
+  $('blmBarWrap').hidden = false;
+  $('blmBar').style.width = `${Math.round(frac * 100)}%`;
+  blm.msg = [t('blmLoading', { p: Math.round(frac * 100) }), ''];
+  renderBlm();
+}
+
+function renderBlm() {
+  $('blmBox').hidden = st.decider !== 'browser';
+  const el = $('blmState');
+  let [txt, cls] = blm.msg || ['', ''];
+  if (!blm.loading && blm.engine) {
+    const sm = st.run?.summary;
+    txt = blm.busy ? t('blmDeciding', { m: blm.engine.label }) : t('blmReady', { m: blm.engine.label, n: blm.calls, d: sm?.deciderCalls || 0, f: sm?.deciderFallbacks || 0 });
+    cls = blm.busy ? '' : 'ok';
+  } else if (!blm.loading && !blm.msg) txt = t('blmNeed');
+  el.textContent = txt;
+  el.className = `st ${cls}`;
+}
+
+async function loadNano() {
+  if (!self.LanguageModel || (await LanguageModel.availability()) === 'unavailable') throw new Error(t('blmNoNano'));
+  const monitor = (m) => m.addEventListener('downloadprogress', (e) => blmProgress(e.total ? e.loaded / e.total : e.loaded));
+  (await LanguageModel.create({ monitor })).destroy();
+  return {
+    label: 'Gemini Nano',
+    async complete(system, user) {
+      const s = await LanguageModel.create({ initialPrompts: [{ role: 'system', content: system }] });
+      try { return await s.prompt(user, { responseConstraint: DECISION_SCHEMA }); } finally { s.destroy(); }
+    },
+    unload() {},
+  };
+}
+
+async function loadWebLLM(m) {
+  let gpu = { ok: false, f16: false };
+  try {
+    const ad = navigator.gpu && await navigator.gpu.requestAdapter();
+    if (ad) gpu = { ok: !(ad.isFallbackAdapter || ad.info?.isFallbackAdapter), f16: ad.features.has('shader-f16') };
+  } catch {}
+  if (!gpu.ok) throw new Error(t('blmNoGpu'));
+  const modelId = gpu.f16 ? m.f16 : m.f32;
+  const webllm = await import(WEBLLM);
+  const worker = new Worker('/browserllm/worker.js', { type: 'module' });
+  let mlc;
+  try { mlc = await webllm.CreateWebWorkerMLCEngine(worker, modelId, { initProgressCallback: (p) => blmProgress(p.progress || 0) }); } catch (e) { worker.terminate(); throw e; }
+  const extra = /^Qwen3/.test(modelId) ? { extra_body: { enable_thinking: false } } : {};
+  return {
+    label: m.name,
+    async complete(system, user) {
+      const r = await mlc.chat.completions.create({ messages: [{ role: 'system', content: system }, { role: 'user', content: user }], temperature: 0, max_tokens: 120, ...extra });
+      return r.choices?.[0]?.message?.content || '';
+    },
+    async unload() { try { await mlc.unload(); } finally { worker.terminate(); } },
+  };
+}
+
+/* Strategy comparisons re-ask the same prompts, so each distinct prompt hits the model once. */
+function browserComplete(system, user) {
+  const key = `${blm.engine.label}\n${system}\n${user}`;
+  if (!blm.memo.has(key)) {
+    blm.calls += 1;
+    const p = blm.engine.complete(system, user);
+    p.catch(() => blm.memo.delete(key));
+    blm.memo.set(key, p);
+  }
+  return blm.memo.get(key);
+}
+
+$('blmLoad').addEventListener('click', async () => {
+  if (blm.loading) return;
+  blm.loading = true;
+  $('blmLoad').disabled = true;
+  blm.msg = [t('blmLoading', { p: 0 }), ''];
+  renderBlm();
+  try {
+    const id = $('blmSel').value;
+    const old = blm.engine;
+    blm.engine = null;
+    await old?.unload();
+    blm.engine = id === 'nano' ? await loadNano() : await loadWebLLM(BLM.find((m) => m.id === id));
+    blm.memo.clear();
+    blm.msg = null;
+  } catch (e) {
+    blm.engine = null;
+    blm.msg = [t('blmErr', { e: e.message || e }), 'bad'];
+  } finally {
+    blm.loading = false;
+    $('blmLoad').disabled = false;
+    $('blmBarWrap').hidden = true;
+  }
+  renderBlm();
+  if (blm.engine) run();
+});
+
 let seq = 0;
 async function run() {
   const my = ++seq;
   const sc = scenario();
-  const opts = { family: st.family, decider: st.decider, useWorkflow: st.useWf, mode: st.mode };
+  const live = st.decider === 'browser' && blm.engine;
+  const opts = { family: st.family, decider: st.decider === 'browser' ? (live ? 'browser' : 'llm') : st.decider, useWorkflow: st.useWf, mode: st.mode, complete: live ? browserComplete : null };
+  blm.busy = !!live;
+  renderBlm();
   const res = await runScenario(sc, opts);
   const cmp = [];
   for (const tier of res.tiers) cmp.push({ tier, summary: (await runScenario(sc, { family: st.family, fixedRank: tier.rank })).summary });
@@ -429,6 +561,7 @@ async function run() {
   for (const mode of ['session', 'turn', 'random']) strat.push({ mode, summary: mode === st.mode ? res.summary : (await runScenario(sc, { ...opts, mode })).summary });
   if (my !== seq) return;
   st.run = res; st.cmp = cmp; st.strat = strat;
+  blm.busy = false;
   st.sel = Math.min(st.sel, res.session.state.calls.length - 1);
   const q = new URLSearchParams({ sc: st.custom ? 'custom' : st.scId, family: st.family, mode: st.mode, decider: st.decider, wf: st.useWf ? '1' : '0' });
   history.replaceState(null, '', `?${q}${params.get('lang') ? `&lang=${params.get('lang')}` : ''}`);

@@ -158,3 +158,13 @@ test('Claude request carries Converse-native routing fields', async () => {
   assert.equal(req.additionalModelRequestFields.output_config.effort, 'medium');
   assert.ok(req.system.at(-1).cachePoint && req.messages[0].content.at(-1).cachePoint);
 });
+
+test('browser decider: real model output is used, junk falls back to rules and is counted', async () => {
+  const good = await runScenario(sc('assistant-mix'), { family: 'gpt', decider: 'browser', complete: async () => 'Sure: {"tier": 2, "effort": "high", "reason": "model said so"}' });
+  assert.equal(good.tasks[0].decision.reason, 'model said so');
+  assert.equal(good.summary.deciderFallbacks, 0);
+  assert.ok(good.summary.deciderCost > 0);
+  const junk = await runScenario(sc('assistant-mix'), { family: 'gpt', decider: 'browser', complete: async () => 'tier two please' });
+  assert.equal(junk.summary.deciderFallbacks, junk.summary.deciderCalls);
+  assert.equal(junk.tasks[0].decision.source, 'heuristic');
+});

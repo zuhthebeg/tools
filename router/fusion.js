@@ -88,7 +88,7 @@ Reply with JSON only: {"tier": <int>, "effort": "<effort>", "reason": "<short>"}
 /** Asks a cheap model (GPT-6 Luna / Claude Haiku 5.5) to classify. `complete(system, user)` may be async. */
 export class LLMDecider {
   constructor(complete, tierNames, { fallback = new HeuristicDecider(), maxChars = 6000 } = {}) {
-    Object.assign(this, { complete, tierNames, fallback, maxChars, last: null });
+    Object.assign(this, { complete, tierNames, fallback, maxChars, last: null, calls: 0, fallbacks: 0 });
   }
 
   async decide(req, maxRank) {
@@ -97,6 +97,7 @@ export class LLMDecider {
     let user = (req.text || '').slice(0, this.maxChars);
     if (req.workflow) user = `${wfPrompt(req.workflow)}\n\nFirst user request:\n${user}`;
     this.last = { system, user, raw: null };
+    this.calls += 1;
     try {
       const raw = await this.complete(system, user);
       this.last.raw = raw;
@@ -105,7 +106,9 @@ export class LLMDecider {
       if (Number.isNaN(rank)) throw new Error('bad tier');
       const effort = LOW_EFFORTS.includes(data.effort) ? data.effort : 'medium';
       return applyWorkflow(decision(rank, effort, String(data.reason || '').slice(0, 200), 'llm'), req.workflow, maxRank);
-    } catch {
+    } catch (e) {
+      this.fallbacks += 1;
+      this.last.error = String(e?.message || e);
       return this.fallback.decide(req, maxRank);
     }
   }
@@ -687,13 +690,16 @@ const toolSpecsGpt = (sc) => (sc.tools || []).map((t) => ({
   parameters: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'], additionalProperties: false }, strict: true,
 }));
 
-export function makeDecider(kind, tiers, overhead) {
-  if (kind === 'llm') {
-    return new LLMDecider((system, user) => {
+/** 'llm' uses the scripted classifier; 'browser' calls `complete` (a real in-browser model standing in for Haiku/Luna). */
+export function makeDecider(kind, tiers, overhead, complete = null) {
+  if (kind === 'llm' || kind === 'browser') {
+    const fn = kind === 'browser' && complete ? complete : mockClassifier;
+    return new LLMDecider(async (system, user) => {
+      const raw = await fn(system, user);
       overhead.calls += 1;
       overhead.input += estTokens(system) + estTokens(user);
-      overhead.output += 30;
-      return mockClassifier(system, user);
+      overhead.output += estTokens(raw || '');
+      return raw;
     }, tiers.map((t) => t.label));
   }
   return new HeuristicDecider();
@@ -703,7 +709,7 @@ export function makeDecider(kind, tiers, overhead) {
  * Runs a scripted agent conversation through the routed session against the mock clients.
  * opts: { family: 'claude'|'gpt', decider: 'heuristic'|'llm', useWorkflow, fixedRank }
  */
-export async function runScenario(sc, { family = 'claude', decider = 'heuristic', useWorkflow = true, fixedRank = null, mode = 'session', seed = 7 } = {}) {
+export async function runScenario(sc, { family = 'claude', decider = 'heuristic', useWorkflow = true, fixedRank = null, mode = 'session', seed = 7, complete = null } = {}) {
   const clock = { now: 0, advance(s) { this.now += s; } };
   const tiers = family === 'gpt' ? GPT_TIERS : CLAUDE_TIERS;
   const model = new MockModel(tiers);
@@ -711,7 +717,7 @@ export async function runScenario(sc, { family = 'claude', decider = 'heuristic'
   const kw = {
     clock: () => clock.now,
     workflow: useWorkflow && fixedRank == null ? sc.workflow : null,
-    decider: fixedRank != null ? new FixedDecider(fixedRank, 'low') : makeDecider(decider, tiers, overhead),
+    decider: fixedRank != null ? new FixedDecider(fixedRank, 'low') : makeDecider(decider, tiers, overhead, complete),
     mode: fixedRank != null ? 'session' : mode, seed,
   };
   if (fixedRank != null) Object.assign(kw, { failuresToEscalate: Infinity, escalateOn: () => null });
@@ -787,6 +793,8 @@ export function summarize(s, tasks, tiers, overhead = { calls: 0, input: 0, outp
     rewriteTokens: s.state.calls.filter((c) => c.switched || c.effortChanged).reduce((n, c) => n + c.usage.cacheWrite, 0),
     droppedThinking: s.state.calls.reduce((n, c) => n + c.droppedThinking, 0),
     redoCalls: s.state.calls.filter((c) => c.redo).length,
+    deciderCalls: s.decider.calls || 0,
+    deciderFallbacks: s.decider.fallbacks || 0,
   };
 }
 
