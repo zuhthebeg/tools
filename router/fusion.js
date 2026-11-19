@@ -22,6 +22,10 @@ export const GPT_TIERS = Object.freeze([
   tier('xlarge', 3, 'global.openai.gpt-6-astra', 'GPT-6 Astra', EFFORTS, 'medium', 1800, price(10, 12.5, 1, 50)),
 ]);
 
+function mulberry32(a) {
+  return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+
 export const clampTier = (tiers, rank) => tiers[Math.max(0, Math.min(rank, tiers.length - 1))];
 
 // ---------------------------------------------------------------- decisions
@@ -143,8 +147,9 @@ export function costOf(p, u) {
  */
 export class RoutedSession {
   constructor(tiers, { decider = new HeuristicDecider(), maxRank = null, allowWarmDowngrade = false,
-    clock = () => Date.now() / 1000, workflow = null, failuresToEscalate = 2 } = {}) {
-    Object.assign(this, { tiers, decider, allowWarmDowngrade, clock, workflow, failuresToEscalate });
+    clock = () => Date.now() / 1000, workflow = null, failuresToEscalate = 2, mode = 'session', seed = 7 } = {}) {
+    Object.assign(this, { tiers, decider, allowWarmDowngrade, clock, workflow, failuresToEscalate, mode });
+    this.rng = mulberry32(seed);
     this.maxRank = maxRank == null ? tiers.length - 1 : maxRank;
     this.state = { tier: null, effort: 'medium', lastCall: 0, usageByModel: {}, history: [], calls: [] };
     this._failures = 0;
@@ -163,12 +168,36 @@ export class RoutedSession {
   async newTask(req) {
     this._failures = 0;
     if (!req.workflow && this.workflow) req = { ...req, workflow: this.workflow };
+    if (this.mode === 'random') return this._randomPin();
     let d = await this.decider.decide(req, this.maxRank);
     const cur = this.state.tier;
-    if (cur && this.cacheWarm() && d.rank < cur.rank && !this.allowWarmDowngrade) {
+    if (this.mode === 'turn') d = { ...d, source: 'turn' };
+    else if (cur && this.cacheWarm() && d.rank < cur.rank && !this.allowWarmDowngrade) {
       d = decision(cur.rank, d.effort, `kept ${cur.name}: cache warm (${d.reason})`, d.source);
     }
     this._pin(clampTier(this.tiers, d.rank), d.effort, d.reason, d.source);
+    return d;
+  }
+
+  /**
+   * Baselines for the comparison: 'turn' re-decides on every call from that call's own input
+   * (a tool-result turn looks trivial), 'random' switches model/effort arbitrarily. 'session' keeps the tier.
+   */
+  async rerouteTurn(req) {
+    if (this.mode === 'session') return null;
+    if (this.mode === 'random') return this._randomPin();
+    const d = await this.decider.decide({ ...req, workflow: req.workflow || this.workflow }, this.maxRank);
+    if (d.rank === this.tier.rank && d.effort === this.state.effort) return d;
+    this._pin(clampTier(this.tiers, d.rank), d.effort, d.reason, 'turn');
+    return d;
+  }
+
+  _randomPin() {
+    const rank = Math.floor(this.rng() * (this.maxRank + 1));
+    const effort = LOW_EFFORTS[Math.floor(this.rng() * LOW_EFFORTS.length)];
+    const d = decision(rank, effort, 'arbitrary switch', 'random');
+    if (this.state.tier && rank === this.state.tier.rank && effort === this.state.effort) return d;
+    this._pin(clampTier(this.tiers, rank), effort, d.reason, 'random');
     return d;
   }
 
@@ -198,8 +227,13 @@ export class RoutedSession {
     st.lastCall = this.clock();
     const acc = (st.usageByModel[tier.modelId] ||= emptyUsage());
     for (const k of Object.keys(acc)) acc[k] += usage[k];
-    const routes = st.history.slice(st.calls.length ? st.calls[st.calls.length - 1].historyLen : 0);
-    st.calls.push({ at: st.lastCall, tier, effort: st.effort, usage, cost: costOf(tier.price, usage), request, response, routes, historyLen: st.history.length });
+    const prev = st.calls[st.calls.length - 1];
+    const routes = st.history.slice(prev ? prev.historyLen : 0);
+    const switched = !!prev && prev.tier.modelId !== tier.modelId;
+    const effortChanged = !!prev && !switched && prev.effort !== st.effort;
+    const mock = response?.$mock || {};
+    st.calls.push({ at: st.lastCall, tier, effort: st.effort, usage, cost: costOf(tier.price, usage), request, response, routes, historyLen: st.history.length,
+      switched, effortChanged, droppedThinking: mock.droppedThinkingTokens || 0, redo: !!mock.redo });
   }
 
   estimatedCost() {
@@ -268,6 +302,7 @@ export class ClaudeSession extends RoutedSession {
       await this.newTask({ text: textOf(msgs), toolCount: (req.toolConfig?.tools || []).length, hint, workflow });
     } else {
       for (const status of claudeToolStatuses(msgs)) this.observeToolResult(status !== 'error');
+      await this.rerouteTurn({ text: '', toolCount: (req.toolConfig?.tools || []).length });
     }
     let resp = await this._call(req);
     const reason = this.escalateOn(resp);
@@ -351,6 +386,7 @@ export class GPTSession extends RoutedSession {
       await this.newTask({ text: userTextOf(req.input), toolCount: (req.tools || []).length, hint, workflow });
     } else {
       for (const status of gptToolStatuses(req.input)) this.observeToolResult(status !== 'error');
+      await this.rerouteTurn({ text: '', toolCount: (req.tools || []).length });
     }
     let resp = await this._call(req);
     const reason = this.escalateOn(resp);
@@ -417,7 +453,12 @@ export class MockModel {
     return t.rank;
   }
 
-  next(rank, done) {
+  /** `lost`: the reasoning behind the previous tool call was dropped, so the model re-reads it (assumption). */
+  next(rank, done, lost = false) {
+    if (lost && done.size) {
+      const last = [...done].pop();
+      return { kind: 'tool', step: (this.task?.steps || []).find((s) => s.tool === last) || { tool: last }, valid: true, redo: true };
+    }
     const step = (this.task?.steps || []).find((s) => !done.has(s.tool));
     if (!step) return { kind: 'final' };
     if (step.refuseBelow != null && rank < step.refuseBelow) return { kind: 'refuse', step };
@@ -462,26 +503,42 @@ export class MockBedrockRuntime {
     const tools = req.toolConfig?.tools;
     if (tools?.length) segs.push({ text: JSON.stringify(stripCachePoints(tools)), point: hasCachePoint(tools) });
     if (req.system?.length) segs.push({ text: JSON.stringify(stripCachePoints(req.system)), point: hasCachePoint(req.system) });
+    // Thinking blocks are bound to the model that wrote them: a lower tier drops them (Bedrock
+    // model_binding_mismatch). Only the active tool loop matters for continuity.
+    const loop = loopStart(req.messages);
+    let dropped = 0, latestDropped = false;
     req.messages.forEach((m, i) => {
+      const content = stripCachePoints(m.content).filter((b) => {
+        if (!b.reasoningContent) return true;
+        const by = +(/^mock-(\d+)-/.exec(b.reasoningContent.reasoningText?.signature || '') || [0, rank])[1];
+        if (by <= rank) { if (i >= loop) latestDropped = false; return true; }
+        dropped += estTokens(b.reasoningContent.reasoningText?.text || '');
+        if (i >= loop) latestDropped = true;
+        return false;
+      });
       // Changing thinking/effort invalidates cached message blocks (tools/system survive).
-      const text = (i === 0 ? `effort=${effort}|` : '') + JSON.stringify({ role: m.role, content: stripCachePoints(m.content) });
+      const text = (i === 0 ? `effort=${effort}|` : '') + JSON.stringify({ role: m.role, content });
       segs.push({ text, point: hasCachePoint(m.content) });
     });
     const c = this.cache.apply(req.modelId, segs, ttlSeconds(cachePointTtl(req), 300), this.clock.now);
 
-    const act = this.model.next(rank, claudeDoneTools(req.messages));
+    const act = this.model.next(rank, claudeDoneTools(req.messages), latestDropped);
     let content = [], stopReason = 'end_turn';
     if (act.kind === 'refuse') {
       stopReason = 'content_filtered';
     } else if (act.kind === 'tool') {
       const id = `tooluse_${(++this.seq).toString(36).padStart(6, '0')}`;
       const input = act.valid ? { query: this.model.task?.text?.slice(0, 40) || '' } : {};
-      content = [{ text: `${act.step.tool} 도구를 호출할게요.` }, { toolUse: { toolUseId: id, name: act.step.tool, input } }];
+      content = [{ text: `${act.step.tool} 도구를 ${act.redo ? '다시 ' : ''}호출할게요.` }, { toolUse: { toolUseId: id, name: act.step.tool, input } }];
       stopReason = 'tool_use';
     } else {
       content = [{ text: this.model.answer(this.model.task) }];
     }
     const out = this.model.outputTokens(act.kind, effort);
+    if (act.kind === 'tool') {
+      const think = 'reasoning about prior tool results and the next step. '.repeat(Math.max(1, Math.round((out * 0.6 * 3) / 56)));
+      content.unshift({ reasoningContent: { reasoningText: { text: think, signature: `mock-${rank}-${this.seq}` } } });
+    }
     const latencyMs = 900 + out * 6;
     this.clock.advance(latencyMs / 1000);
     return {
@@ -490,6 +547,7 @@ export class MockBedrockRuntime {
       stopReason,
       usage: { inputTokens: c.uncached, outputTokens: out, totalTokens: c.total + out, cacheReadInputTokens: c.read, cacheWriteInputTokens: c.write },
       metrics: { latencyMs },
+      $mock: { droppedThinkingTokens: dropped, redo: !!act.redo },
     };
   }
 }
@@ -508,11 +566,15 @@ function validateConverse(req) {
   });
 }
 
-function claudeDoneTools(messages) {
-  let start = 0;
+function loopStart(messages) {
   for (let i = messages.length - 1; i >= 0; i--) {
-    if (messages[i].role === 'user' && (messages[i].content || []).some((b) => 'text' in b)) { start = i; break; }
+    if (messages[i].role === 'user' && (messages[i].content || []).some((b) => 'text' in b)) return i;
   }
+  return 0;
+}
+
+function claudeDoneTools(messages) {
+  const start = loopStart(messages);
   const names = {}, done = new Set();
   for (const m of messages.slice(start)) {
     for (const b of m.content || []) {
@@ -641,7 +703,7 @@ export function makeDecider(kind, tiers, overhead) {
  * Runs a scripted agent conversation through the routed session against the mock clients.
  * opts: { family: 'claude'|'gpt', decider: 'heuristic'|'llm', useWorkflow, fixedRank }
  */
-export async function runScenario(sc, { family = 'claude', decider = 'heuristic', useWorkflow = true, fixedRank = null } = {}) {
+export async function runScenario(sc, { family = 'claude', decider = 'heuristic', useWorkflow = true, fixedRank = null, mode = 'session', seed = 7 } = {}) {
   const clock = { now: 0, advance(s) { this.now += s; } };
   const tiers = family === 'gpt' ? GPT_TIERS : CLAUDE_TIERS;
   const model = new MockModel(tiers);
@@ -649,7 +711,8 @@ export async function runScenario(sc, { family = 'claude', decider = 'heuristic'
   const kw = {
     clock: () => clock.now,
     workflow: useWorkflow && fixedRank == null ? sc.workflow : null,
-    decider: fixedRank != null ? new FixedDecider(fixedRank) : makeDecider(decider, tiers, overhead),
+    decider: fixedRank != null ? new FixedDecider(fixedRank, 'low') : makeDecider(decider, tiers, overhead),
+    mode: fixedRank != null ? 'session' : mode, seed,
   };
   if (fixedRank != null) Object.assign(kw, { failuresToEscalate: Infinity, escalateOn: () => null });
   const s = family === 'gpt'
@@ -719,6 +782,11 @@ export function summarize(s, tasks, tiers, overhead = { calls: 0, input: 0, outp
     toolErrors: tasks.reduce((n, t) => n + (t.toolErrors || 0), 0),
     tasksOk: tasks.filter((t) => t.status === 'ok').length,
     tasks: tasks.length,
+    switches: s.state.calls.filter((c) => c.switched).length,
+    effortChanges: s.state.calls.filter((c) => c.effortChanged).length,
+    rewriteTokens: s.state.calls.filter((c) => c.switched || c.effortChanged).reduce((n, c) => n + c.usage.cacheWrite, 0),
+    droppedThinking: s.state.calls.reduce((n, c) => n + c.droppedThinking, 0),
+    redoCalls: s.state.calls.filter((c) => c.redo).length,
   };
 }
 
