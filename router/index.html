@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LLM 스마트 라우터 데모 — tool.cocy.io</title>
-<meta name="description" content="Bedrock GPT-6 / Claude 5.5 계열별 퓨전 라우팅 시뮬레이터. 워크플로 하한, 세션 고정, 캐시, 실패·거절 시 상향을 목업 Converse/Responses API로 시각화">
+<meta name="description" content="Bedrock GPT-6 / Claude 5.5 라우팅 시뮬레이터. 모델·effort 전환 시 캐시 재작성과 thinking·툴 맥락 유실을 목업 Converse/Responses API로 시각화하고 세션 고정·턴 단위·임의 전환을 고정 모델과 비교">
 <link rel="canonical" href="https://tool.cocy.io/router/">
 <link rel="icon" href="/router/icon.svg">
 <link rel="stylesheet" href="/lib/ui.css">
@@ -55,6 +55,10 @@ dialog.rpt::backdrop { background: rgba(2,6,23,.72); }
 .rpt-body code { font-family: var(--mono); font-size: 12px; background: var(--panel-2); border-radius: 4px; padding: 1px 4px; }
 .rpt-body a { color: var(--accent); } .rpt-body ul, .rpt-body ol { padding-left: 22px; } .rpt-body li { margin: 3px 0; }
 .rpt-body blockquote { margin: 8px 0; padding: 4px 12px; border-left: 3px solid var(--line); color: var(--muted); }
+.verdict { border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; font-size: 14px; border: 1px solid var(--line); background: var(--panel-2); }
+.verdict.bad { border-color: rgba(239,68,68,.5); background: rgba(239,68,68,.08); } .verdict.good { border-color: rgba(16,185,129,.45); background: rgba(16,185,129,.08); }
+.verdict small { display: block; color: var(--muted); font-size: 12px; margin-top: 4px; }
+td.loss { color: #fca5a5; } #cmp tr.on { background: rgba(59,130,246,.12); } tr.strat td:first-child { white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -62,7 +66,7 @@ dialog.rpt::backdrop { background: rgba(2,6,23,.72); }
 <div class="wrap">
   <div class="hero">
     <h1>🔀 <span data-i18n="h1">LLM 스마트 라우터 데모</span></h1>
-    <p data-i18n="sub">Bedrock GPT-6 · Claude 5.5를 계열별 퓨전 모델로 라우팅하는 과정을 목업 Converse/Responses API로 시뮬레이션해요. 실제 API는 호출하지 않아요.</p>
+    <p data-i18n="sub">Bedrock GPT-6 · Claude 5.5에서 모델을 바꿀 때 생기는 손실(캐시 재작성, thinking·툴 맥락 유실)을 목업 Converse/Responses API로 보여주고, 라우팅이 고정 모델보다 실제로 나은지 냉정하게 비교해요. 실제 API는 호출하지 않아요.</p>
     <button type="button" class="btn sm rpt-btn" id="rptBtn" aria-haspopup="dialog" data-i18n="rptBtn">📄 임원 보고서 보기</button>
   </div>
 
@@ -70,6 +74,7 @@ dialog.rpt::backdrop { background: rgba(2,6,23,.72); }
     <div class="ctl">
       <div class="seg" id="famSeg"><button data-v="claude" class="on">Claude · Converse</button><button data-v="gpt">GPT · Responses</button></div>
       <select id="scSel" aria-label="workflow"></select>
+      <div class="seg" id="modeSeg"><button data-v="session" class="on" data-i18n="modeS">세션 고정·상향만</button><button data-v="turn" data-i18n="modeT">턴마다 라우팅</button><button data-v="random" data-i18n="modeR">임의 전환</button></div>
       <div class="seg" id="decSeg"><button data-v="heuristic" class="on" data-i18n="decH">규칙 판단</button><button data-v="llm" data-i18n="decL">LLM 판단 (목업)</button></div>
       <label class="chk"><input type="checkbox" id="useWf" checked> <span data-i18n="useWf">워크플로 하한 적용</span></label>
     </div>
@@ -84,9 +89,10 @@ dialog.rpt::backdrop { background: rgba(2,6,23,.72); }
 
   <div class="card">
     <h2 data-i18n="sumH">요약</h2>
+    <div class="verdict" id="verdict"></div>
     <div class="stats" id="stats"></div>
-    <h2 style="margin-top:16px" data-i18n="cmpH">고정 모델과 비교</h2>
-    <div class="tblwrap"><table><thead><tr><th data-i18n="cfg">구성</th><th class="num" data-i18n="tasksOk">성공 작업</th><th class="num" data-i18n="nCalls">호출</th><th class="num" data-i18n="toolErr">도구 오류</th><th class="num" data-i18n="cacheHit">캐시 적중</th><th class="num" data-i18n="cost">비용</th></tr></thead><tbody id="cmp"></tbody></table></div>
+    <h2 style="margin-top:16px" data-i18n="cmpH">전략·고정 모델 비교</h2>
+    <div class="tblwrap"><table><thead><tr><th data-i18n="cfg">구성</th><th class="num" data-i18n="tasksOk">성공 작업</th><th class="num" data-i18n="nCalls">호출</th><th class="num" data-i18n="toolErr">도구 오류</th><th class="num" data-i18n="cacheHit">캐시 적중</th><th class="num" data-i18n="cSw">모델/effort 전환</th><th class="num" data-i18n="cRw">전환 후 캐시 재작성</th><th class="num" data-i18n="cDt">유실 thinking</th><th class="num" data-i18n="cost">비용</th><th class="num" data-i18n="cDelta">최저 고정 대비</th></tr></thead><tbody id="cmp"></tbody></table></div>
   </div>
 
   <div class="card">
@@ -118,6 +124,8 @@ dialog.rpt::backdrop { background: rgba(2,6,23,.72); }
       <li data-i18n="r2">캐시가 살아 있으면(Claude 5분, GPT 30분) 다음 작업에서도 하위 티어로 내리지 않아요. 프롬프트 캐시는 모델별이라 바꾸면 다시 써야 해요.</li>
       <li data-i18n="r3">도구 오류 2회 연속 또는 거절(content_filtered / refusal)이면 effort는 그대로 두고 한 단계 위 티어로 올려요. 이미 최상위면 effort를 high로 올려요.</li>
       <li data-i18n="r4">Claude 5.5 가격은 Bedrock 모델 카드에 없어 Anthropic API 정가(입력 $0.1/$2/$4, 출력 $0.5/$10/$20)를 썼어요. Bedrock 실제 단가는 다를 수 있어요. 캐시 규칙·토큰 수(글자/3)도 단순화한 시뮬레이션이에요.</li>
+      <li data-i18n="r5">Claude는 더 낮은 티어로 내려가면 이전 thinking 블록이 버려져요(Bedrock model_binding_mismatch). 진행 중인 도구 루프에서 이게 생기면 직전 도구를 한 번 다시 호출한다고 가정했어요(↺). GPT의 reasoning item 이동 손실은 확인된 근거가 없어 캐시 손실만 반영했어요.</li>
+      <li data-i18n="r6">비교 전략: '턴마다 라우팅'은 매 호출의 입력만 보고 다시 고르는 일반적인 요청 단위 라우터(도구 결과 턴은 쉬워 보여서 내려감), '임의 전환'은 모델·effort를 무작위로 바꿔요. 최저 고정은 결과를 미리 알고 고른 값이라 실제로는 달성하기 어려운 하한이에요.</li>
     </ul>
   </div>
 
@@ -144,8 +152,31 @@ I18n.define({
   rptLoading: ['불러오는 중…', 'Loading…', '加载中…', '載入中…', 'Cargando…'],
   rptFail: ['보고서를 불러오지 못했어요.', 'Could not load the report.', '无法加载报告。', '無法載入報告。', 'No se pudo cargar el informe.'],
   rptLangNote: ['', 'This report is written in Korean.', '本报告以韩语撰写。', '本報告以韓語撰寫。', 'Este informe está escrito en coreano.'],
+  modeS: ['세션 고정·상향만', 'Session-pinned, upward only', '会话固定·仅升级', '工作階段固定·僅升級', 'Fijo por sesión'],
+  modeT: ['턴마다 라우팅', 'Per-turn routing', '每轮路由', '每輪路由', 'Por turno'],
+  modeR: ['임의 전환', 'Arbitrary switching', '任意切换', '任意切換', 'Cambio arbitrario'],
+  cSw: ['모델/effort 전환', 'Model/effort switches', '模型/effort 切换', '模型/effort 切換', 'Cambios modelo/effort'],
+  cRw: ['전환 후 캐시 재작성', 'Cache rewritten after switch', '切换后缓存重写', '切換後快取重寫', 'Caché reescrita'],
+  cDt: ['유실 thinking', 'Thinking dropped', '丢失 thinking', '遺失 thinking', 'Thinking perdido'],
+  cDelta: ['최저 고정 대비', 'vs best fixed', '对比最佳固定', '對比最佳固定', 'vs mejor fijo'],
+  sSw: ['전환', 'Switches', '切换', '切換', 'Cambios'],
+  sRw: ['재작성 토큰', 'Rewritten tokens', '重写 token', '重寫 token', 'Tokens reescritos'],
+  sDt: ['유실 thinking 토큰', 'Dropped thinking', '丢失 thinking', '遺失 thinking', 'Thinking perdido'],
+  sRedo: ['재호출 {n}회', '{n} redo calls', '重调 {n} 次', '重呼叫 {n} 次', '{n} repeticiones'],
+  vFail: ['이 구성은 {n}건을 끝내지 못했어요. 싸 보여도 품질 손실이에요.', 'This setup failed {n} task(s): cheap, but a quality loss.', '该配置有 {n} 个任务未完成：便宜但有质量损失。', '此配置有 {n} 個任務未完成：便宜但有品質損失。', 'Esta configuración falló {n} tarea(s).'],
+  vWorse: ['최저 고정({m})보다 {p}% 비싸요. 이 워크플로는 모델을 고정하는 편이 나아요.', '{p}% more than the best fixed model ({m}). Pin the model for this workflow.', '比最佳固定（{m}）贵 {p}%。此工作流宜固定模型。', '比最佳固定（{m}）貴 {p}%。此工作流程宜固定模型。', '{p}% más caro que el mejor fijo ({m}).'],
+  vEven: ['최저 고정({m})과 같아요(±{p}%). 라우터는 워크플로 하한을 따라간 것뿐이라 정적 지정으로 충분해요.', 'Same as the best fixed model ({m}, ±{p}%): the router just followed the floor; a static per-workflow model is enough.', '与最佳固定（{m}）持平（±{p}%）：静态指定即可。', '與最佳固定（{m}）持平（±{p}%）：靜態指定即可。', 'Igual que el mejor fijo ({m}, ±{p}%).'],
+  vBetter: ['최저 고정({m})보다 {p}% 싸요. 쉬운 요청과 어려운 요청이 섞인 경우에만 나오는 이득이에요.', '{p}% cheaper than the best fixed model ({m}) — only happens with mixed easy/hard traffic.', '比最佳固定（{m}）便宜 {p}%——仅在难易混合流量下出现。', '比最佳固定（{m}）便宜 {p}%——僅在難易混合流量下出現。', '{p}% más barato que el mejor fijo ({m}).'],
+  vNote: ['최저 고정은 결과를 알고 나서 고른 값이에요. 전환 {sw}회 · 캐시 재작성 {rw} 토큰 · thinking 유실 {dt} 토큰.', 'Best fixed is chosen in hindsight. {sw} switches · {rw} tokens rewritten · {dt} thinking tokens dropped.', '最佳固定为事后选择。切换 {sw} 次 · 重写 {rw} token · 丢失 thinking {dt} token。', '最佳固定為事後選擇。切換 {sw} 次 · 重寫 {rw} token · 遺失 thinking {dt} token。', 'El mejor fijo se elige a posteriori. {sw} cambios · {rw} tokens reescritos · {dt} de thinking perdidos.'],
+  srcTurn: ['턴 단위 재선택', 'per-turn pick', '每轮重选', '每輪重選', 'por turno'],
+  srcRandom: ['임의 전환', 'arbitrary switch', '任意切换', '任意切換', 'arbitrario'],
+  lgSwitch: ['⇄ 모델 전환', '⇄ model switch', '⇄ 模型切换', '⇄ 模型切換', '⇄ cambio de modelo'],
+  lgEffort: ['e effort 전환', 'e effort change', 'e effort 切换', 'e effort 切換', 'e cambio de effort'],
+  lgRewrite: ['전환 후 캐시 재작성', 'cache rewrite after switch', '切换后缓存重写', '切換後快取重寫', 'reescritura tras cambio'],
+  lgDropped: ['유실된 thinking', 'dropped thinking', '丢失的 thinking', '遺失的 thinking', 'thinking perdido'],
+  lgRedo: ['↺ 맥락 유실로 재호출(가정)', '↺ redo after context loss (assumed)', '↺ 上下文丢失后重调（假设）', '↺ 脈絡遺失後重呼叫（假設）', '↺ repetición (supuesto)'],
   h1: ['LLM 스마트 라우터 데모', 'LLM Smart Router Demo', 'LLM 智能路由演示', 'LLM 智慧路由示範', 'Demo de enrutador LLM'],
-  sub: ['Bedrock GPT-6 · Claude 5.5를 계열별 퓨전 모델로 라우팅하는 과정을 목업 Converse/Responses API로 시뮬레이션해요. 실제 API는 호출하지 않아요.', 'Simulates per-family fusion routing for Bedrock GPT-6 and Claude 5.5 against mock Converse/Responses APIs. No real API calls.', '使用模拟的 Converse/Responses API 演示 Bedrock GPT-6 与 Claude 5.5 的分系列融合路由，不调用真实 API。', '使用模擬的 Converse/Responses API 示範 Bedrock GPT-6 與 Claude 5.5 的分系列融合路由，不呼叫真實 API。', 'Simula el enrutamiento por familia de Bedrock GPT-6 y Claude 5.5 con APIs Converse/Responses simuladas. Sin llamadas reales.'],
+  sub: ['Bedrock GPT-6 · Claude 5.5에서 모델을 바꿀 때 생기는 손실(캐시 재작성, thinking·툴 맥락 유실)을 목업 Converse/Responses API로 보여주고, 라우팅이 고정 모델보다 실제로 나은지 냉정하게 비교해요. 실제 API는 호출하지 않아요.', 'Shows what switching models costs on Bedrock GPT-6 / Claude 5.5 (cache rewrites, lost thinking and tool context) with mock Converse/Responses APIs, and compares routing against fixed models without spin. No real API calls.', '用模拟 Converse/Responses API 展示 Bedrock GPT-6 / Claude 5.5 切换模型的损失（缓存重写、thinking 与工具上下文丢失），并冷静对比路由与固定模型。不调用真实 API。', '用模擬 Converse/Responses API 展示 Bedrock GPT-6 / Claude 5.5 切換模型的損失（快取重寫、thinking 與工具脈絡遺失），並冷靜比較路由與固定模型。不呼叫真實 API。', 'Muestra el coste de cambiar de modelo en Bedrock GPT-6 / Claude 5.5 (caché reescrita, thinking y contexto perdidos) con APIs simuladas y compara el enrutamiento con modelos fijos. Sin llamadas reales.'],
   decH: ['규칙 판단', 'Rule decider', '规则判定', '規則判定', 'Reglas'],
   decL: ['LLM 판단 (목업)', 'LLM decider (mock)', 'LLM 判定（模拟）', 'LLM 判定（模擬）', 'LLM (simulado)'],
   useWf: ['워크플로 하한 적용', 'Apply workflow floor', '应用工作流下限', '套用工作流程下限', 'Aplicar mínimo del flujo'],
@@ -179,6 +210,8 @@ I18n.define({
   r2: ['캐시가 살아 있으면(Claude 5분, GPT 30분) 다음 작업에서도 하위 티어로 내리지 않아요. 프롬프트 캐시는 모델별이라 바꾸면 다시 써야 해요.', 'While the cache is warm (Claude 5 min, GPT 30 min) the next task never downgrades. Prompt caches are per model, so switching rewrites them.', '缓存有效期内（Claude 5 分钟，GPT 30 分钟）下一个任务不会降级。提示缓存按模型区分，切换需重写。', '快取有效期間（Claude 5 分鐘，GPT 30 分鐘）下一個任務不會降級。提示快取依模型區分，切換需重寫。', 'Con la caché activa (Claude 5 min, GPT 30 min) no se baja de nivel; la caché es por modelo.'],
   r3: ['도구 오류 2회 연속 또는 거절(content_filtered / refusal)이면 effort는 그대로 두고 한 단계 위 티어로 올려요. 이미 최상위면 effort를 high로 올려요.', 'Two consecutive tool errors or a refusal (content_filtered / refusal) move one tier up keeping effort; at the top tier, effort goes to high.', '连续 2 次工具错误或拒绝时保持 effort 升一级；已是最高层级则将 effort 提到 high。', '連續 2 次工具錯誤或拒絕時保持 effort 升一級；已是最高層級則將 effort 提到 high。', 'Dos errores seguidos o un rechazo suben un nivel manteniendo el esfuerzo; en el nivel máximo, esfuerzo high.'],
   r4: ['Claude 5.5 가격은 Bedrock 모델 카드에 없어 Anthropic API 정가(입력 $0.1/$2/$4, 출력 $0.5/$10/$20)를 썼어요. Bedrock 실제 단가는 다를 수 있어요. 캐시 규칙·토큰 수(글자/3)도 단순화한 시뮬레이션이에요.', 'Claude 5.5 prices are not on the Bedrock model cards, so Anthropic API list prices are used (input $0.1/$2/$4, output $0.5/$10/$20); Bedrock may differ. Cache rules and token counts (chars/3) are simplified.', 'Claude 5.5 价格未列于 Bedrock 模型卡，采用 Anthropic API 标价（输入 $0.1/$2/$4，输出 $0.5/$10/$20），Bedrock 实际价格可能不同。缓存规则与 token 数（字符/3）均为简化模拟。', 'Claude 5.5 價格未列於 Bedrock 模型卡，採用 Anthropic API 標價（輸入 $0.1/$2/$4，輸出 $0.5/$10/$20），Bedrock 實際價格可能不同。快取規則與 token 數（字元/3）皆為簡化模擬。', 'Los precios de Claude 5.5 no figuran en Bedrock; se usan los de la API de Anthropic (entrada $0.1/$2/$4, salida $0.5/$10/$20). Bedrock puede variar. Reglas de caché y tokens (caracteres/3) simplificados.'],
+  r5: ['Claude는 더 낮은 티어로 내려가면 이전 thinking 블록이 버려져요(Bedrock model_binding_mismatch). 진행 중인 도구 루프에서 이게 생기면 직전 도구를 한 번 다시 호출한다고 가정했어요(↺). GPT의 reasoning item 이동 손실은 확인된 근거가 없어 캐시 손실만 반영했어요.', 'Claude drops earlier thinking blocks when moving to a lower tier (Bedrock model_binding_mismatch); inside an active tool loop we assume the model re-runs the previous tool once (↺). GPT reasoning-item loss is unverified, so only cache loss is modelled.', 'Claude 降到更低档位时会丢弃之前的 thinking 块；在工具循环中假设模型重调一次上一个工具（↺）。GPT 仅计入缓存损失。', 'Claude 降到更低檔位時會丟棄之前的 thinking 區塊；在工具迴圈中假設模型重呼叫一次上一個工具（↺）。GPT 僅計入快取損失。', 'Claude descarta el thinking previo al bajar de nivel; suponemos que repite la herramienta anterior (↺). En GPT solo se modela la caché.'],
+  r6: ['비교 전략: \'턴마다 라우팅\'은 매 호출의 입력만 보고 다시 고르는 일반적인 요청 단위 라우터(도구 결과 턴은 쉬워 보여서 내려감), \'임의 전환\'은 모델·effort를 무작위로 바꿔요. 최저 고정은 결과를 미리 알고 고른 값이라 실제로는 달성하기 어려운 하한이에요.', 'Strategies: per-turn routing re-picks from each call\'s own input (tool-result turns look easy, so it drops down); arbitrary switching picks model/effort at random. Best fixed is chosen in hindsight, a lower bound you rarely reach.', '对比策略：每轮路由只看当次输入重选（工具结果轮看似简单会降级），任意切换随机选择模型/effort。最佳固定为事后选择。', '比較策略：每輪路由只看當次輸入重選（工具結果輪看似簡單會降級），任意切換隨機選擇模型/effort。最佳固定為事後選擇。', 'Por turno vuelve a elegir con la entrada de cada llamada; arbitrario elige al azar. El mejor fijo se elige a posteriori.'],
   router: ['스마트 라우터', 'Smart router', '智能路由', '智慧路由', 'Enrutador'],
   fixed: ['{m} 고정', 'Fixed {m}', '固定 {m}', '固定 {m}', '{m} fijo'],
   sCost: ['추정 비용', 'Est. cost', '估算成本', '估算成本', 'Coste est.'],
@@ -206,15 +239,16 @@ const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<
 const loc = (v) => (Array.isArray(v) ? (I18n.lang === 'ko' ? v[0] : v[1] || v[0]) : v);
 const usd = (v) => (v == null ? '—' : v < 0.01 ? `$${v.toFixed(5)}` : `$${v.toFixed(4)}`);
 const num = (n) => n.toLocaleString();
-const COLORS = { heuristic: '#3b82f6', llm: '#a855f7', external: '#22d3ee', kept: '#94a3b8', escalate: '#ef4444', fixed: '#64748b', cont: '#475569' };
+const COLORS = { turn: '#f97316', random: '#e11d48', heuristic: '#3b82f6', llm: '#a855f7', external: '#22d3ee', kept: '#94a3b8', escalate: '#ef4444', fixed: '#64748b', cont: '#475569' };
 
 const params = new URLSearchParams(location.search);
 const st = {
   family: params.get('family') === 'gpt' ? 'gpt' : 'claude',
   decider: params.get('decider') === 'llm' ? 'llm' : 'heuristic',
+  mode: ['turn', 'random'].includes(params.get('mode')) ? params.get('mode') : 'session',
   useWf: params.get('wf') !== '0',
   scId: SCENARIOS.some((s) => s.id === params.get('sc')) ? params.get('sc') : SCENARIOS[0].id,
-  custom: null, sel: 0, run: null, cmp: [],
+  custom: null, sel: 0, run: null, cmp: [], strat: [],
 };
 const scenario = () => st.custom || SCENARIOS.find((s) => s.id === st.scId);
 
@@ -228,6 +262,8 @@ function seg(id, key) {
 function kindOf(call, i, run) {
   const r = call.routes.find((x) => x.source === 'escalate');
   if (r) return 'escalate';
+  const sw = call.routes.find((x) => x.source === 'turn' || x.source === 'random');
+  if (sw) return sw.source;
   if (run.tasks.some((tk) => tk.firstCall === i)) {
     const d = call.routes[0];
     if (!d) return 'cont';
@@ -280,9 +316,16 @@ function renderChart(run) {
   calls.forEach((c, i) => {
     const u = c.usage;
     const k = kindOf(c, i, run);
-    const parts = [[u.cacheRead, '#10b981'], [u.cacheWrite, '#f59e0b'], [u.input, '#3b82f6']];
+    const parts = [[u.cacheRead, '#10b981'], [u.cacheWrite, c.switched || c.effortChanged ? '#ef4444' : '#f59e0b'], [u.input, '#3b82f6']];
     let yy = by + barH;
     for (const [v, col] of parts) { const h = (v / maxTok) * barH; yy -= h; if (h > 0) s += `<rect x="${x(i) - 9}" y="${yy}" width="18" height="${h}" fill="${col}" opacity=".85"/>`; }
+    if (c.droppedThinking) { const h = Math.max(3, (c.droppedThinking / maxTok) * barH * 4); s += `<rect x="${x(i) - 9}" y="${yy - h - 2}" width="18" height="${h}" fill="none" stroke="#94a3b8" stroke-dasharray="2 2"><title>${esc(t('lgDropped'))} ${c.droppedThinking}</title></rect>`; }
+    if (c.switched || c.effortChanged) {
+      const xm = x(i) - step / 2;
+      s += `<line x1="${xm}" x2="${xm}" y1="${top - 4}" y2="${top + plotH}" stroke="${c.switched ? '#ef4444' : '#f59e0b'}" stroke-width="1.5" opacity=".7"/>`;
+      s += `<text x="${xm - 5}" y="${top + plotH + 14}" style="fill:${c.switched ? '#f87171' : '#fbbf24'};font-weight:700">${c.switched ? '⇄' : 'e'}</text>`;
+    }
+    if (c.redo) s += `<text x="${x(i) + 7}" y="${y(c.tier.rank) - 8}" style="fill:#fca5a5;font-weight:700">↺</text>`;
     const big = k !== 'cont';
     s += `<circle class="pt${i === st.sel ? ' sel' : ''}" data-i="${i}" cx="${x(i)}" cy="${y(c.tier.rank)}" r="${big ? 8 : 5}" fill="${COLORS[k] || COLORS.cont}"><title>#${i + 1} ${esc(c.tier.label)} · ${esc(c.effort)}</title></circle>`;
     if (requestToolErrors(c.request)) s += `<text x="${x(i) - 4}" y="${y(c.tier.rank) + 22}" style="fill:#f87171;font-weight:700">✕</text>`;
@@ -290,29 +333,50 @@ function renderChart(run) {
     s += `<text x="${x(i) - 6}" y="${H - 4}">${i + 1}</text>`;
   });
   $('chart').innerHTML = s + '</svg>';
-  const lg = [['heuristic', t('srcHeuristic')], ['llm', t('srcLlm')], ['kept', t('srcKept')], ['escalate', t('srcEsc')], ['cont', t('srcCont')]];
+  const lg = [['heuristic', t('srcHeuristic')], ['llm', t('srcLlm')], ['turn', t('srcTurn')], ['random', t('srcRandom')], ['kept', t('srcKept')], ['escalate', t('srcEsc')], ['cont', t('srcCont')]];
   $('legend').innerHTML = lg.map(([k, l]) => `<span style="--c:${COLORS[k]}">${esc(l)}</span>`).join('')
-    + `<span style="--c:#10b981">cache read</span><span style="--c:#f59e0b">cache write</span><span style="--c:#3b82f6">uncached</span>`
+    + `<span style="--c:#10b981">cache read</span><span style="--c:#f59e0b">cache write</span><span style="--c:#ef4444">${esc(t('lgRewrite'))}</span><span style="--c:#3b82f6">uncached</span><span style="--c:transparent;outline:1px dashed #94a3b8">${esc(t('lgDropped'))}</span>`
+    + `<span style="--c:transparent">${esc(t('lgSwitch'))}</span><span style="--c:transparent">${esc(t('lgEffort'))}</span><span style="--c:transparent">${esc(t('lgRedo'))}</span>`
     + `<span style="--c:transparent">✕ ${esc(t('toolErrMark'))}</span><span style="--c:transparent">⊘ ${esc(t('refusedMark'))}</span>`;
 }
 
 function renderStats(run) {
   const sm = run.summary;
   const assumed = run.tiers[0].price.assumed;
+  const total = (x) => x.cost + x.deciderCost;
   const items = [
-    [t('sCost'), usd(sm.cost + sm.deciderCost), assumed ? t('sAssumed') : (st.decider === 'llm' ? t('sDecider') : '')],
+    [t('sCost'), usd(total(sm)), assumed ? t('sAssumed') : (st.decider === 'llm' ? t('sDecider') : '')],
     [t('tasksOk'), `${sm.tasksOk} / ${sm.tasks}`, ''],
-    [t('nCalls'), sm.calls, st.decider === 'llm' ? `+${run.overhead.calls} decider` : ''],
+    [t('nCalls'), sm.calls, [st.decider === 'llm' ? `+${run.overhead.calls} decider` : '', sm.redoCalls ? t('sRedo', { n: sm.redoCalls }) : ''].filter(Boolean).join(' · ')],
     [t('cacheHit'), `${Math.round(sm.cacheHit * 100)}%`, ''],
+    [t('sSw'), `${sm.switches} / ${sm.effortChanges}`, 'model / effort'],
+    [t('sRw'), num(sm.rewriteTokens), ''],
+    [t('sDt'), num(sm.droppedThinking), ''],
     [t('sEsc'), sm.escalations, ''],
-    [t('toolErr'), sm.toolErrors, ''],
   ];
   $('stats').innerHTML = items.map(([k, v, n]) => `<div class="stat"><small>${esc(k)}</small><b>${esc(v)}</b>${n ? `<small>${esc(n)}</small>` : ''}</div>`).join('');
-  const rows = [[t('router'), run.summary], ...st.cmp.map((r) => [t('fixed', { m: r.tier.label }), r.summary])];
-  const best = Math.min(...rows.filter(([, s]) => s.tasksOk === s.tasks).map(([, s]) => s.cost + s.deciderCost));
-  $('cmp').innerHTML = rows.map(([name, s], i) => {
-    const c = s.cost + s.deciderCost;
-    return `<tr><td>${i === 0 ? `<b>${esc(name)}</b>` : esc(name)}</td><td class="num">${s.tasksOk} / ${s.tasks}</td><td class="num">${s.calls}</td><td class="num">${s.toolErrors}</td><td class="num">${Math.round(s.cacheHit * 100)}%</td><td class="num${c === best && s.tasksOk === s.tasks ? ' best' : ''}">${usd(c)}</td></tr>`;
+  const okFixed = st.cmp.filter((r) => r.summary.tasksOk === r.summary.tasks);
+  const bestFixed = okFixed.sort((a, b) => total(a.summary) - total(b.summary))[0];
+  const delta = (x) => (bestFixed && x.tasksOk === x.tasks ? Math.round(((total(x) - total(bestFixed.summary)) / total(bestFixed.summary)) * 100) : null);
+  const v = $('verdict');
+  const d = delta(sm);
+  const note = t('vNote', { sw: sm.switches + sm.effortChanges, rw: num(sm.rewriteTokens), dt: num(sm.droppedThinking) });
+  if (sm.tasksOk < sm.tasks) { v.className = 'verdict bad'; v.innerHTML = `${esc(t('vFail', { n: sm.tasks - sm.tasksOk }))}<small>${esc(note)}</small>`; }
+  else if (d == null) { v.className = 'verdict'; v.innerHTML = `<small>${esc(note)}</small>`; }
+  else {
+    const m = bestFixed.tier.label;
+    const [cls, key] = d > 3 ? ['bad', 'vWorse'] : d < -3 ? ['good', 'vBetter'] : ['', 'vEven'];
+    v.className = `verdict ${cls}`;
+    v.innerHTML = `${esc(t(key, { m, p: Math.abs(d) }))}<small>${esc(note)}</small>`;
+  }
+  const modeName = { session: t('modeS'), turn: t('modeT'), random: t('modeR') };
+  const rows = [...st.strat.map((r) => [modeName[r.mode], r.summary, r.mode === st.mode]), ...st.cmp.map((r) => [t('fixed', { m: r.tier.label }), r.summary, false])];
+  $('cmp').innerHTML = rows.map(([name, x, on], i) => {
+    const c = total(x), dd = delta(x), isBest = bestFixed && x === bestFixed.summary;
+    const fail = x.tasksOk < x.tasks;
+    return `<tr class="${i < st.strat.length ? 'strat' : ''}${on ? ' on' : ''}"><td>${on ? `<b>${esc(name)}</b>` : esc(name)}</td><td class="num${fail ? ' loss' : ''}">${x.tasksOk} / ${x.tasks}</td><td class="num">${x.calls}</td><td class="num">${x.toolErrors}</td><td class="num">${Math.round(x.cacheHit * 100)}%</td>`
+      + `<td class="num">${x.switches} / ${x.effortChanges}</td><td class="num${x.rewriteTokens ? ' loss' : ''}">${num(x.rewriteTokens)}</td><td class="num${x.droppedThinking ? ' loss' : ''}">${num(x.droppedThinking)}</td>`
+      + `<td class="num${isBest ? ' best' : ''}">${usd(c)}</td><td class="num${dd > 3 ? ' loss' : ''}">${dd == null ? '—' : `${dd > 0 ? '+' : ''}${dd}%`}</td></tr>`;
   }).join('');
 }
 
@@ -323,7 +387,7 @@ function renderCalls(run) {
     const k = kindOf(c, i, run);
     const why = c.routes.map((r) => r.reason).join(' → ');
     const u = c.usage;
-    const mark = (requestToolErrors(c.request) ? ' <span style="color:#f87171">✕</span>' : '') + (isRefusal(c.response) ? ' <span style="color:#fbbf24">⊘</span>' : '');
+    const mark = (c.switched ? ' <span style="color:#f87171">⇄</span>' : c.effortChanged ? ' <span style="color:#fbbf24">e</span>' : '') + (c.redo ? ' <span style="color:#fca5a5">↺</span>' : '') + (requestToolErrors(c.request) ? ' <span style="color:#f87171">✕</span>' : '') + (isRefusal(c.response) ? ' <span style="color:#fbbf24">⊘</span>' : '');
     return `<tr data-i="${i}" class="${i === st.sel ? 'on' : ''}"><td>${i + 1}${mark}</td><td>${taskOf(i) + 1}</td><td><span class="src" style="--c:${COLORS[k]}"></span>${esc(c.tier.label)}</td><td>${esc(c.effort)}</td><td class="why">${esc(why || '—')}</td><td class="num">${num(u.input + u.cacheRead + u.cacheWrite)} <span class="why">(${num(u.cacheRead)}/${num(u.cacheWrite)})</span></td><td class="num">${num(u.output)}</td><td class="num">${usd(c.cost)}</td></tr>`;
   }).join('');
 }
@@ -357,14 +421,16 @@ let seq = 0;
 async function run() {
   const my = ++seq;
   const sc = scenario();
-  const opts = { family: st.family, decider: st.decider, useWorkflow: st.useWf };
+  const opts = { family: st.family, decider: st.decider, useWorkflow: st.useWf, mode: st.mode };
   const res = await runScenario(sc, opts);
   const cmp = [];
   for (const tier of res.tiers) cmp.push({ tier, summary: (await runScenario(sc, { family: st.family, fixedRank: tier.rank })).summary });
+  const strat = [];
+  for (const mode of ['session', 'turn', 'random']) strat.push({ mode, summary: mode === st.mode ? res.summary : (await runScenario(sc, { ...opts, mode })).summary });
   if (my !== seq) return;
-  st.run = res; st.cmp = cmp;
+  st.run = res; st.cmp = cmp; st.strat = strat;
   st.sel = Math.min(st.sel, res.session.state.calls.length - 1);
-  const q = new URLSearchParams({ sc: st.custom ? 'custom' : st.scId, family: st.family, decider: st.decider, wf: st.useWf ? '1' : '0' });
+  const q = new URLSearchParams({ sc: st.custom ? 'custom' : st.scId, family: st.family, mode: st.mode, decider: st.decider, wf: st.useWf ? '1' : '0' });
   history.replaceState(null, '', `?${q}${params.get('lang') ? `&lang=${params.get('lang')}` : ''}`);
   if (!st.custom) $('scJson').value = JSON.stringify(sc, null, 2);
   renderAll();
@@ -372,6 +438,7 @@ async function run() {
 
 seg('famSeg', 'family');
 seg('decSeg', 'decider');
+seg('modeSeg', 'mode');
 $('useWf').checked = st.useWf;
 $('useWf').addEventListener('change', (e) => { st.useWf = e.target.checked; run(); });
 $('scSel').addEventListener('change', (e) => { if (e.target.value !== 'custom') { st.scId = e.target.value; st.custom = null; } st.sel = 0; run(); });
@@ -415,7 +482,7 @@ run();
 <script>
 SiteMeta.init({
   title: 'LLM 스마트 라우터 데모 — tool.cocy.io',
-  description: 'Bedrock GPT-6 / Claude 5.5 계열별 퓨전 라우팅 시뮬레이터. 워크플로 하한, 세션 고정, 캐시, 실패·거절 시 상향을 목업 Converse/Responses API로 시각화',
+  description: 'Bedrock GPT-6 / Claude 5.5 라우팅 시뮬레이터. 모델·effort 전환 시 캐시 재작성과 thinking·툴 맥락 유실을 목업 Converse/Responses API로 시각화하고 세션 고정·턴 단위·임의 전환을 고정 모델과 비교',
   url: 'https://tool.cocy.io/router/'
 });
 </script>

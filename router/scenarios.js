@@ -1,17 +1,19 @@
-// Demo agent workflows. `steps` in a task are hidden ground truth for the mock model:
-// `needs` = lowest tier rank that calls the tool correctly, `refuseBelow` = ranks below refuse.
+// Demo agent workflows (internal workplace agents). `steps` in a task are hidden ground truth for
+// the mock model: `needs` = lowest tier rank that calls the tool correctly, `refuseBelow` = ranks below refuse.
+// Task texts deliberately include misleading cases for the rule decider (an easy request with a
+// "hard" keyword, a hard request without one), so the router is not graded on its own answer key.
 
-const policy = (title, n) => `${title}\n` + Array.from({ length: n }, (_, i) => `${i + 1}. 고객 응대 정책 조항 ${i + 1}: 본인 확인 후 처리하고, 판단 근거와 처리 결과를 기록한다.`).join('\n');
+const policy = (title, n) => `${title}\n` + Array.from({ length: n }, (_, i) => `${i + 1}. 사내 업무 지침 ${i + 1}: 사내 시스템 권한 범위 안에서 처리하고, 근거 문서와 처리 결과를 남긴다.`).join('\n');
 
 export const SCENARIOS = [
   {
     id: 'assistant-mix',
     title: ['사내 업무 비서 (혼합 트래픽)', 'Workplace assistant (mixed traffic)'],
-    desc: ['대부분 단순 조회, 가끔 어려운 분석이 섞인 일반 에이전트 트래픽. 라우팅 효과가 가장 잘 드러나는 형태예요.', 'Mostly simple lookups with an occasional hard analysis — the traffic shape where routing pays off.'],
+    desc: ['단순 조회 위주에 가끔 어려운 요청이 섞여요. 규칙 판단이 틀리는 요청(쉬운데 "보고서"가 들어간 요청, 어려운데 키워드가 없는 요청)도 있어요.', 'Mostly lookups with occasional hard requests, including ones the rule decider misjudges.'],
     system: policy('너는 사내 업무 비서 에이전트다.', 200),
     workflow: {
       name: 'workplace-assistant',
-      description: '사내 문서 검색·일정·메일 초안 비서',
+      description: '사내 문서 검색·일정 비서',
       steps: [
         { name: 'search_docs', kind: 'observe', description: '사내 문서 검색' },
         { name: 'calendar', kind: 'observe', description: '일정 조회' },
@@ -23,89 +25,107 @@ export const SCENARIOS = [
       { name: 'calendar', description: '일정 조회', resultChars: 900 },
     ],
     tasks: [
-      { text: '내일 오전 회의 일정 알려줘', steps: [{ tool: 'calendar' }], answer: '10시 주간회의, 11시 30분 고객 미팅이 있어요.' },
+      { text: '내일 오전 회의 일정 알려줘', steps: [{ tool: 'calendar' }], answer: '10시 주간회의, 11시 30분 파트 회의가 있어요.' },
       { gapBefore: 420, text: '연차 신청 절차 문서 찾아줘', steps: [{ tool: 'search_docs' }], answer: '인사포털 > 근태 > 연차 신청 문서예요.' },
       { gapBefore: 400, text: '이번 분기 장애 보고서 3건을 비교해서 공통 원인과 재발 방지 계획을 정리해줘', steps: [{ tool: 'search_docs', needs: 2 }], answer: '세 건 모두 배포 직후 설정 누락이 원인이라 배포 체크리스트 자동화를 제안해요.' },
-      { gapBefore: 2000, text: '회의실 예약 방법 알려줘', steps: [{ tool: 'search_docs' }], answer: '그룹웨어 > 자원예약에서 할 수 있어요.' },
-      { gapBefore: 360, text: '다음 주 출장 일정 정리해줘', steps: [{ tool: 'calendar' }], answer: '수요일 부산 출장, 목요일 복귀 일정이에요.' },
+      { gapBefore: 2000, text: '주간 보고서 양식 파일 어디 있어?', steps: [{ tool: 'search_docs' }], answer: '공유 드라이브 > 양식 > 주간보고.docx 예요.' },
+      { gapBefore: 360, text: '다음 주 팀원 일정이 겹치지 않는 날로 워크숍 날짜 골라줘', steps: [{ tool: 'calendar', needs: 1 }], answer: '다음 주 목요일 오후가 전원 가능해요.' },
       { gapBefore: 330, text: '보안 교육 이수 기한 알려줘', steps: [{ tool: 'search_docs' }], answer: '이번 달 말까지예요.' },
     ],
   },
   {
-    id: 'card-dispute',
-    title: ['카드 이의제기 접수', 'Card dispute intake'],
-    desc: ['거래 조회 → 약관 기준 판단(고위험) → 접수(부작용). 판단 단계가 있어 최소 중형 티어가 하한이에요.', 'Lookup → eligibility judgement (high risk) → filing (side effect). The judgement step sets a medium-tier floor.'],
-    system: policy('너는 카드 이의제기 접수 상담 에이전트다.', 120),
+    id: 'meeting-notes',
+    title: ['회의록 정리·액션 아이템 공지', 'Meeting notes & action items'],
+    desc: ['긴 녹취록 조회 → 액션 아이템 추출(판단) → 메신저 공지(부작용). 짧은 간격으로 후속 요청이 이어져서 모델을 바꾸면 큰 컨텍스트를 매번 다시 써요.', 'Long transcript → extract actions → post to messenger, with quick follow-ups: every switch rewrites a large context.'],
+    system: policy('너는 회의록 정리 에이전트다.', 150),
     workflow: {
-      name: 'card-dispute',
-      description: '카드 이의제기 접수 에이전트',
+      name: 'meeting-notes',
+      description: '회의록 정리 및 액션 아이템 공지 에이전트',
       steps: [
-        { name: 'lookup_txn', kind: 'observe', description: '거래 내역 조회' },
-        { name: 'judge_eligibility', kind: 'plan', description: '약관 기준 이의제기 대상 판단', minTier: 1, risk: 'high' },
-        { name: 'file_dispute', kind: 'mutate', description: '이의제기 접수', risk: 'high' },
-        { name: 'reply', kind: 'respond', description: '결과 안내' },
+        { name: 'read_transcript', kind: 'observe', description: '회의 녹취록 조회' },
+        { name: 'extract_actions', kind: 'plan', description: '담당자·마감일별 액션 아이템 추출', minTier: 1 },
+        { name: 'post_actions', kind: 'mutate', description: '사내 메신저에 공지', risk: 'high' },
       ],
     },
     tools: [
-      { name: 'lookup_txn', description: '고객 카드 거래 내역 조회', resultChars: 2400 },
-      { name: 'judge_eligibility', description: '약관 기준 이의제기 가능 여부 판단', resultChars: 900 },
-      { name: 'file_dispute', description: '이의제기 접수 등록', resultChars: 300 },
+      { name: 'read_transcript', description: '회의 녹취록 조회', resultChars: 12000 },
+      { name: 'extract_actions', description: '액션 아이템 구조화', resultChars: 1500 },
+      { name: 'post_actions', description: '사내 메신저 공지 등록', resultChars: 300 },
     ],
     tasks: [
-      {
-        text: '지난주 해외 결제 중 같은 가맹점에서 두 번 결제된 건이 있어요. 이의제기 접수해 주세요.',
-        steps: [{ tool: 'lookup_txn' }, { tool: 'judge_eligibility', needs: 1 }, { tool: 'file_dispute' }],
-        answer: '중복 결제 1건을 확인해 이의제기를 접수했어요. 접수번호 D-20311.',
-      },
-      {
-        gapBefore: 60,
-        text: '그 건 말고, 부분 환불 받은 뒤에 다시 청구된 건도 있는데 이것도 이의제기 대상인지 검토해서 접수해 주세요.',
-        steps: [{ tool: 'lookup_txn' }, { tool: 'judge_eligibility', needs: 2 }, { tool: 'file_dispute' }],
-        answer: '부분 환불 후 재청구된 금액은 이의제기 대상이라 접수했어요. 접수번호 D-20312.',
-      },
+      { text: '오늘 주간회의 녹취록 정리해서 액션 아이템을 담당자별로 메신저에 공지해줘', steps: [{ tool: 'read_transcript' }, { tool: 'extract_actions', needs: 1 }, { tool: 'post_actions' }], answer: '액션 아이템 7건을 담당자별로 공지했어요.' },
+      { gapBefore: 90, text: '마감일 빠진 항목만 다시 확인해서 보완 공지해줘', steps: [{ tool: 'read_transcript' }, { tool: 'extract_actions', needs: 1 }, { tool: 'post_actions' }], answer: '마감일이 빠진 2건을 보완해서 공지했어요.' },
+      { gapBefore: 120, text: '참석자별 발언 요약을 한 줄씩 추가해줘', steps: [{ tool: 'read_transcript' }, { tool: 'extract_actions', needs: 1 }], answer: '참석자 6명의 발언 요약을 추가했어요.' },
     ],
   },
   {
-    id: 'faq',
-    title: ['카드 FAQ 상담', 'Card FAQ assistant'],
-    desc: ['검색 → 답변만 있는 단순 워크플로. 하한이 없어서 요청 난이도로만 고르고, 작업 간격에 따라 캐시 유지/하향이 갈려요.', 'Search → answer only. No floor, so the request decides; the gap between tasks decides whether the cache keeps the tier.'],
-    system: policy('너는 카드 FAQ 상담 에이전트다.', 80),
+    id: 'incident-report',
+    title: ['장애 회고 보고서 작성', 'Incident postmortem draft'],
+    desc: ['로그 검색 → 타임라인 → 원인 분석(고위험) → 문서 작성. 처음부터 끝까지 어려운 작업이라 라우팅으로 아낄 여지가 거의 없어요.', 'Logs → timeline → root cause (high risk) → draft. Hard end to end, so routing has little to save.'],
+    system: policy('너는 장애 회고 보고서 작성 에이전트다.', 150),
     workflow: {
-      name: 'card-faq',
-      description: '카드 FAQ 상담 에이전트',
+      name: 'incident-postmortem',
+      description: '장애 회고 보고서 작성 에이전트',
       steps: [
-        { name: 'search_faq', kind: 'observe', description: 'FAQ 검색' },
+        { name: 'search_logs', kind: 'observe', description: '장애 시간대 로그 검색' },
+        { name: 'build_timeline', kind: 'observe', description: '타임라인 구성' },
+        { name: 'analyze_cause', kind: 'plan', description: '근본 원인 분석', minTier: 2, risk: 'high' },
+        { name: 'draft_doc', kind: 'mutate', description: '위키에 보고서 초안 작성' },
+      ],
+    },
+    tools: [
+      { name: 'search_logs', description: '로그 검색', resultChars: 9000 },
+      { name: 'build_timeline', description: '이벤트 타임라인 구성', resultChars: 2400 },
+      { name: 'analyze_cause', description: '근본 원인 분석', resultChars: 1500 },
+      { name: 'draft_doc', description: '위키 문서 작성', resultChars: 300 },
+    ],
+    tasks: [
+      { text: '어제 결제 API 지연 장애 회고 보고서 초안 써줘', steps: [{ tool: 'search_logs' }, { tool: 'build_timeline', needs: 1 }, { tool: 'analyze_cause', needs: 2 }, { tool: 'draft_doc' }], answer: 'DB 커넥션 풀 고갈이 원인이라는 초안을 위키에 올렸어요.' },
+      { gapBefore: 150, text: '재발 방지 항목에 담당 팀과 일정도 넣어줘', steps: [{ tool: 'analyze_cause', needs: 2 }, { tool: 'draft_doc' }], answer: '재발 방지 4건에 담당 팀과 일정을 넣었어요.' },
+    ],
+  },
+  {
+    id: 'weekly-report',
+    title: ['주간 업무 보고 취합', 'Weekly status roll-up'],
+    desc: ['티켓·문서 목록 조회 → 정리. 전부 경량 모델로 충분한 작업이라 라우터는 판단 비용만 더해요.', 'Ticket and doc lookups, then a roll-up. All of it fits the light tier; a router only adds decision cost.'],
+    system: policy('너는 주간 업무 보고 취합 에이전트다.', 120),
+    workflow: {
+      name: 'weekly-report',
+      description: '주간 업무 보고 취합 에이전트',
+      steps: [
+        { name: 'list_tickets', kind: 'observe', description: '이번 주 티켓 조회' },
+        { name: 'list_docs', kind: 'observe', description: '이번 주 작성 문서 조회' },
+        { name: 'reply', kind: 'respond', description: '보고 초안' },
+      ],
+    },
+    tools: [
+      { name: 'list_tickets', description: '이슈 트래커 티켓 조회', resultChars: 3000 },
+      { name: 'list_docs', description: '위키 문서 목록 조회', resultChars: 1800 },
+    ],
+    tasks: [
+      { text: '이번 주 내가 완료한 티켓 목록 뽑아줘', steps: [{ tool: 'list_tickets' }], answer: '완료 티켓 9건이에요.' },
+      { gapBefore: 60, text: '이번 주 내가 작성한 위키 문서 목록도 뽑아줘', steps: [{ tool: 'list_docs' }], answer: '문서 4건이에요.' },
+      { gapBefore: 60, text: '둘을 합쳐서 주간 보고 초안 만들어줘', steps: [{ tool: 'list_tickets' }, { tool: 'list_docs' }], answer: '완료 9건, 문서 4건으로 주간 보고 초안을 만들었어요.' },
+    ],
+  },
+  {
+    id: 'policy-qa',
+    title: ['사내 규정 Q&A', 'HR / policy Q&A'],
+    desc: ['규정 검색 → 답변. 가끔 비교형 질문이 섞여요. Claude는 캐시(5분)가 식으면 다시 내려가고, GPT(30분)는 유지돼요.', 'Policy search → answer with an occasional comparison. Claude (5m cache) can drop back down; GPT (30m) stays.'],
+    system: policy('너는 사내 규정 안내 에이전트다.', 100),
+    workflow: {
+      name: 'policy-qa',
+      description: '사내 규정 안내 에이전트',
+      steps: [
+        { name: 'search_policy', kind: 'observe', description: '사내 규정 검색' },
         { name: 'reply', kind: 'respond', description: '답변' },
       ],
     },
-    tools: [{ name: 'search_faq', description: 'FAQ 문서 검색', resultChars: 1800 }],
+    tools: [{ name: 'search_policy', description: '사내 규정 문서 검색', resultChars: 1800 }],
     tasks: [
-      { text: '체크카드 해외 결제 한도 변경 방법 알려줘', steps: [{ tool: 'search_faq' }], answer: '앱 > 카드 > 한도 설정에서 바꿀 수 있어요.' },
-      { gapBefore: 30, text: '해외 결제 한도랑 ATM 인출 한도 차이를 비교해서 나한테 맞는 설정 추천해줘', steps: [{ tool: 'search_faq', needs: 1 }], answer: '여행 중 현금이 필요하면 ATM 한도를, 온라인 결제가 많으면 결제 한도를 올리세요.' },
-      { gapBefore: 600, text: '카드 분실 신고 번호 알려줘', steps: [{ tool: 'search_faq' }], answer: '1599-0000 으로 24시간 신고할 수 있어요.' },
-    ],
-  },
-  {
-    id: 'loan-review',
-    title: ['대출 서류 사전 검토', 'Loan document pre-check'],
-    desc: ['서류 추출 → 정책 판단(고위험). 두 번째 요청에서 중형 모델이 응답을 거절(시뮬레이션)해 상위 티어로 올라가요.', 'Extract → policy check (high risk). On the second request the medium model refuses (simulated) and the session escalates.'],
-    system: policy('너는 전세대출 서류 사전 검토 에이전트다.', 150),
-    workflow: {
-      name: 'loan-precheck',
-      description: '전세대출 서류 사전 검토 에이전트',
-      steps: [
-        { name: 'extract_docs', kind: 'observe', description: '제출 서류에서 소득·재직 정보 추출' },
-        { name: 'check_policy', kind: 'plan', description: '대출 정책 기준 충족 여부 판단', minTier: 1, risk: 'high' },
-        { name: 'reply', kind: 'respond', description: '검토 결과 안내' },
-      ],
-    },
-    tools: [
-      { name: 'extract_docs', description: '제출 서류 정보 추출', resultChars: 3600 },
-      { name: 'check_policy', description: '대출 정책 기준 판단', resultChars: 1200 },
-    ],
-    tasks: [
-      { text: '제출한 소득증빙 서류로 전세대출 한도 사전 심사 가능한지 정리해 줘', steps: [{ tool: 'extract_docs' }, { tool: 'check_policy', needs: 1 }], answer: '제출 서류 기준으로 사전 심사 요건을 충족해요.' },
-      { gapBefore: 20, text: '배우자 명의 소득도 합산해서 다시 판단해 줘. 배우자 동의서는 아직 없어.', steps: [{ tool: 'extract_docs' }, { tool: 'check_policy', needs: 1, refuseBelow: 2 }], answer: '배우자 동의서가 있어야 합산할 수 있어요. 동의서 제출 후 다시 검토할게요.' },
+      { text: '출장비 정산 기한 알려줘', steps: [{ tool: 'search_policy' }], answer: '출장 종료 후 14일 이내예요.' },
+      { gapBefore: 30, text: '육아휴직 중에 단축근무로 전환하면 급여가 어떻게 달라지는지 비교해줘', steps: [{ tool: 'search_policy', needs: 1 }], answer: '단축근무 전환 시 통상임금 비례로 지급되고 휴직급여는 중단돼요.' },
+      { gapBefore: 600, text: '법인카드 분실 신고 절차 알려줘', steps: [{ tool: 'search_policy' }], answer: '재무팀 포털에서 즉시 정지 후 신고서를 제출해요.' },
     ],
   },
 ];
